@@ -1,0 +1,22 @@
+# Environment files
+.env
+backend/.env
+frontend/.env
+
+# Firebase service account (CRITICAL — never commit)
+backend/firebase-service-account.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Docker volumes
+postgres_data/

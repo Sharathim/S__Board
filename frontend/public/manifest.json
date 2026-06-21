@@ -1,0 +1,14 @@
+{
+  "name": "DPMS – Department Project Management",
+  "short_name": "DPMS",
+  "description": "Department Project Management System",
+  "theme_color": "#4F46E5",
+  "background_color": "#F8FAFC",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    { "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" },
+    { "src": "/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml" }
+  ]
+}
