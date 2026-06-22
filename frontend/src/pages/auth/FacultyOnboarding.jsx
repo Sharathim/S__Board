@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { onboardFaculty } from "../../api/auth";
@@ -9,8 +9,19 @@ import { Spinner } from "../../components/ui/Spinner";
 const ALL_CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"];
 
 export default function FacultyOnboarding() {
-  const { onboardingData, setUser } = useAuth();
+  const { user, loading: authLoading, onboardingData, setOnboardingData, setUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (user) {
+        navigate("/dashboard", { replace: true });
+      } else if (!onboardingData) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [user, onboardingData, authLoading, navigate]);
+
   const [name,        setName]        = useState(onboardingData?.prefill?.name || "");
   const [designation, setDesignation] = useState("Professor");
   const [classes,     setClasses]     = useState([]);
@@ -39,6 +50,7 @@ export default function FacultyOnboarding() {
         designation,
         classes_handling:  classes,
       });
+      setOnboardingData(null);
       setUser(res.data.user);
       sessionStorage.removeItem("loginRole");
       navigate("/dashboard");

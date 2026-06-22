@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { onboardStudent } from "../../api/auth";
@@ -7,8 +7,19 @@ import { Input } from "../../components/ui/Input";
 import { Spinner } from "../../components/ui/Spinner";
 
 export default function StudentOnboarding() {
-  const { onboardingData, setUser } = useAuth();
+  const { user, loading: authLoading, onboardingData, setOnboardingData, setUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (user) {
+        navigate("/classes", { replace: true });
+      } else if (!onboardingData) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [user, onboardingData, authLoading, navigate]);
+
   const [name,           setName]           = useState(onboardingData?.prefill?.name || "");
   const [rollNumber,     setRollNumber]     = useState("");
   const [registerNumber, setRegisterNumber] = useState("");
@@ -41,6 +52,7 @@ export default function StudentOnboarding() {
         register_number: registerNumber.trim(),
         class_name:      selectedClass,
       });
+      setOnboardingData(null);
       setUser(res.data.user);
       sessionStorage.removeItem("loginRole");
       navigate("/classes");

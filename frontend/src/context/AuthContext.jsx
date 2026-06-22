@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, firebaseUser, loading, onboardingData, authError, setAuthError, loginWithGoogle, logout, setUser }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, onboardingData, setOnboardingData, authError, setAuthError, loginWithGoogle, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

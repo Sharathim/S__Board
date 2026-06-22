@@ -85,16 +85,39 @@ def list_projects():
 
 
 @projects_bp.route("/stats", methods=["GET"])
-@require_hod
+@require_auth
 def project_stats():
-    total = Project.query.count()
-    in_progress = Project.query.filter_by(status=ProjectStatus.IN_PROGRESS).count()
-    completed = Project.query.filter_by(status=ProjectStatus.COMPLETED).count()
-    low_activity = Project.query.filter_by(status=ProjectStatus.LOW_ACTIVITY).count()
-    student_count = db.session.execute(
-        text("SELECT COUNT(DISTINCT user_id) FROM project_members pm "
-             "JOIN users u ON u.id = pm.user_id WHERE u.role = 'STUDENT'")
-    ).scalar()
+    user = g.current_user
+    if user.role == UserRole.HOD:
+        total = Project.query.count()
+        in_progress = Project.query.filter_by(status=ProjectStatus.IN_PROGRESS).count()
+        completed = Project.query.filter_by(status=ProjectStatus.COMPLETED).count()
+        low_activity = Project.query.filter_by(status=ProjectStatus.LOW_ACTIVITY).count()
+        student_count = db.session.execute(
+            text("SELECT COUNT(DISTINCT user_id) FROM project_members pm "
+                 "JOIN users u ON u.id = pm.user_id WHERE u.role = 'STUDENT'")
+        ).scalar()
+    else:
+        total = Project.query.filter(Project.members.any(id=user.id)).count()
+        in_progress = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.IN_PROGRESS
+        ).count()
+        completed = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.COMPLETED
+        ).count()
+        low_activity = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.LOW_ACTIVITY
+        ).count()
+        student_count = db.session.execute(
+            text("SELECT COUNT(DISTINCT pm.user_id) FROM project_members pm "
+                 "JOIN users u ON u.id = pm.user_id "
+                 "JOIN project_members pm2 ON pm2.project_id = pm.project_id "
+                 "WHERE u.role = 'STUDENT' AND pm2.user_id = :uid"),
+            {"uid": user.id}
+        ).scalar()
 
     return jsonify({
         "total": total,
