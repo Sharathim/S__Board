@@ -3,24 +3,28 @@ import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import {
   LayoutDashboard, Users, GraduationCap, MessageSquare, FolderKanban,
-  Newspaper, Bell, Settings, HelpCircle, X, ChevronLeft
+  Newspaper, Settings, HelpCircle, X, ChevronLeft
 } from "lucide-react";
 import clsx from "clsx";
 
-const navItems = [
-  { to: "/dashboard", label: "Dashboard",      icon: LayoutDashboard              },
-  { to: "/faculty",   label: "Faculty",         icon: Users                        },
-  { to: "/classes",   label: "Classes",         icon: GraduationCap                },
-  { to: "/forum",     label: "Forum Members",   icon: MessageSquare                },
-  { to: "/projects",  label: "Projects",        icon: FolderKanban                 },
-  { to: "/updates",   label: "Updates",         icon: Newspaper                    },
-  { to: "/notifications", label: "Notifications", icon: Bell, badge: true          },
-  { to: "/settings",  label: "Settings",        icon: Settings                     },
+const allNavItems = [
+  { to: "/dashboard", label: "Dashboard",      icon: LayoutDashboard, roles: ["HOD"]          },
+  { to: "/faculty",   label: "Faculty",         icon: Users,           roles: ["HOD", "FACULTY"] },
+  { to: "/classes",   label: "Classes",         icon: GraduationCap,   roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/forum",     label: "Forum Members",   icon: MessageSquare,   roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/projects",  label: "Projects",        icon: FolderKanban,    roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/updates",   label: "Updates",         icon: Newspaper,       roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/settings",  label: "Settings",        icon: Settings,        roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
 export function Sidebar({ open, onClose, collapsed, onToggle }) {
   const { unreadCount } = useNotificationContext();
   const { user } = useAuth();
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter(item =>
+    !item.roles || item.roles.includes(user?.role)
+  );
 
   return (
     <>

@@ -5,6 +5,7 @@ import { useTheme } from "../../hooks/useTheme";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Avatar } from "../../components/ui/Avatar";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Moon, Sun, Bell, LogOut, User, Shield } from "lucide-react";
 import api from "../../api/axios";
 
@@ -37,10 +38,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your account and preferences</p>
-      </div>
+      <PageHeader title="Settings" subtitle="Manage your account and preferences" />
 
       {/* Profile */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 space-y-4">

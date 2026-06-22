@@ -1,21 +1,30 @@
 ﻿from flask import Blueprint, request, jsonify, g, current_app
 from ..models.user import User, UserRole
 from ..models.invite import InviteLink
+from ..models.faculty import Faculty
+from ..models.student import Student
 from ..extensions import db
 from ..utils.auth_middleware import require_auth
 from ..utils.firebase_tokens import verify_firebase_token
 
 auth_bp = Blueprint("auth", __name__)
 
+CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"]
+
 
 @auth_bp.route("/verify", methods=["POST"])
 def verify_token():
     data = request.get_json()
     id_token = data.get("idToken")
-    invite_token = data.get("inviteToken")
+    role = data.get("role")  # "HOD", "FACULTY", or "STUDENT" — optional for returning users
 
     if not id_token:
         return jsonify({"error": "idToken required"}), 400
+    # A role is only required for a fresh sign-in (to decide HOD vs new-user
+    # onboarding). Returning users restoring a persistent session send no role;
+    # they are identified by their Firebase UID below.
+    if role is not None and role not in ("HOD", "FACULTY", "STUDENT"):
+        return jsonify({"error": "Valid role (HOD/FACULTY/STUDENT) required"}), 400
 
     try:
         decoded = verify_firebase_token(id_token)
@@ -33,7 +42,16 @@ def verify_token():
     name = decoded.get("name", "")
     picture = decoded.get("picture", "")
 
-    if email == current_app.config["HOD_EMAIL"]:
+    # ---- HOD restored session (no role, but email matches the configured HOD) ----
+    # Lets a returning HOD whose DB row is missing be re-created on session
+    # restore instead of being locked out.
+    if role is None and email == current_app.config["HOD_EMAIL"]:
+        role = "HOD"
+
+    # ---- HOD Login ----
+    if role == "HOD":
+        if email != current_app.config["HOD_EMAIL"]:
+            return jsonify({"error": "Unauthorized. HOD email does not match."}), 403
         user = User.query.filter_by(email=email).first()
         if not user:
             user = User(firebase_uid=uid, email=email, name=name,
@@ -43,43 +61,57 @@ def verify_token():
             if user.firebase_uid != uid:
                 user.firebase_uid = uid
         db.session.commit()
-        return jsonify({
-            "user": _serialize_user(user),
-            "onboarding_required": False
-        })
+        return jsonify({"user": _serialize_user(user), "onboarding_required": False})
 
+    # ---- Existing user login (any role) ----
     user = User.query.filter_by(firebase_uid=uid).first()
     if user:
+        return jsonify({"user": _serialize_user(user), "onboarding_required": False})
+
+    # ---- Returning session with no role, but no account found ----
+    # (e.g. account was removed). Don't fall through to onboarding; ask them to
+    # sign in again choosing a role.
+    if role is None:
+        return jsonify({"error": "No account found. Please sign in again."}), 401
+
+    # ---- New user - check if registration is open ----
+    if role == "FACULTY":
+        invite = InviteLink.query.filter_by(link_type="faculty").first()
+        if not invite or not invite.is_active:
+            return jsonify({"error": "New faculty registration is not currently accepted. Please contact HOD."}), 403
         return jsonify({
-            "user": _serialize_user(user),
-            "onboarding_required": False
+            "onboarding_required": True,
+            "invite_type": "faculty",
+            "prefill": {"name": name, "email": email, "profile_picture": picture, "uid": uid}
         })
 
-    if not invite_token:
-        return jsonify({"error": "No account found. An invite link is required."}), 403
-
-    invite = InviteLink.query.filter_by(token=invite_token, is_active=True).first()
-    if not invite:
-        return jsonify({"error": "Invite link is invalid or disabled."}), 403
-
-    return jsonify({
-        "onboarding_required": True,
-        "invite_type": invite.link_type,
-        "class_name": invite.class_name,
-        "prefill": {"name": name, "email": email, "profile_picture": picture, "uid": uid}
-    })
+    elif role == "STUDENT":
+        # Check the global student registration toggle
+        invite = InviteLink.query.filter_by(link_type="student", class_name=None).first()
+        if not invite or not invite.is_active:
+            return jsonify({
+                "error": "New student registration is not currently accepted. Please contact HOD."
+            }), 403
+        return jsonify({
+            "onboarding_required": True,
+            "invite_type": "student",
+            "available_classes": CLASSES,
+            "prefill": {"name": name, "email": email, "profile_picture": picture, "uid": uid}
+        })
 
 
 @auth_bp.route("/onboard/faculty", methods=["POST"])
 def onboard_faculty():
     data = request.get_json()
-    required = ["uid", "email", "name", "designation", "classes_handling", "invite_token"]
-    if not all(data.get(k) for k in required):
-        return jsonify({"error": "All fields required"}), 400
+    required = ["uid", "email", "name", "designation", "classes_handling"]
+    missing = [k for k in required if data.get(k) is None]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
 
-    invite = InviteLink.query.filter_by(token=data["invite_token"], is_active=True).first()
-    if not invite or invite.link_type != "faculty":
-        return jsonify({"error": "Invalid invite"}), 403
+    # Check faculty registration toggle
+    invite = InviteLink.query.filter_by(link_type="faculty", is_active=True).first()
+    if not invite:
+        return jsonify({"error": "New faculty registration is not currently accepted."}), 403
 
     if User.query.filter_by(email=data["email"]).first():
         return jsonify({"error": "Account already exists"}), 409
@@ -94,7 +126,6 @@ def onboard_faculty():
     db.session.add(user)
     db.session.flush()
 
-    from ..models.faculty import Faculty
     faculty = Faculty(
         user_id=user.id,
         designation=data.get("designation", "Professor"),
@@ -109,16 +140,15 @@ def onboard_faculty():
 @auth_bp.route("/onboard/student", methods=["POST"])
 def onboard_student():
     data = request.get_json()
-    required = ["uid", "email", "name", "roll_number", "register_number", "class_name", "invite_token"]
-    if not all(data.get(k) for k in required):
-        return jsonify({"error": "All fields required"}), 400
+    required = ["uid", "email", "name", "roll_number", "register_number", "class_name"]
+    missing = [k for k in required if data.get(k) is None]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
 
-    invite = InviteLink.query.filter_by(token=data["invite_token"], is_active=True).first()
-    if not invite or invite.link_type != "student":
-        return jsonify({"error": "Invalid invite"}), 403
-
-    if invite.class_name != data["class_name"]:
-        return jsonify({"error": "Class mismatch"}), 400
+    # Check the global student registration toggle
+    invite = InviteLink.query.filter_by(link_type="student", class_name=None, is_active=True).first()
+    if not invite:
+        return jsonify({"error": "New student registration is not currently accepted. Please contact HOD."}), 403
 
     if User.query.filter_by(email=data["email"]).first():
         return jsonify({"error": "Account already exists"}), 409
@@ -133,7 +163,6 @@ def onboard_student():
     db.session.add(user)
     db.session.flush()
 
-    from ..models.student import Student
     student = Student(
         user_id=user.id,
         roll_number=data["roll_number"],

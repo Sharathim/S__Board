@@ -38,10 +38,9 @@ export default function FacultyOnboarding() {
         profile_picture:   onboardingData.prefill.profile_picture,
         designation,
         classes_handling:  classes,
-        invite_token:      sessionStorage.getItem("inviteToken") || "",
       });
       setUser(res.data.user);
-      sessionStorage.removeItem("inviteToken");
+      sessionStorage.removeItem("loginRole");
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.error || "Onboarding failed");

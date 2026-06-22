@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 class Config:
@@ -12,8 +12,13 @@ class Config:
         "pool_pre_ping": True,
         "pool_recycle": 300,
     }
-    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-    FIREBASE_SERVICE_ACCOUNT_PATH = os.environ.get("FIREBASE_SERVICE_ACCOUNT_PATH")
+    _fb_path = os.environ.get("FIREBASE_SERVICE_ACCOUNT_PATH")
+    if _fb_path and not os.path.isabs(_fb_path) and not os.path.exists(_fb_path):
+        _backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        _resolved = os.path.join(_backend_dir, _fb_path)
+        if os.path.exists(_resolved):
+            _fb_path = _resolved
+    FIREBASE_SERVICE_ACCOUNT_PATH = _fb_path
     CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
     CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY")
     CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET")

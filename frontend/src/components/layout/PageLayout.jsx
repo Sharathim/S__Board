@@ -19,10 +19,12 @@ export default function PageLayout() {
       />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
+        <main className="app-surface flex-1 overflow-y-auto p-4 lg:p-6">
+          <div className="mx-auto w-full max-w-7xl">
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
+          </div>
         </main>
       </div>
       <ToastContainer />

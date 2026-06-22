@@ -5,6 +5,7 @@ from .forum_member import ForumMember
 from .project import Project, ProjectStatus, project_members
 from .message import ProjectMessage
 from .update import Update, update_likes
+from .forum_post import ForumPost, forum_post_likes
 from .notification import Notification
 from .invite import InviteLink
 

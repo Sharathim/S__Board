@@ -5,7 +5,7 @@
 
 ## 1. Overview
 
-DPMS is a Progressive Web App (PWA) for a college department to manage faculty, classes, students, forum members, projects, and departmental updates. It has two distinct sides:
+DPMS is a Progressive Web App (PWA) for a college department  manage faculty, classes, students, forum members, projects, and departmental updates. It has two distinct sides:
 
 - **Public side** — informative only, for visitors/parents/outsiders.
 - **Authenticated app side** — full management dashboard, unlocked via HOD login (and onward access for Faculty, Students, Forum Members through their own invite-based onboarding).

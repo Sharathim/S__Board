@@ -4,6 +4,7 @@ import { Spinner } from "../../components/ui/Spinner";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
 import { Pagination } from "../../components/shared/Pagination";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Bell, CheckCheck, Mail, MailOpen } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -47,17 +48,16 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Notifications</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{data?.total || 0} total</p>
-        </div>
+      <PageHeader
+        title="Notifications"
+        subtitle={`${data?.total || 0} total${unread > 0 ? ` · ${unread} unread` : ""}`}
+      >
         {unread > 0 && (
-          <Button variant="ghost" size="sm" onClick={() => markAllMutation.mutate()} className="gap-1">
+          <Button variant="secondary" size="sm" onClick={() => markAllMutation.mutate()} className="gap-1.5">
             <CheckCheck className="w-4 h-4" /> Mark all read
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       {notifications.length === 0 ? (
         <EmptyState icon={Bell} title="No notifications" description="You're all caught up!" />

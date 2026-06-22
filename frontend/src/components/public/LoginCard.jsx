@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, User, Mail, ArrowRight, Lock, AlertCircle } from "lucide-react";
+import { Shield, User, GraduationCap, Lock, AlertCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 function GoogleIcon() {
@@ -22,15 +22,30 @@ function ButtonSpinner() {
   );
 }
 
+const ROLE_INFO = {
+  HOD:     { icon: Shield,        label: "HOD",     color: "text-purple-600", desc: "Head of Department" },
+  FACULTY: { icon: User,          label: "Faculty",  color: "text-blue-600",   desc: "Faculty Member" },
+  STUDENT: { icon: GraduationCap, label: "Student",  color: "text-green-600",  desc: "Student" },
+};
+
+const ROLE_TAG = {
+  HOD:     "hod",
+  FACULTY: "faculty",
+  STUDENT: "student",
+};
+
 export function LoginCard() {
   const [activeTab, setActiveTab] = useState("hod");
-  const [email, setEmail]         = useState("");
   const [pending, setPending]     = useState(false);
   const { loginWithGoogle, authError, setAuthError, loading } = useAuth();
 
+  const activeRole = activeTab === "hod" ? "HOD" : activeTab === "faculty" ? "FACULTY" : "STUDENT";
+  const roleInfo = ROLE_INFO[activeRole];
+  const Icon = roleInfo.icon;
+
   const handleGoogleLogin = async () => {
     setPending(true);
-    await loginWithGoogle();
+    await loginWithGoogle(activeRole);
     setPending(false);
   };
 
@@ -41,49 +56,48 @@ export function LoginCard() {
       id="login"
       className="bg-white rounded-2xl shadow-login border border-gray-100/70 p-8 w-full animate-slide-up"
     >
-      {/* Shield header */}
+      {/* Icon header */}
       <div className="flex flex-col items-center mb-7">
         <div className="relative mb-4">
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-400/20 to-violet-400/20 blur-sm scale-110" />
           <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-primary-50 to-violet-50 border border-primary-100/80 flex items-center justify-center shadow-sm">
-            <Shield className="w-7 h-7 text-primary-600" />
+            <Icon className={`w-7 h-7 ${roleInfo.color}`} />
           </div>
         </div>
         <h2 className="text-xl font-bold text-gray-900 tracking-tight">Welcome Back!</h2>
-        <p className="text-sm text-gray-400 mt-1.5">Login to access your dashboard</p>
+        <p className="text-sm text-gray-400 mt-1.5">Sign in to access your dashboard</p>
       </div>
 
-      {/* Login tabs */}
+      {/* Login tabs — 3 roles always visible */}
       <div className="flex bg-gray-50/80 rounded-xl p-1 mb-4 gap-1">
-        <button
-          onClick={() => { setActiveTab("hod"); setAuthError?.(null); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-[10px] text-sm font-medium transition-all duration-200 ${
-            activeTab === "hod"
-              ? "bg-white text-primary-600 shadow-[0_1px_4px_rgba(0,0,0,0.08)] border border-gray-100"
-              : "text-gray-400 hover:text-gray-600 hover:bg-white/60"
-          }`}
-        >
-          <Shield className="w-4 h-4" />
-          HOD Login
-        </button>
-        <button
-          onClick={() => { setActiveTab("user"); setAuthError?.(null); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-[10px] text-sm font-medium transition-all duration-200 ${
-            activeTab === "user"
-              ? "bg-white text-gray-700 shadow-[0_1px_4px_rgba(0,0,0,0.08)] border border-gray-100"
-              : "text-gray-400 hover:text-gray-600 hover:bg-white/60"
-          }`}
-        >
-          <User className="w-4 h-4" />
-          User Login
-        </button>
+        {Object.entries(ROLE_TAG).map(([role, tag]) => {
+          const info = ROLE_INFO[role];
+          const TagIcon = info.icon;
+          const isActive = activeTab === tag;
+          return (
+            <button
+              key={role}
+              onClick={() => { setActiveTab(tag); setAuthError?.(null); }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-[10px] text-sm font-medium transition-all duration-200 ${
+                isActive
+                  ? "bg-white shadow-[0_1px_4px_rgba(0,0,0,0.08)] border border-gray-100"
+                  : "text-gray-400 hover:text-gray-600 hover:bg-white/60"
+              }`}
+            >
+              <TagIcon className={`w-4 h-4 ${isActive ? info.color : ""}`} />
+              {info.label} Login
+            </button>
+          );
+        })}
       </div>
 
       {/* Secure label */}
       <div className="flex items-center justify-center gap-1.5 mb-5">
         <Lock className="w-3.5 h-3.5 text-gray-300" />
         <span className="text-xs text-gray-400">
-          {activeTab === "hod" ? "Secure access for HOD only" : "Secure access for authorized users"}
+          {activeRole === "HOD"
+            ? "Secure access for Head of Department"
+            : `Sign in as ${roleInfo.label}`}
         </span>
       </div>
 
@@ -107,7 +121,7 @@ export function LoginCard() {
           mb-4"
       >
         {isBusy ? <ButtonSpinner /> : <GoogleIcon />}
-        {isBusy ? "Signing in…" : "Continue with Google"}
+        {isBusy ? "Signing in…" : `Continue with Google as ${roleInfo.label}`}
       </button>
 
       {/* Divider */}
@@ -117,39 +131,23 @@ export function LoginCard() {
         <div className="flex-1 h-px bg-gray-100" />
       </div>
 
-      {/* Email input */}
-      <div className="relative mb-4">
-        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 pointer-events-none" />
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your department email"
-          className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder-gray-300 bg-white
-            focus:outline-none focus:ring-2 focus:ring-primary-500/25 focus:border-primary-400
-            hover:border-gray-300 transition-all duration-200"
-        />
-      </div>
-
-      {/* Continue button */}
-      <button
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl
-          bg-primary-600 text-white text-sm font-semibold
-          hover:bg-primary-700 hover:-translate-y-0.5 hover:shadow-primary-glow
-          active:translate-y-0 active:shadow-none active:bg-primary-700
-          transition-all duration-200
-          shadow-sm shadow-primary-600/20
-          mb-5"
-      >
-        Continue
-        <ArrowRight className="w-4 h-4" />
-      </button>
-
-      {/* HOD auth note */}
-      {activeTab === "hod" && (
+      {/* Info footer per role */}
+      {activeRole === "HOD" && (
         <div className="flex items-center justify-center gap-1.5 mb-4">
-          <Shield className="w-3.5 h-3.5 text-gray-300" />
-          <span className="text-xs text-gray-400">Only authorized HOD can access the system</span>
+          <Shield className="w-3.5 h-3.5 text-purple-400" />
+          <span className="text-xs text-gray-400">Only authorized HOD email can access</span>
+        </div>
+      )}
+      {activeRole === "FACULTY" && (
+        <div className="flex items-center justify-center gap-1.5 mb-4">
+          <User className="w-3.5 h-3.5 text-blue-400" />
+          <span className="text-xs text-gray-400">New faculty registration requires HOD approval</span>
+        </div>
+      )}
+      {activeRole === "STUDENT" && (
+        <div className="flex items-center justify-center gap-1.5 mb-4">
+          <GraduationCap className="w-3.5 h-3.5 text-green-400" />
+          <span className="text-xs text-gray-400">New student registration requires HOD approval</span>
         </div>
       )}
 

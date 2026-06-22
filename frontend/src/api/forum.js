@@ -1,6 +1,8 @@
 import api from "./axios";
 
 export const listForumMembers = () => api.get("/forum/members");
+export const listEligibleStudents = (search) =>
+  api.get("/forum/eligible-students", { params: { search } });
 export const assignForumMember = (studentId, role) =>
   api.post("/forum/members", { student_id: studentId, role });
 export const removeForumMember = (id) => api.delete(`/forum/members/${id}`);

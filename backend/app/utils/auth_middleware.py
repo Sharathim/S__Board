@@ -23,6 +23,20 @@ def require_auth(f):
     return decorated
 
 
+def optional_user():
+    """Return the authenticated User if a valid token is present, else None.
+    For endpoints that are public but enrich the response for logged-in users.
+    """
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        return None
+    try:
+        decoded = verify_firebase_token(token)
+        return User.query.filter_by(firebase_uid=decoded["uid"]).first()
+    except Exception:
+        return None
+
+
 def require_hod(f):
     @wraps(f)
     @require_auth

@@ -12,6 +12,7 @@ export default function StudentOnboarding() {
   const [name,           setName]           = useState(onboardingData?.prefill?.name || "");
   const [rollNumber,     setRollNumber]     = useState("");
   const [registerNumber, setRegisterNumber] = useState("");
+  const [selectedClass,  setSelectedClass]  = useState("");
   const [loading,        setLoading]        = useState(false);
   const [error,          setError]          = useState(null);
 
@@ -19,13 +20,15 @@ export default function StudentOnboarding() {
     return <Spinner fullScreen />;
   }
 
-  const className = onboardingData.class_name;
+  // Available classes from the backend (classes with student registration open)
+  const availableClasses = onboardingData.available_classes || [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim())           { setError("Name is required");            return; }
     if (!rollNumber.trim())     { setError("Roll number is required");     return; }
     if (!registerNumber.trim()) { setError("Register number is required"); return; }
+    if (!selectedClass)         { setError("Please select your class");    return; }
     setLoading(true);
     setError(null);
     try {
@@ -36,12 +39,11 @@ export default function StudentOnboarding() {
         profile_picture: onboardingData.prefill.profile_picture,
         roll_number:     rollNumber.trim(),
         register_number: registerNumber.trim(),
-        class_name:      className,
-        invite_token:    sessionStorage.getItem("inviteToken") || "",
+        class_name:      selectedClass,
       });
       setUser(res.data.user);
-      sessionStorage.removeItem("inviteToken");
-      navigate("/dashboard");
+      sessionStorage.removeItem("loginRole");
+      navigate("/classes");
     } catch (err) {
       setError(err.response?.data?.error || "Onboarding failed");
     } finally {
@@ -76,7 +78,32 @@ export default function StudentOnboarding() {
           <Input label="Email" value={onboardingData?.prefill?.email || ""} disabled />
           <Input label="Roll Number" value={rollNumber} onChange={e => setRollNumber(e.target.value)} placeholder="e.g. 2021CS001" />
           <Input label="Register Number" value={registerNumber} onChange={e => setRegisterNumber(e.target.value)} placeholder="e.g. REG2021001" />
-          <Input label="Class" value={className?.replace("_", " ") || ""} disabled />
+
+          {/* Class selector */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Select Your Class
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {availableClasses.map(cls => (
+                <button
+                  key={cls}
+                  type="button"
+                  onClick={() => setSelectedClass(cls)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${
+                    selectedClass === cls
+                      ? "bg-primary-600 text-white border-primary-600 shadow-sm"
+                      : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                  }`}
+                >
+                  {cls.replace("_", " ")}
+                </button>
+              ))}
+            </div>
+            {availableClasses.length === 0 && (
+              <p className="text-xs text-amber-500 mt-1">No classes currently accepting new students. Contact HOD.</p>
+            )}
+          </div>
 
           {error && (
             <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">

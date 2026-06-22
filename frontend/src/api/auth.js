@@ -1,7 +1,7 @@
 import api from "./axios";
 
-export const verifyToken = (idToken, inviteToken = null) =>
-  api.post("/auth/verify", { idToken, inviteToken });
+export const verifyToken = (idToken, role) =>
+  api.post("/auth/verify", { idToken, role });
 
 export const onboardFaculty = (data) =>
   api.post("/auth/onboard/faculty", data);

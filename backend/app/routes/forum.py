@@ -29,6 +29,43 @@ def list_members():
     })
 
 
+@forum_bp.route("/eligible-students", methods=["GET"])
+@require_hod
+def eligible_students():
+    """Students from forum-eligible classes (3A/3B) who are not yet forum
+    members, optionally filtered by a search term. For the assign-member picker.
+    """
+    search = request.args.get("search", "").strip()
+    query = (
+        Student.query
+        .join(User)
+        .filter(Student.class_name.in_(FORUM_ELIGIBLE_CLASSES))
+        .filter(Student.is_forum_member.is_(False))
+    )
+    if search:
+        like = f"%{search}%"
+        query = query.filter(db.or_(
+            User.name.ilike(like),
+            User.email.ilike(like),
+            Student.roll_number.ilike(like),
+            Student.register_number.ilike(like),
+        ))
+    students = query.order_by(User.name.asc()).limit(20).all()
+    return jsonify({
+        "students": [
+            {
+                "id": s.id,
+                "name": s.user.name,
+                "email": s.user.email,
+                "profile_picture": s.user.profile_picture,
+                "class_name": s.class_name,
+                "roll_number": s.roll_number,
+            }
+            for s in students
+        ]
+    })
+
+
 @forum_bp.route("/members", methods=["POST"])
 @require_hod
 def assign_member():
@@ -50,6 +87,15 @@ def assign_member():
     student.is_forum_member = True
     db.session.add(member)
     db.session.commit()
+
+    from ..utils.fcm_helper import send_notification
+    send_notification(
+        recipient_id=student.user_id,
+        title="Added to the Forum",
+        body=f"You have been assigned as a forum member ({role}).",
+        notif_type="forum_assigned",
+        reference_id=member.id,
+    )
 
     return jsonify({"member": {"id": member.id, "role": member.role}}), 201
 
@@ -77,19 +123,20 @@ def toggle_coordinator(member_id):
 # Forum Posts
 
 @forum_bp.route("/posts", methods=["GET"])
+@require_auth
 def list_posts():
-    from ..models.update import Update
+    from ..models.forum_post import ForumPost
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 10, type=int)
 
-    query = Update.query.filter_by(is_deleted=False)
+    query = ForumPost.query.filter_by(is_deleted=False)
 
-    paginated = query.order_by(Update.created_at.desc()).paginate(
+    paginated = query.order_by(ForumPost.created_at.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
 
     return jsonify({
-        "posts": [_serialize_post(p) for p in paginated.items],
+        "posts": [_serialize_post(p, g.current_user) for p in paginated.items],
         "total": paginated.total,
         "pages": paginated.pages,
     })
@@ -122,8 +169,8 @@ def create_post():
     if not content and not attachment:
         return jsonify({"error": "Content cannot be empty"}), 400
 
-    from ..models.update import Update
-    post = Update(
+    from ..models.forum_post import ForumPost
+    post = ForumPost(
         content=content,
         posted_by=user.id,
         attachment_url=attachment["url"] if attachment else None,
@@ -132,14 +179,14 @@ def create_post():
     db.session.add(post)
     db.session.commit()
 
-    return jsonify({"post": _serialize_post(post)}), 201
+    return jsonify({"post": _serialize_post(post, user)}), 201
 
 
 @forum_bp.route("/posts/<int:post_id>", methods=["PATCH"])
 @require_auth
 def edit_post(post_id):
-    from ..models.update import Update
-    post = Update.query.get_or_404(post_id)
+    from ..models.forum_post import ForumPost
+    post = ForumPost.query.get_or_404(post_id)
 
     if post.posted_by != g.current_user.id:
         return jsonify({"error": "Cannot edit others' posts"}), 403
@@ -161,64 +208,81 @@ def edit_post(post_id):
     post.updated_at = datetime.utcnow()
     db.session.commit()
 
-    return jsonify({"post": _serialize_post(post)})
+    return jsonify({"post": _serialize_post(post, g.current_user)})
+
+
+@forum_bp.route("/posts/<int:post_id>", methods=["DELETE"])
+@require_auth
+def delete_post(post_id):
+    from ..models.forum_post import ForumPost
+    post = ForumPost.query.get_or_404(post_id)
+    if post.posted_by != g.current_user.id and g.current_user.role != UserRole.HOD:
+        return jsonify({"error": "Cannot delete others' posts"}), 403
+    if post.is_deleted:
+        return jsonify({"error": "Already deleted"}), 400
+    post.is_deleted = True
+    post.content = None
+    post.attachment_url = None
+    db.session.commit()
+    return jsonify({"ok": True})
 
 
 @forum_bp.route("/posts/<int:post_id>/like", methods=["POST"])
 @require_auth
 def toggle_like(post_id):
-    from ..models.update import Update, update_likes
-    post = Update.query.get_or_404(post_id)
+    from ..models.forum_post import ForumPost, forum_post_likes
+    ForumPost.query.get_or_404(post_id)
 
     existing = db.session.execute(
-        update_likes.select().where(
-            update_likes.c.update_id == post_id,
-            update_likes.c.user_id == g.current_user.id
+        forum_post_likes.select().where(
+            forum_post_likes.c.post_id == post_id,
+            forum_post_likes.c.user_id == g.current_user.id
         )
     ).first()
 
     if existing:
         db.session.execute(
-            update_likes.delete().where(
-                update_likes.c.update_id == post_id,
-                update_likes.c.user_id == g.current_user.id
+            forum_post_likes.delete().where(
+                forum_post_likes.c.post_id == post_id,
+                forum_post_likes.c.user_id == g.current_user.id
             )
         )
         liked = False
     else:
         db.session.execute(
-            update_likes.insert().values(update_id=post_id, user_id=g.current_user.id)
+            forum_post_likes.insert().values(post_id=post_id, user_id=g.current_user.id)
         )
         liked = True
 
     db.session.commit()
     count = db.session.execute(
-        db.text("SELECT COUNT(*) FROM update_likes WHERE update_id = :uid"),
-        {"uid": post_id}
+        db.text("SELECT COUNT(*) FROM forum_post_likes WHERE post_id = :pid"),
+        {"pid": post_id}
     ).scalar()
 
     return jsonify({"liked": liked, "count": count})
 
 
-@forum_bp.route("/posts/<int:post_id>/visibility", methods=["PATCH"])
-@require_hod
-def toggle_visibility(post_id):
-    from ..models.update import Update
-    post = Update.query.get_or_404(post_id)
-    # Not applicable for Update model directly, implement when needed
-    return jsonify({"ok": True})
-
-
-def _serialize_post(p):
+def _serialize_post(p, current_user=None):
     from ..models.user import User
+    from ..models.forum_post import forum_post_likes
     poster = User.query.get(p.posted_by) if p.posted_by else None
+    liked = False
+    if current_user is not None:
+        liked = db.session.execute(
+            forum_post_likes.select().where(
+                forum_post_likes.c.post_id == p.id,
+                forum_post_likes.c.user_id == current_user.id,
+            )
+        ).first() is not None
     return {
         "id": p.id,
         "content": p.content,
         "posted_by": {
             "id": p.posted_by,
             "name": poster.name if poster else "Unknown",
-        } if poster else {"id": p.posted_by, "name": "Unknown"},
+            "profile_picture": poster.profile_picture if poster else None,
+        } if poster else {"id": p.posted_by, "name": "Unknown", "profile_picture": None},
         "is_deleted": p.is_deleted,
         "is_edited": p.is_edited,
         "attachment_url": p.attachment_url,
@@ -226,4 +290,5 @@ def _serialize_post(p):
         "created_at": p.created_at.isoformat(),
         "updated_at": p.updated_at.isoformat(),
         "like_count": p.likes.count() if hasattr(p, 'likes') else 0,
+        "liked": liked,
     }

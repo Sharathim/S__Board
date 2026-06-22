@@ -23,13 +23,17 @@ export function AuthProvider({ children }) {
       if (fbUser) {
         try {
           const idToken = await fbUser.getIdToken(true);
-          const inviteToken = sessionStorage.getItem("inviteToken");
-          const res = await api.post("/auth/verify", { idToken, inviteToken });
-          sessionStorage.removeItem("inviteToken");
+          // `loginRole` is only present during a fresh sign-in (used to route
+          // new users to onboarding). On a restored/persistent session it's
+          // absent — that's fine: the backend identifies an existing user by
+          // their Firebase UID and logs them straight in without a role.
+          const role = sessionStorage.getItem("loginRole");
+          const res = await api.post("/auth/verify", role ? { idToken, role } : { idToken });
           if (res.data.onboarding_required) {
             setOnboardingData(res.data);
             setUser(null);
           } else {
+            sessionStorage.removeItem("loginRole");
             setUser(res.data.user);
             setOnboardingData(null);
             const fcmToken = await requestFCMToken();
@@ -37,9 +41,12 @@ export function AuthProvider({ children }) {
               api.post("/auth/fcm-token", { fcm_token: fcmToken }).catch(() => {});
             }
           }
-        } catch {
-          sessionStorage.removeItem("inviteToken");
+        } catch (err) {
+          const msg = err?.response?.data?.error || "Sign-in failed. Please try again.";
+          sessionStorage.removeItem("loginRole");
           setUser(null);
+          setAuthError(msg);
+          try { await logOut(); } catch { /* ignore */ }
         }
       } else {
         setUser(null);
@@ -50,18 +57,17 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
-  const loginWithGoogle = async (inviteToken = null) => {
+  const loginWithGoogle = async (role = null) => {
     setAuthError(null);
-    if (typeof inviteToken === "string" && inviteToken.trim()) {
-      sessionStorage.setItem("inviteToken", inviteToken.trim());
+    if (role) {
+      sessionStorage.setItem("loginRole", role);
     } else {
-      sessionStorage.removeItem("inviteToken");
+      sessionStorage.removeItem("loginRole");
     }
     try {
       await signInWithGooglePopup();
     } catch (err) {
       if (err.code === "auth/popup-blocked") {
-        // Popup was blocked by browser — fall back to redirect flow
         await signInWithGoogle();
       } else if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
         setAuthError(err.message || "Sign-in failed. Please try again.");

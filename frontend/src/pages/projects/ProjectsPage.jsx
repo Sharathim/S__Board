@@ -14,6 +14,9 @@ import { Modal } from "../../components/ui/Modal";
 import { StatusBadge } from "../../components/shared/StatusBadge";
 import { SearchFilter, StatusFilter } from "../../components/shared/SearchFilter";
 import { Pagination } from "../../components/shared/Pagination";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { StatTile } from "../../components/ui/StatTile";
+import { TrendingUp } from "lucide-react";
 import {
   FolderKanban, Plus, Users, CheckCircle, AlertTriangle,
   MoreHorizontal, ExternalLink
@@ -55,11 +58,11 @@ export default function ProjectsPage() {
   });
 
   const statCards = [
-    { key: "total", label: "Total", icon: FolderKanban, color: "text-blue-600 bg-blue-100" },
-    { key: "in_progress", label: "In Progress", icon: FolderKanban, color: "text-primary-600 bg-primary-100" },
-    { key: "student_count", label: "Students", icon: Users, color: "text-green-600 bg-green-100" },
-    { key: "completed", label: "Completed", icon: CheckCircle, color: "text-emerald-600 bg-emerald-100" },
-    { key: "low_activity", label: "Low Activity", icon: AlertTriangle, color: "text-yellow-600 bg-yellow-100" },
+    { key: "total", label: "Total", icon: FolderKanban, color: "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30" },
+    { key: "in_progress", label: "In Progress", icon: TrendingUp, color: "text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/30" },
+    { key: "student_count", label: "Students", icon: Users, color: "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30" },
+    { key: "completed", label: "Completed", icon: CheckCircle, color: "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30" },
+    { key: "low_activity", label: "Low Activity", icon: AlertTriangle, color: "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30" },
   ];
 
   if (isLoading) return <Spinner />;
@@ -68,32 +71,25 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Projects</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{data?.total || 0} total projects</p>
-        </div>
+      <PageHeader title="Projects" subtitle={`${data?.total || 0} total projects`}>
         {isHOD && (
           <Button onClick={() => setShowCreate(true)} className="gap-2">
             <Plus className="w-4 h-4" /> Create Project
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       {/* Stats row */}
-      <div className="grid grid-cols-5 gap-3">
-        {statCards.map(card => {
-          const Icon = card.icon;
-          return (
-            <div key={card.key} className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-              <div className={`w-9 h-9 rounded-lg ${card.color} flex items-center justify-center mb-2`}>
-                <Icon className="w-4.5 h-4.5" />
-              </div>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats?.[card.key] ?? 0}</p>
-              <p className="text-xs text-gray-500">{card.label}</p>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {statCards.map(card => (
+          <StatTile
+            key={card.key}
+            icon={card.icon}
+            value={stats?.[card.key] ?? 0}
+            label={card.label}
+            accent={card.color}
+          />
+        ))}
       </div>
 
       {/* Filters */}

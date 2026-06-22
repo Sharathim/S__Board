@@ -254,7 +254,7 @@ export default function ProjectDetailPage() {
                   value={newMsg}
                   onChange={e => setNewMsg(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 focus:bg-white dark:focus:bg-gray-800"
                 />
                 <Button type="submit" disabled={!newMsg.trim() && !attachment} className="gap-1">
                   <Send className="w-4 h-4" />

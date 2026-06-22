@@ -6,7 +6,10 @@ import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
 import { Avatar } from "../../components/ui/Avatar";
 import { Badge } from "../../components/ui/Badge";
-import { Users, UserPlus, Share2, ToggleLeft, ToggleRight, Crown } from "lucide-react";
+import { Card } from "../../components/ui/Card";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { StatTile } from "../../components/ui/StatTile";
+import { Users, ToggleLeft, ToggleRight, Crown, UserCheck, Megaphone } from "lucide-react";
 import { useState } from "react";
 
 export default function FacultyPage() {
@@ -44,34 +47,41 @@ export default function FacultyPage() {
   if (isLoading) return <Spinner />;
 
   const facultyList = data || [];
+  const coordinatorCount = facultyList.filter(f => f.is_update_coordinator).length;
+  const inchargeCount = facultyList.filter(f => f.class_incharge_of).length;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Faculty</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{facultyList.length} faculty members</p>
-        </div>
+      <PageHeader title="Faculty" subtitle={`${facultyList.length} faculty members`}>
         {isHOD && (
-          <div className="flex items-center gap-3">
-            <Button
-              variant={invite?.is_active ? "primary" : "secondary"}
-              onClick={() => toggleInviteMutation.mutate()}
-              className="gap-2"
-            >
-              {invite?.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              Invite {invite?.is_active ? "ON" : "OFF"}
-            </Button>
-          </div>
+          <Button
+            variant={invite?.is_active ? "primary" : "secondary"}
+            onClick={() => toggleInviteMutation.mutate()}
+            className="gap-2"
+          >
+            {invite?.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+            New Faculty {invite?.is_active ? "ON" : "OFF"}
+          </Button>
         )}
-      </div>
+      </PageHeader>
+
+      {isHOD && (
+        <div className="grid grid-cols-3 gap-3">
+          <StatTile icon={Users} value={facultyList.length} label="Total Faculty"
+            accent="text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30" />
+          <StatTile icon={UserCheck} value={inchargeCount} label="Class Incharges"
+            accent="text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30" />
+          <StatTile icon={Megaphone} value={coordinatorCount} label="Coordinators"
+            accent="text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/30" />
+        </div>
+      )}
 
       {facultyList.length === 0 ? (
         <EmptyState icon={Users} title="No faculty members" description="Faculty members will appear here after they onboard." />
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {facultyList.map(f => (
-            <div key={f.id} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 flex items-center gap-4">
+            <Card key={f.id} hover className="flex items-center gap-4">
               <Avatar src={f.profile_picture} name={f.name} size="lg" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
@@ -103,27 +113,8 @@ export default function FacultyPage() {
                   </Button>
                 </div>
               )}
-            </div>
+            </Card>
           ))}
-        </div>
-      )}
-
-      {isHOD && invite && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 text-sm">
-            <Share2 className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-600 dark:text-gray-400">Faculty invite link:</span>
-            <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono">
-              {`${window.location.origin}/invite/${invite.token}`}
-            </code>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigator.clipboard?.writeText(`${window.location.origin}/invite/${invite.token}`)}
-            >
-              Copy
-            </Button>
-          </div>
         </div>
       )}
     </div>

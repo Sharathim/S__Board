@@ -1,6 +1,6 @@
 from flask import Flask
 from .config import Config
-from .extensions import db, migrate, socketio, cors, get_redis
+from .extensions import db, migrate, socketio, cors
 from .utils.error_handlers import register_error_handlers
 import firebase_admin
 from firebase_admin import credentials
@@ -18,7 +18,6 @@ def create_app():
     socketio.init_app(
         app,
         cors_allowed_origins=app.config["FRONTEND_URL"],
-        message_queue=app.config["REDIS_URL"],
         async_mode="eventlet"
     )
 
@@ -32,9 +31,6 @@ def create_app():
         api_key=app.config["CLOUDINARY_API_KEY"],
         api_secret=app.config["CLOUDINARY_API_SECRET"]
     )
-
-    # Redis
-    app.redis = get_redis(app)
 
     # Register blueprints
     from .routes.auth import auth_bp

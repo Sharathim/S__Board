@@ -10,14 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "7777:5432"
-
-  redis:
-    image: redis:7-alpine
-    container_name: dpms_redis
-    restart: always
-    ports:
-      - "6380:6379"
+      - "5435:5432"
 
 volumes:
   postgres_data:
