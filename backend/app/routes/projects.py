@@ -301,6 +301,52 @@ def delete_message(project_id, message_id):
     return jsonify({"ok": True})
 
 
+@projects_bp.route("/<int:project_id>", methods=["PUT"])
+@require_hod
+def update_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    data = request.get_json() or {}
+    name = data.get("name", "").strip()
+    description = data.get("description", "").strip()
+    members_data = data.get("members", [])
+
+    if not name:
+        return jsonify({"error": "Project name is required"}), 400
+    if not members_data:
+        return jsonify({"error": "At least one member is required"}), 400
+
+    project.name = name
+    project.description = description
+    project.updated_at = datetime.utcnow()
+
+    # Clear old members
+    db.session.execute(
+        project_members.delete().where(project_members.c.project_id == project.id)
+    )
+
+    # Add new members
+    for m in members_data:
+        db.session.execute(
+            project_members.insert().values(
+                project_id=project.id,
+                user_id=m["user_id"],
+                role_in_project=m["role_in_project"]
+            )
+        )
+
+    db.session.commit()
+    return jsonify({"project": _serialize_project(project)})
+
+
+@projects_bp.route("/<int:project_id>", methods=["DELETE"])
+@require_hod
+def delete_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    db.session.delete(project)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
 def _serialize_message(msg):
     can_edit = (
         not msg.is_deleted and

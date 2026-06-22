@@ -1,6 +1,7 @@
 import api from "./axios";
 
 export const listClasses = () => api.get("/classes/");
+export const listAllStudents = () => api.get("/classes/students");
 export const listStudents = (className) => api.get(`/classes/${className}/students`);
 export const grantAccess = (className, facultyId) =>
   api.post(`/classes/${className}/grant-access`, { faculty_id: facultyId });

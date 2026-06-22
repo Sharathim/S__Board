@@ -106,6 +106,13 @@ def toggle_student_registration():
 
 # ─── Students ────────────────────────────────────────────────────────────
 
+@classes_bp.route("/students", methods=["GET"])
+@require_auth
+def list_all_students():
+    students = Student.query.join(User).all()
+    return jsonify({"students": [_serialize_student(s) for s in students]})
+
+
 @classes_bp.route("/<class_name>/students", methods=["GET"])
 @require_auth
 def list_students(class_name):

@@ -18,6 +18,7 @@ def list_members():
         "members": [
             {
                 "id": m.id,
+                "user_id": m.student.user.id,
                 "name": m.student.user.name,
                 "profile_picture": m.student.user.profile_picture,
                 "role": m.role,
