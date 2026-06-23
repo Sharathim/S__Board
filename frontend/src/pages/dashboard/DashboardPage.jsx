@@ -285,37 +285,40 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 md:gap-12 max-w-xl mx-auto py-2">
               {/* Donut */}
-              <div className="flex-shrink-0 flex flex-col items-center">
+              <div className="flex-shrink-0 flex flex-col items-center justify-center">
                 <DonutChart segments={donutSegments} total={total} />
               </div>
 
               {/* Status Legend Table */}
-              <div className="flex-1 min-w-0">
-                <div className="space-y-2.5">
+              <div className="w-full max-w-[260px]">
+                <div className="space-y-1.5">
                   {donutSegments.map(seg => {
                     const pct = total > 0 ? Math.round((seg.value / total) * 100) : 0;
                     return (
-                      <div key={seg.label} className="flex items-center gap-3">
+                      <div
+                        key={seg.label}
+                        className="flex items-center gap-3 py-1.5 px-2.5 rounded-xl transition-all duration-150 hover:bg-gray-50/80 dark:hover:bg-gray-800/40"
+                      >
                         <span
                           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                           style={{ background: seg.color }}
                         />
                         <span
-                          className="flex-1 text-sm"
+                          className="flex-1 text-sm font-medium"
                           style={{ color: "var(--text-secondary)" }}
                         >
                           {seg.label}
                         </span>
                         <span
-                          className="text-sm font-semibold w-6 text-right"
+                          className="text-sm font-bold w-6 text-right"
                           style={{ color: "var(--text-primary)" }}
                         >
                           {seg.value}
                         </span>
                         <span
-                          className="text-xs w-8 text-right"
+                          className="text-xs w-10 text-right font-semibold"
                           style={{ color: "var(--text-muted)" }}
                         >
                           {pct}%
@@ -325,7 +328,6 @@ export default function DashboardPage() {
                   })}
                 </div>
               </div>
-
             </div>
           </div>
 
