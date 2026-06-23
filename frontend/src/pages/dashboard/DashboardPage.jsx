@@ -186,14 +186,7 @@ export default function DashboardPage() {
     { label: "Cancelled",    value: (stats?.cancelled ?? 0) + (stats?.low_activity ?? 0), color: "#EF4444" },
   ];
 
-  /* ─ Quick actions ─ */
-  const quickActions = [
-    { to: "/faculty",  label: "Add Faculty",         desc: "Manage faculty & access",     icon: GraduationCap, iconBg: "#EEF2FF", iconColor: "#6366F1" },
-    { to: "/classes",  label: "Add Class",           desc: "Create new classes",           icon: BookOpen,       iconBg: "#F0FDF4", iconColor: "#22C55E" },
-    { to: "/classes",  label: "Register Students",   desc: "Add students to projects",     icon: Users,          iconBg: "#FFF7ED", iconColor: "#F97316" },
-    { to: "/forum",    label: "Forum Members",       desc: "Go to department forum",       icon: MessageSquare,  iconBg: "#F5F3FF", iconColor: "#8B5CF6" },
-    { to: "/updates",  label: "Post Announcement",   desc: "Share updates",                icon: Megaphone,      iconBg: "#FFF1F2", iconColor: "#F43F5E" },
-  ];
+
 
   const activities = activityData?.activities ?? [];
 
@@ -333,33 +326,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Empty state or summary */}
-              {total === 0 && (
-                <div className="flex-1 flex flex-col items-center justify-center py-4 text-center">
-                  <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
-                    style={{ background: "var(--surface-secondary)" }}
-                  >
-                    <FolderKanban className="w-8 h-8" style={{ color: "var(--text-muted)" }} />
-                  </div>
-                  <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-                    No projects to display
-                  </p>
-                  <p className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-                    Create your first project to see analytics and insights here.
-                  </p>
-                  <button
-                    id="overview-create-project-btn"
-                    onClick={() => navigate("/projects")}
-                    className="text-sm font-semibold px-4 py-2 rounded-lg text-white transition-all duration-150"
-                    style={{ background: "var(--primary)" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "var(--primary-hover)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "var(--primary)"}
-                  >
-                    Create Project
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 
@@ -488,43 +454,124 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Department Insights Card */}
           <div className="dh-card p-6">
-            <h2 className="text-base font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-              Quick Actions
+            <h2 className="text-base font-bold mb-1" style={{ color: "var(--text-primary)" }}>
+              Department Insights
             </h2>
-            <div className="space-y-1">
-              {quickActions.map((action, i) => {
-                const Icon = action.icon;
-                return (
-                  <Link
-                    key={i}
-                    to={action.to}
-                    id={`quick-action-${action.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="quick-action-row flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-150 group"
-                    style={{ textDecoration: "none" }}
-                  >
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: action.iconBg }}
-                    >
-                      <Icon className="w-4 h-4" style={{ color: action.iconColor }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold leading-tight" style={{ color: "var(--text-primary)" }}>
-                        {action.label}
-                      </p>
-                      <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>
-                        {action.desc}
-                      </p>
-                    </div>
-                    <ChevronRight
-                      className="w-4 h-4 qa-chevron flex-shrink-0"
-                      style={{ color: "var(--text-muted)" }}
-                    />
-                  </Link>
-                );
-              })}
+            <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>
+              Key metrics and project analytics
+            </p>
+            
+            <div className="space-y-5">
+              {/* Completion Rate */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-sm font-semibold" style={{ color: "var(--text-secondary)" }}>
+                    Project Completion Rate
+                  </span>
+                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    {total > 0 ? Math.round(((stats?.completed ?? 0) / total) * 100) : 0}%
+                  </span>
+                </div>
+                {/* Progress Bar Container */}
+                <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-700/60 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500"
+                    style={{
+                      width: `${total > 0 ? Math.round(((stats?.completed ?? 0) / total) * 100) : 0}%`,
+                    }}
+                  />
+                </div>
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                  {stats?.completed ?? 0} out of {total} projects completed
+                </p>
+              </div>
+
+              {/* Department Health Indicator */}
+              <div className="flex items-center justify-between p-3.5 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40">
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                    Activity Status
+                  </p>
+                  <p className="text-sm font-bold mt-0.5" style={{ color: "var(--text-primary)" }}>
+                    {stats?.low_activity > 2
+                      ? "Attention Required"
+                      : stats?.low_activity > 0
+                      ? "Active & Stable"
+                      : total > 0
+                      ? "100% Active"
+                      : "No Active Projects"}
+                  </p>
+                </div>
+                <span
+                  className="status-pill text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 leading-none"
+                  style={{
+                    background:
+                      stats?.low_activity > 2
+                        ? "rgba(239, 68, 68, 0.1)"
+                        : stats?.low_activity > 0
+                        ? "rgba(245, 158, 11, 0.1)"
+                        : "rgba(16, 185, 129, 0.1)",
+                    color:
+                      stats?.low_activity > 2
+                        ? "#EF4444"
+                        : stats?.low_activity > 0
+                        ? "#F59E0B"
+                        : "#10B981",
+                  }}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      background:
+                        stats?.low_activity > 2
+                          ? "#EF4444"
+                          : stats?.low_activity > 0
+                          ? "#F59E0B"
+                          : "#10B981",
+                    }}
+                  />
+                  {stats?.low_activity > 2
+                    ? "Attention"
+                    : stats?.low_activity > 0
+                    ? "Warning"
+                    : "Excellent"}
+                </span>
+              </div>
+
+              {/* Engagement Insight */}
+              <div className="flex items-start gap-3">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: "rgba(79, 70, 229, 0.1)" }}
+                >
+                  <Users className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500">
+                    Student Coverage
+                  </p>
+                  <p className="text-sm font-bold mt-0.5" style={{ color: "var(--text-primary)" }}>
+                    {stats?.student_count ?? 0} Students Assigned
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    Actively collaborating in project workspaces
+                  </p>
+                </div>
+              </div>
+
+              {/* Micro Platform Status Indicators */}
+              <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50 flex flex-wrap gap-x-4 gap-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Real-time Gateway</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Cloud Sync</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
