@@ -11,7 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
+import { Input, Textarea } from "../../components/ui/Input";
 import { Badge } from "../../components/ui/Badge";
 import { Avatar } from "../../components/ui/Avatar";
 import { Modal } from "../../components/ui/Modal";
@@ -21,13 +21,17 @@ import { SearchFilter, StatusFilter } from "../../components/shared/SearchFilter
 import { Pagination } from "../../components/shared/Pagination";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { StatTile } from "../../components/ui/StatTile";
-import { TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle, MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap } from "lucide-react";
+import { TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle, MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap, X, LayoutGrid, List } from "lucide-react";
 import { format } from "date-fns";
 
 const statusOptions = [
+  { value: "NOT_STARTED", label: "Not Started" },
   { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "LOW_ACTIVITY", label: "Low Activity" },
+  { value: "REVIEW", label: "Review" },
   { value: "COMPLETED", label: "Completed" },
+  { value: "ON_HOLD", label: "On Hold" },
+  { value: "CANCELLED", label: "Cancelled" },
+  { value: "LOW_ACTIVITY", label: "Low Activity" },
 ];
 
 // ─── Kebab dropdown ──────────────────────────────────────────────────────────
@@ -110,10 +114,12 @@ export default function ProjectsPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem("project_view_mode") || "grid");
 
   // modals
   const [modalOpen, setModalOpen] = useState(false);
@@ -167,6 +173,19 @@ export default function ProjectsPage() {
     { key: "low_activity",  label: "Low Activity", icon: AlertTriangle, color: "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30" },
   ];
 
+  const handleStatClick = (key) => {
+    if (key === "total") {
+      setStatus("");
+    } else if (key === "in_progress") {
+      setStatus("IN_PROGRESS");
+    } else if (key === "completed") {
+      setStatus("COMPLETED");
+    } else if (key === "low_activity") {
+      setStatus("LOW_ACTIVITY");
+    }
+    setPage(1);
+  };
+
   const openCreate = () => { setEditProject(null); setModalOpen(true); };
   const openEdit   = (p)  => { setEditProject(p);  setModalOpen(true); };
 
@@ -186,19 +205,54 @@ export default function ProjectsPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {statCards.map(card => (
-          <StatTile key={card.key} icon={card.icon} value={stats?.[card.key] ?? 0} label={card.label} accent={card.color} />
+          <StatTile
+            key={card.key}
+            icon={card.icon}
+            value={stats?.[card.key] ?? 0}
+            label={card.label}
+            accent={card.color}
+            onClick={card.key !== "student_count" ? () => handleStatClick(card.key) : undefined}
+          />
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <div className="w-64">
-          <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
+      {/* Filters & View Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3 flex-1 max-w-md">
+          <div className="flex-1">
+            <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
+          </div>
+          <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
         </div>
-        <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
+        
+        {/* Grid / List Switcher */}
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 self-end sm:self-auto">
+          <button
+            onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
+            className={`p-1.5 rounded-lg transition-all ${
+              viewMode === "grid"
+                ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+            }`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-4.5 h-4.5" />
+          </button>
+          <button
+            onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
+            className={`p-1.5 rounded-lg transition-all ${
+              viewMode === "list"
+                ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+            }`}
+            title="List View"
+          >
+            <List className="w-4.5 h-4.5" />
+          </button>
+        </div>
       </div>
 
-      {/* Table */}
+      {/* Projects Content */}
       {projects.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
@@ -210,6 +264,75 @@ export default function ProjectsPage() {
             </Button>
           )}
         />
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.map((project) => {
+            const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
+            const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+            const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
+            
+            return (
+              <div
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.id}`)}
+                className="dh-card p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between h-full border border-gray-200/60 dark:border-gray-700/80"
+              >
+                <div className="space-y-4">
+                  {/* Top row */}
+                  <div className="flex justify-between items-start">
+                    <StatusBadge status={project.status} />
+                    <div onClick={e => e.stopPropagation()}>
+                      <ProjectKebab
+                        project={project}
+                        isHOD={isHOD}
+                        onEdit={openEdit}
+                        onDelete={setDeleteTarget}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div>
+                    <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
+                      {project.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1.5 leading-relaxed">
+                      {project.description || "No description provided."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom section with divider */}
+                <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 space-y-3.5">
+                  {/* Members stacks */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Faculty */}
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Faculty</p>
+                      <MemberStack members={facultyMembers} max={2} />
+                    </div>
+                    {/* Forum */}
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Forum</p>
+                      <MemberStack members={forumMembers} max={2} />
+                    </div>
+                    {/* Students */}
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Students</p>
+                      <MemberStack members={studentMembers} max={2} />
+                    </div>
+                  </div>
+
+                  {/* Footer metadata */}
+                  <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                    <span>ID: #{project.id}</span>
+                    <span>Updated {format(new Date(project.updated_at), "MMM d, yyyy")}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
@@ -236,7 +359,7 @@ export default function ProjectsPage() {
                       <td className="px-4 py-3 text-sm text-gray-500">{(page - 1) * 10 + idx + 1}</td>
                       <td className="px-4 py-3">
                         <Link to={`/projects/${project.id}`} className="group">
-                          <p className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary-600">{project.name}</p>
+                          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-primary-600">{project.name}</p>
                           {project.description && (
                             <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{project.description}</p>
                           )}
@@ -296,71 +419,6 @@ export default function ProjectsPage() {
   );
 }
 
-// ─── Member section tab for the modal ────────────────────────────────────────
-function MemberSection({ title, icon: Icon, color, people, roleKey, selected, onToggle }) {
-  const [search, setSearch] = useState("");
-  const filtered = search
-    ? people.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
-    : people;
-  const selectedCount = people.filter(p => selected.some(s => s.user_id === p.user_id)).length;
-
-  return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-      {/* Section header */}
-      <div className={`flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700`}>
-        <div className="flex items-center gap-2">
-          <Icon className={`w-4 h-4 ${color}`} />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</span>
-          {selectedCount > 0 && (
-            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300`}>
-              {selectedCount} selected
-            </span>
-          )}
-        </div>
-        <span className="text-xs text-gray-400">{people.length} available</span>
-      </div>
-      {/* Search */}
-      <div className="px-2 py-1.5 border-b border-gray-100 dark:border-gray-700">
-        <input
-          type="text"
-          placeholder={`Search ${title.toLowerCase()}…`}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full px-2 py-1 text-xs rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        />
-      </div>
-      {/* List */}
-      <div className="max-h-40 overflow-y-auto">
-        {filtered.length === 0 ? (
-          <p className="text-xs text-gray-400 text-center py-4">No {title.toLowerCase()} found</p>
-        ) : (
-          filtered.map(p => {
-            const isSelected = selected.some(s => s.user_id === p.user_id);
-            return (
-              <label
-                key={p.user_id}
-                className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => onToggle(p.user_id, roleKey)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <Avatar src={p.profile_picture} name={p.name} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 dark:text-gray-200 truncate">{p.name}</p>
-                  {p.subtitle && <p className="text-xs text-gray-400 truncate">{p.subtitle}</p>}
-                </div>
-              </label>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ─── Create / Edit modal ──────────────────────────────────────────────────────
 function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
   const { data: facultyData } = useQuery({
@@ -383,86 +441,249 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("IN_PROGRESS");
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("faculty");
+  const [memberSearch, setMemberSearch] = useState("");
 
   // Sync form state when editProject changes
   useEffect(() => {
     if (editProject) {
       setName(editProject.name || "");
       setDescription(editProject.description || "");
+      setStatus(editProject.status || "IN_PROGRESS");
       // Reconstruct selected members from project.members
       const members = (editProject.members || []).map(m => ({
         user_id: m.id,
         role_in_project: m.role_in_project,
+        name: m.name,
+        profile_picture: m.profile_picture,
       }));
       setSelectedMembers(members);
     } else {
       setName("");
       setDescription("");
+      setStatus("IN_PROGRESS");
       setSelectedMembers([]);
     }
     setError("");
+    setMemberSearch("");
+    setActiveTab("faculty");
   }, [editProject, open]);
 
-  const toggleMember = (userId, role) => {
+  const toggleMember = (userId, role, name, profilePicture) => {
     setSelectedMembers(prev => {
       const exists = prev.find(m => m.user_id === userId);
       if (exists) return prev.filter(m => m.user_id !== userId);
-      return [...prev, { user_id: userId, role_in_project: role }];
+      return [...prev, { user_id: userId, role_in_project: role, name, profile_picture: profilePicture }];
     });
   };
 
-  const facultyPeople  = (facultyData  || []).map(f => ({ user_id: f.user_id, name: f.name, profile_picture: f.profile_picture, subtitle: f.designation }));
-  const forumPeople    = (forumData    || []).map(m => ({ user_id: m.user_id, name: m.name, profile_picture: m.profile_picture, subtitle: m.role }));
-  const studentPeople  = (studentsData || []).map(s => ({ user_id: s.user_id, name: s.name, profile_picture: s.profile_picture, subtitle: s.class_name?.replace("_", " ") }));
+  const facultyPeople  = (facultyData  || []).map(f => ({ user_id: f.user_id, name: f.name, profile_picture: f.profile_picture, subtitle: f.designation, role: "faculty" }));
+  const forumPeople    = (forumData    || []).map(m => ({ user_id: m.user_id, name: m.name, profile_picture: m.profile_picture, subtitle: m.role, role: "forum_member" }));
+  const studentPeople  = (studentsData || []).map(s => ({ user_id: s.user_id, name: s.name, profile_picture: s.profile_picture, subtitle: s.class_name?.replace("_", " "), role: "student" }));
+
+  let currentPeople = [];
+  let roleKey = "faculty";
+  if (activeTab === "faculty") {
+    currentPeople = facultyPeople;
+    roleKey = "faculty";
+  } else if (activeTab === "forum") {
+    currentPeople = forumPeople;
+    roleKey = "forum_member";
+  } else if (activeTab === "student") {
+    currentPeople = studentPeople;
+    roleKey = "student";
+  }
+
+  const filteredPeople = memberSearch
+    ? currentPeople.filter(p => p.name.toLowerCase().includes(memberSearch.toLowerCase()))
+    : currentPeople;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) { setError("Project name is required."); return; }
     if (selectedMembers.length === 0) { setError("Select at least one member (Faculty, Forum, or Student)."); return; }
     setError("");
-    onSubmit({ name: name.trim(), description: description.trim(), members: selectedMembers });
+    onSubmit({
+      name: name.trim(),
+      description: description.trim(),
+      status,
+      members: selectedMembers.map(m => ({ user_id: m.user_id, role_in_project: m.role_in_project })),
+    });
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={editProject ? "Edit Project" : "Create Project"} size="lg">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Project Name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter project name" required />
-        <Input label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional description" />
+    <Modal open={open} onClose={onClose} title={editProject ? "Edit Project" : "Create Project"} size="xl">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          {/* Left Pane: Project Details */}
+          <div className="md:col-span-5 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Project Details</h3>
+            <Input label="Project Name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter project name" required />
+            <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional project description..." rows={4} />
 
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Assign Members <span className="text-gray-400 font-normal">(select at least one)</span>
-          </p>
+            {/* Status Select dropdown */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Status</label>
+              <select
+                value={status}
+                onChange={e => setStatus(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3.5 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500"
+              >
+                {statusOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
 
-          <MemberSection
-            title="Faculty"
-            icon={Users}
-            color="text-blue-600"
-            people={facultyPeople}
-            roleKey="faculty"
-            selected={selectedMembers}
-            onToggle={toggleMember}
-          />
-          <MemberSection
-            title="Forum Members"
-            icon={MessageSquare}
-            color="text-violet-600"
-            people={forumPeople}
-            roleKey="forum_member"
-            selected={selectedMembers}
-            onToggle={toggleMember}
-          />
-          <MemberSection
-            title="Students"
-            icon={GraduationCap}
-            color="text-green-600"
-            people={studentPeople}
-            roleKey="student"
-            selected={selectedMembers}
-            onToggle={toggleMember}
-          />
+            {/* Visual Live Preview */}
+            <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Live Preview Card</p>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200/60 dark:border-gray-700 shadow-sm space-y-3">
+                <div className="flex justify-between items-start">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hive Workspace</span>
+                  <StatusBadge status={status} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate">{name || "Untitled Project"}</h4>
+                  <p className="text-xs text-gray-500 line-clamp-2 mt-1">{description || "No description provided."}</p>
+                </div>
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
+                  <span className="text-[10px] text-gray-400">Last updated just now</span>
+                  <div className="flex -space-x-1.5">
+                    {selectedMembers.slice(0, 3).map((m, i) => (
+                      <Avatar key={i} src={m.profile_picture} name={m.name} size="sm" className="w-6 h-6 ring-2 ring-white dark:ring-gray-800" />
+                    ))}
+                    {selectedMembers.length > 3 && (
+                      <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[9px] text-gray-500 ring-2 ring-white dark:ring-gray-800">
+                        +{selectedMembers.length - 3}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Pane: Member Assignment */}
+          <div className="md:col-span-7 flex flex-col space-y-4">
+            <div className="flex justify-between items-baseline">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Assign Members</h3>
+              <span className="text-xs font-semibold text-gray-400">{selectedMembers.length} assigned</span>
+            </div>
+
+            {/* Selected Members Chips */}
+            {selectedMembers.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/80 max-h-24 overflow-y-auto">
+                {selectedMembers.map(m => {
+                  let roleLabel = "Faculty";
+                  let roleColor = "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800/50";
+                  if (m.role_in_project === "forum_member") {
+                    roleLabel = "Forum";
+                    roleColor = "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border-violet-200 dark:border-violet-800/50";
+                  } else if (m.role_in_project === "student") {
+                    roleLabel = "Student";
+                    roleColor = "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800/50";
+                  }
+                  return (
+                    <div
+                      key={m.user_id}
+                      className={`inline-flex items-center gap-1.5 pl-1.5 pr-2 py-0.5 rounded-full border text-xs font-medium ${roleColor}`}
+                    >
+                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="w-4.5 h-4.5" />
+                      <span className="truncate max-w-[100px]">{m.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleMember(m.user_id, m.role_in_project, m.name, m.profile_picture)}
+                        className="hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-0.5 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-4 py-6 rounded-lg bg-gray-50/50 dark:bg-gray-800/20 border border-dashed border-gray-200 dark:border-gray-700 text-center">
+                <Users className="w-6 h-6 text-gray-400 mb-1" />
+                <p className="text-xs text-gray-500 font-semibold">No members assigned yet</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Please select at least one Faculty, Forum, or Student</p>
+              </div>
+            )}
+
+            {/* Custom Tab Switcher */}
+            <div className="flex border-b border-gray-200 dark:border-gray-700 gap-2">
+              {[
+                { id: "faculty", label: "Faculty", count: facultyPeople.length, activeColor: "border-blue-500 text-blue-600" },
+                { id: "student", label: "Students", count: studentPeople.length, activeColor: "border-green-500 text-green-600" },
+                { id: "forum", label: "Forum Members", count: forumPeople.length, activeColor: "border-violet-500 text-violet-600" },
+              ].map(tab => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => { setActiveTab(tab.id); setMemberSearch(""); }}
+                    className={`flex-1 pb-2 text-xs font-bold border-b-2 transition-all leading-none ${
+                      isActive ? tab.activeColor : "border-transparent text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                    }`}
+                  >
+                    {tab.label} <span className="text-[10px] opacity-75 font-normal ml-1">({tab.count})</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Member Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"}...`}
+                value={memberSearch}
+                onChange={e => setMemberSearch(e.target.value)}
+                className="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500"
+              />
+            </div>
+
+            {/* Members Selection List */}
+            <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-700/80 rounded-xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
+              {filteredPeople.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">No {activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"} found</p>
+                </div>
+              ) : (
+                filteredPeople.map(p => {
+                  const isSelected = selectedMembers.some(s => s.user_id === p.user_id);
+                  return (
+                    <div
+                      key={p.user_id}
+                      onClick={() => toggleMember(p.user_id, roleKey, p.name, p.profile_picture)}
+                      className={`flex items-center gap-3 px-3 py-2 cursor-pointer rounded-xl border transition-all duration-150 ${
+                        isSelected
+                          ? "border-primary-500/80 bg-primary-50/40 dark:bg-primary-950/20"
+                          : "border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
+                      }`}
+                    >
+                      <Avatar src={p.profile_picture} name={p.name} size="sm" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{p.name}</p>
+                        {p.subtitle && <p className="text-[11px] text-gray-400 truncate mt-0.5">{p.subtitle}</p>}
+                      </div>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                        isSelected
+                          ? "bg-primary-500 border-primary-500 text-white"
+                          : "border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500"
+                      }`}>
+                        {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
         </div>
 
         {error && (
@@ -471,9 +692,10 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
           </p>
         )}
 
-        <div className="flex gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">Cancel</Button>
-          <Button type="submit" loading={loading} className="flex-1">
+        {/* Form Actions */}
+        <div className="flex gap-3 pt-3 border-t border-gray-100 dark:border-gray-700/80">
+          <Button type="button" variant="secondary" onClick={onClose} className="flex-1 py-2.5">Cancel</Button>
+          <Button type="submit" loading={loading} className="flex-1 py-2.5">
             {editProject ? "Save Changes" : "Create Project"}
           </Button>
         </div>

@@ -198,7 +198,13 @@ def create_project():
     if not members_data:
         return jsonify({"error": "At least one member is required"}), 400
 
+    status_val = data.get("status")
     project = Project(name=name, description=description, created_by=g.current_user.id)
+    if status_val:
+        try:
+            project.status = ProjectStatus(status_val)
+        except ValueError:
+            pass
     db.session.add(project)
     db.session.flush()
 
@@ -374,6 +380,12 @@ def update_project(project_id):
 
     project.name = name
     project.description = description
+    status_val = data.get("status")
+    if status_val:
+        try:
+            project.status = ProjectStatus(status_val)
+        except ValueError:
+            pass
     project.updated_at = datetime.utcnow()
 
     # Clear old members

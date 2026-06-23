@@ -4,13 +4,17 @@ import clsx from "clsx";
  * Compact stat tile: icon chip + value + label, with an optional secondary
  * note. Shared by Dashboard and Projects (and anywhere a metric row is shown).
  */
-export function StatTile({ icon: Icon, value, label, accent, note, className }) {
+export function StatTile({ icon: Icon, value, label, accent, note, className, onClick, ...props }) {
+  const isClickable = !!onClick;
   return (
     <div
+      onClick={onClick}
       className={clsx(
         "h-full bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700",
+        isClickable && "cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all duration-200 active:scale-[0.98]",
         className
       )}
+      {...props}
     >
       {Icon && (
         <div
