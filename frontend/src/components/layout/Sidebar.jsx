@@ -3,8 +3,9 @@ import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import {
   LayoutDashboard, FolderKanban, Users, GraduationCap,
-  MessageSquare, Megaphone, BarChart2, Calendar, Settings,
+  MessageSquare, Megaphone, Settings,
   X, HelpCircle, BookOpen, ChevronRight, Grid3X3,
+  PanelLeftClose, LogOut
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -16,14 +17,12 @@ const allNavItems = [
   { to: "/classes",    label: "Classes",        icon: BookOpen,        roles: ["HOD", "FACULTY", "STUDENT"], exact: true },
   { to: "/forum",      label: "Forum",          icon: MessageSquare,   roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/updates",    label: "Announcements",  icon: Megaphone,       roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/reports",    label: "Reports",        icon: BarChart2,       roles: ["HOD"], disabled: true },
-  { to: "/calendar",   label: "Calendar",       icon: Calendar,        roles: ["HOD", "FACULTY", "STUDENT"], disabled: true },
   { to: "/settings",   label: "Settings",       icon: Settings,        roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
-export function Sidebar({ open, onClose }) {
+export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
   const { unreadCount } = useNotificationContext();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const navItems = allNavItems.filter(item =>
     !item.roles || item.roles.includes(user?.role)
@@ -51,15 +50,18 @@ export function Sidebar({ open, onClose }) {
       <aside
         style={{
           background: "var(--sidebar-bg)",
-          borderRight: "1px solid var(--sidebar-border)",
-          width: "240px",
-          flexShrink: 0,
         }}
         className={clsx(
-          "fixed lg:static inset-y-0 left-0 z-50 flex flex-col h-full transition-transform duration-300",
-          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          // Base mobile layout: behaves like a slide-over overlay drawer
+          "fixed inset-y-0 left-0 z-50 flex flex-col h-full w-[240px] border-r border-[var(--sidebar-border)] transition-transform duration-300 ease-in-out lg:z-30",
+          open ? "translate-x-0" : "-translate-x-full",
+          // Desktop layout: static position with smooth width collapse transitions
+          "lg:static lg:translate-x-0 lg:transition-all lg:duration-300 lg:ease-in-out",
+          isCollapsed ? "lg:w-0 lg:border-r-0 lg:overflow-hidden" : "lg:w-[240px]"
         )}
       >
+        {/* Inner wrapper with fixed width prevents squishing during collapse animations */}
+        <div className="flex flex-col h-full w-[240px] flex-shrink-0">
         {/* ── Brand / Logo ── */}
         <div
           className="flex items-center gap-2.5 px-5 h-16 flex-shrink-0"
@@ -73,18 +75,26 @@ export function Sidebar({ open, onClose }) {
             <Grid3X3 className="w-4 h-4 text-white" />
           </div>
           <span
-            className="text-base font-bold truncate"
+            className="text-base font-bold truncate flex-1"
             style={{ color: "var(--text-primary)" }}
           >
             Department Hub
           </span>
+          {/* Desktop Collapse Button (ChatGPT style) */}
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose className="w-[18px] h-[18px]" />
+          </button>
           {/* Mobile close */}
           <button
             onClick={onClose}
-            className="ml-auto p-1 rounded-md lg:hidden"
-            style={{ color: "var(--text-muted)" }}
+            className="ml-auto p-1.5 rounded-lg lg:hidden hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
+            title="Close menu"
           >
-            <X className="w-4 h-4" />
+            <X className="w-[18px] h-[18px]" />
           </button>
         </div>
 
@@ -141,53 +151,50 @@ export function Sidebar({ open, onClose }) {
           })}
         </nav>
 
-        {/* ── Footer Help Block ── */}
+        {/* ── Footer Logout Block ── */}
         <div
           className="p-4 flex-shrink-0"
           style={{ borderTop: "1px solid var(--sidebar-border)" }}
         >
           <div
-            className="rounded-xl p-4 relative overflow-hidden"
-            style={{ background: "var(--primary-light)" }}
+            className="rounded-xl p-4 relative overflow-hidden transition-all duration-300 group hover:shadow-sm"
+            style={{
+              background: "linear-gradient(135deg, var(--primary-light) 0%, rgba(99, 102, 241, 0.08) 100%)",
+              border: "1px solid rgba(99, 102, 241, 0.15)",
+            }}
           >
             {/* Decorative circles */}
             <div
-              className="absolute -top-3 -right-3 w-16 h-16 rounded-full opacity-20"
+              className="absolute -top-3 -right-3 w-16 h-16 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-110"
               style={{ background: "var(--primary)" }}
             />
-            <div
-              className="absolute top-6 -right-1 w-8 h-8 rounded-full opacity-10"
-              style={{ background: "var(--primary)" }}
-            />
-            <HelpCircle
-              className="w-5 h-5 mb-2 relative z-10"
-              style={{ color: "var(--primary)" }}
+            <LogOut
+              className="w-5 h-5 mb-2 relative z-10 text-[var(--primary)] transition-transform duration-300 group-hover:translate-x-0.5"
             />
             <p
               className="text-sm font-semibold mb-0.5 relative z-10"
-              style={{ color: "var(--primary)" }}
+              style={{ color: "var(--text-primary)" }}
             >
-              Need help getting started?
+              Session active
             </p>
             <p
               className="text-xs mb-3 relative z-10"
               style={{ color: "var(--text-secondary)" }}
             >
-              Check our quick start guide
+              Sign out from Department Hub
             </p>
-            <a
-              href="mailto:support@dpms.com"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg relative z-10 transition-all duration-150 hover:opacity-90"
+            <button
+              onClick={logout}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg relative z-10 w-full justify-center transition-all duration-150 hover:bg-[var(--primary-hover)] active:scale-95 shadow-sm text-white"
               style={{
                 background: "var(--primary)",
-                color: "#fff",
-                textDecoration: "none",
               }}
             >
-              View Guide
+              Log Out
               <ChevronRight className="w-3.5 h-3.5" />
-            </a>
+            </button>
           </div>
+        </div>
         </div>
       </aside>
     </>
