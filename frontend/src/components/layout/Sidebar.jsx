@@ -73,22 +73,25 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
           {isCollapsed ? (
             <button
               onClick={onToggleCollapse}
-              className="p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
+              className="p-1 rounded-lg transition-all duration-150 active:scale-95"
               title="Expand sidebar"
             >
-              <PanelLeftOpen className="w-[18px] h-[18px]" />
+              <img
+                src="/favicon.svg"
+                alt="Logo"
+                className="w-8 h-8 rounded-lg object-contain"
+              />
             </button>
           ) : (
             <>
-              {/* Icon mark */}
-              <div
-                className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
-                style={{ background: "var(--primary)" }}
-              >
-                <Grid3X3 className="w-4 h-4 text-white" />
-              </div>
+              {/* Logo from favicon */}
+              <img
+                src="/favicon.svg"
+                alt="Logo"
+                className="w-8 h-8 rounded-lg object-contain flex-shrink-0"
+              />
               <span
-                className="text-base font-bold truncate flex-1"
+                className="text-base font-bold truncate flex-1 animate-fade-in"
                 style={{ color: "var(--text-primary)" }}
               >
                 Department Hub
