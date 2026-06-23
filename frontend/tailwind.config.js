@@ -19,47 +19,26 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
       },
       borderRadius: {
-        sm:  "8px",
-        md:  "12px",
-        lg:  "16px",
-        xl:  "20px",
+        sm:  "6px",
+        md:  "10px",
+        lg:  "12px",
+        xl:  "16px",
+        "2xl": "20px",
       },
       boxShadow: {
-        card:  "0 4px 12px rgba(15,23,42,0.06)",
-        hover: "0 10px 25px rgba(79,70,229,0.12)",
-        dark:  "0 8px 32px rgba(0,0,0,0.35)",
-
-        /* Premium multi-layer card elevation — subtle but clearly floating */
-        login: [
-          "0 0 0 1px rgba(0,0,0,0.04)",
-          "0 2px 4px rgba(0,0,0,0.04)",
-          "0 8px 20px rgba(0,0,0,0.06)",
-          "0 32px 64px rgba(0,0,0,0.10)",
-        ].join(", "),
-
-        /* Statistics panel — lighter separation from background */
-        stat: [
-          "0 0 0 1px rgba(0,0,0,0.03)",
-          "0 2px 6px rgba(0,0,0,0.04)",
-          "0 10px 28px rgba(0,0,0,0.07)",
-        ].join(", "),
-
-        /* Hover lift for interactive cards */
-        "card-hover": [
-          "0 0 0 1px rgba(0,0,0,0.04)",
-          "0 4px 8px rgba(0,0,0,0.05)",
-          "0 16px 32px rgba(0,0,0,0.10)",
-        ].join(", "),
-
-        /* Primary button glow on hover */
-        "primary-glow": "0 4px 14px rgba(79,70,229,0.35)",
+        card: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        md:   "0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05)",
+        lg:   "0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05)",
+        "card-hover": "0 4px 12px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)",
+        "primary-glow": "0 4px 14px rgba(79,70,229,0.30)",
       },
       animation: {
-        "fade-in":  "fadeIn 0.5s ease-out forwards",
-        "slide-up": "slideUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards",
+        "fade-in":  "fadeIn 0.4s ease-out forwards",
+        "slide-up": "slideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards",
+        "spin-slow": "spin 3s linear infinite",
       },
       keyframes: {
         fadeIn: {
@@ -67,7 +46,7 @@ export default {
           "100%": { opacity: "1" },
         },
         slideUp: {
-          "0%":   { opacity: "0", transform: "translateY(24px)" },
+          "0%":   { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
@@ -75,3 +54,4 @@ export default {
   },
   plugins: [],
 }
+

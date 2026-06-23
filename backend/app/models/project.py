@@ -4,9 +4,13 @@ import enum
 
 
 class ProjectStatus(enum.Enum):
+    NOT_STARTED = "NOT_STARTED"
     IN_PROGRESS = "IN_PROGRESS"
-    LOW_ACTIVITY = "LOW_ACTIVITY"
+    REVIEW = "REVIEW"
     COMPLETED = "COMPLETED"
+    ON_HOLD = "ON_HOLD"
+    CANCELLED = "CANCELLED"
+    LOW_ACTIVITY = "LOW_ACTIVITY"  # legacy / kept for existing data
 
 
 project_members = db.Table(

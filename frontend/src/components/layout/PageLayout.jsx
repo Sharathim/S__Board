@@ -7,20 +7,17 @@ import { ErrorBoundary } from "../ui/ErrorBoundary";
 
 export default function PageLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen overflow-hidden" style={{ background: "var(--background)" }}>
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        collapsed={collapsed}
-        onToggle={() => setCollapsed(!collapsed)}
       />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="app-surface flex-1 overflow-y-auto p-4 lg:p-6">
-          <div className="mx-auto w-full max-w-7xl">
+        <main className="app-surface flex-1 overflow-y-auto">
+          <div className="p-6 w-full max-w-[1400px]">
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>

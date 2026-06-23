@@ -2,115 +2,137 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import {
-  LayoutDashboard, Users, GraduationCap, MessageSquare, FolderKanban,
-  Newspaper, Settings, HelpCircle, X, ChevronLeft
+  LayoutDashboard, FolderKanban, Users, GraduationCap,
+  MessageSquare, Megaphone, BarChart2, Calendar, Settings,
+  X, HelpCircle, BookOpen, ChevronRight, Grid3X3,
 } from "lucide-react";
 import clsx from "clsx";
 
 const allNavItems = [
-  { to: "/dashboard", label: "Dashboard",      icon: LayoutDashboard, roles: ["HOD"]          },
-  { to: "/faculty",   label: "Faculty",         icon: Users,           roles: ["HOD", "FACULTY"] },
-  { to: "/classes",   label: "Classes",         icon: GraduationCap,   roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/forum",     label: "Forum Members",   icon: MessageSquare,   roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/projects",  label: "Projects",        icon: FolderKanban,    roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/updates",   label: "Updates",         icon: Newspaper,       roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/settings",  label: "Settings",        icon: Settings,        roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/dashboard",  label: "Dashboard",     icon: LayoutDashboard, roles: ["HOD"] },
+  { to: "/projects",   label: "Projects",       icon: FolderKanban,    roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/classes",    label: "Students",       icon: Users,           roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/faculty",    label: "Faculty",        icon: GraduationCap,   roles: ["HOD", "FACULTY"] },
+  { to: "/classes",    label: "Classes",        icon: BookOpen,        roles: ["HOD", "FACULTY", "STUDENT"], exact: true },
+  { to: "/forum",      label: "Forum",          icon: MessageSquare,   roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/updates",    label: "Announcements",  icon: Megaphone,       roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/reports",    label: "Reports",        icon: BarChart2,       roles: ["HOD"], disabled: true },
+  { to: "/calendar",   label: "Calendar",       icon: Calendar,        roles: ["HOD", "FACULTY", "STUDENT"], disabled: true },
+  { to: "/settings",   label: "Settings",       icon: Settings,        roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
-export function Sidebar({ open, onClose, collapsed, onToggle }) {
+export function Sidebar({ open, onClose }) {
   const { unreadCount } = useNotificationContext();
   const { user } = useAuth();
 
-  // Filter nav items based on user role
   const navItems = allNavItems.filter(item =>
     !item.roles || item.roles.includes(user?.role)
   );
 
+  // Deduplicate: if "Students" and "Classes" both map to /classes, remove duplicate
+  const seen = new Set();
+  const uniqueNavItems = navItems.filter(item => {
+    const key = `${item.label}-${item.to}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
   return (
     <>
+      {/* Mobile overlay */}
       {open && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
+          onClick={onClose}
+        />
       )}
+
       <aside
+        style={{
+          background: "var(--sidebar-bg)",
+          borderRight: "1px solid var(--sidebar-border)",
+          width: "240px",
+          flexShrink: 0,
+        }}
         className={clsx(
-          "fixed lg:static inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300",
-          collapsed ? "w-16" : "w-64",
+          "fixed lg:static inset-y-0 left-0 z-50 flex flex-col h-full transition-transform duration-300",
           open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        {/* ── Header / Logo ── */}
-        <div className="flex items-center h-16 px-3 border-b border-gray-200 dark:border-gray-800">
-          {collapsed ? (
-            /* Collapsed: icon-only logo, centered */
-            <div className="flex items-center justify-center w-full">
-              <img
-                src="/logo-icon.png"
-                alt="DPMS"
-                className="w-9 h-9 object-contain"
-              />
-            </div>
-          ) : (
-            /* Expanded: full logo + control buttons */
-            <div className="flex items-center w-full gap-2 min-w-0">
-              {/* Full brand logo */}
-              <img
-                src="/logo-full.png"
-                alt="DPMS — Department Project Management System"
-                className="h-9 w-auto object-contain max-w-[148px] shrink-0"
-              />
-
-              {/* Controls pushed to the right */}
-              <div className="flex items-center gap-1 ml-auto shrink-0">
-                {/* Desktop collapse toggle */}
-                <button
-                  onClick={onToggle}
-                  className="hidden lg:flex p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 transition-all duration-150"
-                  title="Collapse sidebar"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                {/* Mobile close */}
-                <button
-                  onClick={onClose}
-                  className="flex lg:hidden p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 transition-all duration-150"
-                  title="Close menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
+        {/* ── Brand / Logo ── */}
+        <div
+          className="flex items-center gap-2.5 px-5 h-16 flex-shrink-0"
+          style={{ borderBottom: "1px solid var(--sidebar-border)" }}
+        >
+          {/* Icon mark */}
+          <div
+            className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
+            style={{ background: "var(--primary)" }}
+          >
+            <Grid3X3 className="w-4 h-4 text-white" />
+          </div>
+          <span
+            className="text-base font-bold truncate"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Department Hub
+          </span>
+          {/* Mobile close */}
+          <button
+            onClick={onClose}
+            className="ml-auto p-1 rounded-md lg:hidden"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* ── Navigation ── */}
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-          {navItems.map(item => {
+        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
+          {uniqueNavItems.map(item => {
             const Icon = item.icon;
-            const showBadge = item.badge && unreadCount > 0;
+            const showBadge = item.to === "/forum" && unreadCount > 0;
+
+            if (item.disabled) {
+              return (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-not-allowed select-none"
+                  style={{ color: "var(--text-muted)", opacity: 0.5 }}
+                  title="Coming soon"
+                >
+                  <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+              );
+            }
+
             return (
               <NavLink
-                key={item.to}
+                key={item.label}
                 to={item.to}
+                end={item.exact}
                 onClick={onClose}
-                className={({ isActive }) => clsx(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                className={({ isActive }) =>
+                  clsx(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative",
+                    isActive ? "nav-active" : "hover:bg-[var(--sidebar-hover)]"
+                  )
+                }
+                style={({ isActive }) =>
                   isActive
-                    ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200",
-                  collapsed && "lg:justify-center lg:px-2"
-                )}
+                    ? {}
+                    : { color: "var(--text-secondary)" }
+                }
               >
-                <div className="relative shrink-0">
-                  <Icon className="w-5 h-5" />
-                  {showBadge && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900" />
-                  )}
-                </div>
-                {!collapsed && (
-                  <span className="flex-1 truncate">{item.label}</span>
-                )}
-                {!collapsed && showBadge && (
-                  <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center shrink-0">
+                <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {showBadge && (
+                  <span
+                    className="text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none"
+                    style={{ background: "var(--primary)", color: "#fff" }}
+                  >
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
@@ -119,18 +141,54 @@ export function Sidebar({ open, onClose, collapsed, onToggle }) {
           })}
         </nav>
 
-        {/* ── Footer help block ── */}
-        {!collapsed && (
-          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-            <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-              <HelpCircle className="w-5 h-5 text-primary-600 mb-2" />
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Need help?</p>
-              <a href="mailto:support@dpms.com" className="text-xs text-primary-600 hover:underline">
-                Contact Support
-              </a>
-            </div>
+        {/* ── Footer Help Block ── */}
+        <div
+          className="p-4 flex-shrink-0"
+          style={{ borderTop: "1px solid var(--sidebar-border)" }}
+        >
+          <div
+            className="rounded-xl p-4 relative overflow-hidden"
+            style={{ background: "var(--primary-light)" }}
+          >
+            {/* Decorative circles */}
+            <div
+              className="absolute -top-3 -right-3 w-16 h-16 rounded-full opacity-20"
+              style={{ background: "var(--primary)" }}
+            />
+            <div
+              className="absolute top-6 -right-1 w-8 h-8 rounded-full opacity-10"
+              style={{ background: "var(--primary)" }}
+            />
+            <HelpCircle
+              className="w-5 h-5 mb-2 relative z-10"
+              style={{ color: "var(--primary)" }}
+            />
+            <p
+              className="text-sm font-semibold mb-0.5 relative z-10"
+              style={{ color: "var(--primary)" }}
+            >
+              Need help getting started?
+            </p>
+            <p
+              className="text-xs mb-3 relative z-10"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Check our quick start guide
+            </p>
+            <a
+              href="mailto:support@dpms.com"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg relative z-10 transition-all duration-150 hover:opacity-90"
+              style={{
+                background: "var(--primary)",
+                color: "#fff",
+                textDecoration: "none",
+              }}
+            >
+              View Guide
+              <ChevronRight className="w-3.5 h-3.5" />
+            </a>
           </div>
-        )}
+        </div>
       </aside>
     </>
   );

@@ -2,6 +2,7 @@ import api from "./axios";
 
 export const listProjects = (params) => api.get("/projects/", { params });
 export const getProjectStats = () => api.get("/projects/stats");
+export const getRecentActivity = (limit = 5) => api.get("/projects/recent-activity", { params: { limit } });
 export const getProject = (id) => api.get(`/projects/${id}`);
 export const createProject = (data) => api.post("/projects/", data);
 export const updateProject = (id, data) => api.put(`/projects/${id}`, data);

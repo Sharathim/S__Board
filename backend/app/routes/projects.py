@@ -90,8 +90,12 @@ def project_stats():
     user = g.current_user
     if user.role == UserRole.HOD:
         total = Project.query.count()
+        not_started = Project.query.filter_by(status=ProjectStatus.NOT_STARTED).count()
         in_progress = Project.query.filter_by(status=ProjectStatus.IN_PROGRESS).count()
+        review = Project.query.filter_by(status=ProjectStatus.REVIEW).count()
         completed = Project.query.filter_by(status=ProjectStatus.COMPLETED).count()
+        on_hold = Project.query.filter_by(status=ProjectStatus.ON_HOLD).count()
+        cancelled = Project.query.filter_by(status=ProjectStatus.CANCELLED).count()
         low_activity = Project.query.filter_by(status=ProjectStatus.LOW_ACTIVITY).count()
         student_count = db.session.execute(
             text("SELECT COUNT(DISTINCT user_id) FROM project_members pm "
@@ -99,13 +103,29 @@ def project_stats():
         ).scalar()
     else:
         total = Project.query.filter(Project.members.any(id=user.id)).count()
+        not_started = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.NOT_STARTED
+        ).count()
         in_progress = Project.query.filter(
             Project.members.any(id=user.id),
             Project.status == ProjectStatus.IN_PROGRESS
         ).count()
+        review = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.REVIEW
+        ).count()
         completed = Project.query.filter(
             Project.members.any(id=user.id),
             Project.status == ProjectStatus.COMPLETED
+        ).count()
+        on_hold = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.ON_HOLD
+        ).count()
+        cancelled = Project.query.filter(
+            Project.members.any(id=user.id),
+            Project.status == ProjectStatus.CANCELLED
         ).count()
         low_activity = Project.query.filter(
             Project.members.any(id=user.id),
@@ -121,11 +141,48 @@ def project_stats():
 
     return jsonify({
         "total": total,
+        "not_started": not_started,
         "in_progress": in_progress,
+        "review": review,
         "completed": completed,
+        "on_hold": on_hold,
+        "cancelled": cancelled,
         "low_activity": low_activity,
         "student_count": student_count or 0,
     })
+
+
+@projects_bp.route("/recent-activity", methods=["GET"])
+@require_auth
+def recent_activity():
+    user = g.current_user
+    limit = request.args.get("limit", 5, type=int)
+
+    if user.role == UserRole.HOD:
+        query = Project.query
+    else:
+        query = Project.query.filter(Project.members.any(id=user.id))
+
+    projects = query.order_by(Project.updated_at.desc()).limit(limit).all()
+
+    results = []
+    for p in projects:
+        last_msg = p.messages.filter_by(is_deleted=False).order_by(
+            ProjectMessage.created_at.desc()
+        ).first()
+        results.append({
+            "id": p.id,
+            "name": p.name,
+            "status": p.status.value,
+            "updated_at": p.updated_at.isoformat(),
+            "last_message": {
+                "content": last_msg.content,
+                "sender_name": last_msg.sender.name if last_msg.sender else "Unknown",
+                "created_at": last_msg.created_at.isoformat(),
+            } if last_msg else None,
+        })
+
+    return jsonify({"activities": results})
 
 
 @projects_bp.route("/", methods=["POST"])
