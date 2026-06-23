@@ -33,7 +33,7 @@ jobs:
           push: true
           tags: ghcr.io/sharathim/s_board-backend:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
           provenance: false
           sbom: false
 
@@ -64,7 +64,7 @@ jobs:
           push: true
           tags: ghcr.io/sharathim/s_board-frontend:latest
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
           provenance: false
           sbom: false
 
