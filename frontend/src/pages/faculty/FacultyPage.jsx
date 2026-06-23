@@ -66,13 +66,6 @@ export default function FacultyPage() {
 
   const facultyList = data || [];
 
-  // Demo: Open kebab menu for the first faculty card by default on HOD view on load
-  useEffect(() => {
-    if (isHOD && facultyList.length > 0 && activeDropdownId === null) {
-      setActiveDropdownId(facultyList[0].id);
-    }
-  }, [isHOD, facultyList, activeDropdownId]);
-
   // Click outside listener to close kebab menus
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -211,13 +204,13 @@ export default function FacultyPage() {
           {facultyList.map((f) => (
             <div
               key={f.id}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-shadow p-4.5 flex items-center gap-6 relative"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-150 dark:border-gray-700/80 shadow-sm hover:shadow-md transition-shadow p-4.5 flex items-center gap-6 relative"
             >
               {/* Left Section */}
-              <div className="flex items-center gap-4.5 w-[28%] min-w-0">
+              <div className="flex items-center gap-4.5 w-1/4 min-w-0">
                 {renderAvatar(f)}
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-gray-950 dark:text-gray-50 truncate text-base leading-snug">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-50 truncate text-base leading-snug">
                     {f.name}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5 font-normal">
@@ -227,8 +220,8 @@ export default function FacultyPage() {
               </div>
 
               {/* Middle Section - Classes Handling */}
-              <div className="flex flex-col w-[25%] border-l border-gray-100 dark:border-gray-700/50 pl-5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1.5">
+              <div className="flex flex-col w-1/4 gap-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">
                   Classes Handling
                 </span>
                 <div className="flex flex-wrap gap-1">
@@ -236,45 +229,46 @@ export default function FacultyPage() {
                     f.classes_handling.map((cls) => (
                       <span
                         key={cls}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50/70 text-indigo-700 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800/40"
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-650 border border-indigo-100/80 dark:bg-indigo-950/40 dark:text-indigo-400 dark:border-indigo-900/50"
                       >
                         {cls.replace("_", " ")}
                       </span>
                     ))
                   ) : (
-                    <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">—</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500 font-normal">—</span>
                   )}
                 </div>
               </div>
 
               {/* Middle Section - Class Incharge */}
-              <div className="flex flex-col w-[15%] border-l border-gray-100 dark:border-gray-700/50 pl-5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1.5">
+              <div className="flex flex-col w-1/6 gap-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">
                   Incharge
                 </span>
                 {f.class_incharge_of ? (
                   <div>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-green-50 text-green-700 border border-green-100 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800/30">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-600 border border-green-250/80 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/40"
+                    >
                       {f.class_incharge_of.replace("_", " ")}
                     </span>
                   </div>
                 ) : (
-                  <span className="text-sm text-gray-400 dark:text-gray-500 font-semibold">—</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500 font-normal">—</span>
                 )}
               </div>
 
               {/* Right Section - Projects Assigned */}
-              <div className="flex flex-col w-[17%] border-l border-gray-100 dark:border-gray-700/50 pl-5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1.5">
+              <div className="flex flex-col w-1/6 gap-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">
                   Projects Assigned
                 </span>
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {f.project_count || 0} {f.project_count === 1 ? "Project" : "Projects"}
                 </span>
               </div>
 
               {/* Right Section - Actions */}
-              <div className="flex items-center justify-end gap-5 w-[15%] border-l border-gray-100 dark:border-gray-700/50 pl-5 shrink-0">
+              <div className="flex items-center justify-end gap-6 w-1/6 shrink-0">
                 <a
                   href={`mailto:${f.email}`}
                   className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/15 rounded-lg transition-colors group shrink-0"
