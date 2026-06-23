@@ -12,9 +12,9 @@ import clsx from "clsx";
 const allNavItems = [
   { to: "/dashboard",  label: "Dashboard",     icon: LayoutDashboard, roles: ["HOD"] },
   { to: "/projects",   label: "Projects",       icon: FolderKanban,    roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/classes",    label: "Students",       icon: Users,           roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/classes",    label: "Students",       icon: Users,           roles: ["STUDENT"] },
   { to: "/faculty",    label: "Faculty",        icon: GraduationCap,   roles: ["HOD", "FACULTY"] },
-  { to: "/classes",    label: "Classes",        icon: BookOpen,        roles: ["HOD", "FACULTY", "STUDENT"], exact: true },
+  { to: "/classes",    label: "Classes",        icon: BookOpen,        roles: ["HOD", "FACULTY"] },
   { to: "/forum",      label: "Forum",          icon: MessageSquare,   roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/updates",    label: "Announcements",  icon: Megaphone,       roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/settings",   label: "Settings",       icon: Settings,        roles: ["HOD", "FACULTY", "STUDENT"] },
