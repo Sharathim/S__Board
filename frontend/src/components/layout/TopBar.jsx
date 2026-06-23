@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Menu, Bell, Moon, Sun, LogOut, Search, Settings, ChevronDown, Command } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
+import { listProjects } from "../../api/projects";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { Dropdown, DropdownItem } from "../ui/Dropdown";
@@ -20,11 +22,78 @@ function getRoleLabel(role) {
   return map[role] || role;
 }
 
+const allNavItems = [
+  { to: "/dashboard",  label: "Dashboard",     roles: ["HOD"] },
+  { to: "/projects",   label: "Projects",       roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/classes",    label: "Students",       roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/faculty",    label: "Faculty",        roles: ["HOD", "FACULTY"] },
+  { to: "/classes",    label: "Classes",        roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/forum",      label: "Forum",          roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/updates",    label: "Announcements",  roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/settings",   label: "Settings",       roles: ["HOD", "FACULTY", "STUDENT"] },
+];
+
 export function TopBar({ onMenuClick }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
   const [notifOpen, setNotifOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const searchRef = useRef(null);
+
+  const visibleNavs = allNavItems.filter(item => 
+    (!item.roles || item.roles.includes(user?.role)) &&
+    item.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  useEffect(() => {
+    // ⌘K / Ctrl+K shortcut to focus search
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        document.getElementById("topbar-search")?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    // Click outside to close search results dropdown
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setProjects([]);
+      return;
+    }
+
+    setIsLoading(true);
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await listProjects({ search: searchQuery, per_page: 5 });
+        setProjects(res.data?.projects || []);
+      } catch (err) {
+        console.error("Search API error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   return (
     <header
@@ -48,33 +117,118 @@ export function TopBar({ onMenuClick }) {
 
       {/* ── Search Bar ── */}
       <div
-        className="flex-1 max-w-md search-bar rounded-lg flex items-center gap-2 px-3 py-2 transition-all duration-200 cursor-text"
-        style={{
-          background: "var(--surface-secondary)",
-          border: "1px solid var(--border-light)",
-        }}
-        onClick={() => document.getElementById("topbar-search")?.focus()}
+        ref={searchRef}
+        className="flex-1 max-w-md relative"
       >
-        <Search className="w-4 h-4 flex-shrink-0" style={{ color: "var(--text-muted)" }} />
-        <input
-          id="topbar-search"
-          type="text"
-          placeholder="Search for anything..."
-          className="flex-1 bg-transparent outline-none text-sm"
-          style={{ color: "var(--text-primary)" }}
-        />
         <div
-          className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-xs flex-shrink-0"
+          className="search-bar rounded-lg flex items-center gap-2 px-3 py-2 transition-all duration-200 cursor-text"
           style={{
-            background: "var(--border-light)",
-            color: "var(--text-muted)",
-            border: "1px solid var(--border-medium)",
-            fontSize: "11px",
+            background: "var(--surface-secondary)",
+            border: "1px solid var(--border-light)",
           }}
+          onClick={() => document.getElementById("topbar-search")?.focus()}
         >
-          <Command className="w-2.5 h-2.5" />
-          <span>K</span>
+          <Search className="w-4 h-4 flex-shrink-0" style={{ color: "var(--text-muted)" }} />
+          <input
+            id="topbar-search"
+            type="text"
+            placeholder="Search for anything..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            className="flex-1 bg-transparent outline-none text-sm"
+            style={{ color: "var(--text-primary)" }}
+          />
+          <div
+            className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-xs flex-shrink-0"
+            style={{
+              background: "var(--border-light)",
+              color: "var(--text-muted)",
+              border: "1px solid var(--border-medium)",
+              fontSize: "11px",
+            }}
+          >
+            <Command className="w-2.5 h-2.5" />
+            <span>K</span>
+          </div>
         </div>
+
+        {/* Dropdown Overlay */}
+        {isFocused && (
+          <div
+            className="absolute left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg z-50 overflow-hidden"
+          >
+            <div className="max-h-80 overflow-y-auto py-2">
+              {/* Navigation links section */}
+              {visibleNavs.length > 0 && (
+                <div className="px-3 py-1.5">
+                  <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
+                    Navigation
+                  </p>
+                  <div className="space-y-0.5">
+                    {visibleNavs.map((nav) => (
+                      <button
+                        key={`${nav.label}-${nav.to}`}
+                        onClick={() => {
+                          navigate(nav.to);
+                          setIsFocused(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center justify-between"
+                      >
+                        <span>{nav.label}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">Go to page</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Projects section */}
+              {searchQuery.trim() && (
+                <div className="border-t border-gray-100 dark:border-gray-700/50 px-3 py-2 mt-1">
+                  <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
+                    Projects
+                  </p>
+                  {isLoading ? (
+                    <div className="py-2 text-center text-xs text-gray-400 dark:text-gray-500">
+                      Searching projects...
+                    </div>
+                  ) : projects.length > 0 ? (
+                    <div className="space-y-0.5">
+                      {projects.map((project) => (
+                        <button
+                          key={project.id}
+                          onClick={() => {
+                            navigate(`/projects/${project.id}`);
+                            setIsFocused(false);
+                          }}
+                          className="w-full text-left px-2 py-1.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white transition-colors flex flex-col"
+                        >
+                          <span className="font-medium truncate">{project.name}</span>
+                          {project.description && (
+                            <span className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
+                              {project.description}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-2 text-center text-xs text-gray-400 dark:text-gray-500">
+                      No matching projects found
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {visibleNavs.length === 0 && !searchQuery.trim() && (
+                <div className="py-6 text-center text-sm text-gray-400 dark:text-gray-500">
+                  No results found
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Right Actions ── */}
