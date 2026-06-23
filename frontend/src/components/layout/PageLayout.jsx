@@ -34,7 +34,7 @@ export default function PageLayout() {
           onToggleCollapse={handleToggleCollapse}
         />
         <main className="app-surface flex-1 overflow-y-auto">
-          <div className="p-6 w-full max-w-[1400px]">
+          <div className="p-6 w-full max-w-[1400px] mx-auto">
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>

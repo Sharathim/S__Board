@@ -5,7 +5,7 @@ import {
   LayoutDashboard, FolderKanban, Users, GraduationCap,
   MessageSquare, Megaphone, Settings,
   X, HelpCircle, BookOpen, ChevronRight, Grid3X3,
-  PanelLeftClose, LogOut
+  PanelLeftClose, PanelLeftOpen, LogOut
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -57,45 +57,62 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
           open ? "translate-x-0" : "-translate-x-full",
           // Desktop layout: static position with smooth width collapse transitions
           "lg:static lg:translate-x-0 lg:transition-all lg:duration-300 lg:ease-in-out",
-          isCollapsed ? "lg:w-0 lg:border-r-0 lg:overflow-hidden" : "lg:w-[240px]"
+          isCollapsed ? "lg:w-[70px]" : "lg:w-[240px]"
         )}
       >
-        {/* Inner wrapper with fixed width prevents squishing during collapse animations */}
-        <div className="flex flex-col h-full w-[240px] flex-shrink-0">
+        {/* Inner wrapper transition */}
+        <div className={clsx("flex flex-col h-full flex-shrink-0 transition-all duration-300", isCollapsed ? "w-[70px]" : "w-[240px]")}>
         {/* ── Brand / Logo ── */}
         <div
-          className="flex items-center gap-2.5 px-5 h-16 flex-shrink-0"
+          className={clsx(
+            "flex items-center h-16 flex-shrink-0 transition-all duration-300",
+            isCollapsed ? "justify-center px-4" : "gap-2.5 px-5"
+          )}
           style={{ borderBottom: "1px solid var(--sidebar-border)" }}
         >
-          {/* Icon mark */}
-          <div
-            className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
-            style={{ background: "var(--primary)" }}
-          >
-            <Grid3X3 className="w-4 h-4 text-white" />
-          </div>
-          <span
-            className="text-base font-bold truncate flex-1"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Department Hub
-          </span>
-          {/* Desktop Collapse Button (ChatGPT style) */}
-          <button
-            onClick={onToggleCollapse}
-            className="hidden lg:flex p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
-            title="Collapse sidebar"
-          >
-            <PanelLeftClose className="w-[18px] h-[18px]" />
-          </button>
+          {isCollapsed ? (
+            <button
+              onClick={onToggleCollapse}
+              className="p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
+              title="Expand sidebar"
+            >
+              <PanelLeftOpen className="w-[18px] h-[18px]" />
+            </button>
+          ) : (
+            <>
+              {/* Icon mark */}
+              <div
+                className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
+                style={{ background: "var(--primary)" }}
+              >
+                <Grid3X3 className="w-4 h-4 text-white" />
+              </div>
+              <span
+                className="text-base font-bold truncate flex-1"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Department Hub
+              </span>
+              {/* Desktop Collapse Button (ChatGPT style) */}
+              <button
+                onClick={onToggleCollapse}
+                className="hidden lg:flex p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
+                title="Collapse sidebar"
+              >
+                <PanelLeftClose className="w-[18px] h-[18px]" />
+              </button>
+            </>
+          )}
           {/* Mobile close */}
-          <button
-            onClick={onClose}
-            className="ml-auto p-1.5 rounded-lg lg:hidden hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
-            title="Close menu"
-          >
-            <X className="w-[18px] h-[18px]" />
-          </button>
+          {!isCollapsed && (
+            <button
+              onClick={onClose}
+              className="ml-auto p-1.5 rounded-lg lg:hidden hover:bg-[var(--sidebar-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
+              title="Close menu"
+            >
+              <X className="w-[18px] h-[18px]" />
+            </button>
+          )}
         </div>
 
         {/* ── Navigation ── */}
@@ -126,7 +143,8 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                 onClick={onClose}
                 className={({ isActive }) =>
                   clsx(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative",
+                    "flex items-center rounded-lg text-sm font-medium transition-all duration-150 group relative",
+                    isCollapsed ? "justify-center p-2.5 mx-2" : "gap-3 px-3 py-2.5 mx-1",
                     isActive ? "nav-active" : "hover:bg-[var(--sidebar-hover)]"
                   )
                 }
@@ -135,16 +153,24 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                     ? {}
                     : { color: "var(--text-secondary)" }
                 }
+                title={isCollapsed ? item.label : undefined}
               >
                 <Icon className="w-[18px] h-[18px] flex-shrink-0" />
-                <span className="flex-1">{item.label}</span>
+                {!isCollapsed && <span className="flex-1 truncate">{item.label}</span>}
                 {showBadge && (
-                  <span
-                    className="text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none"
-                    style={{ background: "var(--primary)", color: "#fff" }}
-                  >
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
+                  isCollapsed ? (
+                    <span
+                      className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full border border-[var(--sidebar-bg)]"
+                      style={{ background: "var(--primary)" }}
+                    />
+                  ) : (
+                    <span
+                      className="text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none"
+                      style={{ background: "var(--primary)", color: "#fff" }}
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )
                 )}
               </NavLink>
             );
@@ -153,47 +179,60 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
         {/* ── Footer Logout Block ── */}
         <div
-          className="p-4 flex-shrink-0"
+          className={clsx(
+            "p-4 flex-shrink-0 transition-all duration-300",
+            isCollapsed ? "flex justify-center" : ""
+          )}
           style={{ borderTop: "1px solid var(--sidebar-border)" }}
         >
-          <div
-            className="rounded-xl p-4 relative overflow-hidden transition-all duration-300 group hover:shadow-sm"
-            style={{
-              background: "linear-gradient(135deg, var(--primary-light) 0%, rgba(99, 102, 241, 0.08) 100%)",
-              border: "1px solid rgba(99, 102, 241, 0.15)",
-            }}
-          >
-            {/* Decorative circles */}
-            <div
-              className="absolute -top-3 -right-3 w-16 h-16 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-110"
-              style={{ background: "var(--primary)" }}
-            />
-            <LogOut
-              className="w-5 h-5 mb-2 relative z-10 text-[var(--primary)] transition-transform duration-300 group-hover:translate-x-0.5"
-            />
-            <p
-              className="text-sm font-semibold mb-0.5 relative z-10"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Session active
-            </p>
-            <p
-              className="text-xs mb-3 relative z-10"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Sign out from Department Hub
-            </p>
+          {isCollapsed ? (
             <button
               onClick={logout}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg relative z-10 w-full justify-center transition-all duration-150 hover:bg-[var(--primary-hover)] active:scale-95 shadow-sm text-white"
+              className="p-2.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-150 active:scale-95"
+              title="Log Out"
+            >
+              <LogOut className="w-[18px] h-[18px]" />
+            </button>
+          ) : (
+            <div
+              className="rounded-xl p-4 relative overflow-hidden transition-all duration-300 group hover:shadow-sm w-full"
               style={{
-                background: "var(--primary)",
+                background: "linear-gradient(135deg, var(--primary-light) 0%, rgba(99, 102, 241, 0.08) 100%)",
+                border: "1px solid rgba(99, 102, 241, 0.15)",
               }}
             >
-              Log Out
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+              {/* Decorative circles */}
+              <div
+                className="absolute -top-3 -right-3 w-16 h-16 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-110"
+                style={{ background: "var(--primary)" }}
+              />
+              <LogOut
+                className="w-5 h-5 mb-2 relative z-10 text-[var(--primary)] transition-transform duration-300 group-hover:translate-x-0.5"
+              />
+              <p
+                className="text-sm font-semibold mb-0.5 relative z-10"
+                style={{ color: "var(--text-primary)" }}
+              >
+                Session active
+              </p>
+              <p
+                className="text-xs mb-3 relative z-10"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Sign out from Department Hub
+              </p>
+              <button
+                onClick={logout}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg relative z-10 w-full justify-center transition-all duration-150 hover:bg-[var(--primary-hover)] active:scale-95 shadow-sm text-white"
+                style={{
+                  background: "var(--primary)",
+                }}
+              >
+                Log Out
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
         </div>
       </aside>
