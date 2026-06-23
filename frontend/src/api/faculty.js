@@ -8,3 +8,5 @@ export const toggleCoordinator = (id) =>
   api.post(`/faculty/${id}/coordinator`);
 export const getFacultyInvite = () => api.get("/faculty/invite");
 export const toggleFacultyInvite = () => api.post("/faculty/invite/toggle");
+export const deleteFaculty = (id) => api.delete(`/faculty/${id}`);
+

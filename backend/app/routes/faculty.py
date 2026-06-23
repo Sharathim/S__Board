@@ -41,14 +41,17 @@ def update_faculty(faculty_id):
 def assign_incharge(faculty_id):
     data = request.get_json()
     class_name = data.get("class_name")
-    if not class_name:
-        return jsonify({"error": "class_name required"}), 400
+    faculty = Faculty.query.get_or_404(faculty_id)
+
+    if class_name is None or class_name == "":
+        faculty.class_incharge_of = None
+        db.session.commit()
+        return jsonify({"ok": True})
 
     prev = Faculty.query.filter_by(class_incharge_of=class_name).first()
     if prev:
         prev.class_incharge_of = None
 
-    faculty = Faculty.query.get_or_404(faculty_id)
     faculty.class_incharge_of = class_name
     db.session.commit()
 
@@ -69,6 +72,25 @@ def toggle_coordinator(faculty_id):
     faculty.is_update_coordinator = not faculty.is_update_coordinator
     db.session.commit()
     return jsonify({"is_update_coordinator": faculty.is_update_coordinator})
+
+
+@faculty_bp.route("/<int:faculty_id>", methods=["DELETE"])
+@require_hod
+def delete_faculty(faculty_id):
+    faculty = Faculty.query.get_or_404(faculty_id)
+    user = faculty.user
+
+    from ..models.project import Project
+    Project.query.filter_by(created_by=user.id).update({Project.created_by: None})
+
+    from ..models.update import Update
+    Update.query.filter_by(posted_by=user.id).update({Update.posted_by: None})
+
+    faculty.class_incharge_of = None
+
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"ok": True})
 
 
 @faculty_bp.route("/invite", methods=["GET"])
@@ -94,6 +116,8 @@ def toggle_faculty_invite():
 
 
 def _serialize_faculty(f):
+    from ..models.project import project_members
+    project_count = db.session.query(project_members).filter(project_members.c.user_id == f.user_id).count()
     return {
         "id": f.id,
         "user_id": f.user_id,
@@ -104,4 +128,5 @@ def _serialize_faculty(f):
         "classes_handling": f.classes_handling,
         "class_incharge_of": f.class_incharge_of,
         "is_update_coordinator": f.is_update_coordinator,
+        "project_count": project_count,
     }
