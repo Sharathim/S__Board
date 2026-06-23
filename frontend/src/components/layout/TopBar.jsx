@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, Bell, Moon, Sun, LogOut, Search, Settings, ChevronDown, Command } from "lucide-react";
+import { Menu, Bell, Moon, Sun, LogOut, Search, Settings, ChevronDown, Command, PanelLeftOpen } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
 import { listProjects } from "../../api/projects";
@@ -33,7 +33,7 @@ const allNavItems = [
   { to: "/settings",   label: "Settings",       roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
-export function TopBar({ onMenuClick }) {
+export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
@@ -114,6 +114,17 @@ export function TopBar({ onMenuClick }) {
       >
         <Menu className="w-5 h-5" />
       </button>
+
+      {/* ── Desktop expand button (ChatGPT style) ── */}
+      {isCollapsed && (
+        <button
+          onClick={onToggleCollapse}
+          className="hidden lg:flex p-2 rounded-lg flex-shrink-0 transition-all duration-150 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] active:scale-95"
+          title="Open sidebar"
+        >
+          <PanelLeftOpen className="w-5 h-5" />
+        </button>
+      )}
 
       {/* ── Search Bar ── */}
       <div

@@ -94,7 +94,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                 className="text-base font-bold truncate flex-1 animate-fade-in"
                 style={{ color: "var(--text-primary)" }}
               >
-                Department Hub
+                Hive
               </span>
               {/* Desktop Collapse Button (ChatGPT style) */}
               <button
@@ -222,7 +222,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                 className="text-xs mb-3 relative z-10"
                 style={{ color: "var(--text-secondary)" }}
               >
-                Sign out from Department Hub
+                Sign out from Hive
               </p>
               <button
                 onClick={logout}
