@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { 
   Mail, Phone, MapPin, Clock, Send, ChevronRight, 
   Sparkles, CheckCircle2, Shield, Info, Navigation, 
-  ZoomIn, ZoomOut, AlertCircle, Building2
+  ZoomIn, ZoomOut, AlertCircle, Building2, Cpu
 } from "lucide-react";
 
 export default function ContactPage() {

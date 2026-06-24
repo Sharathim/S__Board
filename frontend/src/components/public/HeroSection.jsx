@@ -1,131 +1,88 @@
 import { ClipboardList, Users, BarChart2, Bell } from "lucide-react";
 import { LoginCard } from "./LoginCard";
-import { StatisticsCard } from "./StatisticsCard";
 
 const FEATURES = [
-  {
-    icon:  ClipboardList,
-    title: "Project Tracking",
-    desc:  "Track progress in real-time",
-    bg:    "bg-violet-50",
-    color: "text-violet-600",
-  },
-  {
-    icon:  Users,
-    title: "Team Collaboration",
-    desc:  "Work together seamlessly",
-    bg:    "bg-blue-50",
-    color: "text-blue-600",
-  },
-  {
-    icon:  BarChart2,
-    title: "Smart Analytics",
-    desc:  "Make data-driven decisions",
-    bg:    "bg-emerald-50",
-    color: "text-emerald-600",
-  },
-  {
-    icon:  Bell,
-    title: "Instant Updates",
-    desc:  "Stay informed always",
-    bg:    "bg-orange-50",
-    color: "text-orange-500",
-  },
+  { icon: ClipboardList, title: "Project Tracking",    desc: "Real-time progress",   bg: "bg-violet-50",  color: "text-violet-600"  },
+  { icon: Users,         title: "Collaboration",       desc: "Work seamlessly",       bg: "bg-blue-50",    color: "text-blue-600"    },
+  { icon: BarChart2,     title: "Smart Analytics",     desc: "Data-driven insights",  bg: "bg-emerald-50", color: "text-emerald-600" },
+  { icon: Bell,          title: "Instant Updates",     desc: "Stay informed",         bg: "bg-orange-50",  color: "text-orange-500"  },
 ];
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen bg-white overflow-hidden pt-[72px]">
+    <section className="relative h-screen bg-white overflow-hidden pt-[72px] flex items-center">
 
-      {/* ── Background layer ── */}
+      {/* ── Background ── */}
       <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
         <img
           src="/building.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.65] saturate-[0.9]"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.55] saturate-[0.85]"
         />
-        {/* Solid white on the left (text), fades to transparent by the right half */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white from-[40%] via-white/40 via-[58%] to-transparent" />
-        {/* Top fade from nav */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white from-[40%] via-white/50 via-[60%] to-transparent" />
         <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white to-transparent" />
-        {/* Bottom fade into next section */}
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white/90 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white/80 to-transparent" />
       </div>
 
-      {/* ── Soft ambient color blobs behind login card ── */}
-      <div
-        className="absolute top-20 right-0 w-[500px] h-[500px] rounded-full bg-primary-50/60 blur-3xl pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-10 left-4 w-72 h-72 rounded-full bg-violet-50/40 blur-3xl pointer-events-none"
-        aria-hidden="true"
-      />
+      {/* ── Ambient blobs ── */}
+      <div className="absolute top-16 right-0 w-[400px] h-[400px] rounded-full bg-primary-50/50 blur-3xl pointer-events-none" aria-hidden="true" />
+      <div className="absolute bottom-0 left-4 w-56 h-56 rounded-full bg-violet-50/40 blur-3xl pointer-events-none" aria-hidden="true" />
 
-      {/* ── Main content — extra vertical room for enterprise breathing space ── */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-36">
-        <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_448px] gap-14 xl:gap-24 items-start">
+      {/* ── Main content ── */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_420px] gap-10 xl:gap-20 items-center">
 
           {/* ━━━━ LEFT: copy ━━━━ */}
-          <div className="space-y-10 animate-slide-up">
+          <div className="space-y-6 animate-slide-up">
 
             {/* Badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/85 backdrop-blur-sm border border-gray-200/80 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 backdrop-blur-sm border border-gray-200/80 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
-              <span className="text-sm font-medium text-gray-600 tracking-wide">
-                Collaborate • Track • Succeed
-              </span>
+              <span className="text-sm font-medium text-gray-600 tracking-wide">Collaborate • Track • Succeed</span>
             </div>
 
-            {/* Headline — tighter leading for impact */}
-            <div className="space-y-1">
-              <h1 className="text-5xl sm:text-6xl xl:text-[68px] font-extrabold text-gray-900 leading-[1.06] tracking-[-0.02em]">
+            {/* Headline */}
+            <div className="space-y-0.5">
+              <h1 className="text-4xl sm:text-5xl xl:text-[58px] font-extrabold text-gray-900 leading-[1.08] tracking-[-0.02em]">
                 Empowering Projects.
               </h1>
-              <h1 className="text-5xl sm:text-6xl xl:text-[68px] font-extrabold leading-[1.06] tracking-[-0.02em]">
+              <h2 className="text-4xl sm:text-5xl xl:text-[58px] font-extrabold leading-[1.08] tracking-[-0.02em]">
                 Driving{" "}
                 <span className="bg-gradient-to-r from-primary-600 via-violet-600 to-primary-500 bg-clip-text text-transparent">
                   Excellence.
                 </span>
-              </h1>
+              </h2>
             </div>
 
             {/* Description */}
-            <p className="text-[17px] text-gray-500 leading-[1.75] max-w-[480px]">
+            <p className="text-base text-gray-500 leading-relaxed max-w-[440px]">
               DPMS is the central hub for managing department projects, tracking progress, and
               fostering seamless collaboration across faculty, students, and forum members.
             </p>
 
-            {/* Feature chips — 4-col row matching the design */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-6">
+            {/* Feature chips */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-4">
               {FEATURES.map(({ icon: Icon, title, desc, bg, color }) => (
-                <div
-                  key={title}
-                  className="group flex flex-col gap-2.5 cursor-default"
-                >
-                  <div
-                    className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110`}
-                  >
-                    <Icon className={`w-5 h-5 ${color}`} />
+                <div key={title} className="group flex flex-col gap-2 cursor-default">
+                  <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110`}>
+                    <Icon className={`w-4.5 h-4.5 ${color}`} />
                   </div>
                   <div>
-                    <div className="text-[13px] font-semibold text-gray-800 leading-tight">{title}</div>
-                    <div className="text-[12px] text-gray-400 mt-0.5 leading-snug">{desc}</div>
+                    <div className="text-[12px] font-semibold text-gray-800 leading-tight">{title}</div>
+                    <div className="text-[11px] text-gray-400 mt-0.5 leading-snug">{desc}</div>
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Statistics — elevated panel anchoring the left column */}
-            <StatisticsCard />
           </div>
 
-          {/* ━━━━ RIGHT: floating login card ━━━━ */}
-          <div className="flex items-start justify-center lg:justify-end mt-2 lg:mt-6">
-            <div className="w-full max-w-md lg:max-w-none">
+          {/* ━━━━ RIGHT: Login card ━━━━ */}
+          <div className="flex items-center justify-center lg:justify-end">
+            <div className="w-full max-w-sm">
               <LoginCard />
             </div>
           </div>
+
         </div>
       </div>
     </section>
