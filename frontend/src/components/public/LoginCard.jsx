@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 
 function GoogleIcon() {
   return (
-    <svg className="w-4.5 h-4.5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -56,12 +56,12 @@ export function LoginCard() {
       id="login"
       className="bg-white rounded-2xl shadow-login border border-gray-100/70 p-6 w-full animate-slide-up"
     >
-      {/* Icon header — compact */}
+      {/* Icon header */}
       <div className="flex flex-col items-center mb-5">
         <div className="relative mb-3">
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-400/20 to-violet-400/20 blur-sm scale-110" />
           <div className="relative w-11 h-11 rounded-full bg-gradient-to-br from-primary-50 to-violet-50 border border-primary-100/80 flex items-center justify-center shadow-sm">
-            <Icon className={`w-5.5 h-5.5 ${roleInfo.color}`} />
+            <Icon className={`w-5 h-5 ${roleInfo.color}`} />
           </div>
         </div>
         <h2 className="text-lg font-bold text-gray-900 tracking-tight">Welcome Back!</h2>
@@ -94,7 +94,7 @@ export function LoginCard() {
       {/* Secure label */}
       <div className="flex items-center justify-center gap-1.5 mb-4">
         <Lock className="w-3 h-3 text-gray-300" />
-        <span className="text-[11px] text-gray-400">
+        <span className="text-xs text-gray-400">
           {activeRole === "HOD"
             ? "Secure access for Head of Department"
             : `Sign in as ${roleInfo.label}`}
@@ -105,7 +105,7 @@ export function LoginCard() {
       {authError && (
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-50 border border-red-100 mb-3">
           <AlertCircle className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
-          <p className="text-[11px] text-red-600 leading-relaxed">{authError}</p>
+          <p className="text-xs text-red-600 leading-relaxed">{authError}</p>
         </div>
       )}
 
@@ -121,31 +121,31 @@ export function LoginCard() {
           mb-3"
       >
         {isBusy ? <ButtonSpinner /> : <GoogleIcon />}
-        {isBusy ? "Signing in…" : `Continue with Google as ${roleInfo.label}`}
+        <span>{isBusy ? "Signing in…" : `Continue with Google as ${roleInfo.label}`}</span>
       </button>
 
       {/* Role note */}
       {activeRole === "HOD" && (
         <div className="flex items-center justify-center gap-1.5 mb-3">
           <Shield className="w-3 h-3 text-purple-400" />
-          <span className="text-[11px] text-gray-400">Only authorized HOD email can access</span>
+          <span className="text-xs text-gray-400">Only authorized HOD email can access</span>
         </div>
       )}
       {activeRole === "FACULTY" && (
         <div className="flex items-center justify-center gap-1.5 mb-3">
           <User className="w-3 h-3 text-blue-400" />
-          <span className="text-[11px] text-gray-400">New faculty requires HOD approval</span>
+          <span className="text-xs text-gray-400">New faculty requires HOD approval</span>
         </div>
       )}
       {activeRole === "STUDENT" && (
         <div className="flex items-center justify-center gap-1.5 mb-3">
           <GraduationCap className="w-3 h-3 text-green-400" />
-          <span className="text-[11px] text-gray-400">New student requires HOD approval</span>
+          <span className="text-xs text-gray-400">New student requires HOD approval</span>
         </div>
       )}
 
       {/* Help text */}
-      <p className="text-center text-[11px] text-gray-400">
+      <p className="text-center text-xs text-gray-400">
         Need help?{" "}
         <a
           href="mailto:admin@dpms.edu"

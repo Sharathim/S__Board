@@ -1,413 +1,440 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  Mail, Phone, MapPin, Clock, Send, ChevronRight, 
-  Sparkles, CheckCircle2, Shield, Info, Navigation, 
-  ZoomIn, ZoomOut, AlertCircle, Building2, Cpu
+import {
+  Mail, Phone, Clock, Send, ChevronRight,
+  Sparkles, CheckCircle2, Shield, AlertCircle,
+  ChevronDown, MessageSquare, HelpCircle, Users, BookOpen
 } from "lucide-react";
 
+// ─── FAQ Data ────────────────────────────────────────────────────────────────
+const FAQS = [
+  {
+    q: "How do I register as a student on DPMS?",
+    a: "After your HOD approves your institution email, sign in using your Google account via the Student login on the Home page. Registration is automatic on first login.",
+  },
+  {
+    q: "Can faculty members add their own projects?",
+    a: "Yes. Once onboarded by the HOD, faculty coordinators can create, manage, and assign projects to student batches from their dashboard.",
+  },
+  {
+    q: "What happens after I submit this contact form?",
+    a: "Your inquiry is logged and forwarded to the department admin desk. You'll receive an email acknowledgement within 1–2 working days.",
+  },
+  {
+    q: "How do I report a technical issue with the portal?",
+    a: "Use the form on this page with the subject 'Technical Issue'. Alternatively, email support.dpms@sharathi-board.edu.in directly for urgent matters.",
+  },
+  {
+    q: "Is there a mobile app for DPMS?",
+    a: "DPMS is fully responsive and works on all devices via the browser. A dedicated mobile app is planned for a future release.",
+  },
+];
+
+// ─── Quick Contact Cards ──────────────────────────────────────────────────────
+const CONTACT_CARDS = [
+  {
+    icon: Mail,
+    label: "Email Us",
+    value: "hod.cs@sharathi-board.edu.in",
+    sub: "support.dpms@sharathi-board.edu.in",
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    border: "border-indigo-100",
+    href: "mailto:hod.cs@sharathi-board.edu.in",
+  },
+  {
+    icon: Phone,
+    label: "Call Us",
+    value: "+91 80 2554 9820",
+    sub: "HOD Desk  •  Mon – Fri",
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    border: "border-violet-100",
+    href: "tel:+918025549820",
+  },
+  {
+    icon: Clock,
+    label: "Office Hours",
+    value: "9:30 AM – 4:30 PM",
+    sub: "HOD slot: Tue & Thu 2–4 PM",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    border: "border-amber-100",
+    href: null,
+  },
+  {
+    icon: MessageSquare,
+    label: "Response Time",
+    value: "Within 24–48 hrs",
+    sub: "All submitted inquiries",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-100",
+    href: null,
+  },
+];
+
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`border rounded-xl transition-all duration-200 overflow-hidden ${open ? "border-indigo-200 bg-indigo-50/30" : "border-slate-200 bg-white"}`}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+      >
+        <span className={`text-sm font-semibold leading-snug transition-colors ${open ? "text-indigo-700" : "text-slate-800"}`}>
+          {q}
+        </span>
+        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform duration-200 ${open ? "rotate-180 text-indigo-500" : "text-slate-400"}`} />
+      </button>
+      {open && (
+        <div className="px-5 pb-4 text-sm text-slate-500 leading-relaxed border-t border-indigo-100/60 pt-3 animate-fade-in">
+          {a}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ContactPage() {
-  // Form states
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("student"); // student, parent, recruiter, other
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  // Form state
+  const [name,      setName]      = useState("");
+  const [email,     setEmail]     = useState("");
+  const [role,      setRole]      = useState("student");
+  const [subject,   setSubject]   = useState("");
+  const [message,   setMessage]   = useState("");
+  const [submitting,setSubmitting]= useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg,  setErrorMsg]  = useState("");
 
-  // Map simulator states
-  const [zoomLevel, setZoomLevel] = useState(1); // 1 to 2.5
-  const [selectedMarker, setSelectedMarker] = useState("main"); // main, labs, hod
-
-  const markers = {
-    main: { name: "Main Campus Block", room: "A-Floor 2, Room 204", phone: "+91 80 2554 9821" },
-    labs: { name: "CSE Lab Annex (Computing Center)", room: "Lab Block B, Ground Floor", phone: "+91 80 2554 9823" },
-    hod: { name: "Department HOD Office", room: "Administrative Wing, Room 101", phone: "+91 80 2554 9820" },
-  };
-
-  const handleFormSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !email || !subject || !message) {
+    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
       setErrorMsg("Please fill in all required fields.");
       return;
     }
-    
     setErrorMsg("");
     setSubmitting(true);
-
-    // Simulate API request
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
-      // Reset form
-      setName("");
-      setEmail("");
-      setSubject("");
-      setMessage("");
-      setRole("student");
-    }, 1800);
+    }, 1600);
+  };
+
+  const handleReset = () => {
+    setSubmitted(false);
+    setName(""); setEmail(""); setSubject(""); setMessage(""); setRole("student");
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pt-[72px] relative selection:bg-indigo-500 selection:text-white">
-      
-      {/* Ambient backgrounds */}
-      <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-indigo-50/40 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute top-20 right-10 w-[300px] h-[300px] bg-indigo-200/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-20 left-10 w-[350px] h-[350px] bg-violet-200/20 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pt-[72px] selection:bg-indigo-500 selection:text-white">
 
-      {/* Hero Header */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-6 text-center">
-        <nav className="flex items-center justify-center gap-2 text-xs text-gray-400 mb-5">
+      {/* ── Ambient backgrounds ── */}
+      <div className="absolute top-0 inset-x-0 h-[480px] bg-gradient-to-b from-indigo-50/50 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-16 right-0 w-[350px] h-[350px] bg-indigo-100/30 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-40 left-0 w-[300px] h-[300px] bg-violet-100/20 rounded-full blur-[100px] pointer-events-none" />
+
+      {/* ── Hero header ── */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-4 text-center">
+        <nav className="flex items-center justify-center gap-2 text-xs text-gray-400 mb-4">
           <Link to="/" className="hover:text-indigo-600 transition-colors">Home</Link>
           <ChevronRight className="w-3 h-3" />
           <span className="text-gray-600 font-semibold">Contact</span>
         </nav>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-indigo-100 shadow-sm mb-4">
           <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-          <span className="text-[10px] font-bold text-indigo-750 tracking-wider uppercase">Inquiries &amp; Consultations</span>
+          <span className="text-[10px] font-bold text-indigo-700 tracking-widest uppercase">Inquiries &amp; Support</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
           Connect with{" "}
-          <span className="bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
             Our Department
           </span>
         </h1>
-        <p className="text-sm sm:text-base text-slate-500 max-w-xl mx-auto leading-relaxed">
-          Have questions about student projects, faculty coordinator invites, or admissions? Drop us a message below or visit our office.
+        <p className="text-sm sm:text-base text-slate-500 max-w-lg mx-auto leading-relaxed">
+          Have questions about projects, faculty invites, or portal access? We're here to help — reach out anytime.
         </p>
       </section>
 
-      {/* Main Content Form + Map */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
-          
-          {/* Left Column: Interactive Form */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-6 sm:p-10 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                <div>
-                  <h2 className="text-lg font-extrabold text-slate-900">Send an Inquiry</h2>
-                  <p className="text-xs text-slate-400">Direct query dispatch to HOD admin desk</p>
+      {/* ── Quick contact cards ── */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {CONTACT_CARDS.map(({ icon: Icon, label, value, sub, color, bg, border, href }) => {
+            const content = (
+              <div className={`group rounded-2xl border ${border} ${bg} p-5 flex items-start gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-default`}>
+                <div className={`w-10 h-10 rounded-xl bg-white border ${border} flex items-center justify-center shrink-0 shadow-sm`}>
+                  <Icon className={`w-5 h-5 ${color}`} />
                 </div>
-                <Shield className="w-5 h-5 text-indigo-600" />
-              </div>
-
-              {submitted ? (
-                <div className="py-12 px-4 text-center animate-fade-in space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto text-emerald-500 shadow-sm">
-                    <CheckCircle2 className="w-9 h-9" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900">Message Dispatched!</h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Thank you. Your message has been successfully logged. An email copy has been dispatched, and our administrative coordinator will review it shortly.
-                  </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="mt-6 text-xs font-semibold px-5 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
-                  >
-                    Send Another Message
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
-                  {errorMsg && (
-                    <div className="p-3.5 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl flex items-start gap-2 animate-fade-in">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <span className="font-semibold">{errorMsg}</span>
-                    </div>
-                  )}
-
-                  {/* Name & Email row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="font-bold text-slate-500 uppercase tracking-wide">Your Name *</label>
-                      <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="John Doe"
-                        className="w-full py-2.5 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 bg-slate-50/50"
-                      />
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <label className="font-bold text-slate-500 uppercase tracking-wide">Gmail Address *</label>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="john@gmail.com"
-                        className="w-full py-2.5 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 bg-slate-50/50"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Role and Subject row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="font-bold text-slate-500 uppercase tracking-wide">Your Role</label>
-                      <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        className="w-full py-2.5 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 bg-slate-50/50 text-slate-650 cursor-pointer"
-                      >
-                        <option value="student">UG/PG Student</option>
-                        <option value="parent">Parent / Guardian</option>
-                        <option value="recruiter">Industry Partner / Recruiter</option>
-                        <option value="other">General Visitor</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="font-bold text-slate-500 uppercase tracking-wide">Subject *</label>
-                      <input
-                        type="text"
-                        required
-                        value={subject}
-                        onChange={(e) => setSubject(e.target.value)}
-                        placeholder="e.g. Project Registration Query"
-                        className="w-full py-2.5 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 bg-slate-50/50"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Message Field */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-baseline">
-                      <label className="font-bold text-slate-500 uppercase tracking-wide">Message *</label>
-                      <span className="text-[10px] text-slate-400 font-semibold">{message.length}/500 chars</span>
-                    </div>
-                    <textarea
-                      required
-                      maxLength={500}
-                      rows={5}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Write your consultation details here..."
-                      className="w-full py-2.5 px-3.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 bg-slate-50/50 resize-none leading-relaxed"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 active:translate-y-0 hover:-translate-y-0.5 transition-all shadow-lg shadow-indigo-100 disabled:bg-indigo-400 disabled:cursor-not-allowed"
-                  >
-                    {submitting ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Sending Request...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Send Message</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-
-            <div className="mt-8 pt-4 border-t border-slate-100 flex items-start gap-2.5">
-              <Info className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-slate-400 leading-normal">
-                By submitting this form, you authorize DPMS portals to log your name and email for consultation response followups. We never share visitor queries.
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column: Address details and simulated map */}
-          <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
-            
-            {/* Coordinates detail card */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-6 space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
-                <Navigation className="w-4 h-4 text-indigo-500 animate-pulse" />
-                Office Coordinates
-              </h3>
-
-              <div className="space-y-3.5 text-xs text-slate-600">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 mt-0.5">
-                    <MapPin className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">Campus Address</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">
-                      CS Department, Level 2, Shastri Bhavan Building Annex, Campus North, Bangalore, 560012
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 shrink-0 mt-0.5">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">Inquiry Lines</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">HOD desk: +91 80 2554 9820</p>
-                    <p className="text-[11px] text-slate-500">Secretary: +91 80 2554 9821</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0 mt-0.5">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">Department Email</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">hod.cs@sharathi-board.edu.in</p>
-                    <p className="text-[11px] text-slate-500">support.dpms@sharathi-board.edu.in</p>
-                  </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">{label}</div>
+                  <div className={`text-sm font-bold ${color} leading-tight truncate`}>{value}</div>
+                  <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">{sub}</div>
                 </div>
               </div>
-            </div>
-
-            {/* Simulated interactive map mockup */}
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex-1 min-h-[300px] flex flex-col justify-between">
-              
-              {/* Map view area */}
-              <div className="relative flex-1 bg-slate-950 flex items-center justify-center overflow-hidden p-6">
-                
-                {/* Simulated Grid Grid Lines */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:24px_24px] opacity-25" />
-
-                {/* Simulated Campus Layout SVG */}
-                <div 
-                  className="relative transition-transform duration-300 ease-out w-full h-full max-h-[180px] max-w-[260px] flex items-center justify-center"
-                  style={{ transform: `scale(${zoomLevel})` }}
-                >
-                  {/* Outer Campus Boundary */}
-                  <div className="absolute inset-0 border-2 border-dashed border-indigo-500/20 rounded-xl bg-indigo-550/5 flex items-center justify-center">
-                    
-                    {/* Simulated Buildings grid */}
-                    <div className="grid grid-cols-3 gap-6 p-4 w-full h-full">
-                      {/* Main Block */}
-                      <button
-                        onClick={() => setSelectedMarker("main")}
-                        className={`relative rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${
-                          selectedMarker === "main"
-                            ? "bg-indigo-650/40 border-indigo-500 shadow-indigo-500/10 shadow-lg text-white"
-                            : "bg-slate-850/60 border-slate-700 text-slate-400 hover:border-slate-500"
-                        }`}
-                      >
-                        <Building2 className="w-5 h-5" />
-                        <span className="text-[8px] font-bold">Main Block</span>
-                        {selectedMarker === "main" && (
-                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping" />
-                        )}
-                      </button>
-
-                      {/* Labs Annex */}
-                      <button
-                        onClick={() => setSelectedMarker("labs")}
-                        className={`relative rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${
-                          selectedMarker === "labs"
-                            ? "bg-violet-650/40 border-violet-500 shadow-violet-500/10 shadow-lg text-white"
-                            : "bg-slate-850/60 border-slate-700 text-slate-400 hover:border-slate-500"
-                        }`}
-                      >
-                        <Cpu className="w-5 h-5" />
-                        <span className="text-[8px] font-bold">Lab Annex</span>
-                        {selectedMarker === "labs" && (
-                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-violet-500 animate-ping" />
-                        )}
-                      </button>
-
-                      {/* Admin Wing */}
-                      <button
-                        onClick={() => setSelectedMarker("hod")}
-                        className={`relative rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${
-                          selectedMarker === "hod"
-                            ? "bg-amber-650/40 border-amber-500 shadow-amber-500/10 shadow-lg text-white"
-                            : "bg-slate-850/60 border-slate-700 text-slate-400 hover:border-slate-500"
-                        }`}
-                      >
-                        <Shield className="w-5 h-5" />
-                        <span className="text-[8px] font-bold">Admin/HOD</span>
-                        {selectedMarker === "hod" && (
-                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
-                        )}
-                      </button>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Map Control overlay (zoom buttons) */}
-                <div className="absolute bottom-3 right-3 flex items-center gap-1">
-                  <button
-                    onClick={() => setZoomLevel(z => Math.min(2.5, z + 0.25))}
-                    className="p-1.5 rounded-md bg-slate-800 border border-slate-700 text-white hover:bg-slate-700 transition-colors"
-                    title="Zoom In"
-                  >
-                    <ZoomIn className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setZoomLevel(z => Math.max(1, z - 0.25))}
-                    className="p-1.5 rounded-md bg-slate-800 border border-slate-700 text-white hover:bg-slate-700 transition-colors"
-                    title="Zoom Out"
-                  >
-                    <ZoomOut className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Map Description bar */}
-              <div className="bg-slate-900 border-t border-slate-800 p-4 text-[10px] text-slate-400">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-white uppercase tracking-wider text-[9px]">Map Info:</span>
-                  <span className="text-indigo-400 font-semibold">{zoomLevel.toFixed(2)}x zoom</span>
-                </div>
-                <div className="font-bold text-slate-200 text-xs">{markers[selectedMarker].name}</div>
-                <div className="mt-0.5">Location: **{markers[selectedMarker].room}**</div>
-                <div className="mt-0.5">Tel: **{markers[selectedMarker].phone}**</div>
-              </div>
-
-            </div>
-
-            {/* Office consult hours strip */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-indigo-500" />
-                Consultation Hours
-              </h3>
-              
-              <div className="space-y-2 text-[11px] text-slate-500">
-                <div className="flex justify-between items-center py-1 border-b border-slate-100">
-                  <span className="font-semibold text-slate-700">Monday — Friday:</span>
-                  <span>9:30 AM — 4:30 PM</span>
-                </div>
-                <div className="flex justify-between items-center py-1 border-b border-slate-100">
-                  <span className="font-semibold text-slate-700">HOD Consultations:</span>
-                  <span className="text-indigo-600 font-bold">Tues &amp; Thurs (2 PM - 4 PM)</span>
-                </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="font-semibold text-slate-700">Weekends:</span>
-                  <span className="text-slate-400">Office Closed (Online Only)</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
+            );
+            return href ? (
+              <a key={label} href={href} className="block no-underline">{content}</a>
+            ) : (
+              <div key={label}>{content}</div>
+            );
+          })}
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── Main: Form + FAQ ── */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-6xl mx-auto">
+
+          {/* ──────── LEFT: Contact Form ──────── */}
+          <div className="lg:col-span-7">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+
+              {/* Card header strip */}
+              <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-7 py-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-white font-bold text-lg">Send an Inquiry</h2>
+                    <p className="text-indigo-200 text-xs mt-0.5">Our team typically responds within 24–48 hours</p>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-7">
+                {/* ── Success state ── */}
+                {submitted ? (
+                  <div className="py-10 text-center space-y-4 animate-fade-in">
+                    <div className="relative mx-auto w-20 h-20">
+                      <div className="absolute inset-0 rounded-full bg-emerald-100 animate-ping opacity-40" />
+                      <div className="relative w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
+                        <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900">Message Sent!</h3>
+                      <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto leading-relaxed">
+                        Thank you, <span className="font-semibold text-slate-700">{name || "there"}</span>! Your inquiry has been received. We'll get back to you at <span className="font-semibold text-indigo-600">{email}</span> within 24–48 hours.
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                      <button
+                        onClick={handleReset}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        Send Another
+                      </button>
+                      <Link
+                        to="/"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition-colors"
+                      >
+                        Back to Home
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  /* ── Form ── */
+                  <form onSubmit={handleSubmit} className="space-y-5 text-xs">
+
+                    {errorMsg && (
+                      <div className="flex items-start gap-2.5 p-3.5 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl animate-fade-in">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span className="font-semibold text-sm">{errorMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Name & Email */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+                          Full Name <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="e.g. Arjun Sharma"
+                            className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 transition-all"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+                          Email Address <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@gmail.com"
+                          className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Role & Subject */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+                          Your Role
+                        </label>
+                        <select
+                          value={role}
+                          onChange={(e) => setRole(e.target.value)}
+                          className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 text-slate-600 cursor-pointer transition-all appearance-none"
+                        >
+                          <option value="student">UG / PG Student</option>
+                          <option value="parent">Parent / Guardian</option>
+                          <option value="recruiter">Industry Partner / Recruiter</option>
+                          <option value="faculty">Faculty / Researcher</option>
+                          <option value="other">General Visitor</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+                          Subject <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={subject}
+                          onChange={(e) => setSubject(e.target.value)}
+                          placeholder="e.g. Project Registration Query"
+                          className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Message */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+                          Message <span className="text-rose-500">*</span>
+                        </label>
+                        <span className={`text-[10px] font-semibold ${message.length > 450 ? "text-rose-500" : "text-slate-400"}`}>
+                          {message.length}/500
+                        </span>
+                      </div>
+                      <textarea
+                        required
+                        maxLength={500}
+                        rows={5}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Describe your query in detail..."
+                        className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 resize-none leading-relaxed transition-all"
+                      />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl text-sm
+                        hover:from-indigo-700 hover:to-violet-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-200
+                        active:translate-y-0 transition-all duration-200
+                        disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    >
+                      {submitting ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Sending…</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          <span>Send Message</span>
+                        </>
+                      )}
+                    </button>
+
+                    <p className="text-center text-[10px] text-slate-400 leading-normal">
+                      By submitting, you allow DPMS to use your contact details for this inquiry only. We never share your data.
+                    </p>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ──────── RIGHT: FAQ + Support links ──────── */}
+          <div className="lg:col-span-5 space-y-6">
+
+            {/* FAQ */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+                  <HelpCircle className="w-4 h-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Frequently Asked Questions</h3>
+                  <p className="text-[10px] text-slate-400">Quick answers to common queries</p>
+                </div>
+              </div>
+              <div className="p-4 space-y-2">
+                {FAQS.map((faq) => (
+                  <FaqItem key={faq.q} {...faq} />
+                ))}
+              </div>
+            </div>
+
+            {/* Useful links */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                <Users className="w-4 h-4 text-violet-500" />
+                Quick Links
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { label: "Student Portal Login",        href: "/",        icon: BookOpen,      color: "text-indigo-600", bg: "bg-indigo-50" },
+                  { label: "Features & Capabilities",     href: "/features",icon: Sparkles,      color: "text-violet-600", bg: "bg-violet-50" },
+                  { label: "About the Department",        href: "/about",   icon: Users,         color: "text-blue-600",   bg: "bg-blue-50"   },
+                  { label: "Email: support@sharathi-board",href: "mailto:support.dpms@sharathi-board.edu.in", icon: Mail, color: "text-emerald-600", bg: "bg-emerald-50" },
+                ].map(({ label, href, icon: Icon, color, bg }) => (
+                  href.startsWith("mailto") ? (
+                    <a
+                      key={label}
+                      href={href}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/60 transition-all duration-150 group"
+                    >
+                      <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-4 h-4 ${color}`} />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 truncate">{label}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 ml-auto shrink-0" />
+                    </a>
+                  ) : (
+                    <Link
+                      key={label}
+                      to={href}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/60 transition-all duration-150 group"
+                    >
+                      <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-4 h-4 ${color}`} />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 truncate">{label}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 ml-auto shrink-0" />
+                    </Link>
+                  )
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
       <footer className="border-t border-slate-200 py-8 px-4 sm:px-6 lg:px-8 bg-white text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <p>
-            &copy; {new Date().getFullYear()} DPMS — Department Project Management System. All rights reserved.
-          </p>
+          <p>© {new Date().getFullYear()} DPMS — Department Project Management System. All rights reserved.</p>
           <p className="tracking-wide">Built for excellence in computer science education.</p>
         </div>
       </footer>
