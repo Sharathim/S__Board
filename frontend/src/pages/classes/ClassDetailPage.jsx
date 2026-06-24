@@ -181,8 +181,6 @@ export default function ClassDetailPage() {
 
   const meta = CLASS_META[className] || { label: className?.replace("_", " "), short: className, gradient: "from-primary-500 to-violet-600", bg: "", text: "", border: "" };
 
-  if (isLoading) return <Spinner />;
-
   const studentList = students || [];
   const forumCount = studentList.filter((s) => s.is_forum_member).length;
 
@@ -196,6 +194,8 @@ export default function ClassDetailPage() {
       s.register_number?.toLowerCase().includes(q)
     );
   }, [studentList, searchQuery]);
+
+  if (isLoading) return <Spinner />;
 
   return (
     <div className="space-y-6 animate-fade-in">
