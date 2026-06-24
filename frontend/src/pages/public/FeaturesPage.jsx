@@ -7,7 +7,7 @@ import {
   Zap, Shield, ArrowRight, BarChart2, ClipboardList,
   MessageSquare, Lock, Settings, Plus, Play,
   Send, FileText, Smartphone, Bell, Moon, Sun,
-  Sparkles, Check, Info, Trash2
+  Sparkles, Check, Info, Trash2, Database
 } from "lucide-react";
 
 export default function FeaturesPage() {
