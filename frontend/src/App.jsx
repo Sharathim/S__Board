@@ -6,6 +6,7 @@ import PublicLayout from "./components/layout/PublicLayout";
 import HomePage from "./pages/public/HomePage";
 import AboutPage from "./pages/public/AboutPage";
 import FeaturesPage from "./pages/public/FeaturesPage";
+import ContactPage from "./pages/public/ContactPage";
 import FacultyOnboarding from "./pages/auth/FacultyOnboarding";
 import StudentOnboarding from "./pages/auth/StudentOnboarding";
 import DashboardPage from "./pages/dashboard/DashboardPage";
@@ -49,10 +50,11 @@ export default function App() {
         <Route element={<PublicRoute />}>
           <Route path="/" element={<HomePage />} />
         </Route>
-        {/* About and Features page: public, no auth redirect */}
+        {/* About, Features, and Contact pages: public, no auth redirect */}
         <Route element={<PublicLayout />}>
           <Route path="/about" element={<AboutPage />} />
           <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Route>
         <Route path="/onboard/faculty" element={<FacultyOnboarding />} />
         <Route path="/onboard/student" element={<StudentOnboarding />} />
