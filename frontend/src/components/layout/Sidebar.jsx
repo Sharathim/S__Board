@@ -77,18 +77,18 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
               title="Expand sidebar"
             >
               <img
-                src="/favicon.svg"
-                alt="Logo"
-                className="w-8 h-8 rounded-lg object-contain"
+                src="/logo-icon.png"
+                alt="DPMS Logo"
+                className="w-8 h-8 object-contain"
               />
             </button>
           ) : (
             <>
-              {/* Logo from favicon */}
+              {/* Logo icon */}
               <img
-                src="/favicon.svg"
-                alt="Logo"
-                className="w-8 h-8 rounded-lg object-contain flex-shrink-0"
+                src="/logo-icon.png"
+                alt="DPMS Logo"
+                className="w-8 h-8 object-contain flex-shrink-0"
               />
               <span
                 className="text-base font-bold truncate flex-1 animate-fade-in"
