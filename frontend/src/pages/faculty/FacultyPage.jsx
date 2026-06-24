@@ -34,13 +34,15 @@ const AVATAR_PALETTES = [
   { bg: "from-cyan-500 to-sky-600",       ring: "ring-cyan-200 dark:ring-cyan-900"    },
 ];
 
-function getAvatarPalette(name = "") {
+function getAvatarPalette(name) {
+  const safeName = name || "";
   let sum = 0;
-  for (let i = 0; i < name.length; i++) sum += name.charCodeAt(i);
+  for (let i = 0; i < safeName.length; i++) sum += safeName.charCodeAt(i);
   return AVATAR_PALETTES[sum % AVATAR_PALETTES.length];
 }
 
-function getInitials(name = "") {
+function getInitials(name) {
+  if (!name) return "?";
   const parts = name.trim().split(" ");
   return parts.length >= 2
     ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()

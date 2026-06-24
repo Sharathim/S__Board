@@ -12,3 +12,5 @@ export const listForumPosts = (params) => api.get("/forum/posts", { params });
 export const createForumPost = (data) => api.post("/forum/posts", data);
 export const editForumPost = (id, data) => api.patch(`/forum/posts/${id}`, data);
 export const toggleForumPostLike = (id) => api.post(`/forum/posts/${id}/like`);
+export const deleteForumPost = (id) => api.delete(`/forum/posts/${id}`);
+

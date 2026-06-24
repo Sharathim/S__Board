@@ -37,7 +37,8 @@ const FORUM_ROLE_COLORS = {
   Volunteer:   "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50",
 };
 
-function getInitials(name = "") {
+function getInitials(name) {
+  if (!name) return "?";
   const parts = name.trim().split(" ");
   return parts.length >= 2
     ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
