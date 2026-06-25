@@ -85,7 +85,7 @@ function DesignationBadge({ designation }) {
   const map = {
     "Professor":            { color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50", icon: Star },
     "Associate Professor":  { color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50",     icon: TrendingUp },
-    "Assistant Professor":  { color: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800/50", icon: GraduationCap },
+    "Assistant Professor":  { color: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50", icon: GraduationCap },
   };
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;

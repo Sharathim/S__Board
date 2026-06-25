@@ -28,12 +28,12 @@ function timeAgo(isoStr) {
 function statusMeta(status) {
   const map = {
     NOT_STARTED:  { label: "Not Started",  color: "#9CA3AF", bg: "#F3F4F6" },
-    IN_PROGRESS:  { label: "In Progress",  color: "#6366F1", bg: "#EEF2FF" },
+    IN_PROGRESS:  { label: "In Progress",  color: "#8B5CF6", bg: "#EDE9FE" },
     REVIEW:       { label: "Review",       color: "#F59E0B", bg: "#FFFBEB" },
-    COMPLETED:    { label: "Completed",    color: "#10B981", bg: "#ECFDF5" },
-    ON_HOLD:      { label: "On Hold",      color: "#F97316", bg: "#FFF7ED" },
+    COMPLETED:    { label: "Completed",    color: "#059669", bg: "#E6F4EA" },
+    ON_HOLD:      { label: "On Hold",      color: "#F59E0B", bg: "#FEF3C7" },
     CANCELLED:    { label: "Cancelled",    color: "#EF4444", bg: "#FEF2F2" },
-    LOW_ACTIVITY: { label: "Low Activity", color: "#F97316", bg: "#FFF7ED" },
+    LOW_ACTIVITY: { label: "Low Activity", color: "#F59E0B", bg: "#FEF3C7" },
   };
   return map[status] || { label: status, color: "#9CA3AF", bg: "#F3F4F6" };
 }
@@ -134,8 +134,8 @@ export default function DashboardPage() {
       label: "Total Projects",
       value: total,
       icon: FolderKanban,
-      iconBg: "#EEF2FF",
-      iconColor: "#6366F1",
+      iconBg: "#EDE9FE",
+      iconColor: "#8B5CF6",
       emptyLabel: "No projects created yet",
     },
     {
@@ -179,10 +179,10 @@ export default function DashboardPage() {
   /* ─ Donut segments ─ */
   const donutSegments = [
     { label: "Not Started",  value: stats?.not_started ?? 0,  color: "#9CA3AF" },
-    { label: "In Progress",  value: stats?.in_progress ?? 0,  color: "#6366F1" },
+    { label: "In Progress",  value: stats?.in_progress ?? 0,  color: "#8B5CF6" },
     { label: "Review",       value: stats?.review ?? 0,        color: "#F59E0B" },
-    { label: "Completed",    value: stats?.completed ?? 0,     color: "#10B981" },
-    { label: "On Hold",      value: stats?.on_hold ?? 0,       color: "#F97316" },
+    { label: "Completed",    value: stats?.completed ?? 0,     color: "#059669" },
+    { label: "On Hold",      value: stats?.on_hold ?? 0,       color: "#F59E0B" },
     { label: "Cancelled",    value: (stats?.cancelled ?? 0) + (stats?.low_activity ?? 0), color: "#EF4444" },
   ];
 
