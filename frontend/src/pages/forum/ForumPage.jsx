@@ -55,20 +55,6 @@ function RoleBadge({ role }) {
   );
 }
 
-function StatCard({ icon: Icon, value, label, color, bg }) {
-  return (
-    <div className={`flex items-center gap-3 p-4 rounded-2xl ${bg} border border-white/20 dark:border-gray-700/30`}>
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color} shadow-sm`}>
-        <Icon className="w-5 h-5 text-white" />
-      </div>
-      <div>
-        <div className="text-2xl font-black text-gray-900 dark:text-white leading-none">{value}</div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 export default function ForumPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
@@ -320,19 +306,6 @@ export default function ForumPage() {
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="relative mt-6 grid grid-cols-3 gap-3">
-          {[
-            { icon: MessageSquare, label: "Total Posts", value: postList.length },
-            { icon: Heart, label: "Total Likes", value: totalLikes },
-            { icon: Award, label: "Coordinators", value: coordinators.length },
-          ].map(s => (
-            <div key={s.label} className="text-center p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
-              <div className="text-xl sm:text-2xl font-black text-white">{s.value}</div>
-              <div className="text-[10px] sm:text-xs text-violet-200 mt-0.5 font-medium">{s.label}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* ── Main Layout ── */}

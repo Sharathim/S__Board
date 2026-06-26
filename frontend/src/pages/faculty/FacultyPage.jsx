@@ -107,20 +107,6 @@ function ClassChip({ label, variant = "default" }) {
   return <span className={`${base} ${variants[variant]}`}>{label.replace("_", " ")}</span>;
 }
 
-// ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({ icon: Icon, label, value, color }) {
-  return (
-    <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 flex items-center gap-4 shadow-card">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <div className="text-2xl font-extrabold text-gray-900 dark:text-white leading-none">{value}</div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{label}</div>
-      </div>
-    </div>
-  );
-}
 
 // ─── Invite Banner ────────────────────────────────────────────────────────────
 function InviteBanner({ invite, onToggle, isToggling }) {
@@ -451,29 +437,6 @@ export default function FacultyPage() {
             </div>
           </div>
         </div>
-
-        {isHOD && (
-          <button
-            onClick={() => toggleInviteMutation.mutate()}
-            disabled={toggleInviteMutation.isPending}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 shadow-sm shrink-0 ${
-              invite?.is_active
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50 dark:hover:bg-emerald-900/30"
-                : "bg-gradient-to-r from-primary-600 to-violet-600 text-white hover:from-primary-700 hover:to-violet-700 hover:shadow-primary-glow"
-            } disabled:opacity-60`}
-          >
-            {invite?.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-            New Faculty {invite?.is_active ? "ON" : "OFF"}
-          </button>
-        )}
-      </div>
-
-      {/* ── Stats Row ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Users}         label="Total Faculty"      value={stats.total}         color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400" />
-        <StatCard icon={ShieldCheck}   label="Class Incharges"    value={stats.withIncharge}  color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
-        <StatCard icon={FolderKanban}  label="Projects Assigned"  value={stats.totalProjects} color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
-        <StatCard icon={Star}          label="Professors"          value={stats.professors}    color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
       </div>
 
       {/* ── Invite Banner (HOD only) ── */}

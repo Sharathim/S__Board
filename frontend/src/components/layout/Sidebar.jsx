@@ -14,7 +14,7 @@ const allNavItems = [
     to: "/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
-    roles: ["HOD"],
+    roles: ["HOD", "FACULTY", "STUDENT"],
     color: "from-violet-500 to-purple-600",
     glow: "shadow-violet-500/30",
   },
@@ -133,8 +133,8 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
           "w-[260px]"
         )}
         style={{
-          background: "linear-gradient(160deg, #0f0e17 0%, #1a1830 50%, #0f172a 100%)",
-          borderColor: "rgba(255,255,255,0.06)",
+          background: "var(--sidebar-bg)",
+          borderColor: "var(--sidebar-border)",
         }}
       >
         <div className={clsx(
@@ -148,12 +148,12 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
               "flex items-center h-16 flex-shrink-0 transition-all duration-300",
               isCollapsed ? "justify-center px-0" : "gap-3 px-5"
             )}
-            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+            style={{ borderBottom: "1px solid var(--border-light)" }}
           >
             {isCollapsed ? (
               <button
                 onClick={onToggleCollapse}
-                className="p-1 rounded-xl transition-all duration-150 active:scale-95 hover:bg-white/10"
+                className="p-1 rounded-xl transition-all duration-150 active:scale-95 hover:bg-[var(--sidebar-hover)]"
                 title="Expand sidebar"
               >
                 <img src="/logo-icon.png" alt="DPMS" className="w-8 h-8 object-contain" />
@@ -162,26 +162,26 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
               <>
                 <div className="relative">
                   <img src="/logo-icon.png" alt="DPMS" className="w-8 h-8 object-contain flex-shrink-0" />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#0f0e17] shadow-sm" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--sidebar-bg)] shadow-sm" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-base font-black text-white tracking-tight leading-none block">
+                  <span className="text-base font-black tracking-tight leading-none block" style={{ color: "var(--text-primary)" }}>
                     Hive
                   </span>
-                  <span className="text-[10px] font-medium text-white/40 tracking-widest uppercase">
+                  <span className="text-[10px] font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
                     Dept. Portal
                   </span>
                 </div>
                 <button
                   onClick={onToggleCollapse}
-                  className="hidden lg:flex p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-all duration-150 active:scale-95"
+                  className="hidden lg:flex p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
                   title="Collapse sidebar"
                 >
                   <PanelLeftClose className="w-[18px] h-[18px]" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="ml-auto p-1.5 rounded-lg lg:hidden hover:bg-white/10 text-white/40 hover:text-white/80 transition-all duration-150"
+                  className="ml-auto p-1.5 rounded-lg lg:hidden hover:bg-[var(--sidebar-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-150"
                   title="Close"
                 >
                   <X className="w-[18px] h-[18px]" />
@@ -198,7 +198,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
             {/* Section label */}
             {!isCollapsed && (
-              <p className="text-[10px] font-bold text-white/25 uppercase tracking-[0.15em] px-3 pb-2">
+              <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] px-3 pb-2 opacity-60">
                 Navigation
               </p>
             )}
@@ -220,8 +220,8 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                         ? "justify-center p-2.5 mx-0"
                         : "gap-3 px-3 py-2.5",
                       isActive
-                        ? "bg-white/12 text-white shadow-lg"
-                        : "text-white/50 hover:text-white/90 hover:bg-white/6"
+                        ? "bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-fg)] shadow-sm"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]"
                     )
                   }
                   title={isCollapsed ? item.label : undefined}
@@ -243,7 +243,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                           isCollapsed ? "w-9 h-9" : "w-8 h-8",
                           isActive
                             ? `bg-gradient-to-br ${item.color} shadow-lg ${item.glow} text-white`
-                            : "bg-white/8 text-white/50 group-hover:bg-white/12 group-hover:text-white/80"
+                            : "bg-[var(--surface-secondary)] text-[var(--text-secondary)] group-hover:bg-[var(--sidebar-hover)] group-hover:text-[var(--text-primary)]"
                         )}
                       >
                         <Icon className={isCollapsed ? "w-4.5 h-4.5" : "w-4 h-4"} style={{ width: isCollapsed ? "18px" : "16px", height: isCollapsed ? "18px" : "16px" }} />
@@ -263,7 +263,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                       {showBadge && (
                         isCollapsed ? (
                           <span
-                            className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 border border-[#0f0e17] animate-pulse"
+                            className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 border border-[var(--sidebar-bg)] animate-pulse"
                           />
                         ) : (
                           <span className="text-[10px] font-black rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none bg-rose-500 text-white shadow-sm">
@@ -274,9 +274,9 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
                       {/* Collapsed tooltip */}
                       {isCollapsed && (
-                        <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-white/10">
+                        <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-[var(--surface)] text-[var(--text-primary)] text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-[var(--border-light)]">
                           {item.label}
-                          <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-gray-900 border-l border-b border-white/10" />
+                          <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-[var(--surface)] border-l border-b border-[var(--border-light)]" />
                         </div>
                       )}
                     </>
@@ -289,23 +289,23 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
           {/* ── User Profile / Logout ── */}
           <div
             className="flex-shrink-0 p-3"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+            style={{ borderTop: "1px solid var(--border-light)" }}
           >
             {isCollapsed ? (
               <button
                 onClick={logout}
-                className="w-full flex items-center justify-center p-2.5 rounded-xl text-white/40 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-95 group"
+                className="w-full flex items-center justify-center p-2.5 rounded-xl text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-95 group"
                 title="Log Out"
               >
                 <LogOut className="w-[18px] h-[18px]" />
-                <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-white/10">
+                <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-[var(--surface)] text-[var(--text-primary)] text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-[var(--border-light)]">
                   Log Out
                 </div>
               </button>
             ) : (
               <div
-                className="relative rounded-2xl p-3.5 overflow-hidden group transition-all duration-300 hover:bg-white/6 cursor-default"
-                style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                className="relative rounded-2xl p-3.5 overflow-hidden group transition-all duration-300 hover:bg-[var(--sidebar-hover)] cursor-default"
+                style={{ border: "1px solid var(--border-light)" }}
               >
                 {/* Background gradient glow */}
                 <div
@@ -322,14 +322,14 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                         : getInitials(user?.name)
                       }
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#1a1830]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--sidebar-bg)]" />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-white truncate leading-tight">{user?.name || "User"}</p>
+                    <p className="text-sm font-bold truncate leading-tight" style={{ color: "var(--text-primary)" }}>{user?.name || "User"}</p>
                     <div className="flex items-center gap-1 mt-0.5">
-                      <Shield className="w-2.5 h-2.5 text-white/35 flex-shrink-0" />
-                      <span className="text-[10px] font-semibold text-white/40 truncate">{getRoleLabel(user?.role)}</span>
+                      <Shield className="w-2.5 h-2.5 flex-shrink-0" style={{ color: "var(--text-muted)" }} />
+                      <span className="text-[10px] font-semibold truncate" style={{ color: "var(--text-muted)" }}>{getRoleLabel(user?.role)}</span>
                     </div>
                   </div>
                 </div>
@@ -337,7 +337,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                 {/* Logout button */}
                 <button
                   onClick={logout}
-                  className="relative w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-rose-400 hover:bg-rose-500/10 border border-white/8 hover:border-rose-500/20 transition-all duration-200 active:scale-95"
+                  className="relative w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-rose-400 hover:bg-rose-500/10 border border-[var(--border-light)] hover:border-rose-500/20 transition-all duration-200 active:scale-95"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   Sign Out

@@ -1,13 +1,18 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getProjectStats, getRecentActivity } from "../../api/projects";
 import { getUnreadCount } from "../../api/notifications";
+import { listClasses } from "../../api/classes";
+import { listFaculty } from "../../api/faculty";
+import { listUpdates } from "../../api/updates";
+import { listForumMembers, listForumPosts } from "../../api/forum";
 import { Spinner } from "../../components/ui/Spinner";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   FolderKanban, TrendingUp, Users, CheckCircle, AlertTriangle,
   Plus, CalendarDays, ChevronRight, GraduationCap, BookOpen,
-  MessageSquare, Megaphone, Clock, Activity,
+  MessageSquare, Megaphone, Clock, Activity, Layers, Crown, ShieldCheck, Star, Heart, Award,
 } from "lucide-react";
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
@@ -97,6 +102,25 @@ function DonutChart({ segments, total }) {
   );
 }
 
+/* ─── Dashboard Stat Tile for Moved Stats ─────────────────────────────────── */
+function DashboardStatTile({ icon: Icon, label, value, to, color }) {
+  return (
+    <Link
+      to={to}
+      className="dh-card p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4"
+      style={{ textDecoration: "none" }}
+    >
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+        <Icon className="w-4.5 h-4.5" />
+      </div>
+      <div className="min-w-0">
+        <div className="text-xl font-extrabold truncate" style={{ color: "var(--text-primary)" }}>{value}</div>
+        <div className="text-[10px] font-semibold truncate mt-0.5" style={{ color: "var(--text-secondary)" }}>{label}</div>
+      </div>
+    </Link>
+  );
+}
+
 /* ─── Component ──────────────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -115,6 +139,32 @@ export default function DashboardPage() {
   const { data: notifData } = useQuery({
     queryKey: ["unread-count"],
     queryFn: () => getUnreadCount().then(r => r.data),
+  });
+
+  // Queries for moved statistics
+  const { data: classesData } = useQuery({
+    queryKey: ["classes"],
+    queryFn: () => listClasses().then(r => r.data),
+  });
+
+  const { data: facultyData } = useQuery({
+    queryKey: ["faculty"],
+    queryFn: () => listFaculty().then(r => r.data.faculty),
+  });
+
+  const { data: updatesData } = useQuery({
+    queryKey: ["updates"],
+    queryFn: () => listUpdates().then(r => r.data),
+  });
+
+  const { data: forumMembersData } = useQuery({
+    queryKey: ["forum-members"],
+    queryFn: () => listForumMembers().then(r => r.data.members),
+  });
+
+  const { data: forumPostsData } = useQuery({
+    queryKey: ["forum-posts"],
+    queryFn: () => listForumPosts({ page: 1, per_page: 100 }).then(r => r.data.posts),
   });
 
   if (statsLoading) {
@@ -186,9 +236,33 @@ export default function DashboardPage() {
     { label: "Cancelled",    value: (stats?.cancelled ?? 0) + (stats?.low_activity ?? 0), color: "#EF4444" },
   ];
 
-
-
   const activities = activityData?.activities ?? [];
+
+  // Re-calculate statistics for moved sections
+  const classesList = classesData?.classes || [];
+  const classesCount = classesList.length;
+  const totalStudentsCount = classesList.reduce((s, c) => s + (c.student_count ?? 0), 0);
+  const classInchargesCount = classesList.filter(c => c.incharge).length;
+  const ugClassesCount = classesList.filter(c => c.class_name?.startsWith("UG")).length;
+  const pgClassesCount = classesList.filter(c => c.class_name?.startsWith("PG")).length;
+
+  const facultyList = facultyData || [];
+  const facultyCount = facultyList.length;
+  const facultyInchargesCount = facultyList.filter(f => f.class_incharge_of).length;
+  const facultyProjectsCount = facultyList.reduce((s, f) => s + (f.project_count || 0), 0);
+  const professorsCount = facultyList.filter(f => f.designation === "Professor").length;
+
+  const updatesList = updatesData?.updates || [];
+  const updatesCount = updatesList.length;
+  const updatesLikesCount = updatesList.reduce((s, u) => s + (u.like_count || 0), 0);
+  const updatesPhotosCount = updatesList.filter(u => u.attachment_url && u.attachment_type === "image").length;
+  const updatesFilesCount = updatesList.filter(u => u.attachment_url && u.attachment_type === "file").length;
+
+  const forumMembersList = forumMembersData || [];
+  const forumPostsList = forumPostsData || [];
+  const forumPostsCount = forumPostsList.length;
+  const forumLikesCount = forumPostsList.reduce((s, p) => s + (p.like_count || 0), 0);
+  const forumCoordinatorsCount = forumMembersList.filter(m => m.is_update_coordinator).length;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -207,54 +281,134 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <button
-          id="dashboard-new-project-btn"
-          onClick={() => navigate("/projects")}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-150 shadow-md hover:shadow-lg active:scale-95"
-          style={{ background: "var(--primary)" }}
-          onMouseEnter={e => e.currentTarget.style.background = "var(--primary-hover)"}
-          onMouseLeave={e => e.currentTarget.style.background = "var(--primary)"}
-        >
-          <Plus className="w-4 h-4" />
-          New Project
-        </button>
+        {user?.role === "HOD" && (
+          <button
+            id="dashboard-new-project-btn"
+            onClick={() => navigate("/projects")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-150 shadow-md hover:shadow-lg active:scale-95"
+            style={{ background: "var(--primary)" }}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--primary-hover)"}
+            onMouseLeave={e => e.currentTarget.style.background = "var(--primary)"}
+          >
+            <Plus className="w-4 h-4" />
+            New Project
+          </button>
+        )}
       </div>
 
-      {/* ── 5 Stat Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {statCards.map(card => {
-          const Icon = card.icon;
-          return (
-            <Link
-              key={card.key}
-              to="/projects"
-              id={`stat-card-${card.key}`}
-              className="dh-card p-5 hover:shadow-md transition-all duration-200 group block"
-              style={{ textDecoration: "none" }}
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="stat-icon flex-shrink-0"
-                  style={{ background: card.iconBg }}
+      {/* ── Centralized Department Statistics Hub ── */}
+      <div className="bg-white dark:bg-gray-800/40 rounded-3xl border border-gray-200/60 dark:border-gray-700/60 p-6 space-y-6 shadow-sm">
+        <div>
+          <h2 className="text-lg font-black" style={{ color: "var(--text-primary)" }}>
+            Department Statistics Hub
+          </h2>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            Real-time statistics compiled from all sections of the portal.
+          </p>
+        </div>
+
+        {/* Projects Statistics */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+            <FolderKanban className="w-4 h-4 text-violet-500" /> Projects Overview
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {statCards.map(card => {
+              const Icon = card.icon;
+              return (
+                <Link
+                  key={card.key}
+                  to="/projects"
+                  id={`stat-card-${card.key}`}
+                  className="dh-card p-5 hover:shadow-md transition-all duration-200 group block"
+                  style={{ textDecoration: "none" }}
                 >
-                  <Icon className="w-5 h-5" style={{ color: card.iconColor }} />
-                </div>
-              </div>
-              <p
-                className="text-3xl font-bold mt-3 mb-1"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {card.value}
-              </p>
-              <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-secondary)" }}>
-                {card.label}
-              </p>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                {card.value === 0 ? card.emptyLabel : `${card.value} total`}
-              </p>
-            </Link>
-          );
-        })}
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="stat-icon flex-shrink-0"
+                      style={{ background: card.iconBg }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: card.iconColor }} />
+                    </div>
+                  </div>
+                  <p
+                    className="text-3xl font-bold mt-3 mb-1"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {card.value}
+                  </p>
+                  <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-secondary)" }}>
+                    {card.label}
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                    {card.value === 0 ? card.emptyLabel : `${card.value} total`}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="h-px bg-gray-200/60 dark:bg-gray-700/60" />
+
+        {/* Classes & Faculty Statistics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Classes Stats */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+              <BookOpen className="w-4 h-4 text-cyan-500" /> Classes &amp; Students
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <DashboardStatTile icon={Layers} label="Total Classes" value={classesCount} to="/classes" color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" />
+              <DashboardStatTile icon={Users} label="Total Students" value={totalStudentsCount} to="/classes" color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
+              <DashboardStatTile icon={Crown} label="Incharges Assigned" value={`${classInchargesCount}/${classesCount}`} to="/classes" color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
+              <DashboardStatTile icon={TrendingUp} label="UG / PG Classes" value={`${ugClassesCount} / ${pgClassesCount}`} to="/classes" color="bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" />
+            </div>
+          </div>
+
+          {/* Faculty Stats */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+              <GraduationCap className="w-4 h-4 text-orange-500" /> Faculty Directory
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <DashboardStatTile icon={Users} label="Total Faculty" value={facultyCount} to="/faculty" color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400" />
+              <DashboardStatTile icon={ShieldCheck} label="Class Incharges" value={facultyInchargesCount} to="/faculty" color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
+              <DashboardStatTile icon={FolderKanban} label="Projects Assigned" value={facultyProjectsCount} to="/faculty" color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
+              <DashboardStatTile icon={Star} label="Professors" value={professorsCount} to="/faculty" color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="h-px bg-gray-200/60 dark:bg-gray-700/60" />
+
+        {/* Forum & Announcements Statistics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Announcements Stats */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+              <Megaphone className="w-4 h-4 text-yellow-500" /> Announcements (Feed)
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <DashboardStatTile icon={Megaphone} label="Total Posts" value={updatesCount} to="/updates" color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" />
+              <DashboardStatTile icon={Heart} label="Total Likes" value={updatesLikesCount} to="/updates" color="bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" />
+              <DashboardStatTile icon={Activity} label="Photos Shared" value={updatesPhotosCount} to="/updates" color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
+              <DashboardStatTile icon={FolderKanban} label="Files Shared" value={updatesFilesCount} to="/updates" color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
+            </div>
+          </div>
+
+          {/* Forum Stats */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+              <MessageSquare className="w-4 h-4 text-rose-500" /> Forum Feed
+            </h3>
+            <div className="grid grid-cols-3 gap-3">
+              <DashboardStatTile icon={MessageSquare} label="Total Posts" value={forumPostsCount} to="/forum" color="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" />
+              <DashboardStatTile icon={Heart} label="Total Likes" value={forumLikesCount} to="/forum" color="bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" />
+              <DashboardStatTile icon={Award} label="Coordinators" value={forumCoordinatorsCount} to="/forum" color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Main Grid (Projects Overview + Right Panel) ── */}

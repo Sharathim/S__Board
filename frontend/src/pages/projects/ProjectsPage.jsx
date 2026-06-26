@@ -165,27 +165,6 @@ export default function ProjectsPage() {
     },
   });
 
-  const statCards = [
-    { key: "total",         label: "Total",        icon: FolderKanban,  color: "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30" },
-    { key: "in_progress",   label: "In Progress",  icon: TrendingUp,    color: "text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-900/30" },
-    { key: "student_count", label: "Students",     icon: Users,         color: "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30" },
-    { key: "completed",     label: "Completed",    icon: CheckCircle,   color: "text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30" },
-    { key: "low_activity",  label: "Low Activity", icon: AlertTriangle, color: "text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30" },
-  ];
-
-  const handleStatClick = (key) => {
-    if (key === "total") {
-      setStatus("");
-    } else if (key === "in_progress") {
-      setStatus("IN_PROGRESS");
-    } else if (key === "completed") {
-      setStatus("COMPLETED");
-    } else if (key === "low_activity") {
-      setStatus("LOW_ACTIVITY");
-    }
-    setPage(1);
-  };
-
   const openCreate = () => { setEditProject(null); setModalOpen(true); };
   const openEdit   = (p)  => { setEditProject(p);  setModalOpen(true); };
 
@@ -201,20 +180,6 @@ export default function ProjectsPage() {
           </Button>
         )}
       </PageHeader>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {statCards.map(card => (
-          <StatTile
-            key={card.key}
-            icon={card.icon}
-            value={stats?.[card.key] ?? 0}
-            label={card.label}
-            accent={card.color}
-            onClick={card.key !== "student_count" ? () => handleStatClick(card.key) : undefined}
-          />
-        ))}
-      </div>
 
       {/* Filters & View Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

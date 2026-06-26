@@ -173,20 +173,6 @@ export default function UpdatesPage() {
           )}
         </div>
 
-        {/* Stats Row */}
-        <div className="relative mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: "Total Posts", value: rawUpdates.length },
-            { label: "Total Likes", value: totalLikes },
-            { label: "Photos Shared", value: totalImagePosts },
-            { label: "Files Shared", value: totalDocPosts },
-          ].map(s => (
-            <div key={s.label} className="text-center p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
-              <div className="text-xl sm:text-2xl font-black text-white">{s.value}</div>
-              <div className="text-[10px] sm:text-xs text-blue-200 mt-0.5 font-medium">{s.label}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* ── Main Layout ── */}
@@ -388,26 +374,6 @@ export default function UpdatesPage() {
         {/* ── RIGHT SIDEBAR (4 cols) ── */}
         <div className="lg:col-span-4 space-y-5">
 
-          {/* Statistics Card */}
-          <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-700/40 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-primary-500" />
-              <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Feed Statistics</h3>
-            </div>
-            <div className="p-4 grid grid-cols-2 gap-3">
-              {[
-                { label: "Total Posts", value: rawUpdates.length, color: "text-primary-600" },
-                { label: "Total Likes", value: totalLikes, color: "text-rose-500" },
-                { label: "Photos", value: `${totalImagePosts}`, color: "text-emerald-500" },
-                { label: "Files", value: `${totalDocPosts}`, color: "text-amber-500" },
-              ].map(stat => (
-                <div key={stat.label} className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-xl text-center border border-gray-100 dark:border-gray-700/40">
-                  <div className={`text-2xl font-black ${stat.color} leading-none`}>{stat.value}</div>
-                  <div className="text-[10px] text-gray-400 font-medium mt-1">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* Coordinators Card */}
           <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm overflow-hidden">

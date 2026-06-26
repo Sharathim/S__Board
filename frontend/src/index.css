@@ -80,10 +80,10 @@
 
   /* Theme Tokens mapping to Provided Variables */
   /* Backgrounds */
-  --background:        var(--color-10);
+  --background:        var(--color-4);
   --surface:           var(--color-4);
   --surface-hover:     var(--color-11);
-  --surface-secondary: var(--color-20);
+  --surface-secondary: var(--color-4);
 
   /* Sidebar */
   --sidebar-bg:        var(--color-4);

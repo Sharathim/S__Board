@@ -24,21 +24,6 @@ const CLASS_META = {
   PG_2A: { label: "PG 2A", short: "PG2A",level: "PG",  year: 2, gradient: "from-indigo-500 to-blue-600",    ring: "ring-indigo-200 dark:ring-indigo-900/60",  bg: "bg-indigo-50 dark:bg-indigo-900/20",  text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
 };
 
-// ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({ icon: Icon, label, value, color }) {
-  return (
-    <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 flex items-center gap-4 shadow-card">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <div className="text-2xl font-extrabold text-gray-900 dark:text-white leading-none">{value}</div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Class Card ────────────────────────────────────────────────────────────────
 function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   const hasIncharge = !!c.incharge;
@@ -295,13 +280,7 @@ export default function ClassesPage() {
         </div>
       </div>
 
-      {/* ── Stats ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Layers}       label="Total Classes"      value={classes.length}    color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" />
-        <StatCard icon={Users}        label="Total Students"     value={totalStudents}      color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400" />
-        <StatCard icon={ShieldCheck}  label="Incharges Assigned" value={assignedIncharges}  color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
-        <StatCard icon={TrendingUp}   label="UG / PG Classes"    value={`${ugClasses} / ${pgClasses}`} color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
-      </div>
+
 
       {/* ── Registration Toggle Banner (HOD only) ── */}
       {isHOD && (
