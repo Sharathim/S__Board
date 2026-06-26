@@ -215,15 +215,6 @@ export default function DashboardPage() {
       iconColor: "#10B981",
       emptyLabel: "No projects completed",
     },
-    {
-      key: "low_activity",
-      label: "Low Activity",
-      value: stats?.low_activity ?? 0,
-      icon: AlertTriangle,
-      iconBg: "#FFF7ED",
-      iconColor: "#F97316",
-      emptyLabel: "No low activity projects",
-    },
   ];
 
   /* ─ Donut segments ─ */
@@ -280,20 +271,6 @@ export default function DashboardPage() {
             Here's what's happening in your department today.
           </p>
         </div>
-
-        {user?.role === "HOD" && (
-          <button
-            id="dashboard-new-project-btn"
-            onClick={() => navigate("/projects")}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-150 shadow-md hover:shadow-lg active:scale-95"
-            style={{ background: "var(--primary)" }}
-            onMouseEnter={e => e.currentTarget.style.background = "var(--primary-hover)"}
-            onMouseLeave={e => e.currentTarget.style.background = "var(--primary)"}
-          >
-            <Plus className="w-4 h-4" />
-            New Project
-          </button>
-        )}
       </div>
 
       {/* ── Centralized Department Statistics Hub ── */}
@@ -312,7 +289,7 @@ export default function DashboardPage() {
           <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
             <FolderKanban className="w-4 h-4 text-violet-500" /> Projects Overview
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {statCards.map(card => {
               const Icon = card.icon;
               return (
@@ -351,63 +328,9 @@ export default function DashboardPage() {
 
         <div className="h-px bg-gray-200/60 dark:bg-gray-700/60" />
 
-        {/* Classes & Faculty Statistics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Classes Stats */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
-              <BookOpen className="w-4 h-4 text-cyan-500" /> Classes &amp; Students
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <DashboardStatTile icon={Layers} label="Total Classes" value={classesCount} to="/classes" color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" />
-              <DashboardStatTile icon={Users} label="Total Students" value={totalStudentsCount} to="/classes" color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
-              <DashboardStatTile icon={Crown} label="Incharges Assigned" value={`${classInchargesCount}/${classesCount}`} to="/classes" color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
-              <DashboardStatTile icon={TrendingUp} label="UG / PG Classes" value={`${ugClassesCount} / ${pgClassesCount}`} to="/classes" color="bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" />
-            </div>
-          </div>
-
-          {/* Faculty Stats */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
-              <GraduationCap className="w-4 h-4 text-orange-500" /> Faculty Directory
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <DashboardStatTile icon={Users} label="Total Faculty" value={facultyCount} to="/faculty" color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400" />
-              <DashboardStatTile icon={ShieldCheck} label="Class Incharges" value={facultyInchargesCount} to="/faculty" color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
-              <DashboardStatTile icon={FolderKanban} label="Projects Assigned" value={facultyProjectsCount} to="/faculty" color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
-              <DashboardStatTile icon={Star} label="Professors" value={professorsCount} to="/faculty" color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="h-px bg-gray-200/60 dark:bg-gray-700/60" />
-
-        {/* Forum & Announcements Statistics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Announcements Stats */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
-              <Megaphone className="w-4 h-4 text-yellow-500" /> Announcements (Feed)
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <DashboardStatTile icon={Megaphone} label="Total Posts" value={updatesCount} to="/updates" color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" />
-              <DashboardStatTile icon={Heart} label="Total Likes" value={updatesLikesCount} to="/updates" color="bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" />
-              <DashboardStatTile icon={Activity} label="Photos Shared" value={updatesPhotosCount} to="/updates" color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
-              <DashboardStatTile icon={FolderKanban} label="Files Shared" value={updatesFilesCount} to="/updates" color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
-            </div>
-          </div>
-
-          {/* Forum Stats */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
-              <MessageSquare className="w-4 h-4 text-rose-500" /> Forum Feed
-            </h3>
-            <div className="grid grid-cols-3 gap-3">
-              <DashboardStatTile icon={MessageSquare} label="Total Posts" value={forumPostsCount} to="/forum" color="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" />
-              <DashboardStatTile icon={Heart} label="Total Likes" value={forumLikesCount} to="/forum" color="bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" />
-              <DashboardStatTile icon={Award} label="Coordinators" value={forumCoordinatorsCount} to="/forum" color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <DashboardStatTile icon={Users} label="Total Students" value={totalStudentsCount} to="/classes" color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
+          <DashboardStatTile icon={Users} label="Total Faculty" value={facultyCount} to="/faculty" color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400" />
         </div>
       </div>
 

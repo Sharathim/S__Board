@@ -66,7 +66,8 @@ export default function ForumPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pendingStudent, setPendingStudent] = useState(null);
-  const [memberRole, setMemberRole] = useState("Member");
+  const [rolePreset, setRolePreset] = useState("President");
+  const [customRole, setCustomRole] = useState("");
 
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -76,10 +77,12 @@ export default function ForumPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fileInputRef = useRef(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [filePreview, setFilePreview] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
 
-  const canPost = isHOD || user?.role === "FACULTY" || user?.student?.is_forum_member;
+  const [showMembersModal, setShowMembersModal] = useState(false);
+
+  const canPost = user?.student?.is_forum_member === true;
 
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ["forum-members"],
@@ -111,7 +114,8 @@ export default function ForumPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forum-members"] });
       setPendingStudent(null);
-      setMemberRole("Member");
+      setRolePreset("President");
+      setCustomRole("");
       showSuccess("Forum member assigned successfully.");
     },
     onError: () => showError("Failed to assign member."),
@@ -122,7 +126,9 @@ export default function ForumPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
       setNewPost("");
-      removeFile();
+      setSelectedFiles([]);
+      setFilePreviews([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       showSuccess("Post published successfully!");
     },
     onError: (err) => showError(err.response?.data?.error || "Failed to publish post."),
@@ -171,26 +177,40 @@ export default function ForumPage() {
   });
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { showError("File size must be less than 5MB."); return; }
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setFilePreview(reader.result);
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const newFiles = [];
+    files.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        showError(`${file.name} is too large (max 5MB).`);
+        return;
+      }
+      newFiles.push(file);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreviews((prev) => [...prev, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    setSelectedFiles((prev) => [...prev, ...newFiles]);
   };
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    setFilePreview(null);
+  const removeFile = (idx) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== idx));
+    setFilePreviews((prev) => prev.filter((_, i) => i !== idx));
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handlePublish = () => {
-    if (!newPost.trim() && !selectedFile) return;
+    if (!newPost.trim() && selectedFiles.length === 0) return;
     const formData = new FormData();
     formData.append("content", newPost);
-    if (selectedFile) formData.append("attachment", selectedFile);
+    selectedFiles.forEach((file) => {
+      formData.append("attachment", file);
+    });
     createMutation.mutate(formData);
   };
 
@@ -267,59 +287,42 @@ export default function ForumPage() {
         </div>
       )}
 
-      {/* ── Page Hero Header ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700 p-6 sm:p-8 shadow-2xl shadow-violet-500/25">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptNiA2djZoNnYtNmgtNnptLTEyIDB2Nmg2di02aC02em0xMiAwdjZoNnYtNmgtNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40" />
-        <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-lg">
-              <MessageSquare className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Forum Feed</h1>
-                <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20 backdrop-blur-sm">LIVE</span>
-              </div>
-              <p className="text-sm text-violet-200 font-medium">
-                Share ideas, discussions, and announcements with the department
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-bold">
-              <BookOpen className="w-4 h-4" />
-              {postList.length} Posts
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-bold">
-              <Users className="w-4 h-4" />
-              {memberList.length} Members
-            </div>
-            {isHOD && (
-              <button
-                onClick={() => setPickerOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-violet-700 text-sm font-bold hover:bg-violet-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <UserPlus className="w-4 h-4" />
-                Add Member
-              </button>
-            )}
-          </div>
+      {/* ── Top Header Title Line ── */}
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Forum</h1>
+          <button
+            type="button"
+            onClick={() => setShowMembersModal(true)}
+            className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 font-extrabold flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm"
+            title="View Forum Members"
+          >
+            {memberList.length}
+          </button>
         </div>
 
+        {isHOD && (
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-sm font-bold transition-all shadow-md active:scale-95"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Member
+          </button>
+        )}
       </div>
 
       {/* ── Main Layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        {/* ── LEFT SIDEBAR ── */}
-        <div className="lg:col-span-3 space-y-5">
-
-          {/* Coordinator Spotlight */}
-          {coordinators.length > 0 && (
+        {/* ── LEFT SIDEBAR (Only Spotlight if coordinators exist) ── */}
+        {coordinators.length > 0 ? (
+          <div className="lg:col-span-3 space-y-5">
+            {/* Coordinator Spotlight */}
             <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 overflow-hidden shadow-sm">
               <div className="px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2">
                 <Crown className="w-4 h-4 text-amber-500" />
-                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest">Leadership Team</span>
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest">Leadership</span>
                 <span className="ml-auto text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">{coordinators.length}</span>
               </div>
               <div className="p-3 space-y-2">
@@ -339,89 +342,11 @@ export default function ForumPage() {
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Forum Directory */}
-          <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 overflow-hidden shadow-sm">
-            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700/60 flex items-center gap-2">
-              <Users className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Forum Directory</span>
-              <span className="ml-auto text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">{filteredMembers.length}</span>
-            </div>
-
-            {/* Member Search */}
-            <div className="px-3 pt-3">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search members..."
-                  value={memberSearchQuery}
-                  onChange={(e) => setMemberSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-7 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-600/60 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
-                />
-                {memberSearchQuery && (
-                  <button onClick={() => setMemberSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="p-3 space-y-1 max-h-[400px] overflow-y-auto">
-              {filteredMembers.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-6 italic">No matching members</p>
-              ) : (
-                filteredMembers.map(m => (
-                  <div
-                    key={m.id}
-                    className="group/member flex items-center justify-between gap-2 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700/40"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="relative shrink-0">
-                        <Avatar src={m.profile_picture} name={m.name} size="sm" />
-                        {m.is_update_coordinator && (
-                          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-amber-400 border border-white dark:border-gray-800 flex items-center justify-center">
-                            <Crown className="w-1.5 h-1.5 text-white" />
-                          </span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
-                        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                          <RoleBadge role={m.role} />
-                        </div>
-                      </div>
-                    </div>
-                    {isHOD && (
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover/member:opacity-100 transition-opacity shrink-0">
-                        <button
-                          onClick={() => coordMutation.mutate(m.id)}
-                          disabled={coordMutation.isPending}
-                          className={`p-1.5 rounded-lg transition-colors ${m.is_update_coordinator ? "text-amber-500 bg-amber-50 dark:bg-amber-900/20" : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"}`}
-                          title={m.is_update_coordinator ? "Revoke Coordinator" : "Make Coordinator"}
-                        >
-                          <Crown className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => removeMutation.mutate(m.id)}
-                          disabled={removeMutation.isPending}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                          title="Remove member"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* ── MAIN FEED ── */}
-        <div className="lg:col-span-9 space-y-5">
+        <div className={coordinators.length > 0 ? "lg:col-span-9 space-y-5" : "lg:col-span-12 space-y-5 max-w-4xl mx-auto w-full"}>
 
           {/* Post Composer */}
           {canPost && (
@@ -449,43 +374,47 @@ export default function ForumPage() {
                   className="w-full bg-transparent border-0 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none focus:ring-0 leading-relaxed"
                 />
 
-                {/* Image Preview */}
-                {filePreview && (
-                  <div className="relative mt-2 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden max-h-52 bg-gray-50 dark:bg-gray-900/30">
-                    <img src={filePreview} alt="upload preview" className="w-full h-full object-contain max-h-52" />
-                    <button
-                      onClick={removeFile}
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors shadow-lg"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-black/60 text-white text-[10px] font-medium">
-                      {selectedFile?.name}
-                    </div>
+                {/* Images Preview Grid */}
+                {filePreviews.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
+                    {filePreviews.map((preview, idx) => (
+                      <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-28 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                        <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeFile(idx)}
+                          className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors shadow-sm"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
 
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
               </div>
 
               {/* Composer Toolbar */}
               <div className="flex items-center justify-between px-4 pb-4 gap-3">
                 <div className="flex items-center gap-2">
                   <button
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                      selectedFile
+                      selectedFiles.length > 0
                         ? "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-800/40"
                         : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40"
                     }`}
                   >
                     <Image className="w-3.5 h-3.5" />
-                    {selectedFile ? "Change Image" : "Add Image"}
+                    {selectedFiles.length > 0 ? `Add More (${selectedFiles.length})` : "Add Image"}
                   </button>
                 </div>
                 <button
+                  type="button"
                   onClick={handlePublish}
-                  disabled={createMutation.isPending || (!newPost.trim() && !selectedFile)}
+                  disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-bold transition-all shadow-md hover:shadow-violet-500/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {createMutation.isPending ? <><Spinner size="xs" color="text-white" />Publishing...</> : <><Send className="w-4 h-4" />Publish</>}
@@ -629,14 +558,56 @@ export default function ForumPage() {
                     {/* Image Attachment */}
                     {post.attachment_url && (
                       <div className="px-5 pb-4">
-                        <div className="rounded-xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-72 flex items-center justify-center">
-                          <img
-                            src={post.attachment_url}
-                            alt="post attachment"
-                            className="w-full object-cover max-h-72"
-                            onError={(e) => { e.target.parentElement.style.display = "none"; }}
-                          />
-                        </div>
+                        {(() => {
+                          const urls = post.attachment_url.split(',').filter(Boolean);
+                          if (urls.length === 0) return null;
+                          if (urls.length === 1) {
+                            return (
+                              <div className="rounded-xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-96 flex items-center justify-center animate-fade-in">
+                                <img
+                                  src={urls[0]}
+                                  alt="post attachment"
+                                  className="w-full object-cover max-h-96"
+                                  onError={(e) => { e.target.parentElement.style.display = "none"; }}
+                                />
+                              </div>
+                            );
+                          }
+                          if (urls.length === 2) {
+                            return (
+                              <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                                {urls.map((url, i) => (
+                                  <img key={i} src={url} alt={`attachment-${i}`} className="w-full h-48 object-cover" />
+                                ))}
+                              </div>
+                            );
+                          }
+                          if (urls.length === 3) {
+                            return (
+                              <div className="grid grid-cols-3 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 h-64 animate-fade-in">
+                                <img src={urls[0]} alt="attachment-0" className="col-span-2 w-full h-full object-cover" />
+                                <div className="grid grid-rows-2 gap-2 h-full">
+                                  <img src={urls[1]} alt="attachment-1" className="w-full h-full object-cover" />
+                                  <img src={urls[2]} alt="attachment-2" className="w-full h-full object-cover" />
+                                </div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                              {urls.slice(0, 4).map((url, i) => (
+                                <div key={i} className="relative h-40">
+                                  <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
+                                  {i === 3 && urls.length > 4 && (
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-extrabold text-lg animate-fade-in">
+                                      +{urls.length - 4}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
 
@@ -691,42 +662,139 @@ export default function ForumPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Select Forum Role</label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {FORUM_ROLES.map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => setMemberRole(r)}
-                    className={`py-2.5 px-3 text-xs font-semibold rounded-xl border text-center transition-all ${
-                      memberRole === r
-                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-transparent shadow-md"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-violet-400 hover:text-violet-600"
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Select Preset Role</label>
+              <select
+                value={rolePreset}
+                onChange={(e) => {
+                  setRolePreset(e.target.value);
+                  if (e.target.value !== "Custom") {
+                    setCustomRole("");
+                  }
+                }}
+                className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+              >
+                <option value="President">President</option>
+                <option value="Vice President">Vice President</option>
+                <option value="Treasurer">Treasurer</option>
+                <option value="Secretary">Secretary</option>
+                <option value="Custom">Custom Designation...</option>
+              </select>
             </div>
+
+            {rolePreset === "Custom" && (
+              <div className="animate-fade-in">
+                <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Custom Designation</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Vice Secretary, Creative Head"
+                  value={customRole}
+                  onChange={(e) => setCustomRole(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                />
+              </div>
+            )}
 
             <div className="flex gap-3 pt-1">
               <button
+                type="button"
                 onClick={() => setPendingStudent(null)}
                 className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={() => assignMutation.mutate({ studentId: pendingStudent.id, role: memberRole })}
+                type="button"
+                onClick={() => {
+                  const finalRole = rolePreset === "Custom" ? customRole.trim() : rolePreset;
+                  if (!finalRole) {
+                    showError("Please enter a custom designation.");
+                    return;
+                  }
+                  assignMutation.mutate({ studentId: pendingStudent.id, role: finalRole });
+                }}
                 disabled={assignMutation.isPending}
                 className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
               >
-                {assignMutation.isPending ? "Adding…" : `Add as ${memberRole}`}
+                {assignMutation.isPending ? "Adding…" : `Add as ${rolePreset === "Custom" && customRole ? customRole : rolePreset}`}
               </button>
             </div>
           </div>
         </Modal>
       )}
+
+      {/* ── Members Directory Modal ── */}
+      <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory">
+        <div className="space-y-4 pt-1">
+          {/* Member Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search members..."
+              value={memberSearchQuery}
+              onChange={(e) => setMemberSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+            />
+            {memberSearchQuery && (
+              <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Members List */}
+          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+            {filteredMembers.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-8 italic">No matching members found</p>
+            ) : (
+              filteredMembers.map(m => (
+                <div
+                  key={m.id}
+                  className="group flex items-center justify-between gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-gray-100 dark:border-gray-700/40"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="relative shrink-0">
+                      <Avatar src={m.profile_picture} name={m.name} size="sm" />
+                      {m.is_update_coordinator && (
+                        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-400 border border-white dark:border-gray-800 flex items-center justify-center">
+                          <Crown className="w-1.5 h-1.5 text-white" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">{m.class_name?.replace("_", " ")}</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <RoleBadge role={m.role} />
+                      </div>
+                    </div>
+                  </div>
+                  {isHOD && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => coordMutation.mutate(m.id)}
+                        disabled={coordMutation.isPending}
+                        className={`p-1.5 rounded-lg transition-colors ${m.is_update_coordinator ? "text-amber-500 bg-amber-50 dark:bg-amber-900/20" : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"}`}
+                        title={m.is_update_coordinator ? "Revoke Coordinator" : "Make Coordinator"}
+                      >
+                        <Crown className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => removeMutation.mutate(m.id)}
+                        disabled={removeMutation.isPending}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        title="Remove member"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </Modal>
 
       {/* ── Edit Post Modal ── */}
       <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit Forum Post">

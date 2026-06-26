@@ -84,23 +84,28 @@ def create_update():
         return jsonify({"error": "Only update coordinators can post updates"}), 403
 
     content = request.form.get("content", "").strip()
-    file = request.files.get("attachment")
-    attachment = None
+    files = request.files.getlist("attachment")
+    attachments = []
 
-    if file:
-        try:
-            attachment = upload_file(file, folder="dpms/updates")
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+    if files:
+        for file in files:
+            try:
+                res = upload_file(file, folder="dpms/updates")
+                attachments.append(res)
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
 
     if not content:
         return jsonify({"error": "Content is required"}), 400
 
+    attachment_urls = ",".join([a["url"] for a in attachments]) if attachments else None
+    attachment_types = ",".join([a["type"] for a in attachments]) if attachments else None
+
     update = Update(
         content=content,
         posted_by=user.id,
-        attachment_url=attachment["url"] if attachment else None,
-        attachment_type=attachment["type"] if attachment else None,
+        attachment_url=attachment_urls,
+        attachment_type=attachment_types,
     )
     db.session.add(update)
     db.session.commit()

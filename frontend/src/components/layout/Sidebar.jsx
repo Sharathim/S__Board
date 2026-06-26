@@ -168,9 +168,6 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                   <span className="text-base font-black tracking-tight leading-none block" style={{ color: "var(--text-primary)" }}>
                     Hive
                   </span>
-                  <span className="text-[10px] font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
-                    Dept. Portal
-                  </span>
                 </div>
                 <button
                   onClick={onToggleCollapse}
@@ -196,12 +193,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
             isCollapsed ? "px-2" : "px-3"
           )}>
 
-            {/* Section label */}
-            {!isCollapsed && (
-              <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] px-3 pb-2 opacity-60">
-                Navigation
-              </p>
-            )}
+
 
             {uniqueNavItems.map(item => {
               const Icon = item.icon;

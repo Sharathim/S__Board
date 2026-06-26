@@ -25,13 +25,8 @@ import { TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle, More
 import { format } from "date-fns";
 
 const statusOptions = [
-  { value: "NOT_STARTED", label: "Not Started" },
   { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "REVIEW", label: "Review" },
   { value: "COMPLETED", label: "Completed" },
-  { value: "ON_HOLD", label: "On Hold" },
-  { value: "CANCELLED", label: "Cancelled" },
-  { value: "LOW_ACTIVITY", label: "Low Activity" },
 ];
 
 // ─── Kebab dropdown ──────────────────────────────────────────────────────────
@@ -173,48 +168,51 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Projects" subtitle={`${data?.total || 0} total projects`}>
-        {isHOD && (
-          <Button onClick={openCreate} className="gap-2">
-            <Plus className="w-4 h-4" /> Create Project
-          </Button>
-        )}
-      </PageHeader>
-
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Projects</h1>
+      </div>
+      
       {/* Filters & View Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1 max-w-md">
-          <div className="flex-1">
+        <div className="flex flex-wrap items-center gap-3 flex-1">
+          <div className="w-full sm:w-64">
             <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
           </div>
           <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
+          
+          {/* Grid / List Switcher */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
+            <button
+              onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === "grid"
+                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4.5 h-4.5" />
+            </button>
+            <button
+              onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === "list"
+                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+              }`}
+              title="List View"
+            >
+              <List className="w-4.5 h-4.5" />
+            </button>
+          </div>
         </div>
-        
-        {/* Grid / List Switcher */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 self-end sm:self-auto">
-          <button
-            onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
-            className={`p-1.5 rounded-lg transition-all ${
-              viewMode === "grid"
-                ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
-            }`}
-            title="Grid View"
-          >
-            <LayoutGrid className="w-4.5 h-4.5" />
-          </button>
-          <button
-            onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
-            className={`p-1.5 rounded-lg transition-all ${
-              viewMode === "list"
-                ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
-            }`}
-            title="List View"
-          >
-            <List className="w-4.5 h-4.5" />
-          </button>
-        </div>
+
+        {/* Create Project Button */}
+        {isHOD && (
+          <Button onClick={openCreate} className="gap-2 shrink-0">
+            <Plus className="w-4 h-4" /> Create Project
+          </Button>
+        )}
       </div>
 
       {/* Projects Content */}
@@ -223,11 +221,6 @@ export default function ProjectsPage() {
           icon={FolderKanban}
           title="No projects found"
           description="Create a new project to get started."
-          action={isHOD && (
-            <Button onClick={openCreate} className="gap-2">
-              <Plus className="w-4 h-4" /> Create Project
-            </Button>
-          )}
         />
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

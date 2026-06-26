@@ -16,7 +16,7 @@ import {
   Users, ToggleLeft, ToggleRight, MoreVertical, Trash2,
   UserCheck, UserX, Pencil, Mail, GraduationCap, BookOpen,
   FolderKanban, Search, Link2, Copy, CheckCheck, ChevronDown,
-  ShieldCheck, Star, TrendingUp, X,
+  ShieldCheck, Star, TrendingUp, X, LayoutGrid, List
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 
@@ -349,8 +349,7 @@ export default function FacultyPage() {
   const [editDesignation,setEditDesignation] = useState("Professor");
   const [editClasses,  setEditClasses]  = useState([]);
   const [deleteConfirm,setDeleteConfirm]= useState(null);
-  const [searchQuery,  setSearchQuery]  = useState("");
-  const [filterDesig,  setFilterDesig]  = useState("All");
+  const [viewMode,     setViewMode]     = useState("grid");
 
   // ── Queries ──
   const { data, isLoading } = useQuery({
@@ -376,12 +375,8 @@ export default function FacultyPage() {
 
   // ── Filtered list ──
   const filtered = useMemo(() => {
-    return facultyList.filter((f) => {
-      const matchSearch = !searchQuery || f.name.toLowerCase().includes(searchQuery.toLowerCase()) || f.email?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchDesig = filterDesig === "All" || f.designation === filterDesig;
-      return matchSearch && matchDesig;
-    });
-  }, [facultyList, searchQuery, filterDesig]);
+    return facultyList;
+  }, [facultyList]);
 
   // ── Mutations ──
   const assignMutation = useMutation({
@@ -423,68 +418,80 @@ export default function FacultyPage() {
     <div className="space-y-6 animate-fade-in">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
-              <GraduationCap className="w-5 h-5 text-white" />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
+            <GraduationCap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Faculty</h1>
+          </div>
+        </div>
+
+        {/* Right side actions */}
+        <div className="flex items-center gap-3">
+          {/* HOD only: Invite toggle "+ New Faculty" */}
+          {isHOD && invite && (
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
+              <button
+                type="button"
+                onClick={() => toggleInviteMutation.mutate()}
+                disabled={toggleInviteMutation.isPending}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                  invite.is_active
+                    ? "bg-emerald-500 text-white shadow-sm"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                }`}
+              >
+                {invite.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                <span>+ New Faculty</span>
+              </button>
+
+              {invite.is_active && invite.invite_link && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(invite.invite_link);
+                    alert("Invite link copied to clipboard!");
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-gray-150 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                  title="Copy Invite Link"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
-            <div>
-              <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Faculty</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {facultyList.length} member{facultyList.length !== 1 ? "s" : ""} in the department
-              </p>
-            </div>
+          )}
+
+          {/* Grid / List Switcher */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === "grid"
+                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === "list"
+                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+              }`}
+              title="List View"
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ── Invite Banner (HOD only) ── */}
-      {isHOD && (
-        <InviteBanner
-          invite={invite}
-          onToggle={() => toggleInviteMutation.mutate()}
-          isToggling={toggleInviteMutation.isPending}
-        />
-      )}
-
-      {/* ── Search & Filter Bar ── */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search faculty by name or email…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-
-        {/* Designation filter */}
-        <div className="relative">
-          <select
-            value={filterDesig}
-            onChange={(e) => setFilterDesig(e.target.value)}
-            className="appearance-none pl-3.5 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all cursor-pointer"
-          >
-            <option value="All">All Designations</option>
-            {DESIGNATION_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-        </div>
-      </div>
-
-      {/* ── Faculty Grid ── */}
+      {/* ── Faculty Grid / List View ── */}
       {facultyList.length === 0 ? (
         /* Empty State */
         <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -498,16 +505,7 @@ export default function FacultyPage() {
               : "Faculty members will appear here once they've been onboarded."}
           </p>
         </div>
-      ) : filtered.length === 0 ? (
-        /* No search results */
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Search className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-3" />
-          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">No results for "{searchQuery}"</p>
-          <button onClick={() => { setSearchQuery(""); setFilterDesig("All"); }} className="mt-3 text-xs text-primary-600 hover:underline">
-            Clear filters
-          </button>
-        </div>
-      ) : (
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((fac) => (
             <FacultyCard
@@ -522,13 +520,85 @@ export default function FacultyPage() {
             />
           ))}
         </div>
-      )}
-
-      {/* Results count */}
-      {filtered.length > 0 && (searchQuery || filterDesig !== "All") && (
-        <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">
-          Showing {filtered.length} of {facultyList.length} faculty members
-        </p>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-150 dark:border-gray-700">
+                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Faculty Member</th>
+                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Designation</th>
+                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Classes Handling</th>
+                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Class Incharge</th>
+                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Projects</th>
+                  <th className="px-6 py-3.5 w-24"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {filtered.map((fac) => (
+                  <tr key={fac.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                    <td className="px-6 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <Avatar fac={fac} size="sm" />
+                        <div>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{fac.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{fac.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <DesignationBadge designation={fac.designation || "Professor"} />
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <div className="flex flex-wrap gap-1">
+                        {fac.classes_handling?.length > 0 ? (
+                          fac.classes_handling.map((c) => (
+                            <ClassChip key={c} label={c} variant="default" />
+                          ))
+                        ) : (
+                          <span className="text-xs text-gray-450 italic">None</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-3.5">
+                      {fac.class_incharge_of ? (
+                        <ClassChip label={fac.class_incharge_of} variant="incharge" />
+                      ) : (
+                        <span className="text-xs text-gray-450 italic">None</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3.5 text-center text-sm font-bold text-gray-750 dark:text-gray-250">
+                      {fac.project_count || 0}
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <a href={`mailto:${fac.email}`} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500" title={`Email ${fac.name}`}>
+                          <Mail className="w-4.5 h-4.5" />
+                        </a>
+                        {isHOD ? (
+                          <>
+                            <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500" title="Edit">
+                              <Pencil className="w-4.5 h-4.5" />
+                            </button>
+                            <button onClick={() => setDeleteConfirm(fac)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500" title="Delete">
+                              <Trash2 className="w-4.5 h-4.5" />
+                            </button>
+                          </>
+                        ) : (
+                          user?.id === fac.user_id && (
+                            <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500" title="Edit Profile">
+                              <Pencil className="w-4.5 h-4.5" />
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
 
       {/* ─────────────────────────────────────────────────────── */}

@@ -160,17 +160,7 @@ export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
         </button>
       )}
 
-      {/* ── Current Page Breadcrumb ── */}
-      {pageLabel && (
-        <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-          {PageIcon && (
-            <div className="w-7 h-7 rounded-lg bg-[var(--surface-secondary)] border border-[var(--border-light)] flex items-center justify-center">
-              <PageIcon className={`w-4 h-4 ${pageColor}`} />
-            </div>
-          )}
-          <span className="text-sm font-bold text-[var(--text-primary)]">{pageLabel}</span>
-        </div>
-      )}
+
 
 
       {/* ── Right Actions ── */}

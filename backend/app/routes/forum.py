@@ -149,33 +149,40 @@ def create_post():
     data = request.form if request.files else request.get_json()
     user = g.current_user
 
-    # Check if forum member
+    # Check if forum member (strictly student forum member)
+    is_forum_member = False
     if user.role == UserRole.STUDENT:
         student = user.student_profile
-        if not student or not student.is_forum_member:
-            return jsonify({"error": "Only forum members can post"}), 403
-    elif user.role not in [UserRole.HOD, UserRole.FACULTY]:
+        if student and student.is_forum_member:
+            is_forum_member = True
+
+    if not is_forum_member:
         return jsonify({"error": "Only forum members can post"}), 403
 
     content = data.get("content", "").strip()
-    file = request.files.get("attachment")
-    attachment = None
+    files = request.files.getlist("attachment")
+    attachments = []
 
-    if file:
-        try:
-            attachment = upload_file(file, folder="dpms/forum_posts")
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+    if files:
+        for file in files:
+            try:
+                res = upload_file(file, folder="dpms/forum_posts")
+                attachments.append(res)
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
 
-    if not content and not attachment:
+    attachment_urls = ",".join([a["url"] for a in attachments]) if attachments else None
+    attachment_types = ",".join([a["type"] for a in attachments]) if attachments else None
+
+    if not content and not attachment_urls:
         return jsonify({"error": "Content cannot be empty"}), 400
 
     from ..models.forum_post import ForumPost
     post = ForumPost(
         content=content,
         posted_by=user.id,
-        attachment_url=attachment["url"] if attachment else None,
-        attachment_type=attachment["type"] if attachment else None,
+        attachment_url=attachment_urls,
+        attachment_type=attachment_types,
     )
     db.session.add(post)
     db.session.commit()
