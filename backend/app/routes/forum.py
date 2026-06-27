@@ -159,12 +159,14 @@ def create_post():
     if not is_forum_member:
         return jsonify({"error": "Only forum members can post"}), 403
 
-    content = data.get("content", "").strip()
+    content = data.get("content", "").strip() or None
     files = request.files.getlist("attachment")
     attachments = []
 
     if files:
         for file in files:
+            if not file or not file.filename:
+                continue
             try:
                 res = upload_file(file, folder="dpms/forum_posts")
                 attachments.append(res)

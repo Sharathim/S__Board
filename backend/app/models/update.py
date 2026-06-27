@@ -16,8 +16,8 @@ class Update(db.Model):
     posted_by = db.Column(db.Integer, db.ForeignKey("users.id"))
     is_deleted = db.Column(db.Boolean, default=False)
     is_edited = db.Column(db.Boolean, default=False)
-    attachment_url = db.Column(db.String(500), nullable=True)
-    attachment_type = db.Column(db.String(50), nullable=True)
+    attachment_url = db.Column(db.Text, nullable=True)  # Text: multiple URLs joined by commas
+    attachment_type = db.Column(db.Text, nullable=True)  # Text: multiple types joined by commas
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -14,12 +14,12 @@ class ForumPost(db.Model):
     __tablename__ = "forum_posts"
 
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=True)  # nullable: image-only posts allowed
     posted_by = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     is_deleted = db.Column(db.Boolean, default=False)
     is_edited = db.Column(db.Boolean, default=False)
-    attachment_url = db.Column(db.String(500), nullable=True)
-    attachment_type = db.Column(db.String(50), nullable=True)
+    attachment_url = db.Column(db.Text, nullable=True)  # Text: multiple URLs joined by commas
+    attachment_type = db.Column(db.Text, nullable=True)  # Text: multiple types joined by commas
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

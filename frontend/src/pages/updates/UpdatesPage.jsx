@@ -67,7 +67,6 @@ function parseAnnouncementContent(contentStr) {
 export default function UpdatesPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
-  const isCoordinator = user?.role === "HOD" || user?.faculty?.is_update_coordinator;
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
@@ -109,6 +108,11 @@ export default function UpdatesPage() {
     queryKey: ["updates", page],
     queryFn: () => listUpdates({ page, per_page: 15 }).then(r => r.data),
   });
+
+  // isCoordinator: HOD always, faculty if flagged, or forum-member student whose name is in the coordinator list
+  const isCoordinator = user?.role === "HOD"
+    || user?.faculty?.is_update_coordinator
+    || (user?.role === "STUDENT" && (coordData?.coordinators || []).some(c => c.name === user?.name));
 
   const assignCoordMutation = useMutation({
     mutationFn: ({ kind, refId }) => assignCoordinator(kind, refId),

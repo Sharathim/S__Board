@@ -89,6 +89,8 @@ def create_update():
 
     if files:
         for file in files:
+            if not file or not file.filename:
+                continue
             try:
                 res = upload_file(file, folder="dpms/updates")
                 attachments.append(res)
