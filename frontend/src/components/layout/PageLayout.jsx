@@ -20,29 +20,30 @@ export default function PageLayout() {
   };
 
   return (
-    <div className="grid grid-rows-[72px_1fr] grid-cols-[auto_1fr] h-screen w-screen overflow-hidden bg-[#f9fafe] dark:bg-slate-950">
-      <div className="col-span-2 h-[72px] sticky top-0 z-50">
-        <TopBar
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#f8f9fd] dark:bg-slate-950">
+      <div className="h-[72px] w-full sticky top-0 z-50 flex-shrink-0">
+        <TopBar 
           onMenuClick={() => setSidebarOpen(true)}
           isCollapsed={sidebarCollapsed}
           onToggleCollapse={handleToggleCollapse}
         />
       </div>
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        isCollapsed={sidebarCollapsed}
-        onToggleCollapse={handleToggleCollapse}
-      />
-      <main className="overflow-y-auto bg-[#f9fafe] dark:bg-slate-950">
-        <div className="p-8 w-full max-w-[1400px] mx-auto">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </div>
-      </main>
+      <div className="flex flex-1 overflow-hidden min-w-0">
+        <Sidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={handleToggleCollapse}
+        />
+        <main className="flex-1 overflow-y-auto bg-[#f8f9fd] dark:bg-slate-950">
+          <div className="p-8 w-full max-w-[1400px] mx-auto">
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
+          </div>
+        </main>
+      </div>
       <ToastContainer />
     </div>
   );
 }
-

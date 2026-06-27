@@ -126,10 +126,10 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex flex-col transition-transform duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0 lg:transition-all lg:duration-300 lg:ease-in-out bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800/80 p-4",
+          "fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 p-4 transition-[width,transform] duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "lg:w-[72px]" : "lg:w-[260px]",
-          "w-[260px] h-screen lg:h-[calc(100vh-72px)] flex flex-col justify-between"
+          isCollapsed ? "w-[72px] lg:w-[72px]" : "w-[260px] lg:w-[260px]",
+          "h-screen lg:h-[calc(100vh-72px)] flex flex-col justify-between"
         )}
       >
         {/* ── Logo / Brand (Mobile Only) ── */}
