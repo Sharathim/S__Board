@@ -34,7 +34,7 @@ export default function PageLayout() {
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={handleToggleCollapse}
       />
-      <main className="app-surface overflow-y-auto bg-[#dbe2ff] dark:bg-slate-950">
+      <main className="overflow-y-auto bg-[#dbe2ff] dark:bg-slate-950">
         <div className="p-8 w-full max-w-[1400px] mx-auto">
           <ErrorBoundary>
             <Outlet />
