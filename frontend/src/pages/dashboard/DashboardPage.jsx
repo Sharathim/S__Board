@@ -103,19 +103,21 @@ function DonutChart({ segments, total }) {
 }
 
 /* ─── Dashboard Stat Tile for Moved Stats ─────────────────────────────────── */
-function DashboardStatTile({ icon: Icon, label, value, to, color }) {
+function DashboardStatTile({ icon: Icon, label, value, to }) {
   return (
     <Link
       to={to}
-      className="dh-card p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4"
+      className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-sm"
       style={{ textDecoration: "none" }}
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-        <Icon className="w-4.5 h-4.5" />
+      {/* Left Node */}
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
+        <Icon className="w-5 h-5" />
       </div>
-      <div className="min-w-0">
-        <div className="text-xl font-extrabold truncate" style={{ color: "var(--text-primary)" }}>{value}</div>
-        <div className="text-[10px] font-semibold truncate mt-0.5" style={{ color: "var(--text-secondary)" }}>{label}</div>
+      {/* Right Node */}
+      <div className="min-w-0 flex flex-col">
+        <span className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{value}</span>
+        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">{label}</span>
       </div>
     </Link>
   );
@@ -256,81 +258,62 @@ export default function DashboardPage() {
   const forumCoordinatorsCount = forumMembersList.filter(m => m.is_update_coordinator).length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {/* ── Welcome Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1
-            className="text-2xl font-bold flex items-center gap-2"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Welcome back, {getFirstName(user?.name)}
-            <span role="img" aria-label="wave">👋</span>
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Here's what's happening in your department today.
           </p>
         </div>
       </div>
 
       {/* ── Centralized Department Statistics Hub ── */}
-      <div className="bg-white dark:bg-gray-800/40 rounded-3xl border border-gray-200/60 dark:border-gray-700/60 p-6 space-y-6 shadow-sm">
+      <div className="space-y-6">
         <div>
-          <h2 className="text-lg font-black" style={{ color: "var(--text-primary)" }}>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
             Department Statistics Hub
           </h2>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             Real-time statistics compiled from all sections of the portal.
           </p>
         </div>
 
-        {/* Projects Statistics */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
-            <FolderKanban className="w-4 h-4 text-violet-500" /> Projects Overview
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {statCards.map(card => {
-              const Icon = card.icon;
-              return (
-                <Link
-                  key={card.key}
-                  to="/projects"
-                  id={`stat-card-${card.key}`}
-                  className="dh-card p-5 hover:shadow-md transition-all duration-200 group block"
-                  style={{ textDecoration: "none" }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className="stat-icon flex-shrink-0"
-                      style={{ background: card.iconBg }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: card.iconColor }} />
-                    </div>
-                  </div>
-                  <p
-                    className="text-3xl font-bold mt-3 mb-1"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {card.value}
-                  </p>
-                  <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-secondary)" }}>
-                    {card.label}
-                  </p>
-                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    {card.value === 0 ? card.emptyLabel : `${card.value} total`}
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
+        {/* Row 1: Core Metrics Grid */}
+        <div className="grid grid-cols-4 gap-5">
+          {statCards.map(card => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.key}
+                to="/projects"
+                id={`stat-card-${card.key}`}
+                className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-sm group block"
+                style={{ textDecoration: "none" }}
+              >
+                {/* Left Node */}
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
+                  <Icon className="w-5 h-5" />
+                </div>
+                {/* Right Node */}
+                <div className="min-w-0 flex flex-col">
+                  <span className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{card.value}</span>
+                  <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
+                    {card.label} &bull; {card.value === 0 ? card.emptyLabel : `${card.value} total`}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
-        <div className="h-px bg-gray-200/60 dark:bg-gray-700/60" />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DashboardStatTile icon={Users} label="Total Students" value={totalStudentsCount} to="/classes" color="bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" />
-          <DashboardStatTile icon={Users} label="Total Faculty" value={facultyCount} to="/faculty" color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400" />
+        {/* Row 2: Secondary Metrics Grid */}
+        <div className="grid grid-cols-2 gap-5 mt-6">
+          <DashboardStatTile icon={Users} label="Total Students" value={totalStudentsCount} to="/classes" />
+          <DashboardStatTile icon={Users} label="Total Faculty" value={facultyCount} to="/faculty" />
         </div>
       </div>
 
@@ -339,23 +322,18 @@ export default function DashboardPage() {
         {/* Left — Projects Overview */}
         <div className="xl:col-span-2 space-y-6">
           {/* Projects Overview Card */}
-          <div className="dh-card p-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+                <h2 className="text-base font-bold text-slate-850 dark:text-slate-200">
                   Projects Overview
                 </h2>
-                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                <p className="text-xs mt-0.5 text-slate-400 dark:text-slate-500">
                   Track your projects by status
                 </p>
               </div>
               <button
-                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors"
-                style={{
-                  color: "var(--text-secondary)",
-                  borderColor: "var(--border-light)",
-                  background: "var(--surface)",
-                }}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
               >
                 This Month
                 <ChevronRight className="w-3 h-3 rotate-90" />
@@ -376,27 +354,24 @@ export default function DashboardPage() {
                     return (
                       <div
                         key={seg.label}
-                        className="flex items-center gap-3 py-1.5 px-2.5 rounded-xl transition-all duration-150 hover:bg-gray-50/80 dark:hover:bg-gray-800/40"
+                        className="flex items-center gap-3 py-1.5 px-2.5 rounded-xl transition-all duration-150 hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
                       >
                         <span
                           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                           style={{ background: seg.color }}
                         />
                         <span
-                          className="flex-1 text-sm font-medium"
-                          style={{ color: "var(--text-secondary)" }}
+                          className="flex-1 text-sm font-medium text-slate-500 dark:text-slate-450"
                         >
                           {seg.label}
                         </span>
                         <span
-                          className="text-sm font-bold w-6 text-right"
-                          style={{ color: "var(--text-primary)" }}
+                          className="text-sm font-bold w-6 text-right text-slate-900 dark:text-white"
                         >
                           {seg.value}
                         </span>
                         <span
-                          className="text-xs w-10 text-right font-semibold"
-                          style={{ color: "var(--text-muted)" }}
+                          className="text-xs w-10 text-right font-semibold text-slate-400 dark:text-slate-500"
                         >
                           {pct}%
                         </span>
@@ -409,20 +384,20 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity Card */}
-          <div className="dh-card p-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+                <h2 className="text-base font-bold text-slate-850 dark:text-slate-200">
                   Recent Activity
                 </h2>
-                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                <p className="text-xs mt-0.5 text-slate-400 dark:text-slate-500">
                   Stay updated with the latest activities
                 </p>
               </div>
               <Link
                 to="/projects"
-                className="text-xs font-semibold transition-colors"
-                style={{ color: "var(--primary)", textDecoration: "none" }}
+                className="text-xs font-semibold text-indigo-655 dark:text-indigo-400 hover:text-indigo-700 transition-colors"
+                style={{ textDecoration: "none" }}
               >
                 View All
               </Link>
@@ -433,15 +408,14 @@ export default function DashboardPage() {
             ) : activities.length === 0 ? (
               <div className="flex flex-col items-center py-10 text-center">
                 <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
-                  style={{ background: "var(--surface-secondary)" }}
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-3 bg-slate-50 dark:bg-slate-800"
                 >
-                  <Activity className="w-8 h-8" style={{ color: "var(--text-muted)" }} />
+                  <Activity className="w-8 h-8 text-slate-400 dark:text-slate-500" />
                 </div>
-                <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+                <p className="text-sm font-semibold mb-1 text-slate-900 dark:text-white">
                   No recent activity
                 </p>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                <p className="text-xs text-slate-400 dark:text-slate-500">
                   Activities will appear here once you start working on projects.
                 </p>
               </div>
@@ -453,13 +427,10 @@ export default function DashboardPage() {
                     <Link
                       key={item.id}
                       to={`/projects/${item.id}`}
-                      className="flex items-start gap-3 p-3 rounded-xl transition-all duration-150 group"
+                      className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all duration-150 group"
                       style={{
                         textDecoration: "none",
-                        border: "1px solid var(--border-light)",
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = "var(--surface-secondary)"}
-                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                     >
                       <div
                         className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -468,10 +439,10 @@ export default function DashboardPage() {
                         <FolderKanban className="w-4 h-4" style={{ color: meta.color }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+                        <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">
                           {item.name}
                         </p>
-                        <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>
+                        <p className="text-xs truncate mt-0.5 text-slate-400 dark:text-slate-500">
                           {item.last_message
                             ? `${item.last_message.sender_name}: ${item.last_message.content}`
                             : "No activity yet"
@@ -486,7 +457,7 @@ export default function DashboardPage() {
                           <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
                           {meta.label}
                         </span>
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">
                           <Clock className="w-3 h-3 inline mr-0.5" />
                           {timeAgo(item.updated_at)}
                         </span>
@@ -502,16 +473,13 @@ export default function DashboardPage() {
         {/* Right Panel */}
         <div className="space-y-6">
           {/* Upcoming Deadlines */}
-          <div className="dh-card p-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+              <h2 className="text-base font-bold text-slate-850 dark:text-slate-200">
                 Upcoming Deadlines
               </h2>
               <button
-                className="p-1.5 rounded-lg transition-colors"
-                style={{ color: "var(--text-muted)" }}
-                onMouseEnter={e => e.currentTarget.style.background = "var(--surface-hover)"}
-                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <CalendarDays className="w-4 h-4" />
               </button>
@@ -519,26 +487,25 @@ export default function DashboardPage() {
 
             <div className="flex flex-col items-center py-8 text-center">
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
-                style={{ background: "var(--surface-secondary)" }}
+                className="w-16 h-16 rounded-full flex items-center justify-center mb-3 bg-slate-50 dark:bg-slate-800"
               >
-                <CalendarDays className="w-8 h-8" style={{ color: "var(--text-muted)" }} />
+                <CalendarDays className="w-8 h-8 text-slate-400 dark:text-slate-500" />
               </div>
-              <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+              <p className="text-sm font-semibold mb-1 text-slate-900 dark:text-white">
                 No upcoming Deadlines
               </p>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+              <p className="text-xs leading-relaxed text-slate-400 dark:text-slate-500">
                 You're all caught up! New deadlines will appear here.
               </p>
             </div>
           </div>
 
           {/* Department Insights Card */}
-          <div className="dh-card p-6">
-            <h2 className="text-base font-bold mb-1" style={{ color: "var(--text-primary)" }}>
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
+            <h2 className="text-base font-bold mb-1 text-slate-850 dark:text-slate-200">
               Department Insights
             </h2>
-            <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>
+            <p className="text-xs mb-5 text-slate-400 dark:text-slate-500">
               Key metrics and project analytics
             </p>
             
@@ -546,7 +513,7 @@ export default function DashboardPage() {
               {/* Completion Rate */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-sm font-semibold" style={{ color: "var(--text-secondary)" }}>
+                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                     Project Completion Rate
                   </span>
                   <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
@@ -554,7 +521,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 {/* Progress Bar Container */}
-                <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-700/60 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800/60 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500"
                     style={{
@@ -562,18 +529,18 @@ export default function DashboardPage() {
                     }}
                   />
                 </div>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                   {stats?.completed ?? 0} out of {total} projects completed
                 </p>
               </div>
 
               {/* Department Health Indicator */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40">
+              <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40">
                 <div>
-                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                     Activity Status
                   </p>
-                  <p className="text-sm font-bold mt-0.5" style={{ color: "var(--text-primary)" }}>
+                  <p className="text-sm font-bold mt-0.5 text-slate-800 dark:text-slate-200">
                     {stats?.low_activity > 2
                       ? "Attention Required"
                       : stats?.low_activity > 0
@@ -605,10 +572,10 @@ export default function DashboardPage() {
                     style={{
                       background:
                         stats?.low_activity > 2
-                          ? "#EF4444"
-                          : stats?.low_activity > 0
-                          ? "#F59E0B"
-                          : "#10B981",
+                           ? "#EF4444"
+                           : stats?.low_activity > 0
+                           ? "#F59E0B"
+                           : "#10B981",
                     }}
                   />
                   {stats?.low_activity > 2
@@ -622,31 +589,30 @@ export default function DashboardPage() {
               {/* Engagement Insight */}
               <div className="flex items-start gap-3">
                 <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(79, 70, 229, 0.1)" }}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-indigo-50 dark:bg-indigo-950/50"
                 >
                   <Users className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">
                     Student Coverage
                   </p>
-                  <p className="text-sm font-bold mt-0.5" style={{ color: "var(--text-primary)" }}>
+                  <p className="text-sm font-bold mt-0.5 text-slate-800 dark:text-slate-200">
                     {stats?.student_count ?? 0} Students Assigned
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                  <p className="text-xs text-slate-450 dark:text-slate-500 mt-0.5">
                     Actively collaborating in project workspaces
                   </p>
                 </div>
               </div>
 
               {/* Micro Platform Status Indicators */}
-              <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50 flex flex-wrap gap-x-4 gap-y-1.5">
-                <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-wrap gap-x-4 gap-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Real-time Gateway</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   <span>Cloud Sync</span>
                 </div>

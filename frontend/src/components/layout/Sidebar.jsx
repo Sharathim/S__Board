@@ -126,218 +126,155 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex flex-col h-full border-r transition-transform duration-300 ease-in-out lg:z-30",
-          "lg:static lg:translate-x-0 lg:transition-all lg:duration-300 lg:ease-in-out",
+          "fixed inset-y-0 left-0 z-50 flex flex-col transition-transform duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0 lg:transition-all lg:duration-300 lg:ease-in-out bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800/80 p-4",
           open ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "lg:w-[72px]" : "lg:w-[260px]",
-          "w-[260px]"
+          "w-[260px] h-screen lg:h-[calc(100vh-72px)] flex flex-col justify-between"
         )}
-        style={{
-          background: "var(--sidebar-bg)",
-          borderColor: "var(--sidebar-border)",
-        }}
       >
-        <div className={clsx(
-          "flex flex-col h-full flex-shrink-0 transition-all duration-300",
-          isCollapsed ? "w-[72px]" : "w-[260px]"
-        )}>
-
-          {/* ── Logo / Brand ── */}
-          <div
-            className={clsx(
-              "flex items-center h-16 flex-shrink-0 transition-all duration-300",
-              isCollapsed ? "justify-center px-0" : "gap-3 px-5"
-            )}
-            style={{ borderBottom: "1px solid var(--border-light)" }}
-          >
-            {isCollapsed ? (
-              <button
-                onClick={onToggleCollapse}
-                className="p-1 rounded-xl transition-all duration-150 active:scale-95 hover:bg-[var(--sidebar-hover)]"
-                title="Expand sidebar"
-              >
-                <img src="/logo-icon.png" alt="DPMS" className="w-8 h-8 object-contain" />
-              </button>
-            ) : (
-              <>
-                <div className="relative">
-                  <img src="/logo-icon.png" alt="DPMS" className="w-8 h-8 object-contain flex-shrink-0" />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--sidebar-bg)] shadow-sm" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-base font-black tracking-tight leading-none block" style={{ color: "var(--text-primary)" }}>
-                    Hive
-                  </span>
-                </div>
-                <button
-                  onClick={onToggleCollapse}
-                  className="hidden lg:flex p-1.5 rounded-lg hover:bg-[var(--sidebar-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-150 active:scale-95"
-                  title="Collapse sidebar"
-                >
-                  <PanelLeftClose className="w-[18px] h-[18px]" />
-                </button>
-                <button
-                  onClick={onClose}
-                  className="ml-auto p-1.5 rounded-lg lg:hidden hover:bg-[var(--sidebar-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all duration-150"
-                  title="Close"
-                >
-                  <X className="w-[18px] h-[18px]" />
-                </button>
-              </>
-            )}
+        {/* ── Logo / Brand (Mobile Only) ── */}
+        <div className="flex items-center h-16 flex-shrink-0 gap-3 px-4 lg:hidden border-b border-slate-100 dark:border-slate-800/80">
+          <div className="relative">
+            <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain flex-shrink-0" />
           </div>
-
-          {/* ── Navigation ── */}
-          <nav className={clsx(
-            "flex-1 overflow-y-auto py-4 space-y-1",
-            isCollapsed ? "px-2" : "px-3"
-          )}>
-
-
-
-            {uniqueNavItems.map(item => {
-              const Icon = item.icon;
-              const showBadge = item.to === "/forum" && unreadCount > 0;
-
-              return (
-                <NavLink
-                  key={item.label}
-                  to={item.to}
-                  end={item.exact}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    clsx(
-                      "group relative flex items-center rounded-xl text-sm font-medium transition-all duration-200",
-                      isCollapsed
-                        ? "justify-center p-2.5 mx-0"
-                        : "gap-3 px-3 py-2.5",
-                      isActive
-                        ? "bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-fg)] shadow-sm"
-                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--sidebar-hover)]"
-                    )
-                  }
-                  title={isCollapsed ? item.label : undefined}
-                >
-                  {({ isActive }) => (
-                    <>
-                      {/* Active left indicator */}
-                      {isActive && !isCollapsed && (
-                        <span
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full"
-                          style={{ background: "var(--primary)" }}
-                        />
-                      )}
-
-                      {/* Icon container */}
-                      <div
-                        className={clsx(
-                          "flex items-center justify-center rounded-lg flex-shrink-0 transition-all duration-200",
-                          isCollapsed ? "w-9 h-9" : "w-8 h-8",
-                          isActive
-                            ? `bg-gradient-to-br ${item.color} shadow-lg ${item.glow} text-white`
-                            : "bg-[var(--surface-secondary)] text-[var(--text-secondary)] group-hover:bg-[var(--sidebar-hover)] group-hover:text-[var(--text-primary)]"
-                        )}
-                      >
-                        <Icon className={isCollapsed ? "w-4.5 h-4.5" : "w-4 h-4"} style={{ width: isCollapsed ? "18px" : "16px", height: isCollapsed ? "18px" : "16px" }} />
-                      </div>
-
-                      {/* Label */}
-                      {!isCollapsed && (
-                        <span className={clsx(
-                          "flex-1 truncate transition-all duration-200",
-                          isActive ? "font-semibold" : "font-medium"
-                        )}>
-                          {item.label}
-                        </span>
-                      )}
-
-                      {/* Badge */}
-                      {showBadge && (
-                        isCollapsed ? (
-                          <span
-                            className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 border border-[var(--sidebar-bg)] animate-pulse"
-                          />
-                        ) : (
-                          <span className="text-[10px] font-black rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none bg-rose-500 text-white shadow-sm">
-                            {unreadCount > 99 ? "99+" : unreadCount}
-                          </span>
-                        )
-                      )}
-
-                      {/* Collapsed tooltip */}
-                      {isCollapsed && (
-                        <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-[var(--surface)] text-[var(--text-primary)] text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-[var(--border-light)]">
-                          {item.label}
-                          <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-[var(--surface)] border-l border-b border-[var(--border-light)]" />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </NavLink>
-              );
-            })}
-          </nav>
-
-          {/* ── User Profile / Logout ── */}
-          <div
-            className="flex-shrink-0 p-3"
-            style={{ borderTop: "1px solid var(--border-light)" }}
+          <div className="flex-1 min-w-0">
+            <span className="text-base font-semibold tracking-tight leading-none block text-slate-900 dark:text-white">
+              Hive
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="ml-auto p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-400 dark:text-slate-500 transition-all duration-150"
+            title="Close"
           >
-            {isCollapsed ? (
+            <X className="w-[18px] h-[18px]" />
+          </button>
+        </div>
+
+        {/* ── Navigation Menu Links ── */}
+        <nav className={clsx(
+          "flex-1 overflow-y-auto py-4 space-y-1",
+          isCollapsed ? "px-0" : "px-0"
+        )}>
+          {uniqueNavItems.map(item => {
+            const Icon = item.icon;
+            const showBadge = item.to === "/forum" && unreadCount > 0;
+
+            return (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                end={item.exact}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  clsx(
+                    "group relative flex items-center rounded-xl text-[14px] font-medium transition-all duration-150",
+                    isCollapsed
+                      ? "justify-center p-2.5 mx-0"
+                      : "gap-3 px-4 py-3",
+                    isActive
+                      ? "bg-indigo-600 text-white"
+                      : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                  )
+                }
+                title={isCollapsed ? item.label : undefined}
+              >
+                {({ isActive }) => (
+                  <>
+                    {/* Icon vector */}
+                    <Icon
+                      className={clsx(
+                        "flex-shrink-0 transition-colors duration-150",
+                        isCollapsed ? "w-5 h-5" : "w-5 h-5",
+                        isActive
+                          ? "text-white"
+                          : "text-slate-500 dark:text-slate-400 group-hover:text-indigo-600"
+                      )}
+                    />
+
+                    {/* Label */}
+                    {!isCollapsed && (
+                      <span className="flex-1 truncate">
+                        {item.label}
+                      </span>
+                    )}
+
+                    {/* Badge */}
+                    {showBadge && (
+                      isCollapsed ? (
+                        <span
+                          className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 border border-white dark:border-slate-900 animate-pulse"
+                        />
+                      ) : (
+                        <span className={clsx(
+                          "text-[10px] font-black rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none",
+                          isActive ? "bg-white text-indigo-600" : "bg-rose-500 text-white shadow-sm"
+                        )}>
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )
+                    )}
+
+                    {/* Collapsed tooltip */}
+                    {isCollapsed && (
+                      <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-slate-100 dark:border-slate-700">
+                        {item.label}
+                        <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-white dark:bg-slate-800 border-l border-b border-slate-100 dark:border-slate-700" />
+                      </div>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* ── User Profile & Sign Out Module ── */}
+        <div className="flex-shrink-0 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+          {isCollapsed ? (
+            <button
+              onClick={logout}
+              className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95 group relative"
+              title="Log Out"
+            >
+              <LogOut className="w-5 h-5" />
+              <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-slate-100 dark:border-slate-700">
+                Log Out
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-white dark:bg-slate-800 border-l border-b border-slate-100 dark:border-slate-700" />
+              </div>
+            </button>
+          ) : (
+            <div className="flex flex-col gap-4 p-2 cursor-default">
+              {/* User info row */}
+              <div className="flex items-center gap-3">
+                {/* Avatar (circular, borderless, bg-gradient as fallback) */}
+                <div className="relative shrink-0">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600">
+                    {user?.profile_picture ? (
+                      <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                    ) : (
+                      getInitials(user?.name)
+                    )}
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-slate-900" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold truncate text-slate-800 dark:text-slate-200">{user?.name || "User"}</p>
+                  <p className="text-xs font-medium truncate text-slate-400 dark:text-slate-500 mt-0.5">{getRoleLabel(user?.role)}</p>
+                </div>
+              </div>
+
+              {/* Sign Out row / button */}
               <button
                 onClick={logout}
-                className="w-full flex items-center justify-center p-2.5 rounded-xl text-[var(--text-muted)] hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150 active:scale-95 group"
-                title="Log Out"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95"
               >
-                <LogOut className="w-[18px] h-[18px]" />
-                <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-[var(--surface)] text-[var(--text-primary)] text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-[var(--border-light)]">
-                  Log Out
-                </div>
+                <LogOut className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                Sign Out
               </button>
-            ) : (
-              <div
-                className="relative rounded-2xl p-3.5 overflow-hidden group transition-all duration-300 hover:bg-[var(--sidebar-hover)] cursor-default"
-                style={{ border: "1px solid var(--border-light)" }}
-              >
-                {/* Background gradient glow */}
-                <div
-                  className={`absolute inset-0 opacity-10 bg-gradient-to-br ${getRoleColor(user?.role)} transition-opacity duration-300 group-hover:opacity-20`}
-                />
-
-                {/* User info row */}
-                <div className="relative flex items-center gap-3 mb-3">
-                  {/* Avatar */}
-                  <div className="relative shrink-0">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black text-white bg-gradient-to-br ${getRoleColor(user?.role)} shadow-lg`}>
-                      {user?.profile_picture
-                        ? <img src={user.profile_picture} alt={user?.name} className="w-9 h-9 rounded-xl object-cover" />
-                        : getInitials(user?.name)
-                      }
-                    </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--sidebar-bg)]" />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold truncate leading-tight" style={{ color: "var(--text-primary)" }}>{user?.name || "User"}</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <Shield className="w-2.5 h-2.5 flex-shrink-0" style={{ color: "var(--text-muted)" }} />
-                      <span className="text-[10px] font-semibold truncate" style={{ color: "var(--text-muted)" }}>{getRoleLabel(user?.role)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Logout button */}
-                <button
-                  onClick={logout}
-                  className="relative w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-rose-400 hover:bg-rose-500/10 border border-[var(--border-light)] hover:border-rose-500/20 transition-all duration-200 active:scale-95"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  Sign Out
-                </button>
-              </div>
-            )}
-          </div>
-
+            </div>
+          )}
         </div>
       </aside>
     </>

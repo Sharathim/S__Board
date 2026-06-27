@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Menu, Bell, Moon, Sun, LogOut, Search, Settings,
-  ChevronDown, Command, PanelLeftOpen, X, Sparkles,
+  ChevronDown, Command, PanelLeftOpen, PanelLeftClose, X, Sparkles,
   LayoutDashboard, FolderKanban, Users, GraduationCap,
   MessageSquare, Megaphone, BookOpen, Zap
 } from "lucide-react";
@@ -133,74 +133,78 @@ export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
   }, [searchQuery]);
 
   return (
-    <header
-      className="h-16 flex items-center justify-between px-4 lg:px-5 relative z-40 gap-4 flex-shrink-0"
-      style={{
-        background: "var(--surface)",
-        borderBottom: "1px solid var(--border-light)",
-      }}
-    >
-      {/* ── Mobile hamburger ── */}
-      <button
-        id="topbar-menu-btn"
-        onClick={onMenuClick}
-        className="p-2 rounded-xl lg:hidden flex-shrink-0 transition-all duration-150 hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-95"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
-
-      {/* ── Desktop expand button ── */}
-      {isCollapsed && (
+    <header className="h-[72px] w-full sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between px-8">
+      {/* ── Left Branding Group ── */}
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger */}
         <button
-          onClick={onToggleCollapse}
-          className="hidden lg:flex p-2 rounded-xl flex-shrink-0 transition-all duration-150 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] active:scale-95"
-          title="Open sidebar"
+          id="topbar-menu-btn"
+          onClick={onMenuClick}
+          className="p-2 rounded-xl lg:hidden flex-shrink-0 transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-400 dark:text-slate-500 active:scale-95"
         >
-          <PanelLeftOpen className="w-5 h-5" />
+          <Menu className="w-5 h-5" />
         </button>
-      )}
 
+        {/* Desktop expand/collapse buttons */}
+        {isCollapsed ? (
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex p-2 rounded-xl flex-shrink-0 transition-all duration-150 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
+            title="Open sidebar"
+          >
+            <PanelLeftOpen className="w-5 h-5" />
+          </button>
+        ) : (
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex p-2 rounded-xl flex-shrink-0 transition-all duration-150 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose className="w-5 h-5" />
+          </button>
+        )}
 
+        {/* Branding group */}
+        <div className="flex items-center gap-3 ml-2 lg:ml-0">
+          <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain flex-shrink-0" />
+          <span className="font-semibold text-lg tracking-tight text-slate-900 dark:text-white font-sans">
+            Hive
+          </span>
+        </div>
+      </div>
 
-
-      {/* ── Right Actions ── */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
-
+      {/* ── Right Actions (Right Utility Group) ── */}
+      <div className="flex items-center gap-6 flex-shrink-0">
         {/* Theme Toggle */}
         <button
           id="topbar-theme-btn"
           onClick={toggleTheme}
-          className="relative p-2 rounded-xl transition-all duration-200 hover:bg-[var(--surface-hover)] active:scale-95"
-          style={{ color: "var(--text-secondary)" }}
+          className="relative p-1 transition-all duration-200 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
         >
           <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
             {theme === "dark"
-              ? <Sun style={{ width: "18px", height: "18px" }} />
-              : <Moon style={{ width: "18px", height: "18px" }} />
+              ? <Sun style={{ width: "20px", height: "20px" }} />
+              : <Moon style={{ width: "20px", height: "20px" }} />
             }
           </div>
         </button>
 
         {/* Notification Bell */}
-        <div className="relative">
+        <div className="relative flex items-center">
           <button
             id="topbar-notif-btn"
             onClick={() => setNotifOpen(o => !o)}
-            className={`relative p-2 rounded-xl transition-all duration-200 active:scale-95 ${
-              notifOpen ? "bg-[var(--surface-hover)]" : "hover:bg-[var(--surface-hover)]"
-            }`}
-            style={{ color: "var(--text-secondary)" }}
+            className="relative p-1 transition-all duration-200 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
             title="Notifications"
           >
-            <Bell style={{ width: "18px", height: "18px" }} className={unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""} />
+            <Bell style={{ width: "20px", height: "20px" }} className={unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""} />
             {unreadCount > 0 && (
               <span
-                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-white font-bold leading-none shadow-lg"
+                className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full flex items-center justify-center text-white font-bold leading-none bg-rose-500"
                 style={{
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                  fontSize: "10px",
-                  padding: "0 4px",
+                  fontSize: "9px",
+                  padding: "0 3px",
                 }}
               >
                 {unreadCount > 99 ? "99+" : unreadCount}
@@ -210,39 +214,38 @@ export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
           <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-6 mx-1" style={{ background: "var(--border-light)" }} />
-
         {/* User Profile Dropdown */}
         <Dropdown
           trigger={
             <div
               id="topbar-user-menu"
-              className="flex items-center gap-2.5 cursor-pointer px-2.5 py-1.5 rounded-xl transition-all duration-150 hover:bg-[var(--surface-hover)] active:scale-95"
+              className="flex items-center gap-3 cursor-pointer group"
             >
-              {/* Avatar */}
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black text-white shadow-md flex-shrink-0 overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
-                }}
-              >
-                {user?.profile_picture
-                  ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
-                  : getInitials(user?.name)
-                }
-              </div>
-
-              {/* Name + Role */}
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-bold leading-tight" style={{ color: "var(--text-primary)" }}>
+              {/* Name + Role stacked and aligned right */}
+              <div className="hidden md:block text-right">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight">
                   {user?.name || "User"}
                 </p>
-                <p className="text-[10px] font-medium leading-tight" style={{ color: "var(--text-muted)" }}>
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">
                   {getRoleLabel(user?.role)}
                 </p>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 hidden md:block flex-shrink-0" style={{ color: "var(--text-muted)" }} />
+
+              {/* Avatar photo (borderless circular 40px) */}
+              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
+                {user?.profile_picture ? (
+                  <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
+                    style={{
+                      background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
+                    }}
+                  >
+                    {getInitials(user?.name)}
+                  </div>
+                )}
+              </div>
             </div>
           }
           align="right"
@@ -290,5 +293,6 @@ export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
         </Dropdown>
       </div>
     </header>
+
   );
 }

@@ -20,28 +20,29 @@ export default function PageLayout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "var(--background)" }}>
+    <div className="grid grid-rows-[72px_1fr] grid-cols-[auto_1fr] h-screen w-screen overflow-hidden bg-[#f8fafc] dark:bg-slate-950">
+      <div className="col-span-2 h-[72px] sticky top-0 z-50">
+        <TopBar 
+          onMenuClick={() => setSidebarOpen(true)}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={handleToggleCollapse}
+        />
+      </div>
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={handleToggleCollapse}
       />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden transition-all duration-300">
-        <TopBar 
-          onMenuClick={() => setSidebarOpen(true)}
-          isCollapsed={sidebarCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-        />
-        <main className="app-surface flex-1 overflow-y-auto">
-          <div className="p-6 w-full max-w-[1400px] mx-auto">
-            <ErrorBoundary>
-              <Outlet />
-            </ErrorBoundary>
-          </div>
-        </main>
-      </div>
+      <main className="app-surface overflow-y-auto bg-[#f8fafc] dark:bg-slate-950">
+        <div className="p-8 w-full max-w-[1400px] mx-auto">
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
+        </div>
+      </main>
       <ToastContainer />
     </div>
   );
 }
+
