@@ -493,3 +493,61 @@ a, button { transition: all 0.15s ease; }
   line-height: 1;
   box-shadow: 0 1px 4px rgba(239, 68, 68, 0.4);
 }
+
+/* ─── Page Content Container (matches navbar width) ──────────────────────── */
+.page-content-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+@media (min-width: 640px) {
+  .page-content-container {
+    padding: 0 24px 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-content-container {
+    padding: 0 32px 40px;
+  }
+}
+
+/* ─── Page Transition Animations ─────────────────────────────────────────── */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes page-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+    filter: blur(4px);
+  }
+}
+
+.page-enter-active {
+  animation: page-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform, filter;
+}
+
+.page-exit-active {
+  animation: page-exit 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+  will-change: opacity, transform, filter;
+  pointer-events: none;
+}
