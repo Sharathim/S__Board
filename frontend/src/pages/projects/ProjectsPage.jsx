@@ -530,12 +530,17 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
     });
   };
 
+  // Grouped members for live preview card
+  const previewFaculty  = selectedMembers.filter(m => m.role_in_project === "faculty");
+  const previewForum    = selectedMembers.filter(m => m.role_in_project === "forum_member");
+  const previewStudent  = selectedMembers.filter(m => m.role_in_project === "student");
+
   return (
     <Modal open={open} onClose={onClose} title={editProject ? "Edit Project" : "Create Project"} size="xl">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Pane: Project Details */}
-          <div className="md:col-span-5 space-y-4">
+          <div className="lg:col-span-5 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Project Details</h3>
             <Input label="Project Name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter project name" required />
             <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional project description..." rows={4} />
@@ -546,7 +551,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3.5 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500"
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3.5 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-colors"
               >
                 {statusOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -555,28 +560,49 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
             </div>
 
             {/* Visual Live Preview */}
-            <div className="p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2.5">Live Preview Card</p>
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200/60 dark:border-gray-700 shadow-sm space-y-3">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hive Workspace</span>
-                  <StatusBadge status={status} />
+            <div className="p-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-55/30 dark:bg-gray-900/10">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Live Preview Card</p>
+              
+              {/* Premium Preview Replica */}
+              <div className="dh-card p-4.5 border border-gray-200/60 dark:border-gray-700/80 shadow-sm relative overflow-hidden bg-white dark:bg-gray-800">
+                <div className={`absolute top-0 left-0 right-0 h-1 ${status === "COMPLETED" ? "bg-emerald-500" : "bg-indigo-600 dark:bg-indigo-500"}`} />
+                
+                <div className="space-y-3.5">
+                  <div className="flex justify-between items-center">
+                    <StatusBadge status={status} />
+                    <span className="text-[10px] text-gray-400 font-semibold tracking-wide uppercase">Workspace Preview</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate">{name || "Untitled Project"}</h4>
+                    <p className="text-xs text-gray-450 dark:text-gray-400 line-clamp-2 leading-relaxed mt-0.5">{description || "No description provided."}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate">{name || "Untitled Project"}</h4>
-                  <p className="text-xs text-gray-500 line-clamp-2 mt-1">{description || "No description provided."}</p>
-                </div>
-                <div className="pt-2 border-t border-gray-100 dark:border-gray-700/50 flex justify-between items-center">
-                  <span className="text-[10px] text-gray-400">Last updated just now</span>
-                  <div className="flex -space-x-1.5">
-                    {selectedMembers.slice(0, 3).map((m, i) => (
-                      <Avatar key={i} src={m.profile_picture} name={m.name} size="sm" className="w-6 h-6 ring-2 ring-white dark:ring-gray-800" />
-                    ))}
-                    {selectedMembers.length > 3 && (
-                      <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[9px] text-gray-500 ring-2 ring-white dark:ring-gray-800">
-                        +{selectedMembers.length - 3}
+
+                <div className="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-700/50 space-y-2.5">
+                  {/* Category allocations counts */}
+                  <div className="space-y-2">
+                    {previewFaculty.length > 0 && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1 text-gray-400 font-medium"><GraduationCap className="w-3 h-3" /> Faculty</span>
+                        <MemberStack members={previewFaculty} max={2} />
                       </div>
                     )}
+                    {previewForum.length > 0 && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1 text-gray-400 font-medium"><MessageSquare className="w-3 h-3" /> Forum</span>
+                        <MemberStack members={previewForum} max={2} />
+                      </div>
+                    )}
+                    {previewStudent.length > 0 && (
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1 text-gray-400 font-medium"><Users className="w-3 h-3" /> Students</span>
+                        <MemberStack members={previewStudent} max={2} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center text-[9px] text-gray-400 font-semibold">
+                    <span>ID: #PREVIEW</span>
+                    <span>LAST UPDATED JUST NOW</span>
                   </div>
                 </div>
               </div>
@@ -584,32 +610,29 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
           </div>
 
           {/* Right Pane: Member Assignment */}
-          <div className="md:col-span-7 flex flex-col space-y-4">
-            <div className="flex justify-between items-baseline">
+          <div className="lg:col-span-7 flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Assign Members</h3>
-              <span className="text-xs font-semibold text-gray-400">{selectedMembers.length} assigned</span>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary-50 dark:bg-primary-950/20 text-primary-600 dark:text-primary-400">{selectedMembers.length} assigned</span>
             </div>
 
             {/* Selected Members Chips */}
             {selectedMembers.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/80 max-h-24 overflow-y-auto">
+              <div className="flex flex-wrap gap-1.5 p-2.5 rounded-xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/40 max-h-24 overflow-y-auto">
                 {selectedMembers.map(m => {
-                  let roleLabel = "Faculty";
-                  let roleColor = "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800/50";
+                  let roleColor = "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/40";
                   if (m.role_in_project === "forum_member") {
-                    roleLabel = "Forum";
-                    roleColor = "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border-violet-200 dark:border-violet-800/50";
+                    roleColor = "bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300 border-violet-200/50 dark:border-violet-800/40";
                   } else if (m.role_in_project === "student") {
-                    roleLabel = "Student";
-                    roleColor = "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800/50";
+                    roleColor = "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300 border-green-200/50 dark:border-green-800/40";
                   }
                   return (
                     <div
                       key={m.user_id}
-                      className={`inline-flex items-center gap-1.5 pl-1.5 pr-2 py-0.5 rounded-full border text-xs font-medium ${roleColor}`}
+                      className={`inline-flex items-center gap-1.5 pl-1 pr-1.5 py-0.5 rounded-full border text-xs font-medium ${roleColor}`}
                     >
                       <Avatar src={m.profile_picture} name={m.name} size="sm" className="w-4.5 h-4.5" />
-                      <span className="truncate max-w-[100px]">{m.name}</span>
+                      <span className="truncate max-w-[90px]">{m.name}</span>
                       <button
                         type="button"
                         onClick={() => toggleMember(m.user_id, m.role_in_project, m.name, m.profile_picture)}
@@ -622,19 +645,19 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center p-4 py-6 rounded-lg bg-gray-50/50 dark:bg-gray-800/20 border border-dashed border-gray-200 dark:border-gray-700 text-center">
-                <Users className="w-6 h-6 text-gray-400 mb-1" />
-                <p className="text-xs text-gray-500 font-semibold">No members assigned yet</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">Please select at least one Faculty, Forum, or Student</p>
+              <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-gray-55/30 dark:bg-gray-900/10 border border-dashed border-gray-250 dark:border-gray-800 text-center">
+                <Users className="w-5 h-5 text-gray-400 mb-1" />
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">No members assigned yet</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Please select at least one Faculty, Student, or Forum Member below.</p>
               </div>
             )}
 
-            {/* Custom Tab Switcher */}
-            <div className="flex border-b border-gray-200 dark:border-gray-700 gap-2">
+            {/* Custom Tab Switcher (iOS Segmented Capsule Style) */}
+            <div className="flex p-1 rounded-xl bg-gray-100 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 gap-1.5">
               {[
-                { id: "faculty", label: "Faculty", count: facultyPeople.length, activeColor: "border-blue-500 text-blue-600" },
-                { id: "student", label: "Students", count: studentPeople.length, activeColor: "border-green-500 text-green-600" },
-                { id: "forum", label: "Forum Members", count: forumPeople.length, activeColor: "border-violet-500 text-violet-600" },
+                { id: "faculty", label: "Faculty", count: facultyPeople.length },
+                { id: "student", label: "Students", count: studentPeople.length },
+                { id: "forum", label: "Forum Members", count: forumPeople.length },
               ].map(tab => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -642,11 +665,14 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     key={tab.id}
                     type="button"
                     onClick={() => { setActiveTab(tab.id); setMemberSearch(""); }}
-                    className={`flex-1 pb-2 text-xs font-bold border-b-2 transition-all leading-none ${
-                      isActive ? tab.activeColor : "border-transparent text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all leading-none ${
+                      isActive 
+                        ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
+                        : "text-gray-400 dark:text-gray-550 hover:text-gray-600 dark:hover:text-gray-400"
                     }`}
                   >
-                    {tab.label} <span className="text-[10px] opacity-75 font-normal ml-1">({tab.count})</span>
+                    {tab.label}
+                    <span className="text-[9px] opacity-75 font-normal ml-1">({tab.count})</span>
                   </button>
                 );
               })}
@@ -659,12 +685,12 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                 placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"}...`}
                 value={memberSearch}
                 onChange={e => setMemberSearch(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500"
+                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-105 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
               />
             </div>
 
             {/* Members Selection List */}
-            <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-700/80 rounded-xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
+            <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-800/80 rounded-xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
               {filteredPeople.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
                   <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">No {activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"} found</p>
@@ -678,21 +704,21 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                       onClick={() => toggleMember(p.user_id, roleKey, p.name, p.profile_picture)}
                       className={`flex items-center gap-3 px-3 py-2 cursor-pointer rounded-xl border transition-all duration-150 ${
                         isSelected
-                          ? "border-primary-500/80 bg-primary-50/40 dark:bg-primary-950/20"
-                          : "border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
+                          ? "border-primary-500/80 bg-primary-50/40 dark:bg-primary-950/20 shadow-sm"
+                          : "border-gray-100 dark:border-gray-800/50 hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
                       }`}
                     >
                       <Avatar src={p.profile_picture} name={p.name} size="sm" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{p.name}</p>
-                        {p.subtitle && <p className="text-[11px] text-gray-400 truncate mt-0.5">{p.subtitle}</p>}
+                        {p.subtitle && <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">{p.subtitle}</p>}
                       </div>
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
                         isSelected
                           ? "bg-primary-500 border-primary-500 text-white"
                           : "border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500"
                       }`}>
-                        {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
+                        {isSelected ? <Plus className="w-3 h-3 rotate-45" /> : <Plus className="w-3 h-3" />}
                       </div>
                     </div>
                   );
@@ -703,13 +729,13 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
+          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3.5 py-2.5 rounded-xl border border-red-100 dark:border-red-950">
             {error}
           </p>
         )}
 
         {/* Form Actions */}
-        <div className="flex gap-3 pt-3 border-t border-gray-100 dark:border-gray-700/80">
+        <div className="flex gap-3 pt-3 border-t border-gray-100 dark:border-gray-800/80">
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1 py-2.5">Cancel</Button>
           <Button type="submit" loading={loading} className="flex-1 py-2.5">
             {editProject ? "Save Changes" : "Create Project"}
