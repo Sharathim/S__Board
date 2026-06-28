@@ -761,3 +761,75 @@ a, button { transition: all 0.15s ease; }
   will-change: opacity, transform, filter;
   pointer-events: none;
 }
+
+/* ─── Premium Abstract Background System (Image Replica) ─────────────────── */
+.app-premium-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #fbfbfe;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.dark .app-premium-bg {
+  background-color: #0b0f19;
+}
+
+/* Subtle background grid pattern */
+.app-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+}
+
+.dark .app-bg-grid {
+  background-image: 
+    linear-gradient(rgba(139, 92, 246, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.015) 1px, transparent 1px);
+}
+
+/* Dot grid overlay elements */
+.bg-dot-grid {
+  width: 96px;
+  height: 96px;
+  background-image: radial-gradient(rgba(139, 92, 246, 0.1) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+.dark .bg-dot-grid {
+  background-image: radial-gradient(rgba(167, 139, 250, 0.06) 1.5px, transparent 1.5px);
+}
+
+/* Blur gradient blobs */
+.bg-blob {
+  position: absolute;
+  filter: blur(100px);
+  opacity: 0.5;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  transition: all 0.3s ease;
+}
+
+.dark .bg-blob {
+  opacity: 0.22;
+  mix-blend-mode: screen;
+  filter: blur(120px);
+}
+
+.bg-blob-purple {
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.65) 0%, rgba(139, 92, 246, 0) 70%);
+}
+
+.bg-blob-blue {
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.65) 0%, rgba(59, 130, 246, 0) 70%);
+}
+
+.bg-blob-pink {
+  background: radial-gradient(circle, rgba(253, 164, 186, 0.5) 0%, rgba(244, 63, 94, 0) 70%);
+}
