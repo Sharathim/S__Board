@@ -21,12 +21,20 @@ import { SearchFilter, StatusFilter } from "../../components/shared/SearchFilter
 import { Pagination } from "../../components/shared/Pagination";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { StatTile } from "../../components/ui/StatTile";
-import { TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle, MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap, X, LayoutGrid, List } from "lucide-react";
+import {
+  TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle,
+  MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap,
+  X, LayoutGrid, List, FileText, Edit3, Flag, Search, ChevronDown, Sparkles, FolderPlus
+} from "lucide-react";
 import { format } from "date-fns";
 
 const statusOptions = [
-  { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "COMPLETED", label: "Completed" },
+  { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
+  { value: "NOT_STARTED", label: "Not Started", color: "#9ca3af" },
+  { value: "REVIEW", label: "Review", color: "#f97316" },
+  { value: "COMPLETED", label: "Completed", color: "#10b981" },
+  { value: "ON_HOLD", label: "On Hold", color: "#f59e0b" },
+  { value: "CANCELLED", label: "Cancelled", color: "#ef4444" },
 ];
 
 // ─── Kebab dropdown ──────────────────────────────────────────────────────────
@@ -458,10 +466,28 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("IN_PROGRESS");
+  const [priority, setPriority] = useState("Medium");
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("faculty");
   const [memberSearch, setMemberSearch] = useState("");
+
+  // Dropdown UI states
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [priorityOpen, setPriorityOpen] = useState(false);
+
+  const statusRef = useRef(null);
+  const priorityRef = useRef(null);
+
+  // Click away to close custom dropdowns
+  useEffect(() => {
+    const handler = (e) => {
+      if (statusRef.current && !statusRef.current.contains(e.target)) setStatusOpen(false);
+      if (priorityRef.current && !priorityRef.current.contains(e.target)) setPriorityOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Sync form state when editProject changes
   useEffect(() => {
@@ -469,7 +495,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
       setName(editProject.name || "");
       setDescription(editProject.description || "");
       setStatus(editProject.status || "IN_PROGRESS");
-      // Reconstruct selected members from project.members
+      setPriority("Medium");
       const members = (editProject.members || []).map(m => ({
         user_id: m.id,
         role_in_project: m.role_in_project,
@@ -481,11 +507,14 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
       setName("");
       setDescription("");
       setStatus("IN_PROGRESS");
+      setPriority("Medium");
       setSelectedMembers([]);
     }
     setError("");
     setMemberSearch("");
     setActiveTab("faculty");
+    setStatusOpen(false);
+    setPriorityOpen(false);
   }, [editProject, open]);
 
   const toggleMember = (userId, role, name, profilePicture) => {
@@ -519,7 +548,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim()) { setError("Project name is required."); return; }
+    if (!name.trim()) { setError("Project title is required."); return; }
     if (selectedMembers.length === 0) { setError("Select at least one member (Faculty, Forum, or Student)."); return; }
     setError("");
     onSubmit({
@@ -530,116 +559,213 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
     });
   };
 
-  return (
-    <Modal open={open} onClose={onClose} title={editProject ? "Edit Project" : "Create Project"} size="xl">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Pane: Project Details */}
-          <div className="lg:col-span-5 space-y-5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Project Details</h3>
-            <Input label="Project Name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter project name" required />
-            <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional project description..." rows={6} />
+  // Find label & color details of current status option
+  const activeStatusOption = statusOptions.find(opt => opt.value === status) || statusOptions[0];
 
-            {/* Status Select dropdown */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Status</label>
-              <select
-                value={status}
-                onChange={e => setStatus(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3.5 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-colors"
-              >
-                {statusOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+  // Priority options config
+  const priorityOptions = [
+    { value: "Low", label: "Low", color: "text-green-500 bg-green-500/10", flagColor: "#10b981" },
+    { value: "Medium", label: "Medium", color: "text-orange-500 bg-orange-500/10", flagColor: "#f97316" },
+    { value: "High", label: "High", color: "text-red-500 bg-red-500/10", flagColor: "#ef4444" },
+  ];
+  const activePriorityOption = priorityOptions.find(opt => opt.value === priority) || priorityOptions[1];
+
+  return (
+    <Modal open={open} onClose={onClose} size="xl" hideHeader={true}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        
+        {/* ─── Redesigned Custom Header ─── */}
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800/80">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-950/40 text-violet-650 dark:text-violet-400 flex items-center justify-center shrink-0">
+              <FolderPlus className="w-6 h-6" />
+            </div>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                {editProject ? "Edit Project Details" : "Create New Project"}
+              </h2>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                {editProject ? "Modify fields and update allocations below" : "Fill in the details to create a new project"}
+              </p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-gray-400 hover:text-gray-650 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Right Pane: Member Assignment */}
-          <div className="lg:col-span-7 flex flex-col space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Assign Members</h3>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary-50 dark:bg-primary-950/20 text-primary-600 dark:text-primary-400">{selectedMembers.length} assigned</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* ─── Left Pane: Details ─── */}
+          <div className="lg:col-span-5 space-y-5">
+            
+            {/* Project Title Input */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Title</label>
+              <div className="relative flex items-center">
+                <FileText className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-505" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Enter project title..."
+                  required
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all text-sm"
+                />
+              </div>
             </div>
 
-            {/* Selected Members Chips */}
-            {selectedMembers.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 p-2.5 rounded-xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/40 max-h-24 overflow-y-auto">
-                {selectedMembers.map(m => {
-                  let roleColor = "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200/50 dark:border-blue-800/40";
-                  if (m.role_in_project === "forum_member") {
-                    roleColor = "bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300 border-violet-200/50 dark:border-violet-800/40";
-                  } else if (m.role_in_project === "student") {
-                    roleColor = "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300 border-green-200/50 dark:border-green-800/40";
-                  }
-                  return (
-                    <div
-                      key={m.user_id}
-                      className={`inline-flex items-center gap-1.5 pl-1 pr-1.5 py-0.5 rounded-full border text-xs font-medium ${roleColor}`}
-                    >
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="w-4.5 h-4.5" />
-                      <span className="truncate max-w-[90px]">{m.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => toggleMember(m.user_id, m.role_in_project, m.name, m.profile_picture)}
-                        className="hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-0.5 transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  );
-                })}
+            {/* Description Textarea */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description (Optional)</label>
+              <div className="relative">
+                <Edit3 className="absolute left-3.5 top-3 w-4 h-4 text-gray-400 dark:text-gray-550" />
+                <textarea
+                  value={description}
+                  onChange={e => { if (e.target.value.length <= 500) setDescription(e.target.value); }}
+                  placeholder="Describe your project goals, objectives, and details..."
+                  rows={5}
+                  maxLength={500}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all text-sm resize-none"
+                />
+                <span className="absolute bottom-2.5 right-3 text-[10px] font-semibold text-gray-400 select-none">
+                  {description.length}/500
+                </span>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 rounded-xl bg-gray-55/30 dark:bg-gray-900/10 border border-dashed border-gray-250 dark:border-gray-800 text-center">
-                <Users className="w-5 h-5 text-gray-400 mb-1" />
-                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">No members assigned yet</p>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Please select at least one Faculty, Student, or Forum Member below.</p>
-              </div>
-            )}
+            </div>
 
-            {/* Custom Tab Switcher (iOS Segmented Capsule Style) */}
-            <div className="flex p-1 rounded-xl bg-gray-100 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 gap-1.5">
+            {/* Custom Project Status Dropdown */}
+            <div className="space-y-1.5" ref={statusRef}>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Status</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setStatusOpen(!statusOpen)}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-all text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: activeStatusOption.color }} />
+                    <span className="font-medium text-gray-850 dark:text-gray-200">{activeStatusOption.label}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-205 ${statusOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {statusOpen && (
+                  <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
+                    {statusOptions.map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
+                        className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                          opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
+                        <span className="text-gray-800 dark:text-gray-200">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Custom Priority Dropdown */}
+            <div className="space-y-1.5" ref={priorityRef}>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Priority</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setPriorityOpen(!priorityOpen)}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-all text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <Flag className="w-4 h-4 shrink-0" style={{ color: activePriorityOption.flagColor }} />
+                    <span className="font-medium text-gray-850 dark:text-gray-200">{activePriorityOption.label}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-205 ${priorityOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {priorityOpen && (
+                  <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1">
+                    {priorityOptions.map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => { setPriority(opt.value); setPriorityOpen(false); }}
+                        className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                          opt.value === priority ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
+                        }`}
+                      >
+                        <Flag className="w-4 h-4 shrink-0" style={{ color: opt.flagColor }} />
+                        <span className="text-gray-850 dark:text-gray-200">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ─── Right Pane: Member Assignment ─── */}
+          <div className="lg:col-span-7 flex flex-col space-y-4">
+            
+            {/* Header Title block */}
+            <div className="flex flex-col">
+              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 tracking-tight">Assign Members</h3>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Add faculty, students or forum members</p>
+            </div>
+
+            {/* Custom Tab Switcher with custom matched Icons */}
+            <div className="flex p-1 rounded-xl bg-gray-150/60 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40 gap-1.5">
               {[
-                { id: "faculty", label: "Faculty", count: facultyPeople.length },
-                { id: "student", label: "Students", count: studentPeople.length },
-                { id: "forum", label: "Forum Members", count: forumPeople.length },
+                { id: "faculty", label: "Faculty", count: facultyPeople.length, icon: GraduationCap },
+                { id: "student", label: "Students", count: studentPeople.length, icon: Users },
+                { id: "forum", label: "Forum Members", count: forumPeople.length, icon: MessageSquare },
               ].map(tab => {
                 const isActive = activeTab === tab.id;
+                const TabIcon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => { setActiveTab(tab.id); setMemberSearch(""); }}
-                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all leading-none ${
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                       isActive 
                         ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                        : "text-gray-400 dark:text-gray-550 hover:text-gray-600 dark:hover:text-gray-400"
+                        : "text-gray-450 dark:text-gray-500 hover:text-gray-650 dark:hover:text-gray-400"
                     }`}
                   >
-                    {tab.label}
-                    <span className="text-[9px] opacity-75 font-normal ml-1">({tab.count})</span>
+                    <TabIcon className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                    <span className="text-[10px] opacity-75 font-normal ml-0.5">({tab.count})</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Member Search Bar */}
-            <div className="relative">
+            {/* Member Search input with left Search Icon inside */}
+            <div className="relative flex items-center">
+              <Search className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"}...`}
                 value={memberSearch}
                 onChange={e => setMemberSearch(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-105 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-250 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
               />
             </div>
 
             {/* Members Selection List */}
-            <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-800/80 rounded-xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
+            <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-800/60 rounded-2xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
               {filteredPeople.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500 font-medium">No {activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"} found</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-550 font-medium">No matches found</p>
                 </div>
               ) : (
                 filteredPeople.map(p => {
@@ -648,44 +774,84 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     <div
                       key={p.user_id}
                       onClick={() => toggleMember(p.user_id, roleKey, p.name, p.profile_picture)}
-                      className={`flex items-center gap-3 px-3 py-2 cursor-pointer rounded-xl border transition-all duration-150 ${
+                      className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer rounded-xl border transition-all duration-200 ${
                         isSelected
-                          ? "border-primary-500/80 bg-primary-50/40 dark:bg-primary-950/20 shadow-sm"
-                          : "border-gray-100 dark:border-gray-800/50 hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
+                          ? "border-primary-500/60 bg-primary-50/20 dark:bg-primary-950/10 shadow-sm"
+                          : "border-gray-100 dark:border-gray-800/40 hover:border-gray-200/60 dark:hover:border-gray-700 hover:bg-gray-50/30 dark:hover:bg-gray-800/20"
                       }`}
                     >
-                      <Avatar src={p.profile_picture} name={p.name} size="sm" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{p.name}</p>
-                        {p.subtitle && <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">{p.subtitle}</p>}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar src={p.profile_picture} name={p.name} size="sm" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-750" />
+                        <div className="min-w-0 flex flex-col">
+                          <p className="text-sm font-semibold text-gray-850 dark:text-gray-205 truncate">{p.name}</p>
+                          {p.subtitle && <p className="text-[11px] text-gray-450 dark:text-gray-500 truncate mt-0.5">{p.subtitle}</p>}
+                        </div>
                       </div>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                        isSelected
-                          ? "bg-primary-500 border-primary-500 text-white"
-                          : "border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500"
-                      }`}>
-                        {isSelected ? <Plus className="w-3 h-3 rotate-45" /> : <Plus className="w-3 h-3" />}
-                      </div>
+                      
+                      <button
+                        type="button"
+                        className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-200 ${
+                          isSelected
+                            ? "bg-violet-600 border-violet-600 dark:bg-violet-500 dark:border-violet-500 text-white shadow-sm"
+                            : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-650 hover:border-gray-350 dark:hover:text-gray-300"
+                        }`}
+                      >
+                        {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
+                      </button>
                     </div>
                   );
                 })
               )}
             </div>
+
+            {/* Bottom members added status banner */}
+            <div className="p-3.5 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-55/30 dark:bg-gray-900/10 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gray-150/50 dark:bg-gray-800 flex items-center justify-center text-gray-500 shrink-0 mt-0.5">
+                <Users className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <p className="text-xs font-bold text-gray-800 dark:text-gray-205">
+                  {selectedMembers.length === 0 ? "No members added yet" : `${selectedMembers.length} member(s) added`}
+                </p>
+                <p className="text-[10px] text-gray-455 dark:text-gray-500 mt-0.5">
+                  {selectedMembers.length === 0 ? "Add at least one member to create the project" : "Ready to configure project workspace"}
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3.5 py-2.5 rounded-xl border border-red-100 dark:border-red-950">
+          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 px-3.5 py-2.5 rounded-xl border border-red-100 dark:border-red-900/50">
             {error}
           </p>
         )}
 
-        {/* Form Actions */}
-        <div className="flex gap-3 pt-3 border-t border-gray-100 dark:border-gray-800/80">
-          <Button type="button" variant="secondary" onClick={onClose} className="flex-1 py-2.5">Cancel</Button>
-          <Button type="submit" loading={loading} className="flex-1 py-2.5">
-            {editProject ? "Save Changes" : "Create Project"}
-          </Button>
+        {/* ─── Form Actions Footer ─── */}
+        <div className="flex gap-4 pt-4 border-t border-gray-100 dark:border-gray-800/80">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+          >
+            Cancel
+          </button>
+          
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a855f7] text-white hover:opacity-90 shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5"
+          >
+            {loading ? (
+              <Spinner className="w-4.5 h-4.5 border-white" />
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>{editProject ? "Save Changes" : "Create Project"}</span>
+              </>
+            )}
+          </button>
         </div>
       </form>
     </Modal>
