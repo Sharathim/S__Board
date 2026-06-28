@@ -530,20 +530,15 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
     });
   };
 
-  // Grouped members for live preview card
-  const previewFaculty  = selectedMembers.filter(m => m.role_in_project === "faculty");
-  const previewForum    = selectedMembers.filter(m => m.role_in_project === "forum_member");
-  const previewStudent  = selectedMembers.filter(m => m.role_in_project === "student");
-
   return (
     <Modal open={open} onClose={onClose} title={editProject ? "Edit Project" : "Create Project"} size="xl">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Pane: Project Details */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-5 space-y-5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Project Details</h3>
             <Input label="Project Name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter project name" required />
-            <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional project description..." rows={4} />
+            <Textarea label="Description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional project description..." rows={6} />
 
             {/* Status Select dropdown */}
             <div className="space-y-1.5">
@@ -557,55 +552,6 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-            </div>
-
-            {/* Visual Live Preview */}
-            <div className="p-4 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-55/30 dark:bg-gray-900/10">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Live Preview Card</p>
-              
-              {/* Premium Preview Replica */}
-              <div className="dh-card p-4.5 border border-gray-200/60 dark:border-gray-700/80 shadow-sm relative overflow-hidden bg-white dark:bg-gray-800">
-                <div className={`absolute top-0 left-0 right-0 h-1 ${status === "COMPLETED" ? "bg-emerald-500" : "bg-indigo-600 dark:bg-indigo-500"}`} />
-                
-                <div className="space-y-3.5">
-                  <div className="flex justify-between items-center">
-                    <StatusBadge status={status} />
-                    <span className="text-[10px] text-gray-400 font-semibold tracking-wide uppercase">Workspace Preview</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-gray-900 dark:text-gray-100 truncate">{name || "Untitled Project"}</h4>
-                    <p className="text-xs text-gray-450 dark:text-gray-400 line-clamp-2 leading-relaxed mt-0.5">{description || "No description provided."}</p>
-                  </div>
-                </div>
-
-                <div className="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-700/50 space-y-2.5">
-                  {/* Category allocations counts */}
-                  <div className="space-y-2">
-                    {previewFaculty.length > 0 && (
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1 text-gray-400 font-medium"><GraduationCap className="w-3 h-3" /> Faculty</span>
-                        <MemberStack members={previewFaculty} max={2} />
-                      </div>
-                    )}
-                    {previewForum.length > 0 && (
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1 text-gray-400 font-medium"><MessageSquare className="w-3 h-3" /> Forum</span>
-                        <MemberStack members={previewForum} max={2} />
-                      </div>
-                    )}
-                    {previewStudent.length > 0 && (
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1 text-gray-400 font-medium"><Users className="w-3 h-3" /> Students</span>
-                        <MemberStack members={previewStudent} max={2} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex justify-between items-center text-[9px] text-gray-400 font-semibold">
-                    <span>ID: #PREVIEW</span>
-                    <span>LAST UPDATED JUST NOW</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
