@@ -316,11 +316,11 @@ export default function ProjectsPage() {
 
                   {/* Structured visual sub-grid info */}
                   <div className="grid grid-cols-2 gap-2.5 pt-1.5 mb-5">
-                    <div className="bg-slate-50/50 dark:bg-gray-905/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
+                    <div className="bg-slate-50/50 dark:bg-gray-900/50 border border-slate-100/60 dark:border-gray-700/50 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
                       <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Lead Advisor</span>
                       <span className="text-xs font-bold text-slate-700 dark:text-gray-200 truncate">{leadAdvisor}</span>
                     </div>
-                    <div className="bg-slate-50/50 dark:bg-gray-905/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
+                    <div className="bg-slate-50/50 dark:bg-gray-900/50 border border-slate-100/60 dark:border-gray-700/50 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
                       <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Team Size</span>
                       <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
                         {allMembers.length} {allMembers.length === 1 ? "Member" : "Members"}
@@ -330,7 +330,7 @@ export default function ProjectsPage() {
                 </div>
 
                 {/* Card Footer */}
-                <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-705/60 flex items-center justify-between">
+                <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
                   {/* Member avatars */}
                   <div className="flex items-center gap-2.5 min-w-0">
                     {allMembers.length > 0 ? (
