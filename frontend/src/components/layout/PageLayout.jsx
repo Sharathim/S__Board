@@ -25,13 +25,10 @@ export default function PageLayout() {
   }, [location, displayLocation]);
 
   return (
-    <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#fbfbfe] dark:bg-black transition-colors duration-300">
+    <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#fbfbfe] dark:bg-[#07060f] transition-colors duration-300">
       
-      {/* ─── Premium Shared Background Image ─── */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat transition-opacity duration-300 dark:opacity-0" 
-        style={{ backgroundImage: "url('/bg-abstract.png')" }} 
-      />
+      {/* ─── Premium Background Image Overlay (swaps automatically on theme toggle) ─── */}
+      <div className="app-page-bg" />
 
       {/* Floating Navbar */}
       <div className="relative z-50">

@@ -762,20 +762,40 @@ a, button { transition: all 0.15s ease; }
   pointer-events: none;
 }
 
-/* ─── Dark Mode Universal Glassmorphic Overrides ─────────────────────────── */
+/* ─── Premium Background Image Container (Shared Assets) ────────────────── */
+.app-page-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url('/bg-abstract.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.4s ease;
+}
+
+.dark .app-page-bg {
+  background-image: url('/bg-abstract-dark.png');
+}
+
+/* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */
 .dark .dh-card,
 .dark .bg-white,
 .dark .bg-gray-800,
 .dark .dark\:bg-gray-800,
 .dark [class*="bg-white"],
 .dark [class*="bg-gray-800"] {
-  background: rgba(17, 24, 39, 0.45) !important;
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  /* Translucent deep purple/black base matching the mockup reference */
+  background: rgba(12, 10, 25, 0.45) !important;
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  
+  /* Subtle glowing neon border */
+  border: 1px solid rgba(139, 92, 246, 0.12) !important;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
 }
 
 /* Glass inputs, Textareas, Selects, and form fields */
@@ -785,31 +805,31 @@ a, button { transition: all 0.15s ease; }
 .dark [class*="bg-white"] input,
 .dark [class*="bg-white"] textarea,
 .dark [class*="bg-white"] select {
-  background: rgba(255, 255, 255, 0.02) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
-  color: #f3f4f6 !important;
+  background: rgba(8, 6, 18, 0.35) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid rgba(139, 92, 246, 0.1) !important;
+  color: #e5e7eb !important;
   border-radius: 10px !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4) !important;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .dark input:hover,
 .dark textarea:hover,
 .dark select:hover {
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
+  background: rgba(8, 6, 18, 0.45) !important;
 }
 
 .dark input:focus,
 .dark textarea:focus,
 .dark select:focus {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(139, 92, 246, 0.45) !important;
+  background: rgba(12, 10, 25, 0.5) !important;
+  border-color: rgba(139, 92, 246, 0.5) !important;
   box-shadow: 
-    0 0 0 3px rgba(139, 92, 246, 0.2),
-    inset 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+    0 0 0 3px rgba(139, 92, 246, 0.25),
+    inset 0 1px 3px rgba(0, 0, 0, 0.4) !important;
   outline: none !important;
 }
 
@@ -817,19 +837,19 @@ a, button { transition: all 0.15s ease; }
 .dark .dropdown-menu,
 .dark [role="menu"],
 .dark .absolute.z-50.bg-white {
-  background: rgba(15, 23, 42, 0.75) !important;
+  background: rgba(12, 10, 25, 0.82) !important;
   backdrop-filter: blur(28px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(139, 92, 246, 0.16) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65) !important;
 }
 
 /* Glass Modals & Dialogs */
 .dark .modal-content,
 .dark [class*="bg-white"][class*="shadow-xl"] {
-  background: rgba(15, 23, 42, 0.65) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6) !important;
+  background: rgba(12, 10, 25, 0.72) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(139, 92, 246, 0.16) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7) !important;
 }
