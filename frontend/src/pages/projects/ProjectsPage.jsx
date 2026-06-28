@@ -186,12 +186,11 @@ export default function ProjectsPage() {
 
       {/* ─── Premium Glassmorphic Stats Dock ─── */}
       {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { label: "Total Projects", value: stats.total || 0, icon: FolderKanban, color: "text-violet-500 dark:text-violet-400 bg-violet-500/10" },
             { label: "In Progress", value: stats.in_progress || 0, icon: TrendingUp, color: "text-indigo-500 dark:text-indigo-400 bg-indigo-500/10" },
             { label: "Completed", value: stats.completed || 0, icon: CheckCircle, color: "text-emerald-500 dark:text-emerald-400 bg-emerald-500/10" },
-            { label: "Active Students", value: stats.student_count || 0, icon: Users, color: "text-blue-500 dark:text-blue-400 bg-blue-500/10" },
           ].map((stat, i) => {
             const Icon = stat.icon;
             return (
@@ -227,7 +226,7 @@ export default function ProjectsPage() {
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "grid"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                  : "text-gray-400 dark:text-gray-550 hover:text-gray-600 dark:hover:text-gray-400"
               }`}
               title="Grid View"
             >
@@ -238,7 +237,7 @@ export default function ProjectsPage() {
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "list"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                  : "text-gray-400 dark:text-gray-550 hover:text-gray-600 dark:hover:text-gray-400"
               }`}
               title="List View"
             >
@@ -269,21 +268,27 @@ export default function ProjectsPage() {
             const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
             const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
             
-            // Accent color based on status
+            // Combine and sort members with role ring classes
+            const allMembers = [
+              ...facultyMembers.map(m => ({ ...m, ringClass: "ring-violet-500" })),
+              ...forumMembers.map(m => ({ ...m, ringClass: "ring-blue-500" })),
+              ...studentMembers.map(m => ({ ...m, ringClass: "ring-emerald-500" }))
+            ];
+
+            const visibleMembers = allMembers.slice(0, 4);
+            const restCount = allMembers.length - 4;
+            
             const isCompleted = project.status === "COMPLETED";
             const borderAccent = isCompleted 
-              ? "hover:border-emerald-500/50 dark:hover:border-emerald-400/40" 
-              : "hover:border-indigo-500/50 dark:hover:border-indigo-400/40";
+              ? "hover:border-emerald-500/40 hover:shadow-emerald-500/5" 
+              : "hover:border-indigo-500/40 hover:shadow-indigo-500/5";
             
             return (
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
-                className={`dh-card p-5 hover:-translate-y-1.5 hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col justify-between h-full border border-gray-200/60 dark:border-gray-700/80 relative overflow-hidden ${borderAccent}`}
+                className={`dh-card p-5 hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between h-full border border-gray-200/60 dark:border-gray-800/80 bg-white/70 dark:bg-gray-900/30 backdrop-blur-md relative overflow-hidden ${borderAccent}`}
               >
-                {/* Visual Accent Top Bar */}
-                <div className={`absolute top-0 left-0 right-0 h-1 transition-all duration-300 ${isCompleted ? "bg-emerald-500" : "bg-indigo-600 dark:bg-indigo-500"}`} />
-
                 <div className="space-y-4">
                   {/* Status & Kebab */}
                   <div className="flex justify-between items-center">
@@ -299,52 +304,45 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Title & Description */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                       {project.name}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed mt-1">
                       {project.description || "No description provided."}
                     </p>
                   </div>
                 </div>
 
-                {/* Team Allocations */}
-                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800/60 space-y-4">
-                  <div className="space-y-3">
-                    {/* Faculty */}
-                    {facultyMembers.length > 0 && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1.5 font-medium text-gray-450 dark:text-gray-500">
-                          <GraduationCap className="w-3.5 h-3.5" />
-                          Faculty
-                        </span>
-                        <MemberStack members={facultyMembers} max={3} />
-                      </div>
-                    )}
-                    {/* Forum */}
-                    {forumMembers.length > 0 && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1.5 font-medium text-gray-450 dark:text-gray-500">
-                          <MessageSquare className="w-3.5 h-3.5" />
-                          Forum
-                        </span>
-                        <MemberStack members={forumMembers} max={3} />
-                      </div>
-                    )}
-                    {/* Students */}
-                    {studentMembers.length > 0 && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1.5 font-medium text-gray-450 dark:text-gray-500">
-                          <Users className="w-3.5 h-3.5" />
-                          Students
-                        </span>
-                        <MemberStack members={studentMembers} max={3} />
-                      </div>
-                    )}
+                {/* Combined Collaborators Overlapping Stack & Date */}
+                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800/60 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      {allMembers.length > 0 ? (
+                        <div className="flex -space-x-2 items-center">
+                          {visibleMembers.map((m, idx) => (
+                            <Avatar
+                              key={m.id || idx}
+                              src={m.profile_picture}
+                              name={m.name}
+                              size="sm"
+                              className={`ring-2 ${m.ringClass} w-7 h-7 rounded-full`}
+                            />
+                          ))}
+                          {restCount > 0 && (
+                            <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-555 dark:text-gray-400 ring-2 ring-gray-300 dark:ring-gray-600">
+                              +{restCount}
+                            </div>
+                          )}
+                          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-2.5 tracking-wide uppercase">
+                            {allMembers.length} Members
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wide">No members assigned</span>
+                      )}
+                    </div>
                   </div>
-
-                  {/* Metadata footer */}
                   <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-semibold tracking-wide">
                     <span>ID: #{project.id}</span>
                     <span>UPDATED {format(new Date(project.updated_at), "MMM d, yyyy").toUpperCase()}</span>
