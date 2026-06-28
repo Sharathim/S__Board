@@ -195,11 +195,19 @@ export default function ProjectDetailPage() {
 
   const handleEditProjectSubmit = (e) => {
     e.preventDefault();
-    editProjectMutation.mutate({ name: editProjectName, description: editProjectDesc });
+    editProjectMutation.mutate({
+      name: editProjectName,
+      description: editProjectDesc,
+      members: project.members.map(m => ({ user_id: m.id, role_in_project: m.role_in_project }))
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formAttachment && formAttachment.size > 10 * 1024 * 1024) {
+      alert("File size exceeds 10MB limit.");
+      return;
+    }
     const contentJson = JSON.stringify({
       title: formTitle,
       accomplishment: formAccomplishment,
@@ -615,7 +623,15 @@ export default function ProjectDetailPage() {
                     type="file"
                     className="hidden"
                     accept="image/*,.pdf,.doc,.docx,.mp4"
-                    onChange={e => setFormAttachment(e.target.files[0])}
+                    onChange={e => {
+                      const file = e.target.files[0];
+                      if (file && file.size > 10 * 1024 * 1024) {
+                        alert("File size exceeds 10MB limit.");
+                        e.target.value = null;
+                        return;
+                      }
+                      setFormAttachment(file);
+                    }}
                   />
                 </label>
               )}

@@ -4,7 +4,7 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 ALLOWED_DOC_TYPES = {"application/pdf", "application/msword",
                       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
 ALLOWED_VIDEO_TYPES = {"video/mp4", "video/webm"}
-MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 def upload_file(file, folder="dpms"):
@@ -18,24 +18,19 @@ def upload_file(file, folder="dpms"):
     file.seek(0)
 
     if size > MAX_FILE_SIZE:
-        raise ValueError("File too large. Max 50MB.")
+        raise ValueError("File too large. Max 10MB.")
 
     if content_type in ALLOWED_IMAGE_TYPES:
-        resource_type = "image"
         file_type = "image"
     elif content_type in ALLOWED_VIDEO_TYPES:
-        resource_type = "video"
         file_type = "video"
-    elif content_type in ALLOWED_DOC_TYPES:
-        resource_type = "raw"
-        file_type = "document"
     else:
-        raise ValueError(f"File type {content_type} not allowed.")
+        file_type = "document"
 
     result = cloudinary.uploader.upload(
         file,
         folder=folder,
-        resource_type=resource_type,
+        resource_type="auto",
     )
     return {
         "url": result["secure_url"],
