@@ -10,6 +10,7 @@ import { useTheme } from "../../hooks/useTheme";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { Dropdown, DropdownItem } from "../ui/Dropdown";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
 
 function getInitials(name) {
   if (!name) return "?";
@@ -49,6 +50,7 @@ export function TopBar() {
   const { unreadCount } = useNotificationContext();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const mobileMenuRef = useRef(null);
@@ -226,25 +228,11 @@ export function TopBar() {
 
         {/* ── Right: Actions + Profile ── */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* Mobile hamburger */}
-          <button
-            id="navbar-mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(prev => !prev)}
-            className="navbar-icon-btn md:hidden"
-            title="Menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
-
-          {/* Theme Toggle */}
+          {/* Theme Toggle (Hidden on mobile) */}
           <button
             id="navbar-theme-btn"
             onClick={toggleTheme}
-            className="navbar-icon-btn"
+            className="navbar-icon-btn hidden md:flex"
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
@@ -284,77 +272,93 @@ export function TopBar() {
             style={{ background: "var(--border-light)", opacity: 0.5 }}
           />
 
-          {/* User Profile Dropdown */}
-          <Dropdown
-            trigger={
-              <div id="navbar-user-menu" className="navbar-avatar">
-                {user?.profile_picture ? (
-                  <img
-                    src={user.profile_picture}
-                    alt={user?.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{
-                      background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
-                    }}
-                  >
-                    {getInitials(user?.name)}
-                  </div>
-                )}
-              </div>
-            }
-            align="right"
-          >
-            {/* Dropdown Header */}
-            <div
-              className="px-4 py-4"
-              style={{ borderBottom: "1px solid var(--border-light)" }}
+          {/* User Profile Dropdown (Hidden on mobile) */}
+          <div className="hidden md:block">
+            <Dropdown
+              trigger={
+                <div id="navbar-user-menu" className="navbar-avatar">
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt={user?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center text-xs font-bold text-white"
+                      style={{
+                        background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
+                      }}
+                    >
+                      {getInitials(user?.name)}
+                    </div>
+                  )}
+                </div>
+              }
+              align="right"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
-                  style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
-                >
-                  {user?.profile_picture
-                    ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
-                    : getInitials(user?.name)
-                  }
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{user?.name}</p>
-                  <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{user?.email}</p>
-                </div>
-              </div>
-              <span
-                className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg"
-                style={{
-                  background: roleColors.light,
-                  color: roleColors.text,
-                }}
+              {/* Dropdown Header */}
+              <div
+                className="px-4 py-4"
+                style={{ borderBottom: "1px solid var(--border-light)" }}
               >
-                <Sparkles className="w-3 h-3" />
-                {getRoleLabel(user?.role)}
-              </span>
-            </div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
+                    style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
+                  >
+                    {user?.profile_picture
+                      ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                      : getInitials(user?.name)
+                    }
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{user?.name}</p>
+                    <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{user?.email}</p>
+                  </div>
+                </div>
+                <span
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg"
+                  style={{
+                    background: roleColors.light,
+                    color: roleColors.text,
+                  }}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  {getRoleLabel(user?.role)}
+                </span>
+              </div>
 
-            <DropdownItem onClick={() => navigate("/settings")}>
-              <Settings className="w-4 h-4 inline mr-2" />
-              Settings
-            </DropdownItem>
+              <DropdownItem onClick={() => navigate("/settings")}>
+                <Settings className="w-4 h-4 inline mr-2" />
+                Settings
+              </DropdownItem>
 
-            <div
-              className="mx-3 my-1"
-              style={{ height: "1px", background: "var(--border-light)" }}
-            />
+              <div
+                className="mx-3 my-1"
+                style={{ height: "1px", background: "var(--border-light)" }}
+              />
 
-            <DropdownItem onClick={logout} danger>
-              <LogOut className="w-4 h-4 inline mr-2" />
-              Sign Out
-            </DropdownItem>
-          </Dropdown>
+              <DropdownItem onClick={logout} danger>
+                <LogOut className="w-4 h-4 inline mr-2" />
+                Sign Out
+              </DropdownItem>
+            </Dropdown>
+          </div>
+
+          {/* Mobile hamburger (Positioned at far right on mobile, replacing profile dropdown, hidden on desktop) */}
+          <button
+            id="navbar-mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            className="navbar-icon-btn md:hidden"
+            title="Menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </button>
         </div>
       </nav>
 
@@ -366,35 +370,146 @@ export function TopBar() {
             onClick={() => setMobileMenuOpen(false)}
           />
           <div ref={mobileMenuRef} className="mobile-nav-sheet md:hidden">
-            {navItems.map(item => {
-              const Icon = item.icon;
-              const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
+            {/* Header */}
+            <div className="flex items-center justify-between pb-2 mb-1 border-b border-gray-100 dark:border-slate-800 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/logo-icon.png"
+                  alt="Hive"
+                  className="w-6 h-6 object-contain"
+                />
+                <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
+                  Hive Menu
+                </span>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              return (
-                <NavLink
-                  key={item.label}
-                  to={item.to}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    `mobile-nav-link ${isActive ? "mobile-nav-link-active" : ""}`
+            {/* Scrollable Nav list, Settings and Theme toggles */}
+            <div className="flex-1 overflow-y-auto flex flex-col gap-1.5 pr-0.5">
+              {navItems.map(item => {
+                const Icon = item.icon;
+                const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
+
+                return (
+                  <NavLink
+                    key={item.label}
+                    to={item.to}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `mobile-nav-link ${isActive ? "mobile-nav-link-active" : ""}`
+                    }
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="flex-1">{item.label}</span>
+                    {isForumWithBadge && (
+                      <span
+                        className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-white font-bold text-[10px] px-1.5"
+                        style={{ background: "#EF4444" }}
+                      >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
+                  </NavLink>
+                );
+              })}
+
+              <NavLink
+                to="/settings"
+                onClick={() => setMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `mobile-nav-link ${isActive ? "mobile-nav-link-active" : ""}`
+                }
+              >
+                <Settings className="w-5 h-5" />
+                <span className="flex-1">Settings</span>
+              </NavLink>
+
+              <button
+                onClick={toggleTheme}
+                className="mobile-nav-link w-full text-left"
+              >
+                <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
+                  {theme === "dark"
+                    ? <Sun className="w-5 h-5" />
+                    : <Moon className="w-5 h-5" />
                   }
+                </div>
+                <span className="flex-1">Theme ({theme === "dark" ? "Dark" : "Light"})</span>
+              </button>
+            </div>
+
+            {/* Horizontal line to split content */}
+            <div
+              className="w-full h-px my-1 flex-shrink-0"
+              style={{ background: "var(--border-light)", opacity: 0.6 }}
+            />
+
+            {/* Profile Section (profile picture, name, gmail/email, login role) */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 dark:bg-slate-800/30 border border-gray-100 dark:border-slate-800/50 flex-shrink-0">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
+                style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
+              >
+                {user?.profile_picture ? (
+                  <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                ) : (
+                  getInitials(user?.name)
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>
+                  {user?.name}
+                </p>
+                <p className="text-xs truncate" style={{ color: "var(--text-muted)", marginTop: "1px" }}>
+                  {user?.email}
+                </p>
+                <span
+                  className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md"
+                  style={{
+                    background: roleColors.light,
+                    color: roleColors.text,
+                    marginTop: "6px"
+                  }}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="flex-1">{item.label}</span>
-                  {isForumWithBadge && (
-                    <span
-                      className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-white font-bold text-[10px] px-1.5"
-                      style={{ background: "#EF4444" }}
-                    >
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </NavLink>
-              );
-            })}
+                  <Sparkles className="w-2.5 h-2.5" />
+                  {user?.role === "HOD" ? "HOD" : (user?.role === "FACULTY" ? "Faculty" : (user?.role === "STUDENT" ? "Student" : user?.role))}
+                </span>
+              </div>
+            </div>
+
+            {/* Logout button at the bottom */}
+            <button
+              onClick={() => setLogoutConfirmOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 border border-red-200/50 hover:border-red-300 bg-red-50/50 hover:bg-red-50 text-red-600 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:border-red-900/30 dark:text-red-400 flex-shrink-0"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Log Out</span>
+            </button>
           </div>
         </>
       )}
+
+      {/* Logout confirmation Dialog */}
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        onClose={() => setLogoutConfirmOpen(false)}
+        onConfirm={() => {
+          setLogoutConfirmOpen(false);
+          setMobileMenuOpen(false);
+          logout();
+        }}
+        title="Confirm Log Out"
+        message="Are you sure you want to log out of your account?"
+        confirmText="Log Out"
+        danger
+      />
     </>
   );
 }

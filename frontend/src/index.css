@@ -553,50 +553,49 @@ a, button { transition: all 0.15s ease; }
 }
 
 /* ─── Mobile Navbar Menu — Glassmorphic dropdown sheet ────────────────────── */
-@keyframes nav-slide-down {
-  from { opacity: 0; transform: translateY(-16px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes nav-slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }
 
 .mobile-nav-sheet {
   position: fixed;
-  top: 82px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 420px;
-  border-radius: 24px;
-  z-index: 99;
-  padding: 10px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85vw;
+  height: 100vh;
+  border-radius: 24px 0 0 24px;
+  z-index: 999;
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
 
   /* Deep glassmorphism */
   background:
-    linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,250,255,0.82) 100%);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
+    linear-gradient(145deg, rgba(255,255,255,0.96) 0%, rgba(248,250,255,0.92) 100%);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
 
-  /* Neomorphic raised card */
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  /* Neomorphic shadow for side drawer */
+  border-left: 1.5px solid rgba(255, 255, 255, 0.4);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.1),
-    0 8px 24px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.03),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.8),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+    -10px 0 40px rgba(0, 0, 0, 0.08),
+    -2px 0 8px rgba(0, 0, 0, 0.04);
 
-  animation: nav-slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: nav-slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .dark .mobile-nav-sheet {
   background:
-    linear-gradient(145deg, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.85) 100%);
-  border-color: rgba(255, 255, 255, 0.06);
+    linear-gradient(145deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.92) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.45),
-    0 8px 24px rgba(0, 0, 0, 0.3),
-    0 2px 6px rgba(0, 0, 0, 0.15),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    -10px 0 40px rgba(0, 0, 0, 0.4),
+    -2px 0 12px rgba(0, 0, 0, 0.2);
 }
 
 .mobile-nav-link {
@@ -666,7 +665,7 @@ a, button { transition: all 0.15s ease; }
 .mobile-nav-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 98;
+  z-index: 998;
   background: rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(6px) saturate(120%);
   -webkit-backdrop-filter: blur(6px) saturate(120%);
