@@ -250,8 +250,8 @@ export default function ClassesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
 
-      {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* ── Page Header ── */}
+      <div className="flex flex-row items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
             <Layers className="w-5 h-5 text-white" />
@@ -261,22 +261,24 @@ export default function ClassesPage() {
           </div>
         </div>
 
-        {/* Right side actions */}
-        <div className="flex items-center gap-3">
+                {/* Right side actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* HOD only: Student registration toggle "+ New Student" */}
           {isHOD && (
-            <button
-              onClick={() => toggleRegMutation.mutate()}
-              disabled={toggleRegMutation.isPending}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                regOpen
-                  ? "bg-emerald-500 text-white shadow-sm"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-650 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
-              } disabled:opacity-60`}
-            >
-              {regOpen ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              <span>+ New Student</span>
-            </button>
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
+              <button
+                type="button"
+                onClick={() => toggleRegMutation.mutate()}
+                disabled={toggleRegMutation.isPending}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${
+                  regOpen
+                    ? "bg-emerald-500 text-white shadow-sm"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                }`}
+              >
+                <span>+ New Student</span>
+              </button>
+            </div>
           )}
 
           {/* Grid / List Switcher */}
@@ -290,7 +292,7 @@ export default function ClassesPage() {
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-4.5 h-4.5" />
+              <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
@@ -301,7 +303,7 @@ export default function ClassesPage() {
               }`}
               title="List View"
             >
-              <List className="w-4.5 h-4.5" />
+              <List className="w-4 h-4" />
             </button>
           </div>
         </div>
