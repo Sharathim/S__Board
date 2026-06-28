@@ -24,7 +24,8 @@ import { StatTile } from "../../components/ui/StatTile";
 import {
   TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle,
   MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap,
-  X, LayoutGrid, List, FileText, Edit3, Flag, Search, ChevronDown, Sparkles, FolderPlus
+  X, LayoutGrid, List, FileText, Edit3, Flag, Search, ChevronDown, Sparkles, FolderPlus,
+  Calendar
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -187,7 +188,7 @@ export default function ProjectsPage() {
   const projects = data?.projects || [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* ─── Premium Header ─── */}
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Projects</h1>
@@ -196,33 +197,6 @@ export default function ProjectsPage() {
         </p>
       </div>
 
-      {/* ─── Premium Glassmorphic Stats Dock ─── */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { label: "Total Projects", value: stats.total || 0, icon: FolderKanban, color: "text-violet-500 dark:text-violet-400 bg-violet-500/10" },
-            { label: "In Progress", value: stats.in_progress || 0, icon: TrendingUp, color: "text-indigo-500 dark:text-indigo-400 bg-indigo-500/10" },
-            { label: "Completed", value: stats.completed || 0, icon: CheckCircle, color: "text-emerald-500 dark:text-emerald-400 bg-emerald-500/10" },
-          ].map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={i}
-                className="dh-card p-4 flex items-center gap-3.5 transition-all duration-300 hover:scale-[1.02] border border-gray-200/50 dark:border-gray-800/40"
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.color} shrink-0`}>
-                  <Icon className="w-4.5 h-4.5" />
-                </div>
-                <div className="min-w-0 flex flex-col">
-                  <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{stat.value}</span>
-                  <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">{stat.label}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      
       {/* ─── Filters & Actions Dock ─── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30">
         <div className="flex flex-wrap items-center gap-3 flex-1">
@@ -286,7 +260,6 @@ export default function ProjectsPage() {
               ...forumMembers.map(m => ({ ...m, ringClass: "ring-blue-500" })),
               ...studentMembers.map(m => ({ ...m, ringClass: "ring-emerald-500" }))
             ];
-
             const visibleMembers = allMembers.slice(0, 4);
             const restCount = allMembers.length - 4;
             
@@ -305,18 +278,170 @@ export default function ProjectsPage() {
                 className={`group flex flex-col justify-between h-full bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden ${borderAccent}`}
               >
                 {/* Card Main Body */}
-                <div className="p-6 space-y-5">
-                  {/* Header row: Icon & Status */}
-                  <div className="flex justify-between items-start">
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/10">
+                <div className="p-6 pb-0 space-y-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    {/* Header row: Icon & Status */}
+                    <div className="flex justify-between items-start">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/10">
+                        <FolderKanban className="w-5.5 h-5.5" />
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${getStatusTheme(project.status).dot}`} />
+                          {project.status.replace("_", " ")}
+                        </span>
+                        <div onClick={e => e.stopPropagation()}>
+                          <ProjectKebab
+                            project={project}
+                            isHOD={isHOD}
+                            onEdit={openEdit}
+                            onDelete={setDeleteTarget}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Title & Description */}
+                    <div className="space-y-2 mt-5">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary-650 dark:group-hover:text-primary-400 transition-colors tracking-tight line-clamp-1">
+                        {project.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+                        {project.description || "No description provided for this project."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Structured visual sub-grid info */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-1.5 mb-5">
+                    <div className="bg-slate-50/50 dark:bg-gray-905/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Lead Advisor</span>
+                      <span className="text-xs font-bold text-slate-700 dark:text-gray-200 truncate">{leadAdvisor}</span>
+                    </div>
+                    <div className="bg-slate-50/50 dark:bg-gray-905/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Team Size</span>
+                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                        {allMembers.length} {allMembers.length === 1 ? "Member" : "Members"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-705/60 flex items-center justify-between">
+                  {/* Member avatars */}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {allMembers.length > 0 ? (
+                      <>
+                        <div className="flex -space-x-1.5 shrink-0">
+                          {visibleMembers.map((m, idx) => (
+                            <Avatar
+                              key={m.id || idx}
+                              src={m.profile_picture}
+                              name={m.name}
+                              size="sm"
+                              className={`ring-2 ${m.ringClass} w-6.5 h-6.5 rounded-full`}
+                            />
+                          ))}
+                          {restCount > 0 && (
+                            <div className="w-6.5 h-6.5 rounded-full bg-slate-200 dark:bg-gray-800 border border-slate-350 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-gray-655 dark:text-gray-400 ring-2 ring-white dark:ring-gray-900">
+                              +{restCount}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-505 uppercase tracking-wider truncate">
+                          Team Workspace
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-555 uppercase tracking-wider">No contributors</span>
+                    )}
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{format(new Date(project.updated_at), "MMM d")}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {projects.map((project) => {
+              const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
+              const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+              const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
+
+              const allMembers = [
+                ...facultyMembers.map(m => ({ ...m, ringClass: "ring-violet-500" })),
+                ...forumMembers.map(m => ({ ...m, ringClass: "ring-blue-500" })),
+                ...studentMembers.map(m => ({ ...m, ringClass: "ring-emerald-500" }))
+              ];
+
+              const visibleMembers = allMembers.slice(0, 4);
+              const restCount = allMembers.length - 4;
+
+              return (
+                <div
+                  key={project.id}
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                  className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.05)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 cursor-pointer"
+                >
+                  {/* Left Section: Icon and Details */}
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-indigo-500/5">
                       <FolderKanban className="w-5.5 h-5.5" />
                     </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-primary-650 transition-colors">
+                        {project.name}
+                      </h4>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">
+                        {project.description || "No description provided."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Middle Section: Avatar Stack of Contributors */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex -space-x-1.5">
+                      {visibleMembers.map((m, idx) => (
+                        <Avatar
+                          key={m.id || idx}
+                          src={m.profile_picture}
+                          name={m.name}
+                          size="sm"
+                          className={`ring-2 ${m.ringClass} w-6.5 h-6.5 rounded-full`}
+                        />
+                      ))}
+                      {restCount > 0 && (
+                        <div className="w-6.5 h-6.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-850">
+                          +{restCount}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden md:inline">
+                      {allMembers.length} Partner{allMembers.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+
+                  {/* Right Section: Status Pill, Updated Date and Kebab Menu */}
+                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 dark:border-gray-700/50">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
+                      <span className={`w-1 h-1 rounded-full ${getStatusTheme(project.status).dot}`} />
+                      {project.status.replace("_", " ")}
+                    </span>
                     
                     <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${getStatusTheme(project.status).dot}`} />
-                        {project.status.replace("_", " ")}
+                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        {format(new Date(project.updated_at), "MMM d, yyyy")}
                       </span>
+                      
                       <div onClick={e => e.stopPropagation()}>
                         <ProjectKebab
                           project={project}
@@ -327,126 +452,12 @@ export default function ProjectsPage() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Title & Description */}
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary-650 dark:group-hover:text-primary-400 transition-colors tracking-tight line-clamp-1">
-                      {project.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
-                      {project.description || "No description provided for this project."}
-                    </p>
-                  </div>
-
-                  {/* Structured visual sub-grid info */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-1.5">
-                    <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Lead Advisor</span>
-                      <span className="text-xs font-bold text-slate-700 dark:text-gray-200 truncate">{leadAdvisor}</span>
-                    </div>
-                    <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Team Size</span>
-                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                        {allMembers.length} {allMembers.length === 1 ? "Member" : "Members"}
-                      </span>
-                    </div>
-                  </div>
                 </div>
-
-                {/* Card Footer: Darker Glass Well */}
-                <div className="px-6 py-4.5 bg-slate-50/70 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
-                  {/* Member avatars */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    {allMembers.length > 0 ? (
-                      <>
-                        <div className="flex -space-x-2 shrink-0">
-                          {visibleMembers.map((m, idx) => (
-                            <Avatar
-                              key={m.id || idx}
-                              src={m.profile_picture}
-                              name={m.name}
-                              size="sm"
-                              className={`ring-2 ${m.ringClass} w-7 h-7 rounded-full`}
-                            />
-                          ))}
-                          {restCount > 0 && (
-                            <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-gray-800 border border-slate-350 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-gray-655 dark:text-gray-400 ring-2 ring-slate-100 dark:ring-gray-900">
-                              +{restCount}
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-[10px] font-extrabold text-slate-455 dark:text-gray-500 uppercase tracking-wider truncate">
-                          Team Workspace
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-555 uppercase tracking-wider">No contributors</span>
-                    )}
-                  </div>
-
-                  {/* Metadata */}
-                  <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider shrink-0 ml-3">
-                    {format(new Date(project.updated_at), "MMM d, yyyy")}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-800/80 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50/50 dark:bg-gray-800/30">
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider w-12">#</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Project</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Faculty</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Forum</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Students</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Updated</th>
-                  <th className="w-10 px-5 py-3.5" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-150 dark:divide-gray-800/40">
-                {projects.map((project, idx) => {
-                  const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
-                  const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-                  const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
-                  return (
-                    <tr key={project.id} className="hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-colors">
-                      <td className="px-5 py-4 text-sm text-gray-450 dark:text-gray-500">{(page - 1) * 10 + idx + 1}</td>
-                      <td className="px-5 py-4">
-                        <Link to={`/projects/${project.id}`} className="group block max-w-sm">
-                          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{project.name}</p>
-                          {project.description && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-1 leading-relaxed">{project.description}</p>
-                          )}
-                        </Link>
-                      </td>
-                      <td className="px-5 py-4"><MemberStack members={facultyMembers} /></td>
-                      <td className="px-5 py-4"><MemberStack members={forumMembers} /></td>
-                      <td className="px-5 py-4"><MemberStack members={studentMembers} /></td>
-                      <td className="px-5 py-4"><StatusBadge status={project.status} /></td>
-                      <td className="px-5 py-4 text-sm text-gray-500">
-                        {format(new Date(project.updated_at), "MMM d, yyyy")}
-                      </td>
-                      <td className="px-5 py-4">
-                        <ProjectKebab
-                          project={project}
-                          isHOD={isHOD}
-                          onEdit={openEdit}
-                          onDelete={setDeleteTarget}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+              );
+            })}
           </div>
-          <div className="border-t border-gray-150 dark:border-gray-800/40">
+          
+          <div className="pt-2">
             <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
           </div>
         </div>
