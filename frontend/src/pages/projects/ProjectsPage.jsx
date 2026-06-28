@@ -167,13 +167,45 @@ export default function ProjectsPage() {
   const projects = data?.projects || [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Projects</h1>
+    <div className="space-y-8">
+      {/* ─── Premium Header ─── */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Projects</h1>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Manage, allocate, and monitor department projects and team workspaces.
+        </p>
       </div>
+
+      {/* ─── Premium Glassmorphic Stats Dock ─── */}
+      {stats && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Total Projects", value: stats.total || 0, icon: FolderKanban, color: "text-violet-500 dark:text-violet-400 bg-violet-500/10" },
+            { label: "In Progress", value: stats.in_progress || 0, icon: TrendingUp, color: "text-indigo-500 dark:text-indigo-400 bg-indigo-500/10" },
+            { label: "Completed", value: stats.completed || 0, icon: CheckCircle, color: "text-emerald-500 dark:text-emerald-400 bg-emerald-500/10" },
+            { label: "Active Students", value: stats.student_count || 0, icon: Users, color: "text-blue-500 dark:text-blue-400 bg-blue-500/10" },
+          ].map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={i}
+                className="dh-card p-4 flex items-center gap-3.5 transition-all duration-300 hover:scale-[1.02] border border-gray-200/50 dark:border-gray-800/40"
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.color} shrink-0`}>
+                  <Icon className="w-4.5 h-4.5" />
+                </div>
+                <div className="min-w-0 flex flex-col">
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{stat.value}</span>
+                  <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-0.5">{stat.label}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
       
-      {/* Filters & View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* ─── Filters & Actions Dock ─── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30">
         <div className="flex flex-wrap items-center gap-3 flex-1">
           <div className="w-full sm:w-64">
             <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
@@ -181,7 +213,7 @@ export default function ProjectsPage() {
           <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
           
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-200/50 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40">
             <button
               onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
               className={`p-1.5 rounded-lg transition-all ${
@@ -191,7 +223,7 @@ export default function ProjectsPage() {
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-4.5 h-4.5" />
+              <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
@@ -202,20 +234,20 @@ export default function ProjectsPage() {
               }`}
               title="List View"
             >
-              <List className="w-4.5 h-4.5" />
+              <List className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Create Project Button */}
         {isHOD && (
-          <Button onClick={openCreate} className="gap-2 shrink-0">
+          <Button onClick={openCreate} className="gap-2 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0">
             <Plus className="w-4 h-4" /> Create Project
           </Button>
         )}
       </div>
 
-      {/* Projects Content */}
+      {/* ─── Projects Content ─── */}
       {projects.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
@@ -229,15 +261,24 @@ export default function ProjectsPage() {
             const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
             const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
             
+            // Accent color based on status
+            const isCompleted = project.status === "COMPLETED";
+            const borderAccent = isCompleted 
+              ? "hover:border-emerald-500/50 dark:hover:border-emerald-400/40" 
+              : "hover:border-indigo-500/50 dark:hover:border-indigo-400/40";
+            
             return (
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
-                className="dh-card p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between h-full border border-gray-200/60 dark:border-gray-700/80"
+                className={`dh-card p-5 hover:-translate-y-1.5 hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col justify-between h-full border border-gray-200/60 dark:border-gray-700/80 relative overflow-hidden ${borderAccent}`}
               >
+                {/* Visual Accent Top Bar */}
+                <div className={`absolute top-0 left-0 right-0 h-1 transition-all duration-300 ${isCompleted ? "bg-emerald-500" : "bg-indigo-600 dark:bg-indigo-500"}`} />
+
                 <div className="space-y-4">
-                  {/* Top row */}
-                  <div className="flex justify-between items-start">
+                  {/* Status & Kebab */}
+                  <div className="flex justify-between items-center">
                     <StatusBadge status={project.status} />
                     <div onClick={e => e.stopPropagation()}>
                       <ProjectKebab
@@ -249,42 +290,56 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  {/* Info */}
-                  <div>
+                  {/* Title & Description */}
+                  <div className="space-y-1.5">
                     <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                       {project.name}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1.5 leading-relaxed">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
                       {project.description || "No description provided."}
                     </p>
                   </div>
                 </div>
 
-                {/* Bottom section with divider */}
-                <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 space-y-3.5">
-                  {/* Members stacks */}
-                  <div className="grid grid-cols-3 gap-2">
+                {/* Team Allocations */}
+                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800/60 space-y-4">
+                  <div className="space-y-3">
                     {/* Faculty */}
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Faculty</p>
-                      <MemberStack members={facultyMembers} max={2} />
-                    </div>
+                    {facultyMembers.length > 0 && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 font-medium text-gray-450 dark:text-gray-500">
+                          <GraduationCap className="w-3.5 h-3.5" />
+                          Faculty
+                        </span>
+                        <MemberStack members={facultyMembers} max={3} />
+                      </div>
+                    )}
                     {/* Forum */}
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Forum</p>
-                      <MemberStack members={forumMembers} max={2} />
-                    </div>
+                    {forumMembers.length > 0 && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 font-medium text-gray-450 dark:text-gray-500">
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          Forum
+                        </span>
+                        <MemberStack members={forumMembers} max={3} />
+                      </div>
+                    )}
                     {/* Students */}
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Students</p>
-                      <MemberStack members={studentMembers} max={2} />
-                    </div>
+                    {studentMembers.length > 0 && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 font-medium text-gray-450 dark:text-gray-500">
+                          <Users className="w-3.5 h-3.5" />
+                          Students
+                        </span>
+                        <MemberStack members={studentMembers} max={3} />
+                      </div>
+                    )}
                   </div>
 
-                  {/* Footer metadata */}
-                  <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                  {/* Metadata footer */}
+                  <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-semibold tracking-wide">
                     <span>ID: #{project.id}</span>
-                    <span>Updated {format(new Date(project.updated_at), "MMM d, yyyy")}</span>
+                    <span>UPDATED {format(new Date(project.updated_at), "MMM d, yyyy").toUpperCase()}</span>
                   </div>
                 </div>
               </div>
@@ -292,45 +347,45 @@ export default function ProjectsPage() {
           })}
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800/50 rounded-2xl border border-gray-200/50 dark:border-gray-800/80 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-800/50">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase w-12">#</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Project</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Faculty</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Forum</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Students</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Updated</th>
-                  <th className="w-10 px-4 py-3" />
+                <tr className="bg-gray-50/50 dark:bg-gray-800/30">
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider w-12">#</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Project</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Faculty</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Forum</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Students</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Updated</th>
+                  <th className="w-10 px-5 py-3.5" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-150 dark:divide-gray-800/40">
                 {projects.map((project, idx) => {
                   const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
                   const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
                   const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
                   return (
-                    <tr key={project.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                      <td className="px-4 py-3 text-sm text-gray-500">{(page - 1) * 10 + idx + 1}</td>
-                      <td className="px-4 py-3">
-                        <Link to={`/projects/${project.id}`} className="group">
-                          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-primary-600">{project.name}</p>
+                    <tr key={project.id} className="hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-colors">
+                      <td className="px-5 py-4 text-sm text-gray-450 dark:text-gray-500">{(page - 1) * 10 + idx + 1}</td>
+                      <td className="px-5 py-4">
+                        <Link to={`/projects/${project.id}`} className="group block max-w-sm">
+                          <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{project.name}</p>
                           {project.description && (
-                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{project.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-1 leading-relaxed">{project.description}</p>
                           )}
                         </Link>
                       </td>
-                      <td className="px-4 py-3"><MemberStack members={facultyMembers} /></td>
-                      <td className="px-4 py-3"><MemberStack members={forumMembers} /></td>
-                      <td className="px-4 py-3"><MemberStack members={studentMembers} /></td>
-                      <td className="px-4 py-3"><StatusBadge status={project.status} /></td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-5 py-4"><MemberStack members={facultyMembers} /></td>
+                      <td className="px-5 py-4"><MemberStack members={forumMembers} /></td>
+                      <td className="px-5 py-4"><MemberStack members={studentMembers} /></td>
+                      <td className="px-5 py-4"><StatusBadge status={project.status} /></td>
+                      <td className="px-5 py-4 text-sm text-gray-500">
                         {format(new Date(project.updated_at), "MMM d, yyyy")}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-4">
                         <ProjectKebab
                           project={project}
                           isHOD={isHOD}
@@ -344,9 +399,12 @@ export default function ProjectsPage() {
               </tbody>
             </table>
           </div>
-          <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
+          <div className="border-t border-gray-150 dark:border-gray-800/40">
+            <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
+          </div>
         </div>
       )}
+
 
       {/* Create / Edit Modal */}
       <ProjectModal
