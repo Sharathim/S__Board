@@ -112,6 +112,18 @@ function MemberStack({ members, max = 3 }) {
   );
 }
 
+const getStatusProgress = (status) => {
+  const map = {
+    NOT_STARTED: { percent: 15, color: "from-gray-400 to-gray-500" },
+    IN_PROGRESS: { percent: 55, color: "from-indigo-500 via-purple-500 to-pink-500" },
+    REVIEW:      { percent: 85, color: "from-amber-500 to-orange-500" },
+    COMPLETED:   { percent: 100, color: "from-emerald-400 to-teal-500" },
+    ON_HOLD:     { percent: 35, color: "from-yellow-500 to-amber-500" },
+    CANCELLED:   { percent: 0, color: "from-red-500 to-pink-600" },
+  };
+  return map[status] || { percent: 0, color: "from-gray-400 to-gray-500" };
+};
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ProjectsPage() {
   const { user } = useAuth();
@@ -282,6 +294,9 @@ export default function ProjectsPage() {
             const borderAccent = isCompleted 
               ? "hover:border-emerald-500/40 hover:shadow-emerald-500/5" 
               : "hover:border-indigo-500/40 hover:shadow-indigo-500/5";
+
+            // Status progress bar details
+            const prog = getStatusProgress(project.status);
             
             return (
               <div
@@ -290,9 +305,14 @@ export default function ProjectsPage() {
                 className={`dh-card p-5 hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between h-full border border-gray-200/60 dark:border-gray-800/80 bg-white/70 dark:bg-gray-900/30 backdrop-blur-md relative overflow-hidden ${borderAccent}`}
               >
                 <div className="space-y-4">
-                  {/* Status & Kebab */}
+                  {/* Status & Kebab header */}
                   <div className="flex justify-between items-center">
-                    <StatusBadge status={project.status} />
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8.5 h-8.5 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
+                        <FolderPlus className="w-4 h-4" />
+                      </div>
+                      <StatusBadge status={project.status} />
+                    </div>
                     <div onClick={e => e.stopPropagation()}>
                       <ProjectKebab
                         project={project}
@@ -304,46 +324,61 @@ export default function ProjectsPage() {
                   </div>
 
                   {/* Title & Description */}
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
+                  <div className="space-y-1.5">
+                    <h3 className="font-bold text-base text-gray-900 dark:text-gray-100 group-hover:text-primary-650 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                       {project.name}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
                       {project.description || "No description provided."}
                     </p>
+                  </div>
+
+                  {/* Visual Completion Progress Bar */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 dark:text-gray-550">
+                      <span>COMPLETION</span>
+                      <span className="text-gray-700 dark:text-gray-300">{prog.percent}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-gray-100 dark:bg-gray-800/80 overflow-hidden">
+                      <div className={`h-full rounded-full bg-gradient-to-r ${prog.color} transition-all duration-500`} style={{ width: `${prog.percent}%` }} />
+                    </div>
                   </div>
                 </div>
 
                 {/* Combined Collaborators Overlapping Stack & Date */}
-                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800/60 flex flex-col gap-4">
+                <div className="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-800/60 flex flex-col gap-3.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       {allMembers.length > 0 ? (
-                        <div className="flex -space-x-2 items-center">
-                          {visibleMembers.map((m, idx) => (
-                            <Avatar
-                              key={m.id || idx}
-                              src={m.profile_picture}
-                              name={m.name}
-                              size="sm"
-                              className={`ring-2 ${m.ringClass} w-7 h-7 rounded-full`}
-                            />
-                          ))}
-                          {restCount > 0 && (
-                            <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-555 dark:text-gray-400 ring-2 ring-gray-300 dark:ring-gray-600">
-                              +{restCount}
-                            </div>
-                          )}
-                          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-2.5 tracking-wide uppercase">
-                            {allMembers.length} Members
+                        <div className="flex items-center">
+                          <div className="flex -space-x-2">
+                            {visibleMembers.map((m, idx) => (
+                              <Avatar
+                                key={m.id || idx}
+                                src={m.profile_picture}
+                                name={m.name}
+                                size="sm"
+                                className={`ring-2 ${m.ringClass} w-7 h-7 rounded-full`}
+                              />
+                            ))}
+                            {restCount > 0 && (
+                              <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-850 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-500 dark:text-gray-400 ring-2 ring-gray-300 dark:ring-gray-655">
+                                +{restCount}
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-gray-405 dark:text-gray-500 ml-3 tracking-wide uppercase shrink-0">
+                            {allMembers.length} {allMembers.length === 1 ? "Member" : "Members"}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wide">No members assigned</span>
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wide">No members assigned</span>
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500 font-semibold tracking-wide">
+                  
+                  {/* Card Metadata Footer */}
+                  <div className="flex justify-between items-center text-[9px] text-gray-400 dark:text-gray-550 font-bold tracking-wide">
                     <span>ID: #{project.id}</span>
                     <span>UPDATED {format(new Date(project.updated_at), "MMM d, yyyy").toUpperCase()}</span>
                   </div>
