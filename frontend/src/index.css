@@ -780,10 +780,24 @@ a, button { transition: all 0.15s ease; }
     filter 0.4s ease;
 }
 
+/* Translucent dark overlay to control background image contrast dynamically */
+.app-page-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.4s ease;
+  z-index: 1;
+}
+
 .dark .app-page-bg {
   background-image: url('/bg-abstract-dark.png');
-  opacity: 0.48; /* reduce opacity to soften neon details */
-  filter: brightness(0.55); /* dim brightness for improved text readability */
+  opacity: 0.8; /* Keep background visible but dark */
+  filter: brightness(0.35); /* Cut brightness significantly */
+}
+
+.dark .app-page-bg::after {
+  background: rgba(7, 6, 15, 0.72); /* 72% dark space-indigo overlay mask */
 }
 
 /* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */
