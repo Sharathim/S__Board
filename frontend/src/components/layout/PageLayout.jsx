@@ -28,7 +28,10 @@ export default function PageLayout() {
     <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#fbfbfe] dark:bg-[#07060f] transition-colors duration-300">
       
       {/* ─── Premium Background Image Overlay (swaps automatically on theme toggle) ─── */}
-      <div className="app-page-bg" />
+      <div className="app-page-bg-container">
+        <div className="app-page-bg light-bg" />
+        <div className="app-page-bg dark-bg" />
+      </div>
 
       {/* Floating Navbar */}
       <div className="relative z-50">

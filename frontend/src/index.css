@@ -761,42 +761,56 @@ a, button { transition: all 0.15s ease; }
   pointer-events: none;
 }
 
-/* ─── Premium Background Image Container (Shared Assets) ────────────────── */
-.app-page-bg {
+.app-page-bg-container {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: url('/bg-abstract.png');
+}
+
+/* ─── Premium Background Image Container (Shared Assets) ────────────────── */
+.app-page-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 1;
-  filter: brightness(1);
-  transition: 
-    background-image 0.4s ease, 
-    opacity 0.4s ease, 
-    filter 0.4s ease;
+  will-change: opacity, filter;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Translucent dark overlay to control background image contrast dynamically */
-.app-page-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0);
-  transition: background 0.4s ease;
+.app-page-bg.light-bg {
+  background-image: url('/bg-abstract.png');
+  opacity: 1;
+  filter: brightness(1);
+  z-index: 2;
+}
+
+.dark .app-page-bg.light-bg {
+  opacity: 0;
   z-index: 1;
 }
 
-.dark .app-page-bg {
+.app-page-bg.dark-bg {
   background-image: url('/bg-abstract-dark.png');
-  opacity: 1; /* Make the base image fully opaque */
-  filter: brightness(0.75); /* Moderate dimming for readability */
+  opacity: 0;
+  filter: brightness(0.75);
+  z-index: 1;
 }
 
-.dark .app-page-bg::after {
+/* Translucent dark overlay to control background image contrast dynamically */
+.app-page-bg.dark-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: rgba(7, 6, 15, 0.35); /* Subtle 35% dark space-indigo overlay mask */
+  z-index: 3;
+}
+
+.dark .app-page-bg.dark-bg {
+  opacity: 1;
+  z-index: 2;
 }
 
 /* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */

@@ -228,11 +228,11 @@ export function TopBar() {
 
         {/* ── Right: Actions + Profile ── */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* Theme Toggle (Hidden on mobile) */}
+          {/* Theme Toggle */}
           <button
             id="navbar-theme-btn"
             onClick={toggleTheme}
-            className="navbar-icon-btn hidden md:flex"
+            className="navbar-icon-btn"
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
@@ -431,18 +431,6 @@ export function TopBar() {
                 <span className="flex-1">Settings</span>
               </NavLink>
 
-              <button
-                onClick={toggleTheme}
-                className="mobile-nav-link w-full text-left"
-              >
-                <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
-                  {theme === "dark"
-                    ? <Sun className="w-5 h-5" />
-                    : <Moon className="w-5 h-5" />
-                  }
-                </div>
-                <span className="flex-1">Theme ({theme === "dark" ? "Dark" : "Light"})</span>
-              </button>
             </div>
 
             {/* Horizontal line to split content */}
