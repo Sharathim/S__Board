@@ -204,129 +204,132 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
   }, [menuOpen]);
 
   return (
-    <div className="group bg-white dark:bg-gray-800/70 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
-      {/* Top colored stripe */}
-      <div className={`h-1.5 w-full bg-gradient-to-r ${getAvatarPalette(fac.name).bg}`} />
-
-      <div className="p-5">
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar fac={fac} size="lg" />
-            <div className="min-w-0">
-              <h3 className="font-bold text-gray-900 dark:text-gray-50 text-base leading-snug truncate">
-                {fac.name}
-              </h3>
-              <DesignationBadge designation={fac.designation || "Professor"} />
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <a
-              href={`mailto:${fac.email}`}
-              className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors group/mail"
-              title={`Email ${fac.name}`}
-            >
-              <GmailIcon className="w-5 h-5 transition-transform group-hover/mail:scale-110" />
-            </a>
-
-            {isHOD ? (
-              <div className="relative kebab-container">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-                  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 transition-colors"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-                {menuOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                    <button
-                      onClick={() => { setMenuOpen(false); onEdit(fac); }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 font-medium transition-colors text-left"
-                    >
-                      <Pencil className="w-4 h-4 text-indigo-500" />
-                      Edit Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        fac.class_incharge_of ? onRemoveIncharge(fac) : onAssignIncharge(fac);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
-                    >
-                      {fac.class_incharge_of
-                        ? <><UserX className="w-4 h-4" />Remove as Incharge</>
-                        : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
-                      }
-                    </button>
-                    <div className="my-1 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
-                    <button
-                      onClick={() => { setMenuOpen(false); onDelete(fac); }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition-colors text-left"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Remove Faculty
-                    </button>
-                  </div>
-                )}
+    <div className="group bg-gradient-to-br from-white to-slate-50/50 dark:from-gray-900/60 dark:to-gray-950/40 rounded-2xl border border-slate-200/80 dark:border-gray-800/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_16px_36px_rgba(99,102,241,0.06)] hover:-translate-y-1 hover:border-indigo-500/30 transition-all duration-300 overflow-hidden relative flex flex-col justify-between h-full">
+      <div className="p-5.5 flex flex-col justify-between h-full">
+        <div>
+          {/* Header row */}
+          <div className="flex items-start justify-between gap-3 mb-4.5">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <Avatar fac={fac} size="lg" />
+              <div className="min-w-0">
+                <h3 className="font-bold text-slate-800 dark:text-gray-550 text-base leading-snug tracking-tight truncate group-hover:text-primary-600 transition-colors">
+                  {fac.name}
+                </h3>
+                <div className="mt-1">
+                  <DesignationBadge designation={fac.designation || "Professor"} />
+                </div>
               </div>
-            ) : (
-              userId === fac.user_id && (
-                <button
-                  onClick={() => onEdit(fac)}
-                  className="p-2 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500 transition-colors"
-                  title="Edit your profile"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              )
-            )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <a
+                href={`mailto:${fac.email}`}
+                className="p-2 rounded-xl bg-slate-50 hover:bg-red-50 dark:bg-gray-850 dark:hover:bg-red-950/20 text-gray-500 dark:text-gray-400 hover:text-red-650 dark:hover:text-red-400 transition-colors group/mail border border-slate-100 dark:border-gray-800/40"
+                title={`Email ${fac.name}`}
+              >
+                <GmailIcon className="w-4 h-4 transition-transform group-hover/mail:scale-110" />
+              </a>
+
+              {isHOD ? (
+                <div className="relative kebab-container">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-150 dark:bg-gray-855 dark:hover:bg-gray-750 text-gray-400 hover:text-gray-650 dark:text-gray-500 transition-colors border border-slate-100 dark:border-gray-800/40"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                      <button
+                        onClick={() => { setMenuOpen(false); onEdit(fac); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 font-medium transition-colors text-left"
+                      >
+                        <Pencil className="w-4 h-4 text-indigo-500" />
+                        Edit Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          fac.class_incharge_of ? onRemoveIncharge(fac) : onAssignIncharge(fac);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
+                      >
+                        {fac.class_incharge_of
+                          ? <><UserX className="w-4 h-4" />Remove as Incharge</>
+                          : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+                        }
+                      </button>
+                      <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                      <button
+                        onClick={() => { setMenuOpen(false); onDelete(fac); }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition-colors text-left"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Remove Faculty
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                userId === fac.user_id && (
+                  <button
+                    onClick={() => onEdit(fac)}
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 dark:bg-gray-855 dark:hover:bg-indigo-950/20 text-indigo-500 border border-slate-100 dark:border-gray-800/40 transition-colors"
+                    title="Edit your profile"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-slate-150/60 dark:bg-gray-800/50 mb-4.5" />
+
+          {/* Stats row */}
+          <div className="grid grid-cols-2 gap-3.5 mb-4.5">
+            <div className="bg-slate-100/50 dark:bg-gray-855/40 border border-slate-100/60 dark:border-gray-800/30 rounded-xl p-3.5 flex flex-col justify-between min-h-[90px]">
+              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 dark:text-gray-555 font-bold uppercase tracking-wider">
+                <BookOpen className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
+                Classes Handling
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-2">
+                {fac.classes_handling?.length > 0
+                  ? fac.classes_handling.map((cls) => (
+                      <ClassChip key={cls} label={cls} variant="default" />
+                    ))
+                  : <span className="text-[11px] text-slate-400 dark:text-gray-500 italic">None assigned</span>
+                }
+              </div>
+            </div>
+
+            <div className="bg-slate-100/50 dark:bg-gray-855/40 border border-slate-100/60 dark:border-gray-800/30 rounded-xl p-3.5 flex flex-col justify-between min-h-[90px]">
+              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 dark:text-gray-555 font-bold uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                Class Incharge
+              </div>
+              <div className="pt-2">
+                {fac.class_incharge_of
+                  ? <ClassChip label={fac.class_incharge_of} variant="incharge" />
+                  : <span className="text-[11px] text-slate-400 dark:text-gray-500 italic">Not assigned</span>
+                }
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-gray-100 dark:bg-gray-700/60 mb-4" />
-
-        {/* Stats row */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-slate-50 dark:bg-gray-700/40 rounded-xl p-3 space-y-0.5">
-            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-wider">
-              <BookOpen className="w-3 h-3" />
-              Classes Handling
-            </div>
-            <div className="flex flex-wrap gap-1 pt-1">
-              {fac.classes_handling?.length > 0
-                ? fac.classes_handling.map((cls) => (
-                    <ClassChip key={cls} label={cls} variant="default" />
-                  ))
-                : <span className="text-xs text-gray-400 dark:text-gray-500 italic">None assigned</span>
-              }
-            </div>
-          </div>
-
-          <div className="bg-slate-50 dark:bg-gray-700/40 rounded-xl p-3 space-y-0.5">
-            <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-wider">
-              <ShieldCheck className="w-3 h-3" />
-              Class Incharge
-            </div>
-            <div className="pt-1">
-              {fac.class_incharge_of
-                ? <ClassChip label={fac.class_incharge_of} variant="incharge" />
-                : <span className="text-xs text-gray-400 dark:text-gray-500 italic">Not assigned</span>
-              }
-            </div>
-          </div>
-        </div>
-
-        {/* Projects assigned */}
-        <div className="flex items-center justify-between py-3 px-3 bg-slate-50 dark:bg-gray-700/40 rounded-xl">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
-            <FolderKanban className="w-3.5 h-3.5" />
+        {/* Projects assigned bottom bar */}
+        <div className="flex items-center justify-between py-3 px-3.5 bg-indigo-50/30 dark:bg-indigo-950/15 border border-indigo-100/20 dark:border-indigo-900/20 rounded-xl">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400 font-bold tracking-tight">
+            <FolderKanban className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
             Projects Assigned
           </div>
-          <span className={`text-sm font-extrabold ${
-            fac.project_count > 0 ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-500"
+          <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full ${
+            fac.project_count > 0 
+              ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400" 
+              : "bg-slate-100 dark:bg-gray-855 text-slate-400 dark:text-gray-555"
           }`}>
             {fac.project_count || 0}
           </span>
