@@ -792,12 +792,12 @@ a, button { transition: all 0.15s ease; }
 
 .dark .app-page-bg {
   background-image: url('/bg-abstract-dark.png');
-  opacity: 0.8; /* Keep background visible but dark */
-  filter: brightness(0.35); /* Cut brightness significantly */
+  opacity: 1; /* Make the base image fully opaque */
+  filter: brightness(0.75); /* Moderate dimming for readability */
 }
 
 .dark .app-page-bg::after {
-  background: rgba(7, 6, 15, 0.72); /* 72% dark space-indigo overlay mask */
+  background: rgba(7, 6, 15, 0.35); /* Subtle 35% dark space-indigo overlay mask */
 }
 
 /* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */
