@@ -146,7 +146,10 @@ def list_posts():
 @forum_bp.route("/posts", methods=["POST"])
 @require_auth
 def create_post():
-    data = request.form if request.files else request.get_json()
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form
     user = g.current_user
 
     # Check if forum member (students must be forum members, HOD and Faculty are allowed by default)
