@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProject, getMessages, postMessage, editMessage, deleteMessage, updateProjectStatus } from "../../api/projects";
+import {
+  getProject, getMessages, postMessage, editMessage, deleteMessage,
+  updateProjectStatus, updateProject
+} from "../../api/projects";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../hooks/useSocket";
 import { Spinner } from "../../components/ui/Spinner";
 import { Button } from "../../components/ui/Button";
 import { Avatar } from "../../components/ui/Avatar";
-import { Badge } from "../../components/ui/Badge";
+import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { StatusBadge } from "../../components/shared/StatusBadge";
-import { FileUpload } from "../../components/shared/FileUpload";
 import {
-  ArrowLeft, Send, Edit2, Trash2, Paperclip, CheckCircle,
-  Image, File, Download
+  ArrowLeft, Edit2, Trash2, Paperclip, CheckCircle,
+  Image, File, Download, FolderKanban, Plus, MoreVertical, Pencil,
+  Calendar, Clock, ShieldAlert
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -22,22 +24,83 @@ export default function ProjectDetailPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
-  const chatRef = useRef(null);
-  const [newMsg, setNewMsg] = useState("");
-  const [attachment, setAttachment] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-  const [editContent, setEditContent] = useState("");
+  
+  // UI Dropdown states
+  const [projectKebabOpen, setProjectKebabOpen] = useState(false);
+  const [openKebabId, setOpenKebabId] = useState(null);
+  
+  // Modals state
+  const [editProjectModalOpen, setEditProjectModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  // Edit Project fields
+  const [editProjectName, setEditProjectName] = useState("");
+  const [editProjectDesc, setEditProjectDesc] = useState("");
+
+  // Add/Edit Progress Update fields
+  const [formTitle, setFormTitle] = useState("");
+  const [formAccomplishment, setFormAccomplishment] = useState("");
+  const [formNext, setFormNext] = useState("");
+  const [formGuidelines, setFormGuidelines] = useState("");
+  const [formAttachment, setFormAttachment] = useState(null);
+
+  // Fetch Project
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", id],
     queryFn: () => getProject(id).then(r => r.data.project),
   });
 
+  // Fetch Progress Updates
   const { data: messagesData, refetch: refetchMessages } = useQuery({
     queryKey: ["messages", id],
     queryFn: () => getMessages(id, { page: 1 }).then(r => r.data),
   });
+
+  // Sync edit project form
+  useEffect(() => {
+    if (project) {
+      setEditProjectName(project.name || "");
+      setEditProjectDesc(project.description || "");
+    }
+  }, [project]);
+
+  // Sync add/edit progress form when editingMsg changes
+  useEffect(() => {
+    if (editingMsg) {
+      let parsed = { title: "", accomplishment: "", next: "", guidelines: "" };
+      try {
+        parsed = JSON.parse(editingMsg.content);
+      } catch (e) {
+        parsed = { title: "Progress Update", accomplishment: editingMsg.content || "", next: "", guidelines: "" };
+      }
+      setFormTitle(parsed.title || "");
+      setFormAccomplishment(parsed.accomplishment || "");
+      setFormNext(parsed.next || "");
+      setFormGuidelines(parsed.guidelines === "No guidance required." ? "" : parsed.guidelines || "");
+    } else {
+      setFormTitle("");
+      setFormAccomplishment("");
+      setFormNext("");
+      setFormGuidelines("");
+    }
+    setFormAttachment(null);
+  }, [editingMsg]);
+
+  // Clickaway helper to close dropdowns
+  useEffect(() => {
+    const handler = (e) => {
+      if (!e.target.closest(".update-kebab-container")) {
+        setOpenKebabId(null);
+      }
+      if (!e.target.closest(".project-kebab-container")) {
+        setProjectKebabOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Socket handlers
   const onNewMessage = useCallback((msg) => {
@@ -71,25 +134,34 @@ export default function ProjectDetailPage() {
 
   useSocket(id, onNewMessage, onMessageUpdated, onMessageDeleted);
 
+  // Mutations
   const sendMutation = useMutation({
     mutationFn: (formData) => postMessage(id, formData),
     onSuccess: () => {
       refetchMessages();
-      setNewMsg("");
-      setAttachment(null);
+      setFormTitle("");
+      setFormAccomplishment("");
+      setFormNext("");
+      setFormGuidelines("");
+      setFormAttachment(null);
       queryClient.invalidateQueries({ queryKey: ["project", id] });
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
 
   const editMutation = useMutation({
     mutationFn: ({ messageId, content }) => editMessage(id, messageId, { content }),
-    onSuccess: () => { setEditingId(null); setEditContent(""); },
+    onSuccess: () => {
+      setEditingMsg(null);
+      refetchMessages();
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (messageId) => deleteMessage(id, messageId),
-    onSuccess: () => setDeleteTarget(null),
+    onSuccess: () => {
+      setDeleteTarget(null);
+      refetchMessages();
+    },
   });
 
   const statusMutation = useMutation({
@@ -97,180 +169,483 @@ export default function ProjectDetailPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["project", id] }),
   });
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  const editProjectMutation = useMutation({
+    mutationFn: (data) => updateProject(id, data),
+    onSuccess: () => {
+      setEditProjectModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["project", id] });
     }
-  }, [messagesData?.messages]);
+  });
 
   if (isLoading) return <Spinner />;
   if (!project) return null;
 
   const messages = messagesData?.messages || [];
-  const canEdit = (msg) => msg.can_edit && msg.sender?.id === user?.id;
+  // Vertical feed displays the newest update at the top
+  const reversedMessages = [...messages].reverse();
 
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!newMsg.trim() && !attachment) return;
-    const formData = new FormData();
-    formData.append("content", newMsg.trim());
-    if (attachment) formData.append("attachment", attachment);
-    sendMutation.mutate(formData);
+  // Check if current user can edit/delete update (edit allowed only within 30 minutes)
+  const isEditable = (msg) => {
+    if (msg.sender?.id !== user?.id) return false;
+    const postedTime = new Date(msg.created_at).getTime();
+    const now = new Date().getTime();
+    const diffMinutes = (now - postedTime) / (1000 * 60);
+    return diffMinutes < 30;
   };
 
+  const handleEditProjectSubmit = (e) => {
+    e.preventDefault();
+    editProjectMutation.mutate({ name: editProjectName, description: editProjectDesc });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const contentJson = JSON.stringify({
+      title: formTitle,
+      accomplishment: formAccomplishment,
+      next: formNext,
+      guidelines: formGuidelines.trim() || "No guidance required."
+    });
+
+    if (editingMsg) {
+      editMutation.mutate({ messageId: editingMsg.id, content: contentJson });
+    } else {
+      const formData = new FormData();
+      formData.append("content", contentJson);
+      if (formAttachment) {
+        formData.append("attachment", formAttachment);
+      }
+      sendMutation.mutate(formData);
+    }
+    setAddModalOpen(false);
+    setEditingMsg(null);
+  };
+
+  // Group and format members
+  const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
+  const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+  const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
+  
+  const allMembers = [
+    ...facultyMembers.map(m => ({ ...m, ringClass: "ring-violet-500" })),
+    ...forumMembers.map(m => ({ ...m, ringClass: "ring-blue-500" })),
+    ...studentMembers.map(m => ({ ...m, ringClass: "ring-emerald-500" }))
+  ];
+  const visibleMembers = allMembers.slice(0, 5);
+  const restCount = allMembers.length - 5;
+  const leadAdvisor = facultyMembers[0]?.name || "Unassigned Advisor";
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto pb-10">
       <Link to="/projects" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
         <ArrowLeft className="w-4 h-4" /> Back to Projects
       </Link>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Project Info */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{project.name}</h1>
-            {project.description && <p className="text-sm text-gray-500 mb-3">{project.description}</p>}
-            <StatusBadge status={project.status} />
-            {isHOD && project.status !== "COMPLETED" && (
-              <Button
-                variant="success"
-                size="sm"
-                className="mt-3 w-full gap-1"
-                onClick={() => statusMutation.mutate("COMPLETED")}
-              >
-                <CheckCircle className="w-4 h-4" /> Mark as Completed
-              </Button>
+      {/* ─── 1. Top Project Overview Card ─── */}
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm p-6 relative overflow-visible">
+        {/* Top Header Row */}
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/10 shrink-0">
+              <FolderKanban className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">{project.name}</h1>
+              {project.description && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">{project.description}</p>
+              )}
+            </div>
+          </div>
+          
+          {/* Top Right Kebab Menu */}
+          <div className="absolute top-6 right-6 project-kebab-container">
+            <button
+              onClick={() => setProjectKebabOpen(!projectKebabOpen)}
+              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-gray-900 dark:hover:bg-gray-750 text-gray-400 hover:text-gray-650 transition-colors border border-slate-100 dark:border-gray-850 shadow-sm"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+            {projectKebabOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-gray-855 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                <button
+                  onClick={() => { setProjectKebabOpen(false); setEditProjectModalOpen(true); }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-750 dark:text-gray-250 hover:bg-gray-50 dark:hover:bg-gray-700/60 font-semibold transition-colors text-left"
+                >
+                  <Pencil className="w-4 h-4 text-indigo-500" />
+                  Edit Project
+                </button>
+                {project.status !== "COMPLETED" && (
+                  <button
+                    onClick={() => { setProjectKebabOpen(false); statusMutation.mutate("COMPLETED"); }}
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold transition-colors text-left"
+                  >
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    Mark as Completed
+                  </button>
+                )}
+              </div>
             )}
           </div>
+        </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Members</h3>
-            <div className="space-y-3">
-              {project.members?.map(m => (
-                <div key={m.id} className="flex items-center gap-3">
-                  <Avatar src={m.profile_picture} name={m.name} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{m.name}</p>
-                    <Badge variant={m.role_in_project === "faculty" ? "primary" : m.role_in_project === "forum_member" ? "warning" : "default"}>
-                      {m.role_in_project?.replace("_", " ")}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+        {/* Divider */}
+        <div className="my-5 h-px bg-gray-150 dark:bg-gray-750" />
+
+        {/* Info Grid (SaaS-style blocks) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Lead Advisor</span>
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1 truncate">{leadAdvisor}</div>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Team Size</span>
+            <div className="text-sm font-extrabold text-gray-800 dark:text-gray-200 mt-1">{allMembers.length} Members</div>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Created Date</span>
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1">
+              {format(new Date(project.created_at), "MMM d, yyyy")}
+            </div>
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Status</span>
+            <div className="mt-1">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                project.status === "COMPLETED"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                  : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+              }`}>
+                {project.status === "COMPLETED" ? "Completed" : "In Progress"}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Progress Monitor Chat */}
-        <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col h-[600px]">
-            <div className="px-5 py-3 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="font-semibold text-gray-900 dark:text-gray-100">Progress Monitor</h2>
-            </div>
-
-            <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map(msg => (
-                <div key={msg.id} className={`flex gap-3 ${msg.sender?.id === user?.id ? "flex-row-reverse" : ""}`}>
-                  {msg.is_deleted ? (
-                    <div className="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 italic text-sm text-gray-400 text-center">
-                      This message was deleted
-                    </div>
-                  ) : (
-                    <>
-                      <Avatar src={msg.sender?.profile_picture} name={msg.sender?.name} size="sm" className="mt-0.5" />
-                      <div className={`max-w-[75%] ${msg.sender?.id === user?.id ? "items-end" : "items-start"}`}>
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{msg.sender?.name}</span>
-                          <Badge variant="default" className="text-[10px]">{msg.sender?.role}</Badge>
-                        </div>
-                        <div className={`px-4 py-2 rounded-xl ${
-                          msg.sender?.id === user?.id
-                            ? "bg-primary-600 text-white rounded-br-sm"
-                            : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-sm"
-                        }`}>
-                          {msg.content && <p className="text-sm">{msg.content}</p>}
-                          {msg.attachment_url && msg.attachment_type === "image" && (
-                            <img src={msg.attachment_url} alt="attachment" className="mt-2 rounded-lg max-h-60 object-cover" />
-                          )}
-                          {msg.attachment_url && msg.attachment_type !== "image" && (
-                            <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer"
-                              className="flex items-center gap-2 mt-2 text-sm underline">
-                              <File className="w-4 h-4" /> {msg.attachment_name || "Download"}
-                            </a>
-                          )}
-                          {msg.is_edited && <span className="text-[10px] opacity-60 ml-1">(edited)</span>}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-gray-400">{format(new Date(msg.created_at), "h:mm a")}</span>
-                          {canEdit(msg) && (
-                            <div className="flex gap-1">
-                              <button onClick={() => { setEditingId(msg.id); setEditContent(msg.content); }}
-                                className="text-gray-400 hover:text-primary-600">
-                                <Edit2 className="w-3 h-3" />
-                              </button>
-                              <button onClick={() => setDeleteTarget(msg.id)}
-                                className="text-gray-400 hover:text-red-500">
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+        {/* Members Avatars Row */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2">Team Members:</span>
+            <div className="flex -space-x-2.5">
+              {visibleMembers.map(m => (
+                <Avatar
+                  key={m.id}
+                  src={m.profile_picture}
+                  name={m.name}
+                  size="sm"
+                  className={`ring-2 ring-white dark:ring-gray-800 ${m.ringClass}`}
+                />
               ))}
-            </div>
-
-            {/* Edit mode */}
-            {editingId && (
-              <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-yellow-50 dark:bg-yellow-900/10">
-                <div className="flex items-center gap-2">
-                  <input
-                    value={editContent}
-                    onChange={e => setEditContent(e.target.value)}
-                    className="flex-1 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
-                  />
-                  <Button size="sm" onClick={() => editMutation.mutate({ messageId: editingId, content: editContent })}>Save</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
-                </div>
-              </div>
-            )}
-
-            {/* Input */}
-            <form onSubmit={handleSend} className="p-4 border-t border-gray-200 dark:border-gray-700">
-              {attachment && (
-                <div className="mb-2 text-sm text-gray-500 flex items-center gap-2">
-                  <Paperclip className="w-4 h-4" /> {attachment.name}
-                  <button type="button" onClick={() => setAttachment(null)} className="text-red-500">Remove</button>
+              {restCount > 0 && (
+                <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-750 text-gray-600 dark:text-gray-300 flex items-center justify-center text-xs font-bold border-2 border-white dark:border-gray-800 ring-2 ring-indigo-500/10">
+                  +{restCount}
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <label className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <Paperclip className="w-5 h-5 text-gray-400" />
-                  <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx" onChange={e => setAttachment(e.target.files[0])} />
-                </label>
-                <input
-                  value={newMsg}
-                  onChange={e => setNewMsg(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 focus:bg-white dark:focus:bg-gray-800"
-                />
-                <Button type="submit" disabled={!newMsg.trim() && !attachment} className="gap-1">
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </form>
+            </div>
           </div>
+          
+          {/* Optional Project Deadline Display */}
+          {project.deadline && (
+            <div className="flex items-center gap-1.5 text-xs text-red-500 font-semibold bg-red-500/5 px-3 py-1 rounded-xl border border-red-500/10">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Deadline: {format(new Date(project.deadline), "MMM d, yyyy")}</span>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ─── 2. Progress Monitor Header Block ─── */}
+      <div className="flex items-center justify-between gap-4 flex-wrap pt-4">
+        <div>
+          <h2 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">Progress Monitor</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5">"Track every project update in chronological order."</p>
+        </div>
+        <Button
+          onClick={() => { setEditingMsg(null); setAddModalOpen(true); }}
+          className="gap-1.5 bg-primary-600 hover:bg-primary-700 shadow-sm transition-all rounded-xl"
+        >
+          <Plus className="w-4 h-4" /> Add Progress
+        </Button>
+      </div>
+
+      {/* ─── 3. Progress Update Feed Cards ─── */}
+      <div className="space-y-5">
+        {reversedMessages.length === 0 ? (
+          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl p-10 text-center text-gray-400 dark:text-gray-500">
+            <Clock className="w-8 h-8 mx-auto mb-3 text-gray-350 dark:text-gray-650" />
+            <p className="text-sm font-semibold">No progress updates posted yet.</p>
+            <p className="text-xs mt-1">Click "+ Add Progress" to share your first project milestone.</p>
+          </div>
+        ) : (
+          reversedMessages.map(msg => {
+            let updateData = { title: "", accomplishment: "", next: "", guidelines: "" };
+            if (msg.is_deleted) return null;
+            
+            try {
+              updateData = JSON.parse(msg.content);
+            } catch (e) {
+              updateData = {
+                title: "Progress Update",
+                accomplishment: msg.content || "",
+                next: "Continue working on tasks.",
+                guidelines: "No guidance required."
+              };
+            }
+            
+            const msgSender = msg.sender || {};
+            const isMsgEditable = isEditable(msg);
+            
+            return (
+              <div key={msg.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm p-6 hover:shadow-md transition-all duration-300 relative overflow-visible space-y-4">
+                {/* Top Row: User details and kebab */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="sm" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">{msgSender.name}</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-750 text-gray-500 dark:text-gray-450 border border-gray-200/40 dark:border-gray-700/40">
+                          {msgSender.role}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                        {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
+                        {msg.is_edited && <span className="text-[9px] opacity-60 ml-1">(edited)</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Kebab dropdown container */}
+                  <div className="relative update-kebab-container">
+                    <button
+                      onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
+                      className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-750 text-gray-400 transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {openKebabId === msg.id && (
+                      <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 z-30 animate-fade-in">
+                        {isMsgEditable ? (
+                          <button
+                            onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+                          >
+                            <Pencil className="w-3.5 h-3.5 text-indigo-500" />
+                            ✏️ Edit Update
+                          </button>
+                        ) : (
+                          <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-500 italic border-b border-gray-100 dark:border-gray-800">
+                            {"Edit expired (>30m)"}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-655 dark:text-red-400 hover:bg-red-55/10 dark:hover:bg-red-950/20 transition-colors text-left"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                          🗑 Delete Update
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-gray-150 dark:bg-gray-750" />
+
+                {/* Title */}
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug tracking-tight">
+                    {updateData.title || "Progress Update"}
+                  </h3>
+                </div>
+
+                {/* Accomplishment */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">What did you complete?</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {updateData.accomplishment}
+                  </p>
+                </div>
+
+                {/* What's Next */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">What's Next</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {updateData.next || "Continue working on remaining tasks."}
+                  </p>
+                </div>
+
+                {/* Guidelines Needed */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Guidelines Needed</span>
+                  <p className={`text-sm ${
+                    !updateData.guidelines || updateData.guidelines === "No guidance required."
+                      ? "text-gray-400 dark:text-gray-500 italic"
+                      : "text-gray-750 dark:text-gray-300 font-medium"
+                  }`}>
+                    {updateData.guidelines || "No guidance required."}
+                  </p>
+                </div>
+
+                {/* Attachment Display */}
+                {msg.attachment_url && (
+                  <div className="pt-2">
+                    <a
+                      href={msg.attachment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-750 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
+                    >
+                      {msg.attachment_type === "image" ? (
+                        <Image className="w-4 h-4 text-indigo-500 shrink-0" />
+                      ) : (
+                        <File className="w-4 h-4 text-violet-500 shrink-0" />
+                      )}
+                      <span className="truncate max-w-[200px] sm:max-w-xs">{msg.attachment_name || "Download Attachment"}</span>
+                      <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* ─── 4. Edit Project Modal ─── */}
+      <Modal open={editProjectModalOpen} onClose={() => setEditProjectModalOpen(false)} title="Edit Project">
+        <form onSubmit={handleEditProjectSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Project Name</label>
+            <input
+              type="text"
+              value={editProjectName}
+              onChange={e => setEditProjectName(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Description</label>
+            <textarea
+              value={editProjectDesc}
+              onChange={e => setEditProjectDesc(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm h-24 resize-none"
+            />
+          </div>
+          <div className="flex justify-end gap-2.5 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setEditProjectModalOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={editProjectMutation.isPending}>Save Changes</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ─── 5. Add / Edit Progress Modal ─── */}
+      <Modal
+        open={addModalOpen}
+        onClose={() => { setAddModalOpen(false); setEditingMsg(null); }}
+        title={editingMsg ? "Edit Progress Update" : "Add Progress Update"}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Update Title</label>
+            <input
+              type="text"
+              value={formTitle}
+              onChange={e => setFormTitle(e.target.value)}
+              placeholder="e.g. Backend Authentication Completed"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">What did you complete?</label>
+            <textarea
+              value={formAccomplishment}
+              onChange={e => setFormAccomplishment(e.target.value)}
+              placeholder="Provide a short paragraph describing accomplishments..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm h-24 resize-none"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">What's Next</label>
+            <input
+              type="text"
+              value={formNext}
+              onChange={e => setFormNext(e.target.value)}
+              placeholder="One concise sentence explaining the next planned task..."
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Guidelines Needed</label>
+            <input
+              type="text"
+              value={formGuidelines}
+              onChange={e => setFormGuidelines(e.target.value)}
+              placeholder="Type any questions or help needed (or leave blank)"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+            />
+          </div>
+          
+          {/* Attachment upload */}
+          {!editingMsg && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Attachment</label>
+              {formAttachment ? (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-750 text-xs">
+                  <span className="font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[250px]">
+                    📄 {formAttachment.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setFormAttachment(null)}
+                    className="text-red-500 hover:text-red-650 font-bold"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center py-4 border-2 border-dashed border-gray-250 dark:border-gray-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-gray-850/50 transition-colors">
+                  <Paperclip className="w-5 h-5 text-gray-400 mb-1" />
+                  <span className="text-xs text-gray-500 font-medium">Attach files (images, pdfs, docs)</span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*,.pdf,.doc,.docx,.mp4"
+                    onChange={e => setFormAttachment(e.target.files[0])}
+                  />
+                </label>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2.5 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => { setAddModalOpen(false); setEditingMsg(null); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={sendMutation.isPending || editMutation.isPending}
+            >
+              {editingMsg ? "Save Update" : "Publish Update"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       <ConfirmDialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteMutation.mutate(deleteTarget)}
-        title="Delete Message"
-        message="Are you sure you want to delete this message?"
+        title="Delete Progress Update"
+        message="Are you sure you want to delete this progress update?"
         confirmText="Delete"
         danger
       />
