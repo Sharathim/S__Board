@@ -401,34 +401,44 @@ a, button { transition: all 0.15s ease; }
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* ── Active pill — elevated, glowing, gradient ── */
+/* ── Active pill — transparent text color change on top of indicator ── */
 .nav-pill-active {
-  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%) !important;
   color: #fff !important;
+  background: transparent !important;
+  box-shadow: none !important;
   transform: translateY(-1px);
-
-  /* Neomorphic raised + glow */
-  box-shadow:
-    0 6px 20px rgba(124, 58, 237, 0.35),
-    0 2px 6px rgba(124, 58, 237, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
-
-  animation: glow-pulse 3s ease-in-out infinite;
 }
 
 .dark .nav-pill-active {
-  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%) !important;
-  box-shadow:
-    0 6px 24px rgba(139, 92, 246, 0.45),
-    0 2px 8px rgba(139, 92, 246, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+  color: #fff !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .nav-pill-active .nav-pill-icon {
   color: #fff !important;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+/* ── Sliding indicator styling ── */
+.nav-sliding-indicator {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%);
+  box-shadow:
+    0 6px 20px rgba(124, 58, 237, 0.35),
+    0 2px 6px rgba(124, 58, 237, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  animation: glow-pulse 3s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.dark .nav-sliding-indicator {
+  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%);
+  box-shadow:
+    0 6px 24px rgba(139, 92, 246, 0.45),
+    0 2px 8px rgba(139, 92, 246, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
 }
 
 /* ─── Navbar Icon Buttons — Neomorphic embossed circles ──────────────────── */

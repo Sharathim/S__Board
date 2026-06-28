@@ -52,6 +52,14 @@ export function TopBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const mobileMenuRef = useRef(null);
+  const navContainerRef = useRef(null);
+
+  // States for scroll hide/show
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // State for sliding pill indicator
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, height: 0, top: 0, opacity: 0 });
 
   const roleColors = getRoleColor(user?.role);
 
@@ -94,10 +102,69 @@ export function TopBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileMenuOpen]);
 
+  // Scroll visibility handler
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // If at or near the top, always show navbar
+      if (currentScrollY < 15) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        // Scrolling down - hide navbar
+        setIsVisible(false);
+      } else {
+        // Scrolling up - show navbar
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  // Dynamic sliding indicator calculation
+  useEffect(() => {
+    const container = navContainerRef.current;
+    if (!container) return;
+
+    const updatePill = () => {
+      const activeEl = container.querySelector(".nav-pill-active");
+      if (activeEl) {
+        setPillStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          height: activeEl.offsetHeight,
+          top: activeEl.offsetTop,
+          opacity: 1,
+        });
+      } else {
+        setPillStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    // Calculate layout parameters after rendering
+    const timer = setTimeout(updatePill, 50);
+
+    window.addEventListener("resize", updatePill);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updatePill);
+    };
+  }, [location.pathname, navItems]);
+
   return (
     <>
       {/* ── Floating Glassmorphic Pill Navbar ── */}
-      <nav className="navbar-glass" id="main-navbar">
+      <nav
+        className="navbar-glass"
+        id="main-navbar"
+        style={{
+          transform: isVisible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-100px)",
+          transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease",
+        }}
+      >
         {/* ── Left: Logo + Brand ── */}
         <div className="flex items-center gap-2.5 flex-shrink-0">
           <img
@@ -113,8 +180,25 @@ export function TopBar() {
           </span>
         </div>
 
-        {/* ── Center: Nav Links (Desktop only) ── */}
-        <div className="hidden md:flex items-center gap-1">
+        {/* ── Center: Nav Links with sliding smooth indicator (Desktop only) ── */}
+        <div
+          ref={navContainerRef}
+          className="hidden md:flex items-center gap-1 relative py-1"
+        >
+          {/* Sliding dynamic highlight pill */}
+          <div
+            className="nav-sliding-indicator absolute transition-all duration-300 ease-out"
+            style={{
+              left: `${pillStyle.left}px`,
+              width: `${pillStyle.width}px`,
+              height: `${pillStyle.height}px`,
+              top: `${pillStyle.top}px`,
+              opacity: pillStyle.opacity,
+              borderRadius: "9999px",
+              pointerEvents: "none",
+            }}
+          />
+
           {navItems.map(item => {
             const Icon = item.icon;
             const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
@@ -127,10 +211,10 @@ export function TopBar() {
                   `nav-pill ${isActive ? "nav-pill-active" : ""}`
                 }
               >
-                <Icon className="nav-pill-icon w-4 h-4" />
-                <span>{item.label}</span>
+                <Icon className="nav-pill-icon w-4 h-4 z-10" />
+                <span className="z-10">{item.label}</span>
                 {isForumWithBadge && (
-                  <span className="nav-badge">
+                  <span className="nav-badge z-10">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
@@ -138,6 +222,7 @@ export function TopBar() {
             );
           })}
         </div>
+
 
         {/* ── Right: Actions + Profile ── */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
