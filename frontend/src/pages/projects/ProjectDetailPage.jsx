@@ -263,26 +263,17 @@ export default function ProjectDetailPage() {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">{project.description}</p>
               )}
             </div>
-          </div>
-          
-          {/* Top Right Kebab Menu */}
-          <div className="absolute top-6 right-6 project-kebab-container">
-            <button
-              onClick={() => setProjectKebabOpen(!projectKebabOpen)}
-              className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-gray-900 dark:hover:bg-gray-750 text-gray-400 hover:text-gray-650 transition-colors border border-slate-100 dark:border-gray-850 shadow-sm"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-            {projectKebabOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-gray-855 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                <button
-                  onClick={() => { setProjectKebabOpen(false); setEditProjectModalOpen(true); }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-gray-750 dark:text-gray-250 hover:bg-gray-50 dark:hover:bg-gray-700/60 font-semibold transition-colors text-left"
-                >
-                  <Pencil className="w-4 h-4 text-indigo-500" />
-                  Edit Project
-                </button>
-                {project.status !== "COMPLETED" && (
+          </div>          {/* Top Right Kebab Menu */}
+          {project.status !== "COMPLETED" && (
+            <div className="absolute top-6 right-6 project-kebab-container">
+              <button
+                onClick={() => setProjectKebabOpen(!projectKebabOpen)}
+                className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-gray-900 dark:hover:bg-gray-750 text-gray-400 hover:text-gray-650 transition-colors border border-slate-100 dark:border-gray-850 shadow-sm"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+              {projectKebabOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-gray-855 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                   <button
                     onClick={() => { setProjectKebabOpen(false); statusMutation.mutate("COMPLETED"); }}
                     className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold transition-colors text-left"
@@ -290,11 +281,10 @@ export default function ProjectDetailPage() {
                     <CheckCircle className="w-4 h-4 text-emerald-500" />
                     Mark as Completed
                   </button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+                </div>
+              )}
+            </div>
+          )}      </div>
 
         {/* Divider */}
         <div className="my-5 h-px bg-gray-150 dark:bg-gray-750" />

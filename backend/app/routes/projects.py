@@ -287,8 +287,8 @@ def post_message(project_id):
     if file:
         try:
             attachment = upload_file(file, folder="dpms/progress_monitor")
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            return jsonify({"error": f"Upload failed: {str(e)}"}), 400
 
     if not content and not attachment:
         return jsonify({"error": "Message cannot be empty"}), 400

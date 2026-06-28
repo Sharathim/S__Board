@@ -28,7 +28,7 @@ def upload_file(file, folder="dpms"):
         file_type = "document"
 
     result = cloudinary.uploader.upload(
-        file,
+        (file.filename, file.stream, file.content_type),
         folder=folder,
         resource_type="auto",
     )
