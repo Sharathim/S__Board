@@ -149,12 +149,14 @@ def create_post():
     data = request.form if request.files else request.get_json()
     user = g.current_user
 
-    # Check if forum member (strictly student forum member)
+    # Check if forum member (students must be forum members, HOD and Faculty are allowed by default)
     is_forum_member = False
     if user.role == UserRole.STUDENT:
         student = user.student_profile
         if student and student.is_forum_member:
             is_forum_member = True
+    elif user.role in [UserRole.HOD, UserRole.FACULTY]:
+        is_forum_member = True
 
     if not is_forum_member:
         return jsonify({"error": "Only forum members can post"}), 403

@@ -82,7 +82,7 @@ export default function ForumPage() {
 
   const [showMembersModal, setShowMembersModal] = useState(false);
 
-  const canPost = user?.student?.is_forum_member === true;
+  const canPost = user?.student?.is_forum_member === true || user?.role === "HOD" || user?.role === "FACULTY";
 
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ["forum-members"],
@@ -214,7 +214,6 @@ export default function ForumPage() {
     createMutation.mutate(formData);
   };
 
-  // ✅ FIX: handleSaveEdit was missing — added here
   const handleSaveEdit = () => {
     if (!editContent.trim() || !editTarget) return;
     editMutation.mutate({ id: editTarget.id, content: editContent });
@@ -264,7 +263,7 @@ export default function ForumPage() {
               <MessageSquare className="w-7 h-7 text-white" />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-400 dark:text-gray-500">Loading Forum...</p>
+          <p className="text-sm font-semibold text-gray-400 dark:text-gray-505">Loading Forum...</p>
         </div>
       </div>
     );
@@ -287,80 +286,60 @@ export default function ForumPage() {
         </div>
       )}
 
-      {/* ── Top Header Title Line ── */}
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Forum</h1>
-          <button
-            type="button"
-            onClick={() => setShowMembersModal(true)}
-            className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 font-extrabold flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm"
-            title="View Forum Members"
-          >
-            {memberList.length}
-          </button>
-        </div>
+      {/* ─── Premium Header Card ─── */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/10">
+        {/* Background Decorative Patterns */}
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-pink-100 to-transparent pointer-events-none" />
+        
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6 z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner shrink-0 animate-pulse">
+              <MessageSquare className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Department Forum</h1>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white uppercase tracking-wider backdrop-blur-sm border border-white/10">
+                  Community
+                </span>
+              </div>
+              <p className="text-sm text-purple-100/90 mt-1 max-w-xl leading-relaxed">
+                Connect, collaborate, and share insights with the department community.
+              </p>
+            </div>
+          </div>
 
-        {isHOD && (
-          <button
-            onClick={() => setPickerOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-sm font-bold transition-all shadow-md active:scale-95"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Member
-          </button>
-        )}
+          {isHOD && (
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-violet-700 hover:bg-violet-50 text-sm font-black transition-all shadow-md hover:shadow-lg active:scale-95 shrink-0"
+            >
+              <UserPlus className="w-4.5 h-4.5" />
+              Add Member
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Main Layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        {/* ── LEFT SIDEBAR (Only Spotlight if coordinators exist) ── */}
-        {coordinators.length > 0 ? (
-          <div className="lg:col-span-3 space-y-5">
-            {/* Coordinator Spotlight */}
-            <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 overflow-hidden shadow-sm">
-              <div className="px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2">
-                <Crown className="w-4 h-4 text-amber-500" />
-                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest">Leadership</span>
-                <span className="ml-auto text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">{coordinators.length}</span>
-              </div>
-              <div className="p-3 space-y-2">
-                {coordinators.map(c => (
-                  <div key={c.id} className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all group">
-                    <div className="relative">
-                      <Avatar src={c.profile_picture} name={c.name} size="sm" />
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-400 border-2 border-white dark:border-gray-800 flex items-center justify-center">
-                        <Star className="w-1.5 h-1.5 text-white" />
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{c.name}</p>
-                      <RoleBadge role={c.role} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {/* ── MAIN FEED ── */}
-        <div className={coordinators.length > 0 ? "lg:col-span-9 space-y-5" : "lg:col-span-12 space-y-5 max-w-4xl mx-auto w-full"}>
+        {/* ── LEFT COLUMN (Main Feed) ── */}
+        <div className="lg:col-span-8 space-y-5">
 
           {/* Post Composer */}
           {canPost && (
-            <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-violet-500/25 focus-within:border-violet-300 dark:focus-within:border-violet-700/60 transition-all">
+            <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:border-violet-400 dark:focus-within:border-violet-600 transition-all duration-300">
               {/* Composer Top Bar */}
-              <div className="flex items-center gap-3 p-4 border-b border-gray-50 dark:border-gray-700/40">
-                <Avatar src={user?.profile_picture} name={user?.name} size="md" className="shrink-0 ring-2 ring-violet-500/15" />
+              <div className="flex items-center gap-3 p-4 border-b border-gray-100 dark:border-gray-700/50">
+                <Avatar src={user?.profile_picture} name={user?.name} size="md" className="shrink-0 ring-2 ring-violet-500/10" />
                 <div className="flex-1">
                   <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{user?.name}</p>
-                  <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">{user?.role}</p>
+                  <p className="text-xs text-violet-600 dark:text-violet-400 font-bold">{user?.role}</p>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800/40">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-955/30 border border-violet-100/30 dark:border-violet-900/30">
                   <Sparkles className="w-3 h-3 text-violet-500" />
-                  <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider">New Post</span>
+                  <span className="text-[10px] font-extrabold text-violet-600 dark:text-violet-400 uppercase tracking-wider">New Post</span>
                 </div>
               </div>
 
@@ -378,7 +357,7 @@ export default function ForumPage() {
                 {filePreviews.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
                     {filePreviews.map((preview, idx) => (
-                      <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-28 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                      <div key={idx} className="relative rounded-2xl border border-gray-150 dark:border-gray-700 overflow-hidden h-28 bg-gray-50 dark:bg-gray-900/30 animate-fade-in hover:scale-[1.02] transition-transform duration-200">
                         <img src={preview} alt="preview" className="w-full h-full object-cover" />
                         <button
                           type="button"
@@ -401,13 +380,13 @@ export default function ForumPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
                       selectedFiles.length > 0
-                        ? "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-800/40"
+                        ? "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-800/40 shadow-sm"
                         : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40"
                     }`}
                   >
-                    <Image className="w-3.5 h-3.5" />
+                    <Image className="w-3.5 h-3.5 text-violet-500" />
                     {selectedFiles.length > 0 ? `Add More (${selectedFiles.length})` : "Add Image"}
                   </button>
                 </div>
@@ -415,7 +394,7 @@ export default function ForumPage() {
                   type="button"
                   onClick={handlePublish}
                   disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-bold transition-all shadow-md hover:shadow-violet-500/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md hover:shadow-violet-500/20 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {createMutation.isPending ? <><Spinner size="xs" color="text-white" />Publishing...</> : <><Send className="w-4 h-4" />Publish</>}
                 </button>
@@ -426,7 +405,7 @@ export default function ForumPage() {
           {/* Feed Controls */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Tabs */}
-            <div className="flex bg-white dark:bg-gray-800/80 rounded-xl border border-gray-100 dark:border-gray-700/60 p-1 shadow-sm">
+            <div className="flex bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 p-1 shadow-sm">
               {[
                 { key: "all", label: "All Posts", icon: Hash },
                 { key: "my", label: "My Posts", icon: BookOpen },
@@ -436,7 +415,7 @@ export default function ForumPage() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                    className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-205 ${
                       activeTab === tab.key
                         ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm"
                         : "text-gray-500 hover:text-gray-800 dark:hover:text-white"
@@ -457,17 +436,17 @@ export default function ForumPage() {
                 placeholder="Search posts by content or author..."
                 value={postSearchQuery}
                 onChange={(e) => setPostSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600/60 bg-white dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/30 transition-all shadow-sm"
+                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all shadow-sm"
               />
               {postSearchQuery && (
-                <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
                   <X className="w-4 h-4" />
                 </button>
               )}
             </div>
 
             {/* Count */}
-            <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60 shadow-sm shrink-0">
+            <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/80 shadow-sm shrink-0">
               <TrendingUp className="w-4 h-4 text-violet-500" />
               <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{filteredPosts.length}</span>
             </div>
@@ -476,7 +455,7 @@ export default function ForumPage() {
           {/* Posts Feed */}
           <div className="space-y-4">
             {filteredPosts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm">
+              <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-sm">
                 <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
                   <MessageSquare className="w-8 h-8 text-gray-300 dark:text-gray-600" />
                 </div>
@@ -495,7 +474,7 @@ export default function ForumPage() {
                 return (
                   <div
                     key={post.id}
-                    className="group bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm hover:shadow-md hover:border-violet-100 dark:hover:border-violet-800/30 transition-all duration-200"
+                    className="group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_12px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_32px_rgba(99,102,241,0.05)] hover:border-violet-200 dark:hover:border-violet-800/40 transition-all duration-350 overflow-hidden"
                   >
                     {/* Post Header */}
                     <div className="flex items-start justify-between gap-3 p-5 pb-0">
@@ -507,12 +486,12 @@ export default function ForumPage() {
                               {post.posted_by?.name}
                             </span>
                             {isAuthor && (
-                              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-800/40 uppercase tracking-wide">
+                              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-800/30 uppercase tracking-wide">
                                 You
                               </span>
                             )}
                             {post.is_edited && (
-                              <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/30 uppercase tracking-wide">
+                              <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 dark:border-amber-800/30 uppercase tracking-wide">
                                 Edited
                               </span>
                             )}
@@ -563,7 +542,7 @@ export default function ForumPage() {
                           if (urls.length === 0) return null;
                           if (urls.length === 1) {
                             return (
-                              <div className="rounded-xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-96 flex items-center justify-center animate-fade-in">
+                              <div className="rounded-2xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-96 flex items-center justify-center animate-fade-in">
                                 <img
                                   src={urls[0]}
                                   alt="post attachment"
@@ -575,16 +554,16 @@ export default function ForumPage() {
                           }
                           if (urls.length === 2) {
                             return (
-                              <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                              <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
                                 {urls.map((url, i) => (
-                                  <img key={i} src={url} alt={`attachment-${i}`} className="w-full h-48 object-cover" />
+                                  <img key={i} src={url} alt={`attachment-${i}`} className="w-full h-48 object-cover hover:scale-[1.01] transition-transform duration-200" />
                                 ))}
                               </div>
                             );
                           }
                           if (urls.length === 3) {
                             return (
-                              <div className="grid grid-cols-3 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 h-64 animate-fade-in">
+                              <div className="grid grid-cols-3 gap-2 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 h-64 animate-fade-in">
                                 <img src={urls[0]} alt="attachment-0" className="col-span-2 w-full h-full object-cover" />
                                 <div className="grid grid-rows-2 gap-2 h-full">
                                   <img src={urls[1]} alt="attachment-1" className="w-full h-full object-cover" />
@@ -594,7 +573,7 @@ export default function ForumPage() {
                             );
                           }
                           return (
-                            <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                            <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
                               {urls.slice(0, 4).map((url, i) => (
                                 <div key={i} className="relative h-40">
                                   <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
@@ -612,12 +591,12 @@ export default function ForumPage() {
                     )}
 
                     {/* Post Footer */}
-                    <div className="px-5 pb-4 flex items-center gap-4 border-t border-gray-50 dark:border-gray-700/30 pt-3">
+                    <div className="px-5 pb-4 flex items-center gap-4 border-t border-gray-50 dark:border-gray-750/40 pt-3">
                       <button
                         onClick={() => likeMutation.mutate(post.id)}
                         className={`group/like inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-xl transition-all ${
                           post.liked
-                            ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30"
+                            ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30"
                             : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
                         }`}
                       >
@@ -633,6 +612,98 @@ export default function ForumPage() {
             )}
           </div>
         </div>
+
+        {/* ── RIGHT COLUMN (Sidebar) ── */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          {/* Community Info & Stats Card */}
+          <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-gray-700/50">
+              <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center text-violet-500">
+                <Users className="w-4.5 h-4.5" />
+              </div>
+              <h3 className="text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Community Info</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Members</span>
+                <span className="text-lg font-black text-gray-800 dark:text-gray-200 mt-1">{memberList.length}</span>
+              </div>
+              <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Total Likes</span>
+                <span className="text-lg font-black text-rose-500 dark:text-rose-400 mt-1">{totalLikes}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowMembersModal(true)}
+              className="w-full py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-750 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              <Users className="w-4 h-4" />
+              View Forum Directory
+            </button>
+          </div>
+
+          {/* Leadership Spotlight Card */}
+          {coordinators.length > 0 && (
+            <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+              <div className="px-5 py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-955/10 dark:to-orange-955/10 border-b border-amber-100/60 dark:border-amber-900/20 flex items-center gap-2.5">
+                <Crown className="w-4 h-4 text-amber-500" />
+                <span className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-widest">Leadership</span>
+                <span className="ml-auto text-[10px] font-black bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full">{coordinators.length}</span>
+              </div>
+              <div className="p-4 space-y-3">
+                {coordinators.map(c => (
+                  <div key={c.id} className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-gray-700/40 transition-all">
+                    <div className="relative shrink-0">
+                      <Avatar src={c.profile_picture} name={c.name} size="sm" className="ring-2 ring-amber-500/10" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-400 border-2 border-white dark:border-gray-800 flex items-center justify-center shadow-sm">
+                        <Star className="w-2 h-2 text-white fill-white" />
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{c.name}</p>
+                      <div className="mt-1">
+                        <RoleBadge role={c.role} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Forum Guidelines Card */}
+          <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-gray-700/50">
+              <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500">
+                <Sparkles className="w-4.5 h-4.5" />
+              </div>
+              <h3 className="text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Forum Guidelines</h3>
+            </div>
+            <ul className="space-y-2.5 text-xs text-gray-500 dark:text-gray-400">
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                <span>Be respectful, supportive, and professional.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                <span>Discuss department topics, project ideas, and events.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                <span>Like posts to appreciate student contributions.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                <span>Keep discussions clean and department-focused.</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
       </div>
 
       {/* ── Add Member Picker ── */}
@@ -683,7 +754,7 @@ export default function ForumPage() {
 
             {rolePreset === "Custom" && (
               <div className="animate-fade-in">
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Custom Designation</label>
+                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Custom Designation</label>
                 <input
                   type="text"
                   placeholder="e.g. Vice Secretary, Creative Head"
