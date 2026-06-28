@@ -32,12 +32,12 @@ function timeAgo(isoStr) {
 
 function statusMeta(status) {
   const map = {
-    NOT_STARTED:  { label: "Not Started",  color: "#9CA3AF", bg: "#F3F4F6" },
-    IN_PROGRESS:  { label: "In Progress",  color: "#8B5CF6", bg: "#EDE9FE" },
-    REVIEW:       { label: "Review",       color: "#F59E0B", bg: "#FFFBEB" },
-    COMPLETED:    { label: "Completed",    color: "#059669", bg: "#E6F4EA" },
-    ON_HOLD:      { label: "On Hold",      color: "#F59E0B", bg: "#FEF3C7" },
-    CANCELLED:    { label: "Cancelled",    color: "#EF4444", bg: "#FEF2F2" },
+    NOT_STARTED: { label: "Not Started", color: "#9CA3AF", bg: "#F3F4F6" },
+    IN_PROGRESS: { label: "In Progress", color: "#8B5CF6", bg: "#EDE9FE" },
+    REVIEW: { label: "Review", color: "#F59E0B", bg: "#FFFBEB" },
+    COMPLETED: { label: "Completed", color: "#059669", bg: "#E6F4EA" },
+    ON_HOLD: { label: "On Hold", color: "#F59E0B", bg: "#FEF3C7" },
+    CANCELLED: { label: "Cancelled", color: "#EF4444", bg: "#FEF2F2" },
     LOW_ACTIVITY: { label: "Low Activity", color: "#F59E0B", bg: "#FEF3C7" },
   };
   return map[status] || { label: status, color: "#9CA3AF", bg: "#F3F4F6" };
@@ -221,12 +221,12 @@ export default function DashboardPage() {
 
   /* ─ Donut segments ─ */
   const donutSegments = [
-    { label: "Not Started",  value: stats?.not_started ?? 0,  color: "#9CA3AF" },
-    { label: "In Progress",  value: stats?.in_progress ?? 0,  color: "#8B5CF6" },
-    { label: "Review",       value: stats?.review ?? 0,        color: "#F59E0B" },
-    { label: "Completed",    value: stats?.completed ?? 0,     color: "#059669" },
-    { label: "On Hold",      value: stats?.on_hold ?? 0,       color: "#F59E0B" },
-    { label: "Cancelled",    value: (stats?.cancelled ?? 0) + (stats?.low_activity ?? 0), color: "#EF4444" },
+    { label: "Not Started", value: stats?.not_started ?? 0, color: "#9CA3AF" },
+    { label: "In Progress", value: stats?.in_progress ?? 0, color: "#8B5CF6" },
+    { label: "Review", value: stats?.review ?? 0, color: "#F59E0B" },
+    { label: "Completed", value: stats?.completed ?? 0, color: "#059669" },
+    { label: "On Hold", value: stats?.on_hold ?? 0, color: "#F59E0B" },
+    { label: "Cancelled", value: (stats?.cancelled ?? 0) + (stats?.low_activity ?? 0), color: "#EF4444" },
   ];
 
   const activities = activityData?.activities ?? [];
@@ -260,29 +260,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* ── Welcome Header ── */}
-      <div className="flex flex-wrap items-start justify-between gap-4 relative">
-        <div className="z-10">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Welcome back, {getFirstName(user?.name)}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Here's what's happening in your department today.
           </p>
-        </div>
-
-        {/* Light mode video on the right */}
-        <div 
-          className="hidden lg:block dark:hidden absolute right-0 top-1/2 -translate-y-1/2 w-44 lg:w-48 xl:w-52 aspect-video pointer-events-none select-none"
-          style={{ mixBlendMode: "multiply", filter: "contrast(1.4) brightness(1.15)" }}
-        >
-          <video
-            src="/dashboard-video-light.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-contain"
-          />
         </div>
       </div>
 
@@ -523,7 +508,7 @@ export default function DashboardPage() {
             <p className="text-xs mb-5 text-slate-400 dark:text-slate-500">
               Key metrics and project analytics
             </p>
-            
+
             <div className="space-y-5">
               {/* Completion Rate */}
               <div>
@@ -559,10 +544,10 @@ export default function DashboardPage() {
                     {stats?.low_activity > 2
                       ? "Attention Required"
                       : stats?.low_activity > 0
-                      ? "Active & Stable"
-                      : total > 0
-                      ? "100% Active"
-                      : "No Active Projects"}
+                        ? "Active & Stable"
+                        : total > 0
+                          ? "100% Active"
+                          : "No Active Projects"}
                   </p>
                 </div>
                 <span
@@ -572,14 +557,14 @@ export default function DashboardPage() {
                       stats?.low_activity > 2
                         ? "rgba(239, 68, 68, 0.1)"
                         : stats?.low_activity > 0
-                        ? "rgba(245, 158, 11, 0.1)"
-                        : "rgba(16, 185, 129, 0.1)",
+                          ? "rgba(245, 158, 11, 0.1)"
+                          : "rgba(16, 185, 129, 0.1)",
                     color:
                       stats?.low_activity > 2
                         ? "#EF4444"
                         : stats?.low_activity > 0
-                        ? "#F59E0B"
-                        : "#10B981",
+                          ? "#F59E0B"
+                          : "#10B981",
                   }}
                 >
                   <span
@@ -587,17 +572,17 @@ export default function DashboardPage() {
                     style={{
                       background:
                         stats?.low_activity > 2
-                           ? "#EF4444"
-                           : stats?.low_activity > 0
-                           ? "#F59E0B"
-                           : "#10B981",
+                          ? "#EF4444"
+                          : stats?.low_activity > 0
+                            ? "#F59E0B"
+                            : "#10B981",
                     }}
                   />
                   {stats?.low_activity > 2
                     ? "Attention"
                     : stats?.low_activity > 0
-                    ? "Warning"
-                    : "Excellent"}
+                      ? "Warning"
+                      : "Excellent"}
                 </span>
               </div>
 
