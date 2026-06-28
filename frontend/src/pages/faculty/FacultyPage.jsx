@@ -210,13 +210,11 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
       <div className={`h-20 w-full bg-gradient-to-r ${palette.bg} opacity-90 relative`} />
       
       {/* Profile Details Block */}
-      <div className="px-6 pb-6 pt-0 flex-1 flex flex-col justify-between -mt-10 relative z-10">
-        <div className="space-y-4.5">
+      <div className="px-5 pb-5 pt-0 flex-1 flex flex-col justify-between -mt-10 relative z-10">
+        <div className="space-y-4">
           {/* Avatar and Action overlay */}
           <div className="flex justify-between items-end">
-            <div className="relative">
-              <Avatar fac={fac} size="lg" className="w-16 h-16 rounded-2xl border-4 border-white dark:border-gray-800 shadow-md ring-2 ring-indigo-500/10" />
-            </div>
+            <Avatar fac={fac} size="lg" className="w-16 h-16 rounded-2xl border-4 border-white dark:border-gray-800 shadow-md ring-2 ring-indigo-500/10" />
             
             {/* Actions button strip */}
             <div className="flex items-center gap-1.5 pb-1">
@@ -282,61 +280,37 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
             </div>
           </div>
 
-          {/* Name & Title */}
+          {/* Name & Designation */}
           <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary-650 transition-colors">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary-650 transition-colors">
               {fac.name}
             </h3>
-            <p className="text-xs text-gray-450 dark:text-gray-500 font-medium mt-0.5">{fac.email}</p>
-            <div className="mt-2.5">
+            <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5 truncate">{fac.email}</p>
+            <div className="mt-2">
               <DesignationBadge designation={fac.designation || "Professor"} />
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-slate-150/60 dark:bg-gray-700/50" />
-
-          {/* Interactive Info Rows */}
-          <div className="space-y-3.5">
-            {/* Row 1: Classes Handling */}
-            <div className="flex flex-col gap-1.5">
-              <span className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                <BookOpen className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
-                Classes Handling
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {fac.classes_handling?.length > 0 ? (
-                  fac.classes_handling.map((cls) => (
-                    <ClassChip key={cls} label={cls} variant="default" />
-                  ))
-                ) : (
-                  <span className="text-xs text-gray-400 dark:text-gray-500 italic">No classes assigned</span>
-                )}
-              </div>
-            </div>
-
-            {/* Row 2: Class Incharge */}
-            <div className="flex flex-col gap-1.5">
-              <span className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                Class Incharge
-              </span>
-              <div>
-                {fac.class_incharge_of ? (
-                  <ClassChip label={fac.class_incharge_of} variant="incharge" />
-                ) : (
-                  <span className="text-xs text-gray-400 dark:text-gray-555 italic">No class assigned</span>
-                )}
-              </div>
-            </div>
+          {/* Compact Info Chips */}
+          <div className="flex flex-wrap gap-1.5">
+            {fac.classes_handling?.length > 0 ? (
+              fac.classes_handling.map((cls) => (
+                <ClassChip key={cls} label={cls} variant="default" />
+              ))
+            ) : (
+              <span className="text-[11px] text-gray-400 dark:text-gray-500 italic">No classes</span>
+            )}
+            {fac.class_incharge_of && (
+              <ClassChip label={`IC: ${fac.class_incharge_of}`} variant="incharge" />
+            )}
           </div>
         </div>
 
         {/* Footer info strip */}
-        <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+        <div className="mt-5 pt-3.5 border-t border-dashed border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-gray-400">
             <FolderKanban className="w-4 h-4 text-indigo-500" />
-            <span>Workspace Projects</span>
+            <span>Projects</span>
           </div>
           
           <span className={`text-xs font-extrabold px-3 py-1 rounded-full ${
@@ -537,82 +511,96 @@ export default function FacultyPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-150 dark:border-gray-700">
-                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Faculty Member</th>
-                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Designation</th>
-                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Classes Handling</th>
-                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Class Incharge</th>
-                  <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Projects</th>
-                  <th className="px-6 py-3.5 w-24"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                {filtered.map((fac) => (
-                  <tr key={fac.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <Avatar fac={fac} size="sm" />
-                        <div>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{fac.name}</p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{fac.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <DesignationBadge designation={fac.designation || "Professor"} />
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <div className="flex flex-wrap gap-1">
-                        {fac.classes_handling?.length > 0 ? (
-                          fac.classes_handling.map((c) => (
-                            <ClassChip key={c} label={c} variant="default" />
-                          ))
-                        ) : (
-                          <span className="text-xs text-gray-450 italic">None</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      {fac.class_incharge_of ? (
-                        <ClassChip label={fac.class_incharge_of} variant="incharge" />
-                      ) : (
-                        <span className="text-xs text-gray-450 italic">None</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-3.5 text-center text-sm font-bold text-gray-750 dark:text-gray-250">
-                      {fac.project_count || 0}
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <a href={`mailto:${fac.email}`} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500" title={`Email ${fac.name}`}>
-                          <Mail className="w-4.5 h-4.5" />
-                        </a>
-                        {isHOD ? (
-                          <>
-                            <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500" title="Edit">
-                              <Pencil className="w-4.5 h-4.5" />
-                            </button>
-                            <button onClick={() => setDeleteConfirm(fac)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500" title="Delete">
-                              <Trash2 className="w-4.5 h-4.5" />
-                            </button>
-                          </>
-                        ) : (
-                          user?.id === fac.user_id && (
-                            <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500" title="Edit Profile">
-                              <Pencil className="w-4.5 h-4.5" />
-                            </button>
-                          )
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="space-y-4">
+          {/* Header row for large screens */}
+          <div className="hidden lg:grid grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+            <span>Faculty Member</span>
+            <span>Designation</span>
+            <span>Classes Handling</span>
+            <span>Class Incharge</span>
+            <span className="text-center">Projects</span>
+            <span className="text-center">Actions</span>
+          </div>
+
+          <div className="space-y-3">
+            {filtered.map((fac) => (
+              <div
+                key={fac.id}
+                className="group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300"
+              >
+                {/* Col 1: Avatar + Name */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar fac={fac} size="sm" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{fac.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{fac.email}</p>
+                  </div>
+                </div>
+
+                {/* Col 2: Designation */}
+                <div className="flex items-center">
+                  <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Role:</span>
+                  <DesignationBadge designation={fac.designation || "Professor"} />
+                </div>
+
+                {/* Col 3: Classes Handling */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Classes:</span>
+                  {fac.classes_handling?.length > 0 ? (
+                    fac.classes_handling.map((c) => (
+                      <ClassChip key={c} label={c} variant="default" />
+                    ))
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">None</span>
+                  )}
+                </div>
+
+                {/* Col 4: Class Incharge */}
+                <div className="flex items-center">
+                  <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Incharge:</span>
+                  {fac.class_incharge_of ? (
+                    <ClassChip label={fac.class_incharge_of} variant="incharge" />
+                  ) : (
+                    <span className="text-xs text-gray-400 italic">None</span>
+                  )}
+                </div>
+
+                {/* Col 5: Projects count */}
+                <div className="flex items-center lg:justify-center">
+                  <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Projects:</span>
+                  <span className={`text-sm font-extrabold px-2.5 py-0.5 rounded-full ${
+                    fac.project_count > 0
+                      ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-400 dark:text-gray-500"
+                  }`}>
+                    {fac.project_count || 0}
+                  </span>
+                </div>
+
+                {/* Col 6: Actions */}
+                <div className="flex items-center justify-end lg:justify-center gap-1">
+                  <a href={`mailto:${fac.email}`} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-400 hover:text-red-500 transition-colors" title={`Email ${fac.name}`}>
+                    <Mail className="w-4 h-4" />
+                  </a>
+                  {isHOD ? (
+                    <>
+                      <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors" title="Edit">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setDeleteConfirm(fac)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : (
+                    user?.id === fac.user_id && (
+                      <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors" title="Edit Profile">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

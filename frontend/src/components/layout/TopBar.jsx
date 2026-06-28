@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Bell, Moon, Sun, LogOut, Menu, X, Sparkles,
   LayoutDashboard, FolderKanban, Users, GraduationCap,
-  MessageSquare, Megaphone, BookOpen
+  MessageSquare, Megaphone, BookOpen, Settings
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -339,6 +339,16 @@ export function TopBar() {
                 {getRoleLabel(user?.role)}
               </span>
             </div>
+
+            <DropdownItem onClick={() => navigate("/settings")}>
+              <Settings className="w-4 h-4 inline mr-2" />
+              Settings
+            </DropdownItem>
+
+            <div
+              className="mx-3 my-1"
+              style={{ height: "1px", background: "var(--border-light)" }}
+            />
 
             <DropdownItem onClick={logout} danger>
               <LogOut className="w-4 h-4 inline mr-2" />

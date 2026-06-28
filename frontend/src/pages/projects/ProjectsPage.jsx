@@ -51,39 +51,40 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
   }, []);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" style={{ overflow: "visible" }}>
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
-        className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         aria-label="Project actions"
       >
-        <MoreVertical className="w-4 h-4" />
+        <MoreVertical className="w-4.5 h-4.5" />
       </button>
 
       {open && (
         <div
-          className="absolute right-0 z-50 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+          className="absolute right-0 bottom-full mb-2 z-[100] w-44 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200/80 dark:border-gray-700 py-1.5 animate-fade-in"
           onClick={(e) => { e.stopPropagation(); setOpen(false); }}
         >
           <button
             onClick={() => navigate(`/projects/${project.id}`)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
           >
-            <ExternalLink className="w-3.5 h-3.5" /> Open
+            <ExternalLink className="w-4 h-4 text-indigo-500" /> Open
           </button>
           {isHOD && (
             <>
               <button
                 onClick={() => onEdit(project)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
               >
-                <Pencil className="w-3.5 h-3.5" /> Edit
+                <Pencil className="w-4 h-4 text-amber-500" /> Edit
               </button>
+              <div className="my-1 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
               <button
                 onClick={() => onDelete(project)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               >
-                <Trash2 className="w-3.5 h-3.5" /> Delete
+                <Trash2 className="w-4 h-4" /> Delete
               </button>
             </>
           )}
