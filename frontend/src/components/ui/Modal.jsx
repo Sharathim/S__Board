@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 export function Modal({ open, onClose, title, children, size = "md" }) {
@@ -28,13 +29,13 @@ export function Modal({ open, onClose, title, children, size = "md" }) {
     xl: "max-w-4xl",
   };
 
-  return (
+  return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[4px] animate-in fade-in duration-200"
       onClick={(e) => { if (e.target === overlayRef.current) onClose?.(); }}
     >
-      <div className={`w-full ${sizes[size]} bg-white dark:bg-gray-800 rounded-xl shadow-xl animate-in fade-in zoom-in duration-200`}>
+      <div className={`w-full ${sizes[size]} bg-white dark:bg-gray-800 rounded-xl shadow-xl animate-in zoom-in-95 duration-200`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -45,6 +46,8 @@ export function Modal({ open, onClose, title, children, size = "md" }) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
+
