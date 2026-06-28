@@ -38,6 +38,11 @@ const statusOptions = [
   { value: "CANCELLED", label: "Cancelled", color: "#ef4444" },
 ];
 
+const filterStatusOptions = [
+  { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
+  { value: "COMPLETED", label: "Completed", color: "#10b981" },
+];
+
 // ─── Kebab dropdown ──────────────────────────────────────────────────────────
 function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
   const [open, setOpen] = useState(false);
@@ -193,23 +198,30 @@ export default function ProjectsPage() {
       {/* ─── Premium Header ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
             <FolderKanban className="w-5 h-5 text-white" />
           </div>
-                    <div>
+          <div className="flex items-center gap-3">
             <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
+            {isHOD && (
+              <Button onClick={openCreate} className="gap-1.5 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-3 py-1.5 text-xs sm:text-sm">
+                <Plus className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Create Project</span>
+                <span className="sm:hidden">Project</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ─── Filters & Actions Dock ─── */}
+            {/* ─── Filters & Actions Dock ─── */}
       <div className="flex flex-row items-center justify-between gap-2 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30 overflow-x-auto no-scrollbar w-full">
         <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
           <div className="w-28 xs:w-40 sm:w-64 flex-1">
             <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search..." />
           </div>
           <div className="shrink-0">
-            <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
+            <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
           </div>
           
           {/* Grid / List Switcher */}
@@ -238,15 +250,6 @@ export default function ProjectsPage() {
             </button>
           </div>
         </div>
-
-        {/* Create Project Button */}
-        {isHOD && (
-          <Button onClick={openCreate} className="gap-1.5 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-3 py-2 text-xs sm:text-sm">
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Create Project</span>
-            <span className="sm:hidden">Project</span>
-          </Button>
-        )}
       </div>
       {/* ─── Projects Content ─── */}
       {projects.length === 0 ? (
