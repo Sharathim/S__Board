@@ -371,6 +371,16 @@ export default function ProjectsPage() {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Header row for large screens to label columns */}
+          <div className="hidden lg:grid grid-cols-[minmax(240px,1.5fr)_1fr_1fr_120px_100px_40px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+            <span>Project Workspace</span>
+            <span>Lead Advisor</span>
+            <span>Team Workspace</span>
+            <span>Status</span>
+            <span>Last Updated</span>
+            <span className="text-center">Action</span>
+          </div>
+
           <div className="space-y-3">
             {projects.map((project) => {
               const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
@@ -385,19 +395,20 @@ export default function ProjectsPage() {
 
               const visibleMembers = allMembers.slice(0, 4);
               const restCount = allMembers.length - 4;
+              const leadAdvisor = facultyMembers[0]?.name || "Unassigned";
 
               return (
                 <div
                   key={project.id}
                   onClick={() => navigate(`/projects/${project.id}`)}
-                  className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.05)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 cursor-pointer"
+                  className="group grid grid-cols-1 lg:grid-cols-[minmax(240px,1.5fr)_1fr_1fr_120px_100px_40px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  {/* Left Section: Icon and Details */}
-                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                  {/* Col 1: Icon and Details */}
+                  <div className="flex items-center gap-4 min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-indigo-500/5">
-                      <FolderKanban className="w-5.5 h-5.5" />
+                      <FolderKanban className="w-5 h-5" />
                     </div>
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0">
                       <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-primary-650 transition-colors">
                         {project.name}
                       </h4>
@@ -407,50 +418,59 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  {/* Middle Section: Avatar Stack of Contributors */}
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="flex -space-x-1.5">
+                  {/* Col 2: Lead Advisor */}
+                  <div className="flex items-center text-xs font-semibold text-gray-750 dark:text-gray-300 min-w-0">
+                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Advisor:</span>
+                    <span className="truncate">{leadAdvisor}</span>
+                  </div>
+
+                  {/* Col 3: Team Space / Contributors */}
+                  <div className="flex items-center gap-2">
+                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Team:</span>
+                    <div className="flex -space-x-1.5 shrink-0">
                       {visibleMembers.map((m, idx) => (
                         <Avatar
                           key={m.id || idx}
                           src={m.profile_picture}
                           name={m.name}
                           size="sm"
-                          className={`ring-2 ${m.ringClass} w-6.5 h-6.5 rounded-full`}
+                          className={`ring-2 ${m.ringClass} w-6 h-6 rounded-full`}
                         />
                       ))}
                       {restCount > 0 && (
-                        <div className="w-6.5 h-6.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-850">
+                        <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-850">
                           +{restCount}
                         </div>
                       )}
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden md:inline">
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider truncate">
                       {allMembers.length} Partner{allMembers.length === 1 ? "" : "s"}
                     </span>
                   </div>
 
-                  {/* Right Section: Status Pill, Updated Date and Kebab Menu */}
-                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 dark:border-gray-700/50">
+                  {/* Col 4: Status */}
+                  <div className="flex items-center">
+                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Status:</span>
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
                       <span className={`w-1 h-1 rounded-full ${getStatusTheme(project.status).dot}`} />
                       {project.status.replace("_", " ")}
                     </span>
-                    
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                        {format(new Date(project.updated_at), "MMM d, yyyy")}
-                      </span>
-                      
-                      <div onClick={e => e.stopPropagation()}>
-                        <ProjectKebab
-                          project={project}
-                          isHOD={isHOD}
-                          onEdit={openEdit}
-                          onDelete={setDeleteTarget}
-                        />
-                      </div>
-                    </div>
+                  </div>
+
+                  {/* Col 5: Activity / Updated */}
+                  <div className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Updated:</span>
+                    <span className="truncate">{format(new Date(project.updated_at), "MMM d")}</span>
+                  </div>
+
+                  {/* Col 6: Actions kebab */}
+                  <div className="flex justify-end lg:justify-center" onClick={e => e.stopPropagation()}>
+                    <ProjectKebab
+                      project={project}
+                      isHOD={isHOD}
+                      onEdit={openEdit}
+                      onDelete={setDeleteTarget}
+                    />
                   </div>
                 </div>
               );
