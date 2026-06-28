@@ -295,6 +295,9 @@ export default function ProjectsPage() {
               ? "hover:border-emerald-500/40 hover:shadow-emerald-500/5" 
               : "hover:border-indigo-500/40 hover:shadow-indigo-500/5";
 
+            // Extract primary faculty mentor/advisor
+            const leadAdvisor = facultyMembers[0]?.name || "Unassigned Advisor";
+
             return (
               <div
                 key={project.id}
@@ -334,6 +337,20 @@ export default function ProjectsPage() {
                       {project.description || "No description provided for this project."}
                     </p>
                   </div>
+
+                  {/* Structured visual sub-grid info */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-1.5">
+                    <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Lead Advisor</span>
+                      <span className="text-xs font-bold text-slate-700 dark:text-gray-200 truncate">{leadAdvisor}</span>
+                    </div>
+                    <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Team Size</span>
+                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                        {allMembers.length} {allMembers.length === 1 ? "Member" : "Members"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Card Footer: Darker Glass Well */}
@@ -359,11 +376,11 @@ export default function ProjectsPage() {
                           )}
                         </div>
                         <span className="text-[10px] font-extrabold text-slate-455 dark:text-gray-500 uppercase tracking-wider truncate">
-                          {allMembers.length} {allMembers.length === 1 ? "Contributor" : "Contributors"}
+                          Team Workspace
                         </span>
                       </>
                     ) : (
-                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">No contributors</span>
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-555 uppercase tracking-wider">No contributors</span>
                     )}
                   </div>
 

@@ -195,6 +195,7 @@ function InviteBanner({ invite, onToggle, isToggling }) {
 // ─── Faculty Card ─────────────────────────────────────────────────────────────
 function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const palette = getAvatarPalette(fac.name);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -204,38 +205,34 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
   }, [menuOpen]);
 
   return (
-    <div className="group bg-gradient-to-br from-white to-slate-50/50 dark:from-gray-900/60 dark:to-gray-950/40 rounded-2xl border border-slate-200/80 dark:border-gray-800/80 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_16px_36px_rgba(99,102,241,0.06)] hover:-translate-y-1 hover:border-indigo-500/30 transition-all duration-300 overflow-hidden relative flex flex-col justify-between h-full">
-      <div className="p-5.5 flex flex-col justify-between h-full">
-        <div>
-          {/* Header row */}
-          <div className="flex items-start justify-between gap-3 mb-4.5">
-            <div className="flex items-center gap-3.5 min-w-0">
-              <Avatar fac={fac} size="lg" />
-              <div className="min-w-0">
-                <h3 className="font-bold text-slate-800 dark:text-gray-550 text-base leading-snug tracking-tight truncate group-hover:text-primary-600 transition-colors">
-                  {fac.name}
-                </h3>
-                <div className="mt-1">
-                  <DesignationBadge designation={fac.designation || "Professor"} />
-                </div>
-              </div>
+    <div className="group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative">
+      {/* Profile Header Banner */}
+      <div className={`h-20 w-full bg-gradient-to-r ${palette.bg} opacity-90 relative`} />
+      
+      {/* Profile Details Block */}
+      <div className="px-6 pb-6 pt-0 flex-1 flex flex-col justify-between -mt-10 relative z-10">
+        <div className="space-y-4.5">
+          {/* Avatar and Action overlay */}
+          <div className="flex justify-between items-end">
+            <div className="relative">
+              <Avatar fac={fac} size="lg" className="w-16 h-16 rounded-2xl border-4 border-white dark:border-gray-800 shadow-md ring-2 ring-indigo-500/10" />
             </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            
+            {/* Actions button strip */}
+            <div className="flex items-center gap-1.5 pb-1">
               <a
                 href={`mailto:${fac.email}`}
-                className="p-2 rounded-xl bg-slate-50 hover:bg-red-50 dark:bg-gray-850 dark:hover:bg-red-950/20 text-gray-500 dark:text-gray-400 hover:text-red-650 dark:hover:text-red-400 transition-colors group/mail border border-slate-100 dark:border-gray-800/40"
+                className="p-2 rounded-xl bg-slate-50 hover:bg-red-50 dark:bg-gray-900 dark:hover:bg-red-950/20 text-gray-500 dark:text-gray-400 hover:text-red-600 transition-colors border border-slate-100 dark:border-gray-800/40 shadow-sm"
                 title={`Email ${fac.name}`}
               >
-                <GmailIcon className="w-4 h-4 transition-transform group-hover/mail:scale-110" />
+                <GmailIcon className="w-4 h-4" />
               </a>
 
               {isHOD ? (
                 <div className="relative kebab-container">
                   <button
                     onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-150 dark:bg-gray-855 dark:hover:bg-gray-750 text-gray-400 hover:text-gray-650 dark:text-gray-500 transition-colors border border-slate-100 dark:border-gray-800/40"
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-gray-900 dark:hover:bg-gray-750 text-gray-400 dark:text-gray-505 transition-colors border border-slate-100 dark:border-gray-800/40 shadow-sm"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </button>
@@ -263,7 +260,7 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
                       <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
                       <button
                         onClick={() => { setMenuOpen(false); onDelete(fac); }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition-colors text-left"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition-colors text-left"
                       >
                         <Trash2 className="w-4 h-4" />
                         Remove Faculty
@@ -275,7 +272,7 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
                 userId === fac.user_id && (
                   <button
                     onClick={() => onEdit(fac)}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 dark:bg-gray-855 dark:hover:bg-indigo-950/20 text-indigo-500 border border-slate-100 dark:border-gray-800/40 transition-colors"
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 dark:bg-gray-900 dark:hover:bg-indigo-950/20 text-indigo-500 border border-slate-100 dark:border-gray-800/40 transition-colors shadow-sm"
                     title="Edit your profile"
                   >
                     <Pencil className="w-4 h-4" />
@@ -285,53 +282,69 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-slate-150/60 dark:bg-gray-800/50 mb-4.5" />
+          {/* Name & Title */}
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary-650 transition-colors">
+              {fac.name}
+            </h3>
+            <p className="text-xs text-gray-450 dark:text-gray-500 font-medium mt-0.5">{fac.email}</p>
+            <div className="mt-2.5">
+              <DesignationBadge designation={fac.designation || "Professor"} />
+            </div>
+          </div>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-2 gap-3.5 mb-4.5">
-            <div className="bg-slate-100/50 dark:bg-gray-855/40 border border-slate-100/60 dark:border-gray-800/30 rounded-xl p-3.5 flex flex-col justify-between min-h-[90px]">
-              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 dark:text-gray-555 font-bold uppercase tracking-wider">
+          {/* Divider */}
+          <div className="h-px bg-slate-150/60 dark:bg-gray-700/50" />
+
+          {/* Interactive Info Rows */}
+          <div className="space-y-3.5">
+            {/* Row 1: Classes Handling */}
+            <div className="flex flex-col gap-1.5">
+              <span className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 <BookOpen className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
                 Classes Handling
-              </div>
-              <div className="flex flex-wrap gap-1.5 pt-2">
-                {fac.classes_handling?.length > 0
-                  ? fac.classes_handling.map((cls) => (
-                      <ClassChip key={cls} label={cls} variant="default" />
-                    ))
-                  : <span className="text-[11px] text-slate-400 dark:text-gray-500 italic">None assigned</span>
-                }
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {fac.classes_handling?.length > 0 ? (
+                  fac.classes_handling.map((cls) => (
+                    <ClassChip key={cls} label={cls} variant="default" />
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-400 dark:text-gray-500 italic">No classes assigned</span>
+                )}
               </div>
             </div>
 
-            <div className="bg-slate-100/50 dark:bg-gray-855/40 border border-slate-100/60 dark:border-gray-800/30 rounded-xl p-3.5 flex flex-col justify-between min-h-[90px]">
-              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 dark:text-gray-555 font-bold uppercase tracking-wider">
+            {/* Row 2: Class Incharge */}
+            <div className="flex flex-col gap-1.5">
+              <span className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                 Class Incharge
-              </div>
-              <div className="pt-2">
-                {fac.class_incharge_of
-                  ? <ClassChip label={fac.class_incharge_of} variant="incharge" />
-                  : <span className="text-[11px] text-slate-400 dark:text-gray-500 italic">Not assigned</span>
-                }
+              </span>
+              <div>
+                {fac.class_incharge_of ? (
+                  <ClassChip label={fac.class_incharge_of} variant="incharge" />
+                ) : (
+                  <span className="text-xs text-gray-400 dark:text-gray-555 italic">No class assigned</span>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Projects assigned bottom bar */}
-        <div className="flex items-center justify-between py-3 px-3.5 bg-indigo-50/30 dark:bg-indigo-950/15 border border-indigo-100/20 dark:border-indigo-900/20 rounded-xl">
-          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400 font-bold tracking-tight">
-            <FolderKanban className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-            Projects Assigned
+        {/* Footer info strip */}
+        <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-gray-400">
+            <FolderKanban className="w-4 h-4 text-indigo-500" />
+            <span>Workspace Projects</span>
           </div>
-          <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full ${
+          
+          <span className={`text-xs font-extrabold px-3 py-1 rounded-full ${
             fac.project_count > 0 
-              ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400" 
-              : "bg-slate-100 dark:bg-gray-855 text-slate-400 dark:text-gray-555"
+              ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30" 
+              : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-505 border border-slate-100 dark:border-gray-700/60"
           }`}>
-            {fac.project_count || 0}
+            {fac.project_count || 0} active
           </span>
         </div>
       </div>
