@@ -262,7 +262,23 @@ a, button { transition: all 0.15s ease; }
 }
 .animate-fade-in { animation: fade-in 0.2s ease-out forwards; }
 
-/* ─── Floating Glassmorphic Pill Navbar ──────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   FLOATING GLASSMORPHIC + NEOMORPHIC PILL NAVBAR — Premium Design System
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Animated gradient shimmer for navbar border ────────────────────────── */
+@keyframes navbar-shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3), 0 1px 3px rgba(124, 58, 237, 0.15); }
+  50%      { box-shadow: 0 4px 20px rgba(124, 58, 237, 0.45), 0 1px 4px rgba(124, 58, 237, 0.25); }
+}
+
+/* ─── Navbar Outer Shell (gradient border wrapper) ───────────────────────── */
 .navbar-glass {
   position: fixed;
   top: 16px;
@@ -270,84 +286,152 @@ a, button { transition: all 0.15s ease; }
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: 1100px;
-  height: 56px;
+  height: 58px;
   border-radius: 9999px;
   z-index: 100;
 
-  /* Glassmorphism */
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  /* Deep Glassmorphism — multi-layer frosted glass */
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(248,250,255,0.7) 50%, rgba(255,255,255,0.8) 100%);
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.05);
 
-  /* Neomorphism + glass border */
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  /* Prismatic gradient border — subtle rainbow refraction */
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  outline: 1.5px solid rgba(139, 92, 246, 0.08);
+
+  /* Neomorphism — raised surface with soft outer + inner shadows */
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    /* Outer depth — lifted off the page */
+    0 10px 40px rgba(0, 0, 0, 0.07),
+    0 4px 16px rgba(0, 0, 0, 0.04),
+    0 1px 4px rgba(0, 0, 0, 0.03),
+    /* Inner light — neomorphic top highlight */
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.8),
+    /* Inner shadow — neomorphic bottom depth */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8px 0 20px;
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+  padding: 0 10px 0 22px;
+  transition: box-shadow 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.3s ease;
 }
 
-.dark .navbar-glass {
-  background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
+.navbar-glass:hover {
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 12px 48px rgba(0, 0, 0, 0.09),
+    0 6px 20px rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.03),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
 }
 
-/* ─── Nav Link Pills ────────────────────────────────────────────────────── */
+/* ── Dark mode glass ── */
+.dark .navbar-glass {
+  background:
+    linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(30,41,59,0.7) 50%, rgba(15,23,42,0.78) 100%);
+  outline-color: rgba(139, 92, 246, 0.12);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    0 1px 4px rgba(0, 0, 0, 0.15),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.dark .navbar-glass:hover {
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.5),
+    0 6px 20px rgba(0, 0, 0, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* ─── Nav Link Pills — Neomorphic tactile tabs ───────────────────────────── */
 .nav-pill {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
+  padding: 8px 15px;
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
   white-space: nowrap;
   color: var(--text-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
   text-decoration: none;
+  position: relative;
+  cursor: pointer;
+
+  /* Neomorphic inset well — tabs look "pressed into" the glass */
+  background: rgba(0, 0, 0, 0.02);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+
+  transition:
+    all 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
 }
 
 .nav-pill:hover {
   color: var(--text-primary);
-  background: rgba(139, 92, 246, 0.06);
+  background: rgba(139, 92, 246, 0.07);
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .nav-pill {
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .dark .nav-pill:hover {
   background: rgba(167, 139, 250, 0.1);
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* ── Active pill — elevated, glowing, gradient ── */
 .nav-pill-active {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9) !important;
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%) !important;
   color: #fff !important;
+  transform: translateY(-1px);
+
+  /* Neomorphic raised + glow */
   box-shadow:
-    0 4px 14px rgba(124, 58, 237, 0.35),
-    0 1px 3px rgba(124, 58, 237, 0.2);
+    0 6px 20px rgba(124, 58, 237, 0.35),
+    0 2px 6px rgba(124, 58, 237, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+
+  animation: glow-pulse 3s ease-in-out infinite;
 }
 
 .dark .nav-pill-active {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED) !important;
+  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%) !important;
   box-shadow:
-    0 4px 14px rgba(139, 92, 246, 0.4),
-    0 1px 3px rgba(139, 92, 246, 0.25);
+    0 6px 24px rgba(139, 92, 246, 0.45),
+    0 2px 8px rgba(139, 92, 246, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
 }
 
 .nav-pill-active .nav-pill-icon {
   color: #fff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 
-/* ─── Navbar Icon Buttons ────────────────────────────────────────────────── */
+/* ─── Navbar Icon Buttons — Neomorphic embossed circles ──────────────────── */
 .navbar-icon-btn {
   display: flex;
   align-items: center;
@@ -356,81 +440,153 @@ a, button { transition: all 0.15s ease; }
   height: 36px;
   border-radius: 50%;
   color: var(--text-secondary);
-  transition: all 0.2s ease;
   position: relative;
   flex-shrink: 0;
   background: transparent;
   border: none;
   cursor: pointer;
+
+  /* Neomorphic subtle raised circle */
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+  transition:
+    all 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s ease;
 }
 
 .navbar-icon-btn:hover {
   background: rgba(139, 92, 246, 0.08);
   color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px rgba(139, 92, 246, 0.12),
+    0 1px 3px rgba(139, 92, 246, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Neomorphic pressed/active — pushed inward */
+.navbar-icon-btn:active {
+  transform: translateY(0) scale(0.93);
+  background: rgba(139, 92, 246, 0.12);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dark .navbar-icon-btn {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .dark .navbar-icon-btn:hover {
   background: rgba(167, 139, 250, 0.12);
   color: #A78BFA;
+  box-shadow:
+    0 4px 12px rgba(139, 92, 246, 0.18),
+    0 1px 3px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-.navbar-icon-btn:active {
-  transform: scale(0.92);
+.dark .navbar-icon-btn:active {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* ─── Navbar Avatar ──────────────────────────────────────────────────────── */
+/* ─── Navbar Avatar — Neomorphic luminous ring ───────────────────────────── */
 .navbar-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  /* Neomorphic raised circle */
+  border: 2.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 0 0 0 rgba(139, 92, 246, 0),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
 }
 
 .navbar-avatar:hover {
-  border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: scale(1.05);
+  box-shadow:
+    0 4px 16px rgba(139, 92, 246, 0.15),
+    0 0 0 4px rgba(139, 92, 246, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* ─── Mobile Navbar Menu ─────────────────────────────────────────────────── */
+.dark .navbar-avatar {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .navbar-avatar:hover {
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow:
+    0 4px 16px rgba(139, 92, 246, 0.25),
+    0 0 0 4px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Mobile Navbar Menu — Glassmorphic dropdown sheet ────────────────────── */
 @keyframes nav-slide-down {
-  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  from { opacity: 0; transform: translateY(-16px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .mobile-nav-sheet {
   position: fixed;
-  top: 80px;
+  top: 82px;
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: 420px;
-  border-radius: 20px;
+  border-radius: 24px;
   z-index: 99;
-  padding: 12px;
+  padding: 10px;
 
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  /* Deep glassmorphism */
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,250,255,0.82) 100%);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+
+  /* Neomorphic raised card */
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
   box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 20px 60px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.03),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.02);
 
-  animation: nav-slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: nav-slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .dark .mobile-nav-sheet {
-  background: rgba(15, 23, 42, 0.88);
-  border-color: rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(145deg, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.85) 100%);
+  border-color: rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .mobile-nav-link {
@@ -438,51 +594,87 @@ a, button { transition: all 0.15s ease; }
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: 14px;
+  border-radius: 16px;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: all 0.15s ease;
+
+  /* Neomorphic inset well */
+  background: rgba(0, 0, 0, 0.01);
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.02),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mobile-nav-link:hover {
   background: rgba(139, 92, 246, 0.06);
   color: var(--text-primary);
+  transform: translateX(4px);
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.dark .mobile-nav-link {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.1),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .dark .mobile-nav-link:hover {
   background: rgba(167, 139, 250, 0.1);
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .mobile-nav-link-active {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9) !important;
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%) !important;
   color: #fff !important;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+  transform: translateX(0);
+  box-shadow:
+    0 6px 20px rgba(124, 58, 237, 0.3),
+    0 2px 6px rgba(124, 58, 237, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
 }
 
 .dark .mobile-nav-link-active {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED) !important;
+  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%) !important;
+  box-shadow:
+    0 6px 24px rgba(139, 92, 246, 0.4),
+    0 2px 8px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
 }
 
-/* ─── Mobile nav backdrop ────────────────────────────────────────────────── */
+/* ─── Mobile nav backdrop — blur overlay ─────────────────────────────────── */
 .mobile-nav-backdrop {
   position: fixed;
   inset: 0;
   z-index: 98;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
 }
 
-/* ─── Forum badge in navbar ──────────────────────────────────────────────── */
+.dark .mobile-nav-backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ─── Forum badge in navbar — glowing dot ────────────────────────────────── */
 .nav-badge {
   position: absolute;
-  top: -2px;
-  right: -4px;
+  top: -3px;
+  right: -5px;
   min-width: 16px;
   height: 16px;
   border-radius: 9999px;
-  background: #EF4444;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
   color: #fff;
   font-size: 9px;
   font-weight: 800;
@@ -491,7 +683,15 @@ a, button { transition: all 0.15s ease; }
   justify-content: center;
   padding: 0 4px;
   line-height: 1;
-  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.4);
+  box-shadow:
+    0 2px 6px rgba(239, 68, 68, 0.45),
+    0 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.dark .nav-badge {
+  box-shadow:
+    0 2px 6px rgba(239, 68, 68, 0.5),
+    0 0 0 2px rgba(15, 23, 42, 0.8);
 }
 
 /* ─── Page Content Container (matches navbar width) ──────────────────────── */
