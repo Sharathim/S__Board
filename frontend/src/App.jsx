@@ -18,7 +18,7 @@ import ProjectsPage from "./pages/projects/ProjectsPage";
 import ProjectDetailPage from "./pages/projects/ProjectDetailPage";
 import UpdatesPage from "./pages/updates/UpdatesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
-import SettingsPage from "./pages/settings/SettingsPage";
+
 import NotFoundPage from "./pages/public/NotFoundPage";
 
 function PublicRoute() {
@@ -68,7 +68,7 @@ export default function App() {
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/updates" element={<UpdatesPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

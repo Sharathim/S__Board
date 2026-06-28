@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
-  Menu, Bell, Moon, Sun, LogOut, Search, Settings,
-  ChevronDown, Command, PanelLeftOpen, PanelLeftClose, X, Sparkles,
+  Bell, Moon, Sun, LogOut, Menu, X, Sparkles,
   LayoutDashboard, FolderKanban, Users, GraduationCap,
-  MessageSquare, Megaphone, BookOpen, Zap
+  MessageSquare, Megaphone, BookOpen
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
-import { listProjects } from "../../api/projects";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { Dropdown, DropdownItem } from "../ui/Dropdown";
@@ -35,16 +33,6 @@ function getRoleColor(role) {
   return map[role] || { from: "#6B7280", to: "#4B5563", light: "#F3F4F6", text: "#6B7280" };
 }
 
-const PAGE_TITLES = {
-  "/dashboard": { label: "Dashboard", icon: LayoutDashboard, color: "text-violet-600 dark:text-violet-400" },
-  "/projects": { label: "Projects", icon: FolderKanban, color: "text-blue-600 dark:text-blue-400" },
-  "/classes": { label: "Classes", icon: BookOpen, color: "text-cyan-600 dark:text-cyan-400" },
-  "/faculty": { label: "Faculty", icon: GraduationCap, color: "text-orange-600 dark:text-orange-400" },
-  "/forum": { label: "Forum", icon: MessageSquare, color: "text-rose-600 dark:text-rose-400" },
-  "/updates": { label: "Announcements", icon: Megaphone, color: "text-yellow-600 dark:text-yellow-500" },
-  "/settings": { label: "Settings", icon: Settings, color: "text-gray-600 dark:text-gray-400" },
-};
-
 const allNavItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/projects", label: "Projects", icon: FolderKanban, roles: ["HOD", "FACULTY", "STUDENT"] },
@@ -53,191 +41,177 @@ const allNavItems = [
   { to: "/classes", label: "Students", icon: Users, roles: ["STUDENT"] },
   { to: "/forum", label: "Forum", icon: MessageSquare, roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/updates", label: "Announcements", icon: Megaphone, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/settings", label: "Settings", icon: Settings, roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
-export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
+export function TopBar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
   const [notifOpen, setNotifOpen] = useState(false);
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [projects, setProjects] = useState([]);
-  const [isFocused, setIsFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const searchRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   const roleColors = getRoleColor(user?.role);
 
-  const currentPage = Object.entries(PAGE_TITLES).find(([path]) =>
-    location.pathname.startsWith(path)
+  // Filter nav items by role and deduplicate
+  const filteredNavs = allNavItems.filter(item =>
+    !item.roles || item.roles.includes(user?.role)
   );
-  const PageIcon = currentPage?.[1]?.icon;
-  const pageLabel = currentPage?.[1]?.label;
-  const pageColor = currentPage?.[1]?.color;
-
-  const visibleNavs = allNavItems.filter(item =>
-    (!item.roles || item.roles.includes(user?.role)) &&
-    item.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Deduplicate by label+to
   const seen = new Set();
-  const uniqueNavs = visibleNavs.filter(item => {
+  const navItems = filteredNavs.filter(item => {
     const key = `${item.label}-${item.to}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
+  // Close mobile menu on route change
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        document.getElementById("topbar-search")?.focus();
-      }
-      if (e.key === "Escape") {
-        setIsFocused(false);
-        setSearchQuery("");
-      }
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile menu on escape
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
+  // Close mobile menu on click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setIsFocused(false);
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) {
+        setMobileMenuOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    if (mobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) { setProjects([]); return; }
-    setIsLoading(true);
-    const timer = setTimeout(async () => {
-      try {
-        const res = await listProjects({ search: searchQuery, per_page: 5 });
-        setProjects(res.data?.projects || []);
-      } catch { } finally {
-        setIsLoading(false);
-      }
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [mobileMenuOpen]);
 
   return (
-    <header className="h-[72px] w-full sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between px-8">
-      {/* ── Left Branding Group ── */}
-      <div className="flex items-center gap-3">
-        {/* Mobile hamburger */}
-        <button
-          id="topbar-menu-btn"
-          onClick={onMenuClick}
-          className="p-2 rounded-xl lg:hidden flex-shrink-0 transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-400 dark:text-slate-500 active:scale-95"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-
-        {/* Desktop expand/collapse buttons */}
-        {isCollapsed ? (
-          <button
-            onClick={onToggleCollapse}
-            className="hidden lg:flex p-2 rounded-xl flex-shrink-0 transition-all duration-150 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
-            title="Open sidebar"
+    <>
+      {/* ── Floating Glassmorphic Pill Navbar ── */}
+      <nav className="navbar-glass" id="main-navbar">
+        {/* ── Left: Logo + Brand ── */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <img
+            src="/logo-icon.png"
+            alt="Hive"
+            className="w-7 h-7 object-contain flex-shrink-0"
+          />
+          <span
+            className="font-bold text-base tracking-tight"
+            style={{ color: "var(--text-primary)" }}
           >
-            <PanelLeftOpen className="w-5 h-5" />
-          </button>
-        ) : (
-          <button
-            onClick={onToggleCollapse}
-            className="hidden lg:flex p-2 rounded-xl flex-shrink-0 transition-all duration-150 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
-            title="Collapse sidebar"
-          >
-            <PanelLeftClose className="w-5 h-5" />
-          </button>
-        )}
-
-        {/* Branding group */}
-        <div className="flex items-center gap-3 ml-2 lg:ml-0">
-          <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain flex-shrink-0" />
-          <span className="font-semibold text-lg tracking-tight text-slate-900 dark:text-white font-sans">
             Hive
           </span>
         </div>
-      </div>
 
-      {/* ── Right Actions (Right Utility Group) ── */}
-      <div className="flex items-center gap-6 flex-shrink-0">
-        {/* Theme Toggle */}
-        <button
-          id="topbar-theme-btn"
-          onClick={toggleTheme}
-          className="relative p-1 transition-all duration-200 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
-          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
-            {theme === "dark"
-              ? <Sun style={{ width: "20px", height: "20px" }} />
-              : <Moon style={{ width: "20px", height: "20px" }} />
-            }
-          </div>
-        </button>
+        {/* ── Center: Nav Links (Desktop only) ── */}
+        <div className="hidden md:flex items-center gap-1">
+          {navItems.map(item => {
+            const Icon = item.icon;
+            const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
 
-        {/* Notification Bell */}
-        <div className="relative flex items-center">
-          <button
-            id="topbar-notif-btn"
-            onClick={() => setNotifOpen(o => !o)}
-            className="relative p-1 transition-all duration-200 text-slate-400 dark:text-slate-500 hover:text-indigo-600 active:scale-95"
-            title="Notifications"
-          >
-            <Bell style={{ width: "20px", height: "20px" }} className={unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""} />
-            {unreadCount > 0 && (
-              <span
-                className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full flex items-center justify-center text-white font-bold leading-none bg-rose-500"
-                style={{
-                  fontSize: "9px",
-                  padding: "0 3px",
-                }}
+            return (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                className={({ isActive }) =>
+                  `nav-pill ${isActive ? "nav-pill-active" : ""}`
+                }
               >
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </button>
-          <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+                <Icon className="nav-pill-icon w-4 h-4" />
+                <span>{item.label}</span>
+                {isForumWithBadge && (
+                  <span className="nav-badge">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
 
-        {/* User Profile Dropdown */}
-        <Dropdown
-          trigger={
-            <div
-              id="topbar-user-menu"
-              className="flex items-center gap-3 cursor-pointer group"
-            >
-              {/* Name + Role stacked and aligned right */}
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight">
-                  {user?.name || "User"}
-                </p>
-                <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">
-                  {getRoleLabel(user?.role)}
-                </p>
-              </div>
+        {/* ── Right: Actions + Profile ── */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Mobile hamburger */}
+          <button
+            id="navbar-mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            className="navbar-icon-btn md:hidden"
+            title="Menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </button>
 
-              {/* Avatar photo (borderless circular 40px) */}
-              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
+          {/* Theme Toggle */}
+          <button
+            id="navbar-theme-btn"
+            onClick={toggleTheme}
+            className="navbar-icon-btn"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
+              {theme === "dark"
+                ? <Sun className="w-[18px] h-[18px]" />
+                : <Moon className="w-[18px] h-[18px]" />
+              }
+            </div>
+          </button>
+
+          {/* Notification Bell */}
+          <div className="relative flex items-center">
+            <button
+              id="navbar-notif-btn"
+              onClick={() => setNotifOpen(o => !o)}
+              className="navbar-icon-btn"
+              title="Notifications"
+            >
+              <Bell
+                className={`w-[18px] h-[18px] ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`}
+              />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full flex items-center justify-center text-white font-bold leading-none bg-rose-500"
+                  style={{ fontSize: "9px", padding: "0 3px" }}
+                >
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+            <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+          </div>
+
+          {/* Separator */}
+          <div
+            className="hidden sm:block w-px h-6 mx-1"
+            style={{ background: "var(--border-light)", opacity: 0.5 }}
+          />
+
+          {/* User Profile Dropdown */}
+          <Dropdown
+            trigger={
+              <div id="navbar-user-menu" className="navbar-avatar">
                 {user?.profile_picture ? (
-                  <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                  <img
+                    src={user.profile_picture}
+                    alt={user?.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div
-                    className="w-full h-full flex items-center justify-center text-sm font-bold text-white"
+                    className="w-full h-full flex items-center justify-center text-xs font-bold text-white"
                     style={{
                       background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
                     }}
@@ -246,53 +220,86 @@ export function TopBar({ onMenuClick, isCollapsed, onToggleCollapse }) {
                   </div>
                 )}
               </div>
-            </div>
-          }
-          align="right"
-        >
-          {/* Dropdown Header */}
-          <div
-            className="px-4 py-4"
-            style={{ borderBottom: "1px solid var(--border-light)" }}
+            }
+            align="right"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
-                style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
-              >
-                {user?.profile_picture
-                  ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
-                  : getInitials(user?.name)
-                }
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{user?.name}</p>
-                <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{user?.email}</p>
-              </div>
-            </div>
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg"
-              style={{
-                background: roleColors.light,
-                color: roleColors.text,
-              }}
+            {/* Dropdown Header */}
+            <div
+              className="px-4 py-4"
+              style={{ borderBottom: "1px solid var(--border-light)" }}
             >
-              <Sparkles className="w-3 h-3" />
-              {getRoleLabel(user?.role)}
-            </span>
+              <div className="flex items-center gap-3 mb-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
+                  style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
+                >
+                  {user?.profile_picture
+                    ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                    : getInitials(user?.name)
+                  }
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{user?.name}</p>
+                  <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{user?.email}</p>
+                </div>
+              </div>
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg"
+                style={{
+                  background: roleColors.light,
+                  color: roleColors.text,
+                }}
+              >
+                <Sparkles className="w-3 h-3" />
+                {getRoleLabel(user?.role)}
+              </span>
+            </div>
+
+            <DropdownItem onClick={logout} danger>
+              <LogOut className="w-4 h-4 inline mr-2" />
+              Sign Out
+            </DropdownItem>
+          </Dropdown>
+        </div>
+      </nav>
+
+      {/* ── Mobile Nav Sheet ── */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="mobile-nav-backdrop md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div ref={mobileMenuRef} className="mobile-nav-sheet md:hidden">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
+
+              return (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `mobile-nav-link ${isActive ? "mobile-nav-link-active" : ""}`
+                  }
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="flex-1">{item.label}</span>
+                  {isForumWithBadge && (
+                    <span
+                      className="min-w-[20px] h-5 rounded-full flex items-center justify-center text-white font-bold text-[10px] px-1.5"
+                      style={{ background: "#EF4444" }}
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </NavLink>
+              );
+            })}
           </div>
-
-          <DropdownItem onClick={() => window.location.href = "/settings"}>
-            <Settings className="w-4 h-4 inline mr-2" />
-            Settings
-          </DropdownItem>
-          <DropdownItem onClick={logout} danger>
-            <LogOut className="w-4 h-4 inline mr-2" />
-            Sign Out
-          </DropdownItem>
-        </Dropdown>
-      </div>
-    </header>
-
+        </>
+      )}
+    </>
   );
 }
