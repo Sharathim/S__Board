@@ -772,11 +772,18 @@ a, button { transition: all 0.15s ease; }
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: background-image 0.4s ease;
+  opacity: 1;
+  filter: brightness(1);
+  transition: 
+    background-image 0.4s ease, 
+    opacity 0.4s ease, 
+    filter 0.4s ease;
 }
 
 .dark .app-page-bg {
   background-image: url('/bg-abstract-dark.png');
+  opacity: 0.48; /* reduce opacity to soften neon details */
+  filter: brightness(0.55); /* dim brightness for improved text readability */
 }
 
 /* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */
