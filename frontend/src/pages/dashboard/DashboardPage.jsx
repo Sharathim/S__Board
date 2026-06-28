@@ -260,7 +260,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* ── Welcome Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
+      <div className="flex flex-wrap items-start justify-between gap-4 relative">
         <div className="z-10">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Welcome back, {getFirstName(user?.name)}
@@ -272,8 +272,8 @@ export default function DashboardPage() {
 
         {/* Light mode video on the right */}
         <div 
-          className="hidden md:block dark:hidden w-72 lg:w-80 xl:w-[420px] aspect-video shrink-0 mix-blend-multiply pointer-events-none select-none"
-          style={{ mixBlendMode: "multiply" }}
+          className="hidden lg:block dark:hidden absolute right-0 top-1/2 -translate-y-1/2 w-44 lg:w-48 xl:w-52 aspect-video pointer-events-none select-none"
+          style={{ mixBlendMode: "multiply", filter: "contrast(1.4) brightness(1.15)" }}
         >
           <video
             src="/dashboard-video-light.mp4"
