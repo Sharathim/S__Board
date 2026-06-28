@@ -196,31 +196,30 @@ export default function ProjectsPage() {
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
             <FolderKanban className="w-5 h-5 text-white" />
           </div>
-          <div>
+                    <div>
             <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Manage, allocate, and monitor department projects and team workspaces.
-            </p>
           </div>
         </div>
       </div>
 
       {/* ─── Filters & Actions Dock ─── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30">
-        <div className="flex flex-wrap items-center gap-3 flex-1">
-          <div className="w-full sm:w-64">
-            <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
+      <div className="flex flex-row items-center justify-between gap-2 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30 overflow-x-auto no-scrollbar w-full">
+        <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
+          <div className="w-28 xs:w-40 sm:w-64 flex-1">
+            <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search..." />
           </div>
-          <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
+          <div className="shrink-0">
+            <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={statusOptions} />
+          </div>
           
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-200/50 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-200/50 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40 shrink-0">
             <button
               onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "grid"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-550 hover:text-gray-600 dark:hover:text-gray-400"
+                  : "text-gray-400 dark:text-gray-555 hover:text-gray-650 dark:hover:text-gray-400"
               }`}
               title="Grid View"
             >
@@ -231,7 +230,7 @@ export default function ProjectsPage() {
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "list"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-550 hover:text-gray-600 dark:hover:text-gray-400"
+                  : "text-gray-400 dark:text-gray-555 hover:text-gray-655 dark:hover:text-gray-400"
               }`}
               title="List View"
             >
@@ -242,12 +241,13 @@ export default function ProjectsPage() {
 
         {/* Create Project Button */}
         {isHOD && (
-          <Button onClick={openCreate} className="gap-2 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0">
-            <Plus className="w-4 h-4" /> Create Project
+          <Button onClick={openCreate} className="gap-1.5 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-3 py-2 text-xs sm:text-sm">
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Create Project</span>
+            <span className="sm:hidden">Project</span>
           </Button>
         )}
       </div>
-
       {/* ─── Projects Content ─── */}
       {projects.length === 0 ? (
         <EmptyState
@@ -283,7 +283,7 @@ export default function ProjectsPage() {
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
-                className={`group flex flex-col justify-between h-full bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden ${borderAccent}`}
+                className={`group flex flex-col justify-between h-full bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${borderAccent}`}
               >
                 {/* Card Main Body */}
                 <div className="p-6 pb-0 space-y-5 flex-1 flex flex-col justify-between">
@@ -541,10 +541,9 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
     enabled: open,
   });
 
-  const [name, setName] = useState("");
+    const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("IN_PROGRESS");
-  const [priority, setPriority] = useState("Medium");
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("faculty");
@@ -552,16 +551,13 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
   // Dropdown UI states
   const [statusOpen, setStatusOpen] = useState(false);
-  const [priorityOpen, setPriorityOpen] = useState(false);
 
   const statusRef = useRef(null);
-  const priorityRef = useRef(null);
 
   // Click away to close custom dropdowns
   useEffect(() => {
     const handler = (e) => {
       if (statusRef.current && !statusRef.current.contains(e.target)) setStatusOpen(false);
-      if (priorityRef.current && !priorityRef.current.contains(e.target)) setPriorityOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -573,7 +569,6 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
       setName(editProject.name || "");
       setDescription(editProject.description || "");
       setStatus(editProject.status || "IN_PROGRESS");
-      setPriority("Medium");
       const members = (editProject.members || []).map(m => ({
         user_id: m.id,
         role_in_project: m.role_in_project,
@@ -585,14 +580,12 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
       setName("");
       setDescription("");
       setStatus("IN_PROGRESS");
-      setPriority("Medium");
       setSelectedMembers([]);
     }
     setError("");
     setMemberSearch("");
     setActiveTab("faculty");
     setStatusOpen(false);
-    setPriorityOpen(false);
   }, [editProject, open]);
 
   const toggleMember = (userId, role, name, profilePicture) => {
@@ -640,13 +633,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
   // Find label & color details of current status option
   const activeStatusOption = statusOptions.find(opt => opt.value === status) || statusOptions[0];
 
-  // Priority options config
-  const priorityOptions = [
-    { value: "Low", label: "Low", color: "text-green-500 bg-green-500/10", flagColor: "#10b981" },
-    { value: "Medium", label: "Medium", color: "text-orange-500 bg-orange-500/10", flagColor: "#f97316" },
-    { value: "High", label: "High", color: "text-red-500 bg-red-500/10", flagColor: "#ef4444" },
-  ];
-  const activePriorityOption = priorityOptions.find(opt => opt.value === priority) || priorityOptions[1];
+  
 
   return (
     <Modal open={open} onClose={onClose} size="xl" hideHeader={true}>
@@ -716,80 +703,44 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
               </div>
             </div>
 
-            {/* Custom Project Status Dropdown */}
-            <div className="space-y-1.5" ref={statusRef}>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Status</label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setStatusOpen(!statusOpen)}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-all text-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: activeStatusOption.color }} />
-                    <span className="font-medium text-gray-850 dark:text-gray-200">{activeStatusOption.label}</span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-205 ${statusOpen ? "rotate-180" : ""}`} />
-                </button>
+            {/* Custom Project Status Dropdown (Only visible on Edit) */}
+            {editProject && (
+              <div className="space-y-1.5" ref={statusRef}>
+                <label className="block text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Project Status</label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setStatusOpen(!statusOpen)}
+                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-all text-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: activeStatusOption.color }} />
+                      <span className="font-medium text-gray-850 dark:text-gray-200">{activeStatusOption.label}</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-205 ${statusOpen ? "rotate-180" : ""}`} />
+                  </button>
 
-                {statusOpen && (
-                  <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
-                    {statusOptions.map(opt => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
-                        className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
-                        }`}
-                      >
-                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
-                        <span className="text-gray-800 dark:text-gray-200">{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  {statusOpen && (
+                    <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
+                      {statusOptions.map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
+                          className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                            opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
+                          }`}
+                        >
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
+                          <span className="text-gray-800 dark:text-gray-200">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* Custom Priority Dropdown */}
-            <div className="space-y-1.5" ref={priorityRef}>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Priority</label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setPriorityOpen(!priorityOpen)}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 transition-all text-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <Flag className="w-4 h-4 shrink-0" style={{ color: activePriorityOption.flagColor }} />
-                    <span className="font-medium text-gray-850 dark:text-gray-200">{activePriorityOption.label}</span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-205 ${priorityOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                {priorityOpen && (
-                  <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1">
-                    {priorityOptions.map(opt => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => { setPriority(opt.value); setPriorityOpen(false); }}
-                        className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          opt.value === priority ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
-                        }`}
-                      >
-                        <Flag className="w-4 h-4 shrink-0" style={{ color: opt.flagColor }} />
-                        <span className="text-gray-850 dark:text-gray-200">{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
+            )}
           </div>
-
           {/* ─── Right Pane: Member Assignment ─── */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
             
