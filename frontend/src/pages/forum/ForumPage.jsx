@@ -29,11 +29,11 @@ import { formatDistanceToNow } from "date-fns";
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
 
 const FORUM_ROLE_META = {
-  Member:      { color: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", dot: "bg-slate-400" },
+  Member: { color: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", dot: "bg-slate-400" },
   Coordinator: { color: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300", dot: "bg-violet-500" },
-  Secretary:   { color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300", dot: "bg-emerald-500" },
-  Treasurer:   { color: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300", dot: "bg-rose-500" },
-  Volunteer:   { color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300", dot: "bg-amber-500" },
+  Secretary: { color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300", dot: "bg-emerald-500" },
+  Treasurer: { color: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300", dot: "bg-rose-500" },
+  Volunteer: { color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300", dot: "bg-amber-500" },
 };
 
 function formatPostTime(dateString) {
@@ -290,7 +290,7 @@ export default function ForumPage() {
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/10">
         {/* Background Decorative Patterns */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-pink-100 to-transparent pointer-events-none" />
-        
+
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6 z-10">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner shrink-0 animate-pulse">
@@ -380,11 +380,10 @@ export default function ForumPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
-                      selectedFiles.length > 0
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${selectedFiles.length > 0
                         ? "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-800/40 shadow-sm"
                         : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40"
-                    }`}
+                      }`}
                   >
                     <Image className="w-3.5 h-3.5 text-violet-500" />
                     {selectedFiles.length > 0 ? `Add More (${selectedFiles.length})` : "Add Image"}
@@ -415,11 +414,10 @@ export default function ForumPage() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-205 ${
-                      activeTab === tab.key
+                    className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-205 ${activeTab === tab.key
                         ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm"
                         : "text-gray-500 hover:text-gray-800 dark:hover:text-white"
-                    }`}
+                      }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
                     {tab.label}
@@ -594,11 +592,10 @@ export default function ForumPage() {
                     <div className="px-5 pb-4 flex items-center gap-4 border-t border-gray-50 dark:border-gray-750/40 pt-3">
                       <button
                         onClick={() => likeMutation.mutate(post.id)}
-                        className={`group/like inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-xl transition-all ${
-                          post.liked
+                        className={`group/like inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-xl transition-all ${post.liked
                             ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30"
                             : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-                        }`}
+                          }`}
                       >
                         <Heart
                           className={`w-4 h-4 transition-all group-active/like:scale-125 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
@@ -615,7 +612,7 @@ export default function ForumPage() {
 
         {/* ── RIGHT COLUMN (Sidebar) ── */}
         <div className="lg:col-span-4 space-y-6">
-          
+
           {/* Community Info & Stats Card */}
           <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
             <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-gray-700/50">
@@ -624,7 +621,7 @@ export default function ForumPage() {
               </div>
               <h3 className="text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Community Info</h3>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Members</span>
