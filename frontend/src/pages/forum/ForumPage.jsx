@@ -21,7 +21,7 @@ import {
   MessageSquare, Heart, Trash2, UserPlus, Crown, Send, Image,
   X, Search, Edit2, Clock, Sparkles, AlertCircle,
   CheckCircle2, Users, ShieldAlert, Award, Flame,
-  TrendingUp, Hash, BookOpen, Plus, ChevronDown, Star
+  TrendingUp, Hash, BookOpen, Plus, ChevronDown, Star, Calendar
 } from "lucide-react";
 import { useState, useMemo, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -81,6 +81,7 @@ export default function ForumPage() {
   const [filePreviews, setFilePreviews] = useState([]);
 
   const [showMembersModal, setShowMembersModal] = useState(false);
+  const [postModalOpen, setPostModalOpen] = useState(false);
 
   const canPost = user?.student?.is_forum_member === true || user?.role === "HOD" || user?.role === "FACULTY";
 
@@ -253,6 +254,31 @@ export default function ForumPage() {
 
   const totalLikes = useMemo(() => postList.reduce((acc, p) => acc + (p.like_count || 0), 0), [postList]);
 
+  const postsByDay = useMemo(() => {
+    const groups = {};
+    filteredPosts.forEach(post => {
+      const date = new Date(post.created_at);
+      const dateString = date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      if (!groups[dateString]) {
+        groups[dateString] = [];
+      }
+      groups[dateString].push(post);
+    });
+
+    return Object.keys(groups).map(dateKey => {
+      const groupPosts = groups[dateKey].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      return {
+        dateString: dateKey,
+        posts: groupPosts,
+      };
+    }).sort((a, b) => new Date(b.posts[0].created_at) - new Date(a.posts[0].created_at));
+  }, [filteredPosts]);
+
   if (membersLoading || postsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[500px]">
@@ -270,7 +296,33 @@ export default function ForumPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in pb-12">
+      <style>{`
+        @keyframes glitter {
+          0% { transform: translateX(-100%) rotate(45deg); }
+          100% { transform: translateX(100%) rotate(45deg); }
+        }
+        .glitter-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        .glitter-btn::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(
+            to right,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0.45) 50%,
+            rgba(255,255,255,0) 100%
+          );
+          transform: rotate(45deg);
+          animation: glitter 3s infinite linear;
+        }
+      `}</style>
 
       {/* Toast Notifications */}
       {successMessage && (
@@ -286,421 +338,272 @@ export default function ForumPage() {
         </div>
       )}
 
-      {/* ─── Premium Header Card ─── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/10">
-        {/* Background Decorative Patterns */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-pink-100 to-transparent pointer-events-none" />
+      {/* Redesigned Header Row */}
+      <div className="flex items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800/80 pb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Forum</h1>
+          {/* Vibrant, glittering count icon */}
+          <button
+            onClick={() => setShowMembersModal(true)}
+            className="glitter-btn w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 hover:scale-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(139,92,246,0.6)] hover:shadow-[0_0_18px_rgba(139,92,246,0.8)] shrink-0"
+            title="View Forum Directory"
+          >
+            {memberList.length}
+          </button>
+        </div>
 
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6 z-10">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner shrink-0 animate-pulse">
-              <MessageSquare className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Department Forum</h1>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white uppercase tracking-wider backdrop-blur-sm border border-white/10">
-                  Community
-                </span>
-              </div>
-              <p className="text-sm text-purple-100/90 mt-1 max-w-xl leading-relaxed">
-                Connect, collaborate, and share insights with the department community.
-              </p>
-            </div>
-          </div>
-
+        {/* Straight Right End Actions */}
+        <div className="flex items-center gap-2">
           {isHOD && (
+            <>
+              <button
+                onClick={() => setPostModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-750 transition-all shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" /> Post
+              </button>
+              <button
+                onClick={() => setPickerOpen(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
+              >
+                <Plus className="w-4 h-4" /> Add Member
+              </button>
+            </>
+          )}
+          {!isHOD && user?.student?.is_forum_member === true && (
             <button
-              onClick={() => setPickerOpen(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-violet-700 hover:bg-violet-50 text-sm font-black transition-all shadow-md hover:shadow-lg active:scale-95 shrink-0"
+              onClick={() => setPostModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
             >
-              <UserPlus className="w-4.5 h-4.5" />
-              Add Member
+              <Plus className="w-4 h-4" /> Post
             </button>
           )}
         </div>
       </div>
 
-      {/* ── Main Layout ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      {/* Feed Controls */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        {/* Tabs */}
+        <div className="flex bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl border border-gray-150 dark:border-gray-700/80 p-1 shadow-sm">
+          {[
+            { key: "all", label: "All Posts", icon: Hash },
+            { key: "my", label: "My Posts", icon: BookOpen },
+          ].map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-205 ${activeTab === tab.key
+                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800 dark:hover:text-white"
+                  }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
 
-        {/* ── LEFT COLUMN (Main Feed) ── */}
-        <div className="lg:col-span-8 space-y-5">
-
-          {/* Post Composer */}
-          {canPost && (
-            <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:border-violet-400 dark:focus-within:border-violet-600 transition-all duration-300">
-              {/* Composer Top Bar */}
-              <div className="flex items-center gap-3 p-4 border-b border-gray-100 dark:border-gray-700/50">
-                <Avatar src={user?.profile_picture} name={user?.name} size="md" className="shrink-0 ring-2 ring-violet-500/10" />
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{user?.name}</p>
-                  <p className="text-xs text-violet-600 dark:text-violet-400 font-bold">{user?.role}</p>
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-955/30 border border-violet-100/30 dark:border-violet-900/30">
-                  <Sparkles className="w-3 h-3 text-violet-500" />
-                  <span className="text-[10px] font-extrabold text-violet-600 dark:text-violet-400 uppercase tracking-wider">New Post</span>
-                </div>
-              </div>
-
-              {/* Textarea Area */}
-              <div className="p-4">
-                <textarea
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  placeholder="Share something with the forum team or write an announcement..."
-                  rows={3}
-                  className="w-full bg-transparent border-0 outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 resize-none focus:ring-0 leading-relaxed"
-                />
-
-                {/* Images Preview Grid */}
-                {filePreviews.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
-                    {filePreviews.map((preview, idx) => (
-                      <div key={idx} className="relative rounded-2xl border border-gray-150 dark:border-gray-700 overflow-hidden h-28 bg-gray-50 dark:bg-gray-900/30 animate-fade-in hover:scale-[1.02] transition-transform duration-200">
-                        <img src={preview} alt="preview" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeFile(idx)}
-                          className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors shadow-sm"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
-              </div>
-
-              {/* Composer Toolbar */}
-              <div className="flex items-center justify-between px-4 pb-4 gap-3">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${selectedFiles.length > 0
-                        ? "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-800/40 shadow-sm"
-                        : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40"
-                      }`}
-                  >
-                    <Image className="w-3.5 h-3.5 text-violet-500" />
-                    {selectedFiles.length > 0 ? `Add More (${selectedFiles.length})` : "Add Image"}
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={handlePublish}
-                  disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md hover:shadow-violet-500/20 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {createMutation.isPending ? <><Spinner size="xs" color="text-white" />Publishing...</> : <><Send className="w-4 h-4" />Publish</>}
-                </button>
-              </div>
-            </div>
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={postSearchQuery}
+            onChange={(e) => setPostSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-9 py-2.5 text-sm rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all shadow-sm"
+          />
+          {postSearchQuery && (
+            <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
+              <X className="w-4 h-4" />
+            </button>
           )}
+        </div>
+      </div>
 
-          {/* Feed Controls */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            {/* Tabs */}
-            <div className="flex bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 p-1 shadow-sm">
-              {[
-                { key: "all", label: "All Posts", icon: Hash },
-                { key: "my", label: "My Posts", icon: BookOpen },
-              ].map(tab => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-205 ${activeTab === tab.key
-                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm"
-                        : "text-gray-500 hover:text-gray-800 dark:hover:text-white"
-                      }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {tab.label}
-                  </button>
-                );
-              })}
+      {/* Date Grouped Posts */}
+      <div className="space-y-6">
+        {postsByDay.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
+              <MessageSquare className="w-7 h-7 text-gray-300 dark:text-gray-600" />
             </div>
-
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search posts by content or author..."
-                value={postSearchQuery}
-                onChange={(e) => setPostSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all shadow-sm"
-              />
-              {postSearchQuery && (
-                <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Count */}
-            <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/80 shadow-sm shrink-0">
-              <TrendingUp className="w-4 h-4 text-violet-500" />
-              <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{filteredPosts.length}</span>
-            </div>
+            <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">No posts found</h4>
+            <p className="text-xs text-gray-400 mt-1 max-w-xs">
+              {postSearchQuery ? "Try a different search keyword" : "Be the first to share something with the forum!"}
+            </p>
           </div>
-
-          {/* Posts Feed */}
-          <div className="space-y-4">
-            {filteredPosts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-sm">
-                <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
-                  <MessageSquare className="w-8 h-8 text-gray-300 dark:text-gray-600" />
-                </div>
-                <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">No posts found</h4>
-                <p className="text-xs text-gray-400 mt-1 max-w-xs">
-                  {postSearchQuery ? "Try a different search keyword" : "Be the first to share something with the forum!"}
-                </p>
+        ) : (
+          postsByDay.map((group) => (
+            <div
+              key={group.dateString}
+              className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl p-6 shadow-sm space-y-4"
+            >
+              {/* Date Header */}
+              <div className="flex items-center gap-2 pb-3.5 border-b border-gray-100 dark:border-gray-750/50">
+                <Calendar className="w-4 h-4 text-violet-500" />
+                <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
               </div>
-            ) : (
-              filteredPosts.map((post) => {
-                const isAuthor = post.posted_by?.id === user?.id;
-                const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
-                const canEdit = isAuthor && isWithinEditWindow;
-                const canDelete = isAuthor || isHOD;
 
-                return (
-                  <div
-                    key={post.id}
-                    className="group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_12px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_32px_rgba(99,102,241,0.05)] hover:border-violet-200 dark:hover:border-violet-800/40 transition-all duration-350 overflow-hidden"
-                  >
-                    {/* Post Header */}
-                    <div className="flex items-start justify-between gap-3 p-5 pb-0">
-                      <div className="flex items-center gap-3">
-                        <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="md" className="ring-2 ring-gray-100 dark:ring-gray-700 shrink-0" />
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-gray-900 dark:text-white">
-                              {post.posted_by?.name}
+              {/* Group Posts */}
+              <div className="space-y-4 pt-1">
+                {group.posts.map((post) => {
+                  const isAuthor = post.posted_by?.id === user?.id;
+                  const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
+                  const canEdit = isAuthor && isWithinEditWindow;
+                  const canDelete = isAuthor || isHOD;
+
+                  return (
+                    <div
+                      key={post.id}
+                      className="p-5 rounded-2xl bg-slate-50/50 dark:bg-gray-900/35 border border-slate-100 dark:border-gray-800/50 space-y-4 hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors"
+                    >
+                      {/* Post Header (Author details) */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <Avatar
+                            src={post.posted_by?.profile_picture}
+                            name={post.posted_by?.name}
+                            size="md"
+                            className="ring-2 ring-gray-100 dark:ring-gray-700 shrink-0"
+                          />
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                {post.posted_by?.name}
+                              </span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {post.posted_by?.role}
+                              </span>
+                              {isAuthor && (
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-800/30 uppercase tracking-wide">
+                                  You
+                                </span>
+                              )}
+                              {post.is_edited && (
+                                <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 dark:border-amber-800/30 uppercase tracking-wide">
+                                  Edited
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-505 mt-0.5 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
-                            {isAuthor && (
-                              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-800/30 uppercase tracking-wide">
-                                You
-                              </span>
+                          </div>
+                        </div>
+
+                        {/* Edit/Delete actions */}
+                        {(canEdit || canDelete) && (
+                          <div className="flex items-center gap-1">
+                            {canEdit && (
+                              <button
+                                onClick={() => openEditModal(post)}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
+                                title="Edit post (30 min window)"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
                             )}
-                            {post.is_edited && (
-                              <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 dark:border-amber-800/30 uppercase tracking-wide">
-                                Edited
-                              </span>
+                            {canDelete && (
+                              <button
+                                onClick={() => setDeleteTarget(post)}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                title="Delete post"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             )}
                           </div>
-                          <span className="text-[11px] text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-0.5">
-                            <Clock className="w-3 h-3" />
-                            {formatPostTime(post.created_at)}
-                          </span>
-                        </div>
+                        )}
                       </div>
 
-                      {(canEdit || canDelete) && (
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {canEdit && (
-                            <button
-                              onClick={() => openEditModal(post)}
-                              className="p-2 rounded-xl text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
-                              title="Edit post (30 min window)"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                          )}
-                          {canDelete && (
-                            <button
-                              onClick={() => setDeleteTarget(post)}
-                              className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                              title="Delete post"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Post Content */}
-                    <div className="px-5 py-4">
+                      {/* Content */}
                       <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
                         {post.content}
                       </p>
-                    </div>
 
-                    {/* Image Attachment */}
-                    {post.attachment_url && (
-                      <div className="px-5 pb-4">
-                        {(() => {
-                          const urls = post.attachment_url.split(',').filter(Boolean);
-                          if (urls.length === 0) return null;
-                          if (urls.length === 1) {
+                      {/* Image Attachment */}
+                      {post.attachment_url && (
+                        <div className="mt-2.5">
+                          {(() => {
+                            const urls = post.attachment_url.split(',').filter(Boolean);
+                            if (urls.length === 0) return null;
+                            if (urls.length === 1) {
+                              return (
+                                <div className="rounded-xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-96 flex items-center justify-center animate-fade-in">
+                                  <img
+                                    src={urls[0]}
+                                    alt="post attachment"
+                                    className="w-full object-cover max-h-96"
+                                    onError={(e) => { e.target.parentElement.style.display = "none"; }}
+                                  />
+                                </div>
+                              );
+                            }
+                            if (urls.length === 2) {
+                              return (
+                                <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                                  {urls.map((url, i) => (
+                                    <img key={i} src={url} alt={`attachment-${i}`} className="w-full h-40 object-cover hover:scale-[1.01] transition-transform duration-205" />
+                                  ))}
+                                </div>
+                              );
+                            }
+                            if (urls.length === 3) {
+                              return (
+                                <div className="grid grid-cols-3 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 h-48 animate-fade-in">
+                                  <img src={urls[0]} alt="attachment-0" className="col-span-2 w-full h-full object-cover" />
+                                  <div className="grid grid-rows-2 gap-2 h-full">
+                                    <img src={urls[1]} alt="attachment-1" className="w-full h-full object-cover" />
+                                    <img src={urls[2]} alt="attachment-2" className="w-full h-full object-cover" />
+                                  </div>
+                                </div>
+                              );
+                            }
                             return (
-                              <div className="rounded-2xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-96 flex items-center justify-center animate-fade-in">
-                                <img
-                                  src={urls[0]}
-                                  alt="post attachment"
-                                  className="w-full object-cover max-h-96"
-                                  onError={(e) => { e.target.parentElement.style.display = "none"; }}
-                                />
-                              </div>
-                            );
-                          }
-                          if (urls.length === 2) {
-                            return (
-                              <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
-                                {urls.map((url, i) => (
-                                  <img key={i} src={url} alt={`attachment-${i}`} className="w-full h-48 object-cover hover:scale-[1.01] transition-transform duration-200" />
+                              <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                                {urls.slice(0, 4).map((url, i) => (
+                                  <div key={i} className="relative h-32">
+                                    <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
+                                    {i === 3 && urls.length > 4 && (
+                                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-extrabold text-sm animate-fade-in">
+                                        +{urls.length - 4}
+                                      </div>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
                             );
-                          }
-                          if (urls.length === 3) {
-                            return (
-                              <div className="grid grid-cols-3 gap-2 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 h-64 animate-fade-in">
-                                <img src={urls[0]} alt="attachment-0" className="col-span-2 w-full h-full object-cover" />
-                                <div className="grid grid-rows-2 gap-2 h-full">
-                                  <img src={urls[1]} alt="attachment-1" className="w-full h-full object-cover" />
-                                  <img src={urls[2]} alt="attachment-2" className="w-full h-full object-cover" />
-                                </div>
-                              </div>
-                            );
-                          }
-                          return (
-                            <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
-                              {urls.slice(0, 4).map((url, i) => (
-                                <div key={i} className="relative h-40">
-                                  <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
-                                  {i === 3 && urls.length > 4 && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-extrabold text-lg animate-fade-in">
-                                      +{urls.length - 4}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
+                          })()}
+                        </div>
+                      )}
 
-                    {/* Post Footer */}
-                    <div className="px-5 pb-4 flex items-center gap-4 border-t border-gray-50 dark:border-gray-750/40 pt-3">
-                      <button
-                        onClick={() => likeMutation.mutate(post.id)}
-                        className={`group/like inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-xl transition-all ${post.liked
-                            ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30"
-                            : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-                          }`}
-                      >
-                        <Heart
-                          className={`w-4 h-4 transition-all group-active/like:scale-125 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                        />
-                        <span>{post.like_count || 0}</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* ── RIGHT COLUMN (Sidebar) ── */}
-        <div className="lg:col-span-4 space-y-6">
-
-          {/* Community Info & Stats Card */}
-          <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-gray-700/50">
-              <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center text-violet-500">
-                <Users className="w-4.5 h-4.5" />
-              </div>
-              <h3 className="text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Community Info</h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Members</span>
-                <span className="text-lg font-black text-gray-800 dark:text-gray-200 mt-1">{memberList.length}</span>
-              </div>
-              <div className="bg-slate-50/50 dark:bg-gray-900/30 border border-slate-100/60 dark:border-gray-800/40 p-3 rounded-2xl flex flex-col">
-                <span className="text-[10px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Total Likes</span>
-                <span className="text-lg font-black text-rose-500 dark:text-rose-400 mt-1">{totalLikes}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowMembersModal(true)}
-              className="w-full py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-750 transition-all flex items-center justify-center gap-1.5 shadow-sm"
-            >
-              <Users className="w-4 h-4" />
-              View Forum Directory
-            </button>
-          </div>
-
-          {/* Leadership Spotlight Card */}
-          {coordinators.length > 0 && (
-            <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-              <div className="px-5 py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-955/10 dark:to-orange-955/10 border-b border-amber-100/60 dark:border-amber-900/20 flex items-center gap-2.5">
-                <Crown className="w-4 h-4 text-amber-500" />
-                <span className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-widest">Leadership</span>
-                <span className="ml-auto text-[10px] font-black bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full">{coordinators.length}</span>
-              </div>
-              <div className="p-4 space-y-3">
-                {coordinators.map(c => (
-                  <div key={c.id} className="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-gray-700/40 transition-all">
-                    <div className="relative shrink-0">
-                      <Avatar src={c.profile_picture} name={c.name} size="sm" className="ring-2 ring-amber-500/10" />
-                      <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-400 border-2 border-white dark:border-gray-800 flex items-center justify-center shadow-sm">
-                        <Star className="w-2 h-2 text-white fill-white" />
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{c.name}</p>
-                      <div className="mt-1">
-                        <RoleBadge role={c.role} />
+                      {/* Post Footer */}
+                      <div className="flex items-center gap-4 pt-2.5 border-t border-gray-100 dark:border-gray-800/40">
+                        <button
+                          onClick={() => likeMutation.mutate(post.id)}
+                          className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-all ${post.liked
+                              ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30"
+                              : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                            }`}
+                        >
+                          <Heart
+                            className={`w-3.5 h-3.5 transition-all group-active/like:scale-125 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                          />
+                          <span>{post.like_count || 0}</span>
+                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
-          )}
-
-          {/* Forum Guidelines Card */}
-          <div className="bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-gray-700/50">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500">
-                <Sparkles className="w-4.5 h-4.5" />
-              </div>
-              <h3 className="text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Forum Guidelines</h3>
-            </div>
-            <ul className="space-y-2.5 text-xs text-gray-500 dark:text-gray-400">
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                <span>Be respectful, supportive, and professional.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                <span>Discuss department topics, project ideas, and events.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                <span>Like posts to appreciate student contributions.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                <span>Keep discussions clean and department-focused.</span>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
+          ))
+        )}
       </div>
 
       {/* ── Add Member Picker ── */}
@@ -730,7 +633,7 @@ export default function ForumPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Select Preset Role</label>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Select Preset Role</label>
               <select
                 value={rolePreset}
                 onChange={(e) => {
@@ -766,7 +669,7 @@ export default function ForumPage() {
               <button
                 type="button"
                 onClick={() => setPendingStudent(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
               >
                 Cancel
               </button>
@@ -781,7 +684,7 @@ export default function ForumPage() {
                   assignMutation.mutate({ studentId: pendingStudent.id, role: finalRole });
                 }}
                 disabled={assignMutation.isPending}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
               >
                 {assignMutation.isPending ? "Adding…" : `Add as ${rolePreset === "Custom" && customRole ? customRole : rolePreset}`}
               </button>
@@ -798,7 +701,7 @@ export default function ForumPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search members..."
+              placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
               className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
@@ -818,23 +721,15 @@ export default function ForumPage() {
               filteredMembers.map(m => (
                 <div
                   key={m.id}
-                  className="group flex items-center justify-between gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-gray-100 dark:border-gray-700/40"
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-gray-100 dark:border-gray-700/40"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative shrink-0">
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" />
-                      {m.is_update_coordinator && (
-                        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-400 border border-white dark:border-gray-800 flex items-center justify-center">
-                          <Crown className="w-1.5 h-1.5 text-white" />
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-gray-100 dark:ring-gray-700 shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
-                      <p className="text-[10px] text-gray-400 mt-0.5">{m.class_name?.replace("_", " ")}</p>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <RoleBadge role={m.role} />
-                      </div>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+                        Class: <span className="font-semibold text-gray-700 dark:text-gray-300">{m.class_name?.replace("_", " ")}</span> · Role: <span className="font-semibold text-gray-700 dark:text-gray-300">{m.role}</span>
+                      </p>
                     </div>
                   </div>
                   {isHOD && (
@@ -860,6 +755,78 @@ export default function ForumPage() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Create Forum Post Modal ── */}
+      <Modal open={postModalOpen} onClose={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }} title="Create Forum Post">
+        <div className="space-y-4 pt-1">
+          <div className="flex items-center gap-3">
+            <Avatar src={user?.profile_picture} name={user?.name} size="sm" />
+            <div>
+              <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{user?.name}</p>
+              <p className="text-[10px] text-violet-650 dark:text-violet-400 font-bold uppercase">{user?.role}</p>
+            </div>
+          </div>
+
+          <textarea
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            placeholder="Share something with the forum..."
+            rows={4}
+            className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
+          />
+
+          {/* Previews */}
+          {filePreviews.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {filePreviews.map((preview, idx) => (
+                <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-20 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                  <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeFile(idx)}
+                    className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div>
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-755 transition-all"
+            >
+              <Image className="w-3.5 h-3.5 text-violet-500" />
+              Add Image
+            </button>
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }}
+              className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                handlePublish();
+                setPostModalOpen(false);
+              }}
+              disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
+            >
+              {createMutation.isPending ? "Publishing..." : "Publish Post"}
+            </button>
           </div>
         </div>
       </Modal>
