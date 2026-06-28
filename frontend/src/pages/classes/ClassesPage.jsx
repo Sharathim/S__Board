@@ -424,6 +424,17 @@ export default function ClassesPage() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── PG Classes ── */}
+      {pgList.length > 0 && (
+        <div className="space-y-4 pt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Postgraduate</span>
+            <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-505">{pgList.length} classes</span>
+          </div>
           {viewMode === "grid" ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {pgList.map((c) => (
@@ -439,7 +450,7 @@ export default function ClassesPage() {
           ) : (
             <div className="space-y-4">
               {/* Header row for large screens */}
-              <div className="hidden lg:grid grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider border-b border-gray-155 dark:border-gray-800/40">
+              <div className="hidden lg:grid grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
                 <span>Class Name</span>
                 <span>Class Incharge</span>
                 <span className="text-center">Students</span>

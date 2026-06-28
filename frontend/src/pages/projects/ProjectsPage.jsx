@@ -191,11 +191,18 @@ export default function ProjectsPage() {
   return (
     <div className="space-y-6">
       {/* ─── Premium Header ─── */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Projects</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Manage, allocate, and monitor department projects and team workspaces.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
+            <FolderKanban className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              Manage, allocate, and monitor department projects and team workspaces.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* ─── Filters & Actions Dock ─── */}

@@ -46,89 +46,93 @@ function getInitials(name) {
 }
 
 function StudentRow({ s, canManage, isHOD, isForumClass, onForum, onRemove }) {
-  const [menuOpen, setMenuOpen] = useState(false);
   const initials = getInitials(s.name);
 
   return (
-    <tr className="group hover:bg-slate-50 dark:hover:bg-gray-700/30 transition-colors">
-      {/* Student info */}
-      <td className="px-5 py-3.5">
-        <div className="flex items-center gap-3">
-          {s.profile_picture ? (
-            <img src={s.profile_picture} alt={s.name} className="w-9 h-9 rounded-xl object-cover shrink-0" />
-          ) : (
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
-              {initials}
-            </div>
-          )}
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{s.name}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{s.email}</p>
+    <div
+      className={`group grid grid-cols-1 ${
+        canManage 
+          ? "lg:grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr_100px]" 
+          : "lg:grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr]"
+      } gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300`}
+    >
+      {/* Col 1: Student info */}
+      <div className="flex items-center gap-3 min-w-0">
+        {s.profile_picture ? (
+          <img src={s.profile_picture} alt={s.name} className="w-9 h-9 rounded-xl object-cover shrink-0 ring-2 ring-indigo-500/10" />
+        ) : (
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
+            {initials}
           </div>
+        )}
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{s.name}</p>
+          <p className="text-xs text-gray-450 dark:text-gray-500 truncate">{s.email}</p>
         </div>
-      </td>
+      </div>
 
-      {/* Roll No */}
-      <td className="px-5 py-3.5">
-        <span className="text-xs font-mono font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">
+      {/* Col 2: Roll No */}
+      <div className="flex items-center">
+        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Roll No:</span>
+        <span className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2 py-0.5 rounded-lg border border-slate-100 dark:border-gray-800/40">
           {s.roll_number || "—"}
         </span>
-      </td>
+      </div>
 
-      {/* Register No */}
-      <td className="px-5 py-3.5">
-        <span className="text-xs font-mono font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg">
+      {/* Col 3: Reg. No */}
+      <div className="flex items-center">
+        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Reg. No:</span>
+        <span className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2 py-0.5 rounded-lg border border-slate-100 dark:border-gray-800/40">
           {s.register_number || "—"}
         </span>
-      </td>
+      </div>
 
-      {/* Status */}
-      <td className="px-5 py-3.5">
+      {/* Col 4: Status */}
+      <div className="flex items-center">
+        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Status:</span>
         {s.is_forum_member ? (
-          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${FORUM_ROLE_COLORS[s.forum_role] || FORUM_ROLE_COLORS.Member}`}>
+          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${FORUM_ROLE_COLORS[s.forum_role] || FORUM_ROLE_COLORS.Member}`}>
             <CheckCircle2 className="w-2.5 h-2.5" />
             {s.forum_role || "Forum"}
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-gray-700/40 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-gray-700/40 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700">
             Student
           </span>
         )}
-      </td>
+      </div>
 
-      {/* Actions */}
+      {/* Col 5: Actions */}
       {canManage && (
-        <td className="px-5 py-3.5">
-          <div className="flex items-center justify-end gap-1">
-            <a
-              href={`mailto:${s.email}`}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-              title="Send email"
-            >
-              <Mail className="w-3.5 h-3.5" />
-            </a>
+        <div className="flex items-center justify-end gap-1">
+          <a
+            href={`mailto:${s.email}`}
+            className="p-1.5 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30"
+            title="Send email"
+          >
+            <Mail className="w-3.5 h-3.5" />
+          </a>
 
-            {isHOD && isForumClass && !s.is_forum_member && (
-              <button
-                onClick={() => onForum(s)}
-                className="p-1.5 rounded-xl text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
-                title="Assign to Forum"
-              >
-                <MessageSquarePlus className="w-3.5 h-3.5" />
-              </button>
-            )}
-
+          {isHOD && isForumClass && !s.is_forum_member && (
             <button
-              onClick={() => onRemove(s)}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-              title="Remove student"
+              onClick={() => onForum(s)}
+              className="p-1.5 rounded-xl text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors border border-transparent hover:border-primary-100 dark:hover:border-primary-900/30"
+              title="Assign to Forum"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <MessageSquarePlus className="w-3.5 h-3.5" />
             </button>
-          </div>
-        </td>
+          )}
+
+          <button
+            onClick={() => onRemove(s)}
+            className="p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
+            title="Remove student"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       )}
-    </tr>
+    </div>
   );
 }
 
@@ -277,40 +281,40 @@ export default function ClassDetailPage() {
             </span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-slate-50/80 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-700/60">
-                  <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Student</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Roll No</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Reg. No</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Status</th>
-                  {canManage && <th className="px-5 py-3 text-right text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Actions</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-gray-700/40">
-                {filtered.length > 0 ? (
-                  filtered.map((s) => (
-                    <StudentRow
-                      key={s.id}
-                      s={s}
-                      canManage={canManage}
-                      isHOD={isHOD}
-                      isForumClass={isForumClass}
-                      onForum={(st) => { setForumTarget(st); setForumRole("Member"); }}
-                      onRemove={setRemoveTarget}
-                    />
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={canManage ? 5 : 4} className="py-12 text-center">
-                      <Search className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-400 dark:text-gray-500">No students match "{searchQuery}"</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="p-4">
+            {/* Header row for large screens */}
+            <div className={`hidden lg:grid ${
+              canManage 
+                ? "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr_100px]" 
+                : "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr]"
+            } gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800/40`}>
+              <span>Student Info</span>
+              <span>Roll No</span>
+              <span>Reg. No</span>
+              <span>Status</span>
+              {canManage && <span className="text-right">Actions</span>}
+            </div>
+
+            <div className="space-y-3 mt-3">
+              {filtered.length > 0 ? (
+                filtered.map((s) => (
+                  <StudentRow
+                    key={s.id}
+                    s={s}
+                    canManage={canManage}
+                    isHOD={isHOD}
+                    isForumClass={isForumClass}
+                    onForum={(st) => { setForumTarget(st); setForumRole("Member"); }}
+                    onRemove={setRemoveTarget}
+                  />
+                ))
+              ) : (
+                <div className="py-12 text-center bg-gray-50/30 dark:bg-gray-900/10 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700/60">
+                  <Search className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No students match "{searchQuery}"</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
