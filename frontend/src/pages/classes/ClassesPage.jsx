@@ -24,107 +24,98 @@ const CLASS_META = {
   PG_2A: { label: "PG 2A", short: "PG2A",level: "PG",  year: 2, gradient: "from-indigo-500 to-blue-600",    ring: "ring-indigo-200 dark:ring-indigo-900/60",  bg: "bg-indigo-50 dark:bg-indigo-900/20",  text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
 };
 
-// ─── Class Card ────────────────────────────────────────────────────────────────
 function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   const hasIncharge = !!c.incharge;
 
   const cardContent = (
-    <div className={`group bg-white dark:bg-gray-800/70 rounded-2xl border dark:border-gray-700/60 shadow-card transition-all duration-200 overflow-hidden flex flex-col h-full ${
-      c.can_view_details
-        ? "border-gray-100 hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer"
-        : "border-gray-200 dark:border-gray-700 opacity-80 cursor-default"
+    <div className={`group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative ${
+      c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
     }`}>
-      {/* Top gradient stripe */}
-      <div className={`h-1.5 w-full bg-gradient-to-r ${meta.gradient} shrink-0`} />
-
-      <div className="p-5 flex flex-col flex-1">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div className="flex items-center gap-3">
-            {/* Icon badge */}
-            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-sm ring-2 ring-offset-1 ${meta.ring} shrink-0`}>
+      <div className="p-5 flex flex-col flex-1 justify-between">
+        <div className="space-y-4">
+          {/* Header Row */}
+          <div className="flex items-center justify-between">
+            <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md ring-2 ring-offset-1 ${meta.ring} shrink-0`}>
               <span className="text-sm font-extrabold text-white">{meta.short}</span>
             </div>
-            <div>
-              <h3 className="text-base font-extrabold text-gray-900 dark:text-white tracking-tight">{meta.label}</h3>
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
+            <div className="flex items-center gap-1.5">
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
                 {meta.level} · Year {meta.year}
               </span>
+              {c.can_view_details && (
+                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-655 dark:group-hover:text-gray-300 transition-colors" />
+              )}
             </div>
           </div>
-          {c.can_view_details && (
-            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors mt-1 shrink-0" />
-          )}
-        </div>
 
-        {/* Incharge */}
-        <div className={`flex items-center gap-2.5 p-3 rounded-xl mb-4 ${
-          hasIncharge
-            ? "bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/40"
-            : "bg-gray-50 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700/40"
-        }`}>
-          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-            hasIncharge ? "bg-emerald-100 dark:bg-emerald-900/40" : "bg-gray-100 dark:bg-gray-700"
+          {/* Title */}
+          <div>
+            <h3 className="text-lg font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary-650 dark:group-hover:text-primary-400 transition-colors">
+              {meta.label}
+            </h3>
+            <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">
+              {meta.level === "UG" ? "Undergraduate Programme" : "Postgraduate Programme"}
+            </p>
+          </div>
+
+          {/* Class Incharge block */}
+          <div className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
+            hasIncharge
+              ? "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100/60 dark:border-emerald-900/30"
+              : "bg-slate-50/50 dark:bg-gray-900/30 border-slate-100/60 dark:border-gray-800/40 border-dashed"
           }`}>
-            <ShieldCheck className={`w-3.5 h-3.5 ${hasIncharge ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400"}`} />
+            {hasIncharge ? (
+              <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="ring-2 ring-emerald-500/20" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-gray-800 border border-dashed border-slate-300 dark:border-gray-700 flex items-center justify-center text-gray-400">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Class Incharge</div>
+              <div className={`text-xs font-bold truncate ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-gray-400 dark:text-gray-550 italic"}`}>
+                {hasIncharge ? c.incharge.name : "Not assigned"}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Incharge</div>
-            <div className={`text-xs font-semibold truncate ${hasIncharge ? "text-emerald-700 dark:text-emerald-400" : "text-gray-400 dark:text-gray-500 italic"}`}>
-              {hasIncharge ? c.incharge.name : "Not assigned"}
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2.5 rounded-xl flex items-center gap-2">
+              <Users className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
+              <div>
+                <div className="text-xs font-extrabold text-gray-800 dark:text-gray-200">{c.student_count ?? 0}</div>
+                <div className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">Students</div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2.5 rounded-xl flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-violet-500 dark:text-violet-400 shrink-0" />
+              <div>
+                <div className="text-xs font-extrabold text-gray-800 dark:text-gray-200">
+                  {c.forum_member_count !== undefined ? c.forum_member_count : meta.year}
+                </div>
+                <div className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
+                  {c.forum_member_count !== undefined ? "Forum" : "Year"}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="flex items-center gap-2 bg-slate-50 dark:bg-gray-700/30 rounded-xl px-3 py-2.5">
-            <Users className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <div>
-              <div className="text-sm font-extrabold text-gray-900 dark:text-white">{c.student_count ?? 0}</div>
-              <div className="text-[10px] text-gray-400 font-medium">Students</div>
-            </div>
-          </div>
-          {c.forum_member_count !== undefined ? (
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-gray-700/30 rounded-xl px-3 py-2.5">
-              <GraduationCap className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <div>
-                <div className="text-sm font-extrabold text-gray-900 dark:text-white">{c.forum_member_count}</div>
-                <div className="text-[10px] text-gray-400 font-medium">Forum</div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 bg-slate-50 dark:bg-gray-700/30 rounded-xl px-3 py-2.5">
-              <BookOpen className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <div>
-                <div className="text-sm font-extrabold text-gray-900 dark:text-white">{meta.year}</div>
-                <div className="text-[10px] text-gray-400 font-medium">Year</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Restricted message */}
-        {!c.can_view_details && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700/40 mb-3">
-            <Lock className="w-3 h-3 text-gray-400 shrink-0" />
-            <span className="text-[11px] text-gray-400 dark:text-gray-500 leading-snug">Contact class incharge or HOD</span>
-          </div>
-        )}
-
-        {/* HOD: Assign Incharge button — pushed to bottom */}
+        {/* Action Button for HOD */}
         {isHOD && (
-          <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700/60">
+          <div className="mt-4 pt-3.5 border-t border-dashed border-gray-100 dark:border-gray-700/50">
             <button
-              onClick={(e) => { e.preventDefault(); onAssignIncharge(c.class_name); }}
-              className={`w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAssignIncharge(c.class_name); }}
+              className={`w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 border ${
                 hasIncharge
-                  ? "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40"
-                  : "text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 border border-primary-200 dark:border-primary-800/40"
+                  ? "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 border-amber-200 dark:border-amber-900/40"
+                  : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/40"
               }`}
             >
               <Crown className="w-3.5 h-3.5" />
-              {hasIncharge ? `Change: ${c.incharge.name}` : "Assign Incharge"}
+              {hasIncharge ? `Change Incharge` : "Assign Incharge"}
             </button>
           </div>
         )}
@@ -337,83 +328,102 @@ export default function ClassesPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-155 dark:border-gray-700">
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-505 uppercase tracking-wider">Class Name</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-505 uppercase tracking-wider">Incharge</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-550 uppercase tracking-wider text-center">Students</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-550 uppercase tracking-wider text-center">Forum</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-550 uppercase tracking-wider">Level &amp; Year</th>
-                      <th className="px-6 py-3.5 w-24"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                    {ugList.map((c) => {
-                      const meta = CLASS_META[c.class_name];
-                      const hasIncharge = !!c.incharge;
-                      return (
-                        <tr key={c.class_name} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                          <td className="px-6 py-3.5 font-bold text-gray-900 dark:text-white">
-                            {c.can_view_details ? (
-                              <Link to={`/classes/${c.class_name}`} className="hover:text-primary-600">
-                                {meta?.label || c.class_name}
-                              </Link>
-                            ) : (
-                              meta?.label || c.class_name
-                            )}
-                          </td>
-                          <td className="px-6 py-3.5">
-                            {hasIncharge ? (
-                              <span className="text-sm font-semibold text-emerald-650 dark:text-emerald-400">
-                                {c.incharge.name}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-gray-450 italic">Not assigned</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-3.5 text-center text-sm font-bold text-gray-700 dark:text-gray-300">
-                            {c.student_count ?? 0}
-                          </td>
-                          <td className="px-6 py-3.5 text-center text-sm font-bold text-gray-700 dark:text-gray-300">
-                            {c.forum_member_count ?? 0}
-                          </td>
-                          <td className="px-6 py-3.5">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta?.bg} ${meta?.text} ${meta?.border}`}>
-                              {meta?.level} · Year {meta?.year}
+            <div className="space-y-4">
+              {/* Header row for large screens */}
+              <div className="hidden lg:grid grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+                <span>Class Name</span>
+                <span>Class Incharge</span>
+                <span className="text-center">Students</span>
+                <span className="text-center">Forum</span>
+                <span>Level &amp; Year</span>
+                <span className="text-center">Actions</span>
+              </div>
+
+              <div className="space-y-3">
+                {ugList.map((c) => {
+                  const meta = CLASS_META[c.class_name];
+                  const hasIncharge = !!c.incharge;
+                  return (
+                    <div
+                      key={c.class_name}
+                      className="group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300"
+                    >
+                      {/* Col 1: Class Name & Link */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta?.gradient} flex items-center justify-center shadow-sm shrink-0`}>
+                          <span className="text-xs font-extrabold text-white">{meta?.short || c.class_name}</span>
+                        </div>
+                        <div className="min-w-0">
+                          {c.can_view_details ? (
+                            <Link to={`/classes/${c.class_name}`} className="text-sm font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors block truncate">
+                              {meta?.label || c.class_name}
+                            </Link>
+                          ) : (
+                            <span className="text-sm font-bold text-gray-900 dark:text-white block truncate">
+                              {meta?.label || c.class_name}
                             </span>
-                          </td>
-                          <td className="px-6 py-3.5 text-right">
-                            {isHOD && (
-                              <button
-                                onClick={() => setInchargeModal(c.class_name)}
-                                className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-primary-200 dark:border-primary-800/40 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all"
-                              >
-                                Assign Incharge
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Col 2: Incharge */}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Incharge:</span>
+                        {hasIncharge ? (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" />
+                            <span className="text-xs font-semibold text-gray-750 dark:text-gray-300 truncate">
+                              {c.incharge.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">Not assigned</span>
+                        )}
+                      </div>
+
+                      {/* Col 3: Students Count */}
+                      <div className="flex items-center lg:justify-center">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Students:</span>
+                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
+                          {c.student_count ?? 0}
+                        </span>
+                      </div>
+
+                      {/* Col 4: Forum Members Count */}
+                      <div className="flex items-center lg:justify-center">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Forum:</span>
+                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
+                          {c.forum_member_count ?? 0}
+                        </span>
+                      </div>
+
+                      {/* Col 5: Level & Year */}
+                      <div className="flex items-center">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Year:</span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta?.bg} ${meta?.text} ${meta?.border}`}>
+                          {meta?.level} · Year {meta?.year}
+                        </span>
+                      </div>
+
+                      {/* Col 6: Actions */}
+                      <div className="flex items-center justify-end lg:justify-center">
+                        {isHOD ? (
+                          <button
+                            onClick={() => setInchargeModal(c.class_name)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-primary-200 dark:border-primary-800/40 text-primary-650 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all"
+                          >
+                            Assign
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* ── PG Classes ── */}
-      {pgList.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate</span>
-            <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-500">{pgList.length} classes</span>
-          </div>
           {viewMode === "grid" ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {pgList.map((c) => (
@@ -427,69 +437,99 @@ export default function ClassesPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-155 dark:border-gray-700">
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-505 uppercase tracking-wider">Class Name</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-505 uppercase tracking-wider">Incharge</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-550 uppercase tracking-wider text-center">Students</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-550 uppercase tracking-wider text-center">Forum</th>
-                      <th className="px-6 py-3.5 text-xs font-bold text-gray-550 uppercase tracking-wider">Level &amp; Year</th>
-                      <th className="px-6 py-3.5 w-24"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                    {pgList.map((c) => {
-                      const meta = CLASS_META[c.class_name];
-                      const hasIncharge = !!c.incharge;
-                      return (
-                        <tr key={c.class_name} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                          <td className="px-6 py-3.5 font-bold text-gray-900 dark:text-white">
-                            {c.can_view_details ? (
-                              <Link to={`/classes/${c.class_name}`} className="hover:text-primary-600">
-                                {meta?.label || c.class_name}
-                              </Link>
-                            ) : (
-                              meta?.label || c.class_name
-                            )}
-                          </td>
-                          <td className="px-6 py-3.5">
-                            {hasIncharge ? (
-                              <span className="text-sm font-semibold text-emerald-655 dark:text-emerald-400">
-                                {c.incharge.name}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-gray-450 italic">Not assigned</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-3.5 text-center text-sm font-bold text-gray-700 dark:text-gray-300">
-                            {c.student_count ?? 0}
-                          </td>
-                          <td className="px-6 py-3.5 text-center text-sm font-bold text-gray-700 dark:text-gray-300">
-                            {c.forum_member_count ?? 0}
-                          </td>
-                          <td className="px-6 py-3.5">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta?.bg} ${meta?.text} ${meta?.border}`}>
-                              {meta?.level} · Year {meta?.year}
+            <div className="space-y-4">
+              {/* Header row for large screens */}
+              <div className="hidden lg:grid grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider border-b border-gray-155 dark:border-gray-800/40">
+                <span>Class Name</span>
+                <span>Class Incharge</span>
+                <span className="text-center">Students</span>
+                <span className="text-center">Forum</span>
+                <span>Level &amp; Year</span>
+                <span className="text-center">Actions</span>
+              </div>
+
+              <div className="space-y-3">
+                {pgList.map((c) => {
+                  const meta = CLASS_META[c.class_name];
+                  const hasIncharge = !!c.incharge;
+                  return (
+                    <div
+                      key={c.class_name}
+                      className="group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300"
+                    >
+                      {/* Col 1: Class Name & Link */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta?.gradient} flex items-center justify-center shadow-sm shrink-0`}>
+                          <span className="text-xs font-extrabold text-white">{meta?.short || c.class_name}</span>
+                        </div>
+                        <div className="min-w-0">
+                          {c.can_view_details ? (
+                            <Link to={`/classes/${c.class_name}`} className="text-sm font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors block truncate">
+                              {meta?.label || c.class_name}
+                            </Link>
+                          ) : (
+                            <span className="text-sm font-bold text-gray-900 dark:text-white block truncate">
+                              {meta?.label || c.class_name}
                             </span>
-                          </td>
-                          <td className="px-6 py-3.5 text-right">
-                            {isHOD && (
-                              <button
-                                onClick={() => setInchargeModal(c.class_name)}
-                                className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-primary-200 dark:border-primary-800/40 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all"
-                              >
-                                Assign Incharge
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Col 2: Incharge */}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Incharge:</span>
+                        {hasIncharge ? (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" />
+                            <span className="text-xs font-semibold text-gray-755 dark:text-gray-300 truncate">
+                              {c.incharge.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">Not assigned</span>
+                        )}
+                      </div>
+
+                      {/* Col 3: Students Count */}
+                      <div className="flex items-center lg:justify-center">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Students:</span>
+                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
+                          {c.student_count ?? 0}
+                        </span>
+                      </div>
+
+                      {/* Col 4: Forum Members Count */}
+                      <div className="flex items-center lg:justify-center">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Forum:</span>
+                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
+                          {c.forum_member_count ?? 0}
+                        </span>
+                      </div>
+
+                      {/* Col 5: Level & Year */}
+                      <div className="flex items-center">
+                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Year:</span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta?.bg} ${meta?.text} ${meta?.border}`}>
+                          {meta?.level} · Year {meta?.year}
+                        </span>
+                      </div>
+
+                      {/* Col 6: Actions */}
+                      <div className="flex items-center justify-end lg:justify-center">
+                        {isHOD ? (
+                          <button
+                            onClick={() => setInchargeModal(c.class_name)}
+                            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-primary-200 dark:border-primary-800/40 text-primary-650 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all"
+                          >
+                            Assign
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
