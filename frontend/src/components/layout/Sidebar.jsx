@@ -38,7 +38,7 @@ const allNavItems = [
     to: "/faculty",
     label: "Faculty",
     icon: GraduationCap,
-    roles: ["HOD", "FACULTY"],
+    roles: ["HOD", "FACULTY", "STUDENT"],
     color: "from-orange-500 to-amber-600",
     glow: "shadow-orange-500/30",
   },

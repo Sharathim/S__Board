@@ -15,7 +15,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   ArrowLeft, Edit2, Trash2, Paperclip, CheckCircle,
   Image, File, Download, FolderKanban, Plus, MoreVertical, Pencil,
-  Calendar, Clock, ShieldAlert
+  Calendar, Clock, ShieldAlert, X
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -34,6 +34,7 @@ export default function ProjectDetailPage() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [enlargedImage, setEnlargedImage] = useState(null);
 
   // Edit Project fields
   const [editProjectName, setEditProjectName] = useState("");
@@ -488,20 +489,27 @@ export default function ProjectDetailPage() {
                 {/* Attachment Display */}
                 {msg.attachment_url && (
                   <div className="pt-2">
-                    <a
-                      href={msg.attachment_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-750 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
-                    >
-                      {msg.attachment_type === "image" ? (
-                        <Image className="w-4 h-4 text-indigo-500 shrink-0" />
-                      ) : (
+                    {msg.attachment_type === "image" ? (
+                      <div className="mt-1.5 relative group max-w-sm rounded-2xl overflow-hidden border border-gray-150 dark:border-gray-750 shadow-sm cursor-zoom-in">
+                        <img
+                          src={msg.attachment_url}
+                          alt={msg.attachment_name || "Attachment"}
+                          onClick={() => setEnlargedImage(msg.attachment_url)}
+                          className="w-full max-h-60 object-cover hover:scale-[1.01] transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <a
+                        href={msg.attachment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-755 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
+                      >
                         <File className="w-4 h-4 text-violet-500 shrink-0" />
-                      )}
-                      <span className="truncate max-w-[200px] sm:max-w-xs">{msg.attachment_name || "Download Attachment"}</span>
-                      <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    </a>
+                        <span className="truncate max-w-[200px] sm:max-w-xs">{msg.attachment_name || "Download Attachment"}</span>
+                        <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      </a>
+                    )}
                   </div>
                 )}
               </div>
@@ -528,99 +536,101 @@ export default function ProjectDetailPage() {
             <textarea
               value={editProjectDesc}
               onChange={e => setEditProjectDesc(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm h-24 resize-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              rows={4}
             />
           </div>
           <div className="flex justify-end gap-2.5 pt-2">
             <Button type="button" variant="ghost" onClick={() => setEditProjectModalOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={editProjectMutation.isPending}>Save Changes</Button>
+            <Button type="submit">Save Changes</Button>
           </div>
         </form>
       </Modal>
 
-      {/* ─── 5. Add / Edit Progress Modal ─── */}
-      <Modal
-        open={addModalOpen}
-        onClose={() => { setAddModalOpen(false); setEditingMsg(null); }}
-        title={editingMsg ? "Edit Progress Update" : "Add Progress Update"}
-      >
+      {/* ─── 5. Add / Edit Progress Update Modal ─── */}
+      <Modal open={addModalOpen} onClose={() => { setAddModalOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress Update" : "Publish Progress Update"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Update Title</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Update Title</label>
             <input
               type="text"
               value={formTitle}
               onChange={e => setFormTitle(e.target.value)}
-              placeholder="e.g. Backend Authentication Completed"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              placeholder="e.g., Sprint 1 Demo, UI Design Completed..."
               required
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
             />
           </div>
+
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">What did you complete?</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Key Accomplishment</label>
             <textarea
               value={formAccomplishment}
               onChange={e => setFormAccomplishment(e.target.value)}
-              placeholder="Provide a short paragraph describing accomplishments..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm h-24 resize-none"
+              placeholder="What did you achieve in this phase?"
               required
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              rows={3}
             />
           </div>
+
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">What's Next</label>
-            <input
-              type="text"
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">What's Next</label>
+            <textarea
               value={formNext}
               onChange={e => setFormNext(e.target.value)}
-              placeholder="One concise sentence explaining the next planned task..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              placeholder="What are the next steps / goals?"
               required
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              rows={2}
             />
           </div>
+
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Guidelines Needed</label>
-            <input
-              type="text"
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Guidelines Needed (Optional)</label>
+            <textarea
               value={formGuidelines}
               onChange={e => setFormGuidelines(e.target.value)}
-              placeholder="Type any questions or help needed (or leave blank)"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              placeholder="Any specific questions or guidance required from faculty?"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              rows={2}
             />
           </div>
-          
+
           {/* Attachment upload */}
           {!editingMsg && (
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Attachment</label>
               {formAttachment ? (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-750 text-xs">
-                  <span className="font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[250px]">
+                <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
+                  <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-md">
                     📄 {formAttachment.name}
                   </span>
                   <button
                     type="button"
                     onClick={() => setFormAttachment(null)}
-                    className="text-red-500 hover:text-red-650 font-bold"
+                    className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-450 hover:text-red-550 transition-colors"
                   >
-                    Remove
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center py-4 border-2 border-dashed border-gray-250 dark:border-gray-700 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-gray-850/50 transition-colors">
-                  <Paperclip className="w-5 h-5 text-gray-400 mb-1" />
-                  <span className="text-xs text-gray-500 font-medium">Attach files (images, pdfs, docs)</span>
+                <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-500 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center">
+                  <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-500 mb-1" />
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-450">Attach file (Max 10MB)</span>
                   <input
                     type="file"
                     className="hidden"
-                    accept="image/*,.pdf,.doc,.docx,.mp4"
-                    onChange={e => {
-                      const file = e.target.files[0];
-                      if (file && file.size > 10 * 1024 * 1024) {
-                        alert("File size exceeds 10MB limit.");
-                        e.target.value = null;
-                        return;
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert("File size exceeds 10MB limit.");
+                          e.target.value = null;
+                          return;
+                        }
+                        setFormAttachment(file);
                       }
-                      setFormAttachment(file);
                     }}
                   />
                 </label>
@@ -655,6 +665,26 @@ export default function ProjectDetailPage() {
         confirmText="Delete"
         danger
       />
+
+      {/* Lightbox / Enlarged Image Modal */}
+      {enlargedImage && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setEnlargedImage(null)}
+        >
+          <button
+            onClick={() => setEnlargedImage(null)}
+            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={enlargedImage}
+            alt="Enlarged view"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+          />
+        </div>
+      )}
     </div>
   );
 }

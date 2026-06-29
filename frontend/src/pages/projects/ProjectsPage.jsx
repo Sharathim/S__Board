@@ -196,7 +196,7 @@ export default function ProjectsPage() {
   return (
     <div className="space-y-6">
       {/* ─── Premium Header ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
             <FolderKanban className="w-5 h-5 text-white" />
@@ -204,9 +204,10 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
         </div>
         {isHOD && (
-          <Button onClick={openCreate} className="gap-1.5 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-3.5 py-2 text-xs sm:text-sm">
+          <Button onClick={openCreate} className="gap-1 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm">
             <Plus className="w-3.5 h-3.5" />
-            <span>Create New Project</span>
+            <span className="hidden sm:inline">Create New Project</span>
+            <span className="sm:hidden">Project</span>
           </Button>
         )}
       </div>
@@ -708,7 +709,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Title</label>
               <div className="relative flex items-center">
-                <FileText className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-505" />
+                <FileText className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-550" />
                 <input
                   type="text"
                   value={name}
@@ -724,7 +725,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description (Optional)</label>
               <div className="relative">
-                <Edit3 className="absolute left-3.5 top-3 w-4 h-4 text-gray-400 dark:text-gray-550" />
+                <Edit3 className="absolute left-3.5 top-3 w-4 h-4 text-gray-400 dark:text-gray-555" />
                 <textarea
                   value={description}
                   onChange={e => { if (e.target.value.length <= 500) setDescription(e.target.value); }}
@@ -757,7 +758,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                   </button>
 
                   {statusOpen && (
-                    <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-750 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
+                    <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-755 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
                       {statusOptions.map(opt => (
                         <button
                           key={opt.value}
@@ -777,21 +778,22 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
               </div>
             )}
           </div>
+
           {/* ─── Right Pane: Member Assignment ─── */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
             
             {/* Header Title block */}
             <div className="flex flex-col">
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 tracking-tight">Assign Members</h3>
-              <p className="text-xs text-gray-400 dark:text-gray-500">Add faculty, students or forum members</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Add faculty, students or Form members</p>
             </div>
 
             {/* Custom Tab Switcher with custom matched Icons */}
             <div className="flex p-1 rounded-xl bg-gray-150/60 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40 gap-1.5">
               {[
                 { id: "faculty", label: "Faculty", count: facultyPeople.length, icon: GraduationCap },
+                { id: "forum", label: "Form", count: forumPeople.length, icon: MessageSquare },
                 { id: "student", label: "Students", count: studentPeople.length, icon: Users },
-                { id: "forum", label: "Forum Members", count: forumPeople.length, icon: MessageSquare },
               ].map(tab => {
                 const isActive = activeTab === tab.id;
                 const TabIcon = tab.icon;
@@ -803,7 +805,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                       isActive 
                         ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                        : "text-gray-450 dark:text-gray-500 hover:text-gray-650 dark:hover:text-gray-400"
+                        : "text-gray-450 dark:text-gray-500 hover:text-gray-655 dark:hover:text-gray-400"
                     }`}
                   >
                     <TabIcon className="w-3.5 h-3.5" />
@@ -816,13 +818,13 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
             {/* Member Search input with left Search Icon inside */}
             <div className="relative flex items-center">
-              <Search className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <Search className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-505" />
               <input
                 type="text"
-                placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"}...`}
+                placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "form"}...`}
                 value={memberSearch}
                 onChange={e => setMemberSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-250 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-250 dark:border-gray-755 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
               />
             </div>
 
@@ -830,7 +832,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
             <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-800/60 rounded-2xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
               {filteredPeople.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-550 font-medium">No matches found</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-555 font-medium">No matches found</p>
                 </div>
               ) : (
                 filteredPeople.map(p => {
@@ -846,7 +848,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <Avatar src={p.profile_picture} name={p.name} size="sm" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-750" />
+                        <Avatar src={p.profile_picture} name={p.name} size="sm" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-755" />
                         <div className="min-w-0 flex flex-col">
                           <p className="text-sm font-semibold text-gray-850 dark:text-gray-205 truncate">{p.name}</p>
                           {p.subtitle && <p className="text-[11px] text-gray-450 dark:text-gray-500 truncate mt-0.5">{p.subtitle}</p>}
@@ -858,7 +860,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                         className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-200 ${
                           isSelected
                             ? "bg-violet-600 border-violet-600 dark:bg-violet-500 dark:border-violet-500 text-white shadow-sm"
-                            : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-650 hover:border-gray-350 dark:hover:text-gray-300"
+                            : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-655 hover:border-gray-350 dark:hover:text-gray-300"
                         }`}
                       >
                         {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
@@ -868,22 +870,6 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                 })
               )}
             </div>
-
-            {/* Bottom members added status banner */}
-            <div className="p-3.5 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-55/30 dark:bg-gray-900/10 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gray-150/50 dark:bg-gray-800 flex items-center justify-center text-gray-500 shrink-0 mt-0.5">
-                <Users className="w-4 h-4" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <p className="text-xs font-bold text-gray-800 dark:text-gray-205">
-                  {selectedMembers.length === 0 ? "No members added yet" : `${selectedMembers.length} member(s) added`}
-                </p>
-                <p className="text-[10px] text-gray-455 dark:text-gray-500 mt-0.5">
-                  {selectedMembers.length === 0 ? "Add at least one member to create the project" : "Ready to configure project workspace"}
-                </p>
-              </div>
-            </div>
-
           </div>
         </div>
 

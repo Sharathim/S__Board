@@ -193,7 +193,7 @@ function InviteBanner({ invite, onToggle, isToggling }) {
 }
 
 // ─── Faculty Card ─────────────────────────────────────────────────────────────
-function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
+function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const palette = getAvatarPalette(fac.name);
 
@@ -237,13 +237,6 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
                   {menuOpen && (
                     <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                       <button
-                        onClick={() => { setMenuOpen(false); onEdit(fac); }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 font-medium transition-colors text-left"
-                      >
-                        <Pencil className="w-4 h-4 text-indigo-500" />
-                        Edit Profile
-                      </button>
-                      <button
                         onClick={() => {
                           setMenuOpen(false);
                           fac.class_incharge_of ? onRemoveIncharge(fac) : onAssignIncharge(fac);
@@ -267,7 +260,7 @@ function FacultyCard({ fac, isHOD, userId, onEdit, onDelete, onAssignIncharge, o
                   )}
                 </div>
               ) : (
-                userId === fac.user_id && (
+                userRole === "FACULTY" && userId === fac.user_id && (
                   <button
                     onClick={() => onEdit(fac)}
                     className="p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 dark:bg-gray-900 dark:hover:bg-indigo-950/20 text-indigo-500 border border-slate-100 dark:border-gray-800/40 transition-colors shadow-sm"
@@ -340,6 +333,13 @@ export default function FacultyPage() {
   const [editClasses,  setEditClasses]  = useState([]);
   const [deleteConfirm,setDeleteConfirm]= useState(null);
   const [viewMode,     setViewMode]     = useState("grid");
+  const [openKebabId,  setOpenKebabId]  = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (!e.target.closest(".kebab-container-list")) setOpenKebabId(null); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // ── Queries ──
   const { data, isLoading } = useQuery({
@@ -424,8 +424,7 @@ export default function FacultyPage() {
           {isHOD && invite && (
             <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
                             <button
-                type="button"
-                onClick={() => toggleInviteMutation.mutate()}
+                    onClick={() => toggleInviteMutation.mutate()}
                 disabled={toggleInviteMutation.isPending}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${
                   invite.is_active
@@ -453,13 +452,13 @@ export default function FacultyPage() {
           )}
 
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "grid"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                  : "text-gray-450 dark:text-gray-500 hover:text-gray-650 dark:hover:text-gray-400"
               }`}
               title="Grid View"
             >
@@ -470,7 +469,7 @@ export default function FacultyPage() {
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "list"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
+                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650 dark:hover:text-gray-400"
               }`}
               title="List View"
             >
@@ -502,6 +501,7 @@ export default function FacultyPage() {
               fac={fac}
               isHOD={isHOD}
               userId={user?.id}
+              userRole={user?.role}
               onEdit={handleOpenEdit}
               onDelete={setDeleteConfirm}
               onAssignIncharge={(f) => { setAssignModal(f); setSelectedClass(""); }}
@@ -532,7 +532,7 @@ export default function FacultyPage() {
                   <Avatar fac={fac} size="sm" />
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{fac.name}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{fac.email}</p>
+                    <p className="text-xs text-gray-450 dark:text-gray-550 mt-0.5 truncate">{fac.email}</p>
                   </div>
                 </div>
 
@@ -569,7 +569,7 @@ export default function FacultyPage() {
                   <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Projects:</span>
                   <span className={`text-sm font-extrabold px-2.5 py-0.5 rounded-full ${
                     fac.project_count > 0
-                      ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400"
+                      ? "bg-indigo-50 dark:bg-indigo-955/30 text-indigo-600 dark:text-indigo-400"
                       : "text-gray-400 dark:text-gray-500"
                   }`}>
                     {fac.project_count || 0}
@@ -577,22 +577,54 @@ export default function FacultyPage() {
                 </div>
 
                 {/* Col 6: Actions */}
-                <div className="flex items-center justify-end lg:justify-center gap-1">
-                  <a href={`mailto:${fac.email}`} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-400 hover:text-red-500 transition-colors" title={`Email ${fac.name}`}>
-                    <Mail className="w-4 h-4" />
+                <div className="flex items-center justify-end lg:justify-center gap-1.5">
+                  <a
+                    href={`mailto:${fac.email}`}
+                    className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 text-gray-400 hover:text-red-500 transition-colors"
+                    title={`Email ${fac.name}`}
+                  >
+                    <GmailIcon className="w-4 h-4" />
                   </a>
                   {isHOD ? (
-                    <>
-                      <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors" title="Edit">
-                        <Pencil className="w-4 h-4" />
+                    <div className="relative kebab-container-list">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setOpenKebabId(openKebabId === fac.id ? null : fac.id); }}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-655 dark:hover:text-gray-300 transition-colors"
+                      >
+                        <MoreVertical className="w-4 h-4" />
                       </button>
-                      <button onClick={() => setDeleteConfirm(fac)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-400 hover:text-red-500 transition-colors" title="Delete">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </>
+                      {openKebabId === fac.id && (
+                        <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                          <button
+                            onClick={() => {
+                              setOpenKebabId(null);
+                              fac.class_incharge_of ? assignMutation.mutate({ id: fac.id, className: "" }) : setAssignModal(fac);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
+                          >
+                            {fac.class_incharge_of
+                              ? <><UserX className="w-4 h-4" />Remove as Incharge</>
+                              : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+                            }
+                          </button>
+                          <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                          <button
+                            onClick={() => { setOpenKebabId(null); setDeleteConfirm(fac); }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Remove Faculty
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   ) : (
-                    user?.id === fac.user_id && (
-                      <button onClick={() => handleOpenEdit(fac)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors" title="Edit Profile">
+                    user?.role === "FACULTY" && user?.id === fac.user_id && (
+                      <button
+                        onClick={() => handleOpenEdit(fac)}
+                        className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors"
+                        title="Edit Profile"
+                      >
                         <Pencil className="w-4 h-4" />
                       </button>
                     )
