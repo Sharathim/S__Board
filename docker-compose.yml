@@ -44,6 +44,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       REDIS_URL: redis://redis:6379/0
+      EVENTLET_NO_GREENDNS: "yes"
     ports:
       - "5055:5000"
     depends_on:
