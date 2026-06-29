@@ -292,7 +292,7 @@ export default function ProjectDetailPage() {
         {/* Info Grid (SaaS-style blocks) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Lead Advisor</span>
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Faculty</span>
             <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1 truncate">{leadAdvisor}</div>
           </div>
           <div>
