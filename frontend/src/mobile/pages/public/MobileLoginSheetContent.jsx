@@ -52,7 +52,7 @@ export default function MobileLoginSheetContent({ onClose }) {
 
       {/* Google Sign-in button */}
       <button
-        onClick={() => { loginWithGoogle(role.toLowerCase()); onClose?.(); }}
+        onClick={() => { loginWithGoogle(role); onClose?.(); }}
         className="mobile-tappable w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-violet-600 text-white text-sm font-bold shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all flex items-center justify-center gap-2.5"
       >
         <svg viewBox="0 0 48 48" className="w-5 h-5">
