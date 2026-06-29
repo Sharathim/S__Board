@@ -664,7 +664,7 @@ export default function UpdatesPage() {
                   </div>
 
                   {/* Actions Kebab Menu for Coordinators & HOD */}
-                  {(isUpdateCoordinator || isHOD) && (
+                  {(isHOD || (isUpdateCoordinator && update.posted_by === user?.id)) && (
                     <div className="relative">
                       <button
                         type="button"
@@ -675,13 +675,15 @@ export default function UpdatesPage() {
                       </button>
                       {openKebabId === update.id && (
                         <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg z-20 py-1">
-                          <button
-                            type="button"
-                            onClick={() => { openEditModal(update); setOpenKebabId(null); }}
-                            className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" /> Edit
-                          </button>
+                          {update.posted_by === user?.id && (
+                            <button
+                              type="button"
+                              onClick={() => { openEditModal(update); setOpenKebabId(null); }}
+                              className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" /> Edit
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => { setDeleteTarget(update.id); setOpenKebabId(null); }}

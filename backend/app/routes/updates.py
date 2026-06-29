@@ -161,13 +161,12 @@ def edit_update(update_id):
 def delete_update(update_id):
     update = Update.query.get_or_404(update_id)
 
-    if update.posted_by != g.current_user.id:
+    if update.posted_by != g.current_user.id and g.current_user.role != UserRole.HOD:
         return jsonify({"error": "Cannot delete others' updates"}), 403
     if update.is_deleted:
         return jsonify({"error": "Already deleted"}), 400
 
     update.is_deleted = True
-    update.content = None
     db.session.commit()
 
     return jsonify({"ok": True})
