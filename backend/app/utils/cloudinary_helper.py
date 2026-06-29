@@ -28,9 +28,10 @@ def upload_file(file, folder="dpms"):
         file_type = "document"
 
     result = cloudinary.uploader.upload(
-        (file.filename, file.stream, file.content_type),
+        file.stream,
         folder=folder,
         resource_type="auto",
+        filename=file.filename,
     )
     return {
         "url": result["secure_url"],
