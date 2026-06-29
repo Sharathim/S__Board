@@ -27,14 +27,6 @@ const allNavItems = [
     glow: "shadow-blue-500/30",
   },
   {
-    to: "/classes",
-    label: "Students",
-    icon: Users,
-    roles: ["STUDENT"],
-    color: "from-emerald-500 to-teal-600",
-    glow: "shadow-emerald-500/30",
-  },
-  {
     to: "/faculty",
     label: "Faculty",
     icon: GraduationCap,
@@ -46,7 +38,7 @@ const allNavItems = [
     to: "/classes",
     label: "Classes",
     icon: BookOpen,
-    roles: ["HOD", "FACULTY"],
+    roles: ["HOD", "FACULTY", "STUDENT"],
     color: "from-cyan-500 to-sky-600",
     glow: "shadow-cyan-500/30",
   },

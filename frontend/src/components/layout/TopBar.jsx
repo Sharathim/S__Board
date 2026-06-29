@@ -38,8 +38,7 @@ const allNavItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["HOD"] },
   { to: "/projects", label: "Projects", icon: FolderKanban, roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/faculty", label: "Faculty", icon: GraduationCap, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/classes", label: "Classes", icon: BookOpen, roles: ["HOD", "FACULTY"] },
-  { to: "/classes", label: "Students", icon: Users, roles: ["STUDENT"] },
+  { to: "/classes", label: "Classes", icon: BookOpen, roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/forum", label: "Forum", icon: MessageSquare, roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/updates", label: "Updates", icon: Megaphone, roles: ["HOD", "FACULTY", "STUDENT"] },
 ];

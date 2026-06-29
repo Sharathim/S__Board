@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { listClasses, toggleStudentRegistration, assignIncharge } from "../../api/classes";
 import { listFaculty } from "../../api/faculty";
 import { useAuth } from "../../context/AuthContext";
@@ -139,7 +140,7 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
   if (!className) return null;
   const meta = CLASS_META[className];
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/15 p-4 animate-fade-in" onClick={onClose}>
       <div
         className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-150 dark:border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden transition-all"
@@ -222,7 +223,8 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
