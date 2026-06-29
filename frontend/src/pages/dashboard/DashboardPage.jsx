@@ -259,27 +259,52 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* ── Welcome Header ── */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Welcome back, {getFirstName(user?.name)}
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Here's what's happening in your department today.
-          </p>
+      {/* ── Welcome Header + Video Hero ── */}
+      <div className="flex flex-col xl:flex-row xl:items-stretch gap-6">
+        {/* Left — Text Content */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Welcome back, {getFirstName(user?.name)}
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Here's what's happening in your department today.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              Department Statistics Hub
+            </h2>
+            <p className="text-xs text-slate-400 dark:text-slate-500">
+              Real-time statistics compiled from all sections of the portal.
+            </p>
+          </div>
+        </div>
+
+        {/* Right — Dashboard Video (desktop only) */}
+        <div className="hidden xl:block xl:w-[420px] flex-shrink-0">
+          <video
+            src="/dashboard-video-light.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover rounded-2xl"
+            style={{
+              maxHeight: "200px",
+              border: "1px solid var(--border-light, rgba(0,0,0,0.06))",
+            }}
+          />
         </div>
       </div>
 
       {/* ── Centralized Department Statistics Hub ── */}
       <div className="space-y-6">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            Department Statistics Hub
-          </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            Real-time statistics compiled from all sections of the portal.
-          </p>
+        <div style={{ display: "none" }}>
+          {/* Heading moved into hero section above */}
         </div>
 
         {/* Row 1: Core Metrics Grid */}
