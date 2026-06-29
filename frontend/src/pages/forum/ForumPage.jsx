@@ -83,7 +83,7 @@ export default function ForumPage() {
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [postModalOpen, setPostModalOpen] = useState(false);
 
-  const canPost = user?.student?.is_forum_member === true || user?.role === "HOD" || user?.role === "FACULTY";
+  const canPost = user?.student?.is_forum_member === true;
 
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ["forum-members"],
@@ -239,18 +239,7 @@ export default function ForumPage() {
   const coordinators = useMemo(() => memberList.filter(m => m.is_update_coordinator), [memberList]);
 
   const postList = posts || [];
-  const filteredPosts = useMemo(() => {
-    let result = postList;
-    if (activeTab === "my") result = result.filter(p => p.posted_by?.id === user?.id);
-    if (postSearchQuery.trim()) {
-      const q = postSearchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.content?.toLowerCase().includes(q) ||
-        p.posted_by?.name?.toLowerCase().includes(q)
-      );
-    }
-    return result;
-  }, [postList, activeTab, postSearchQuery, user]);
+  const filteredPosts = postList;
 
   const totalLikes = useMemo(() => postList.reduce((acc, p) => acc + (p.like_count || 0), 0), [postList]);
 
@@ -296,7 +285,7 @@ export default function ForumPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in pb-12">
+    <div className="w-full animate-fade-in pb-12">
       <style>{`
         @keyframes glitter {
           0% { transform: translateX(-100%) rotate(45deg); }
@@ -339,7 +328,7 @@ export default function ForumPage() {
       )}
 
       {/* Redesigned Header Row */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800/80 pb-5">
+      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-5 mb-8">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Forum</h1>
           {/* Vibrant, glittering count icon */}
@@ -355,22 +344,14 @@ export default function ForumPage() {
         {/* Straight Right End Actions */}
         <div className="flex items-center gap-2">
           {isHOD && (
-            <>
-              <button
-                onClick={() => setPostModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-750 transition-all shrink-0"
-              >
-                <Plus className="w-3.5 h-3.5" /> Post
-              </button>
-              <button
-                onClick={() => setPickerOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
-              >
-                <Plus className="w-4 h-4" /> Add Member
-              </button>
-            </>
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Add Member
+            </button>
           )}
-          {!isHOD && user?.student?.is_forum_member === true && (
+          {canPost && (
             <button
               onClick={() => setPostModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
@@ -381,59 +362,16 @@ export default function ForumPage() {
         </div>
       </div>
 
-      {/* Feed Controls */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        {/* Tabs */}
-        <div className="flex bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl border border-gray-150 dark:border-gray-700/80 p-1 shadow-sm">
-          {[
-            { key: "all", label: "All Posts", icon: Hash },
-            { key: "my", label: "My Posts", icon: BookOpen },
-          ].map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-205 ${activeTab === tab.key
-                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-800 dark:hover:text-white"
-                  }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search posts..."
-            value={postSearchQuery}
-            onChange={(e) => setPostSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 text-sm rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all shadow-sm"
-          />
-          {postSearchQuery && (
-            <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Date Grouped Posts */}
       <div className="space-y-6">
         {postsByDay.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-sm">
             <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
-              <MessageSquare className="w-7 h-7 text-gray-300 dark:text-gray-600" />
+              <MessageSquare className="w-7 h-7 text-gray-300 dark:text-gray-655" />
             </div>
-            <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">No posts found</h4>
+            <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">No posts shared yet</h4>
             <p className="text-xs text-gray-400 mt-1 max-w-xs">
-              {postSearchQuery ? "Try a different search keyword" : "Be the first to share something with the forum!"}
+              Be the first to share something with the forum!
             </p>
           </div>
         ) : (

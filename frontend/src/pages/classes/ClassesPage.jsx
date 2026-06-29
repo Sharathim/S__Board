@@ -135,25 +135,26 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
 
 // ─── Assign Incharge Modal ────────────────────────────────────────────────────
 function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, isPending }) {
+  const [selectedFacultyId, setSelectedFacultyId] = useState(null);
   if (!className) return null;
   const meta = CLASS_META[className];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/15 p-4 animate-fade-in" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 w-full max-w-md animate-fade-in"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-150 dark:border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`h-1.5 rounded-t-2xl bg-gradient-to-r ${meta?.gradient}`} />
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+        <div className={`h-1.5 rounded-t-3xl bg-gradient-to-r ${meta?.gradient} shrink-0`} />
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/60 shrink-0">
           <div className="flex items-center gap-3">
             <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta?.gradient} flex items-center justify-center`}>
               <Crown className="w-4 h-4 text-white" />
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-900 dark:text-white">Assign Incharge</h3>
-              <p className="text-xs text-gray-400">{meta?.label} class</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">{meta?.label} class</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors">
@@ -162,40 +163,62 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
         </div>
 
         {/* Faculty list */}
-        <div className="p-4">
+        <div className="p-4 flex-1 overflow-y-auto min-h-0">
           {eligibleFaculty.length === 0 ? (
             <div className="text-center py-10">
-              <UserCog className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+              <UserCog className="w-10 h-10 text-gray-300 dark:text-gray-650 mx-auto mb-3" />
               <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">No eligible faculty</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">All faculty are already assigned as class incharge.</p>
+              <p className="text-xs text-gray-400 dark:text-gray-505 mt-1">All faculty are already assigned as class incharge.</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-              {eligibleFaculty.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => onAssign({ className, facultyId: f.id })}
-                  disabled={isPending}
-                  className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all text-left disabled:opacity-50 group"
-                >
-                  <Avatar src={f.profile_picture} name={f.name} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">{f.name}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{f.designation}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 group-hover:text-primary-500 transition-colors shrink-0" />
-                </button>
-              ))}
+            <div className="space-y-2 pr-1">
+              {eligibleFaculty.map((f) => {
+                const isSelected = selectedFacultyId === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setSelectedFacultyId(f.id)}
+                    disabled={isPending}
+                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left disabled:opacity-50 group ${
+                      isSelected
+                        ? "border-primary-500 bg-primary-50/20 dark:bg-primary-950/15"
+                        : "border-gray-100 dark:border-gray-700/60 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-800/20"
+                    }`}
+                  >
+                    <Avatar src={f.profile_picture} name={f.name} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">{f.name}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{f.designation}</p>
+                    </div>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                      isSelected ? "border-primary-600 bg-primary-600 text-white" : "border-gray-350 dark:border-gray-600"
+                    }`}>
+                      {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div className="px-4 pb-4 flex justify-end">
+        {/* Footer */}
+        <div className="px-6 pb-6 pt-4 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700/60 bg-gray-50/40 dark:bg-gray-800/40 shrink-0">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
           >
             Cancel
+          </button>
+          <button
+            type="button"
+            disabled={!selectedFacultyId || isPending}
+            onClick={() => onAssign({ className, facultyId: selectedFacultyId })}
+            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 text-sm font-bold transition-all shadow-md shadow-indigo-500/10"
+          >
+            Confirm
           </button>
         </div>
       </div>
@@ -280,152 +303,28 @@ export default function ClassesPage() {
               </button>
             </div>
           )}
-
-          {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg transition-all ${
-                viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
-              }`}
-              title="Grid View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded-lg transition-all ${
-                viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400"
-              }`}
-              title="List View"
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       </div>
 
       {/* ── UG Classes ── */}
       {ugList.length > 0 && (
-        <div>
+        <div className="space-y-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate</span>
             <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-500">{ugList.length} classes</span>
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-505">{ugList.length} classes</span>
           </div>
-          {viewMode === "grid" ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {ugList.map((c) => (
-                <ClassCard
-                  key={c.class_name}
-                  c={c}
-                  meta={CLASS_META[c.class_name]}
-                  isHOD={isHOD}
-                  onAssignIncharge={setInchargeModal}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Header row for large screens */}
-              <div className="hidden lg:grid grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
-                <span>Class Name</span>
-                <span>Class Incharge</span>
-                <span className="text-center">Students</span>
-                <span className="text-center">Forum</span>
-                <span>Level &amp; Year</span>
-                <span className="text-center">Actions</span>
-              </div>
-
-              <div className="space-y-3">
-                {ugList.map((c) => {
-                  const meta = CLASS_META[c.class_name];
-                  const hasIncharge = !!c.incharge;
-                  return (
-                    <div
-                      key={c.class_name}
-                      className="group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300"
-                    >
-                      {/* Col 1: Class Name & Link */}
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta?.gradient} flex items-center justify-center shadow-sm shrink-0`}>
-                          <span className="text-xs font-extrabold text-white">{meta?.short || c.class_name}</span>
-                        </div>
-                        <div className="min-w-0">
-                          {c.can_view_details ? (
-                            <Link to={`/classes/${c.class_name}`} className="text-sm font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors block truncate">
-                              {meta?.label || c.class_name}
-                            </Link>
-                          ) : (
-                            <span className="text-sm font-bold text-gray-900 dark:text-white block truncate">
-                              {meta?.label || c.class_name}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Col 2: Incharge */}
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Incharge:</span>
-                        {hasIncharge ? (
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" />
-                            <span className="text-xs font-semibold text-gray-750 dark:text-gray-300 truncate">
-                              {c.incharge.name}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">Not assigned</span>
-                        )}
-                      </div>
-
-                      {/* Col 3: Students Count */}
-                      <div className="flex items-center lg:justify-center">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Students:</span>
-                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
-                          {c.student_count ?? 0}
-                        </span>
-                      </div>
-
-                      {/* Col 4: Forum Members Count */}
-                      <div className="flex items-center lg:justify-center">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Forum:</span>
-                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
-                          {c.forum_member_count ?? 0}
-                        </span>
-                      </div>
-
-                      {/* Col 5: Level & Year */}
-                      <div className="flex items-center">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Year:</span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta?.bg} ${meta?.text} ${meta?.border}`}>
-                          {meta?.level} · Year {meta?.year}
-                        </span>
-                      </div>
-
-                      {/* Col 6: Actions */}
-                      <div className="flex items-center justify-end lg:justify-center">
-                        {isHOD ? (
-                          <button
-                            onClick={() => setInchargeModal(c.class_name)}
-                            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-primary-200 dark:border-primary-800/40 text-primary-650 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all"
-                          >
-                            Assign
-                          </button>
-                        ) : (
-                          <span className="text-xs text-gray-400">—</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {ugList.map((c) => (
+              <ClassCard
+                key={c.class_name}
+                c={c}
+                meta={CLASS_META[c.class_name]}
+                isHOD={isHOD}
+                onAssignIncharge={setInchargeModal}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -435,117 +334,19 @@ export default function ClassesPage() {
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Postgraduate</span>
             <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-505">{pgList.length} classes</span>
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-550">{pgList.length} classes</span>
           </div>
-          {viewMode === "grid" ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {pgList.map((c) => (
-                <ClassCard
-                  key={c.class_name}
-                  c={c}
-                  meta={CLASS_META[c.class_name]}
-                  isHOD={isHOD}
-                  onAssignIncharge={setInchargeModal}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Header row for large screens */}
-              <div className="hidden lg:grid grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
-                <span>Class Name</span>
-                <span>Class Incharge</span>
-                <span className="text-center">Students</span>
-                <span className="text-center">Forum</span>
-                <span>Level &amp; Year</span>
-                <span className="text-center">Actions</span>
-              </div>
-
-              <div className="space-y-3">
-                {pgList.map((c) => {
-                  const meta = CLASS_META[c.class_name];
-                  const hasIncharge = !!c.incharge;
-                  return (
-                    <div
-                      key={c.class_name}
-                      className="group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.2fr)_1.5fr_100px_100px_140px_140px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300"
-                    >
-                      {/* Col 1: Class Name & Link */}
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta?.gradient} flex items-center justify-center shadow-sm shrink-0`}>
-                          <span className="text-xs font-extrabold text-white">{meta?.short || c.class_name}</span>
-                        </div>
-                        <div className="min-w-0">
-                          {c.can_view_details ? (
-                            <Link to={`/classes/${c.class_name}`} className="text-sm font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors block truncate">
-                              {meta?.label || c.class_name}
-                            </Link>
-                          ) : (
-                            <span className="text-sm font-bold text-gray-900 dark:text-white block truncate">
-                              {meta?.label || c.class_name}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Col 2: Incharge */}
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Incharge:</span>
-                        {hasIncharge ? (
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" />
-                            <span className="text-xs font-semibold text-gray-755 dark:text-gray-300 truncate">
-                              {c.incharge.name}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">Not assigned</span>
-                        )}
-                      </div>
-
-                      {/* Col 3: Students Count */}
-                      <div className="flex items-center lg:justify-center">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Students:</span>
-                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
-                          {c.student_count ?? 0}
-                        </span>
-                      </div>
-
-                      {/* Col 4: Forum Members Count */}
-                      <div className="flex items-center lg:justify-center">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Forum:</span>
-                        <span className="text-sm font-extrabold text-gray-800 dark:text-gray-200">
-                          {c.forum_member_count ?? 0}
-                        </span>
-                      </div>
-
-                      {/* Col 5: Level & Year */}
-                      <div className="flex items-center">
-                        <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Year:</span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta?.bg} ${meta?.text} ${meta?.border}`}>
-                          {meta?.level} · Year {meta?.year}
-                        </span>
-                      </div>
-
-                      {/* Col 6: Actions */}
-                      <div className="flex items-center justify-end lg:justify-center">
-                        {isHOD ? (
-                          <button
-                            onClick={() => setInchargeModal(c.class_name)}
-                            className="text-xs font-bold px-3 py-1.5 rounded-xl border border-primary-200 dark:border-primary-800/40 text-primary-650 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all"
-                          >
-                            Assign
-                          </button>
-                        ) : (
-                          <span className="text-xs text-gray-400">—</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {pgList.map((c) => (
+              <ClassCard
+                key={c.class_name}
+                c={c}
+                meta={CLASS_META[c.class_name]}
+                isHOD={isHOD}
+                onAssignIncharge={setInchargeModal}
+              />
+            ))}
+          </div>
         </div>
       )}
 
