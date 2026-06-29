@@ -1,4 +1,8 @@
+import io
+import logging
 import cloudinary.uploader
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 ALLOWED_DOC_TYPES = {"application/pdf", "application/msword",
@@ -27,13 +31,25 @@ def upload_file(file, folder="dpms"):
     else:
         file_type = "document"
 
+    # Read file into bytes then wrap in BytesIO for reliable Cloudinary upload
     file_bytes = file.read()
+    file_obj = io.BytesIO(file_bytes)
 
-    result = cloudinary.uploader.upload(
-        file_bytes,
-        folder=folder,
-        resource_type="auto",
-    )
+    logger.info("Uploading to Cloudinary: name=%s, size=%d, type=%s, folder=%s",
+                file.filename, size, content_type, folder)
+
+    try:
+        result = cloudinary.uploader.upload(
+            file_obj,
+            folder=folder,
+            resource_type="auto",
+        )
+    except Exception as e:
+        logger.error("Cloudinary upload failed: %s", str(e))
+        raise
+
+    logger.info("Cloudinary upload success: public_id=%s", result.get("public_id"))
+
     return {
         "url": result["secure_url"],
         "type": file_type,
