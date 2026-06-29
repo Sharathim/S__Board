@@ -16,6 +16,7 @@ import {
 import { useState, useMemo } from "react";
 import MobileCard from "../../components/MobileCard";
 import MobileSearchBar from "../../components/MobileSearchBar";
+import MobileEmptyState from "../../components/MobileEmptyState";
 
 const FORUM_CLASSES = ["UG_3A", "UG_3B"];
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
