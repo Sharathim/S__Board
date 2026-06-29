@@ -32,14 +32,14 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
     <div className={`group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative ${
       c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
     }`}>
-      <div className="p-5 flex flex-col flex-1 justify-between">
-        <div className="space-y-4">
+      <div className={`p-4 flex flex-col flex-1 justify-between ${meta.bg} bg-opacity-[0.04] dark:bg-opacity-[0.06]`}>
+        <div className="space-y-3">
           {/* Header Row */}
           <div className="flex items-center justify-between">
             <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md ring-2 ring-offset-1 ${meta.ring} shrink-0`}>
               <span className="text-sm font-extrabold text-white">{meta.short}</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
                 {meta.level} · Year {meta.year}
               </span>

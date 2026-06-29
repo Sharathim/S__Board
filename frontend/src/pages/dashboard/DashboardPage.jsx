@@ -1,19 +1,16 @@
 
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProjectStats, getRecentActivity } from "../../api/projects";
-import { getUnreadCount } from "../../api/notifications";
-import { listClasses } from "../../api/classes";
-import { listFaculty } from "../../api/faculty";
-import { listUpdates } from "../../api/updates";
-import { listForumMembers, listForumPosts } from "../../api/forum";
+import { listForumPosts } from "../../api/forum";
 import { Spinner } from "../../components/ui/Spinner";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
-  FolderKanban, TrendingUp, Users, CheckCircle, AlertTriangle,
-  Plus, CalendarDays, ChevronRight, GraduationCap, BookOpen,
-  MessageSquare, Megaphone, Clock, Activity, Layers, Crown, ShieldCheck, Star, Heart, Award,
+  FolderKanban, TrendingUp, Users, CheckCircle,
+  Clock, Heart, MessageSquare, ArrowRight,
 } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 function getFirstName(name) {
@@ -43,125 +40,34 @@ function statusMeta(status) {
   return map[status] || { label: status, color: "#9CA3AF", bg: "#F3F4F6" };
 }
 
-/* ─── SVG Donut Chart ────────────────────────────────────────────────────── */
-function DonutChart({ segments, total }) {
-  const size = 160;
-  const cx = size / 2;
-  const cy = size / 2;
-  const r = 56;
-  const stroke = 18;
-  const circumference = 2 * Math.PI * r;
-
-  if (total === 0) {
-    return (
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle
-          cx={cx} cy={cy} r={r}
-          fill="none"
-          stroke="var(--border-light)"
-          strokeWidth={stroke}
-        />
-        <text x={cx} y={cy - 4} textAnchor="middle" fontSize="22" fontWeight="700" fill="var(--text-primary)">0</text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fontSize="9" fill="var(--text-muted)">Total Projects</text>
-      </svg>
-    );
+function formatPostTime(dateString) {
+  try {
+    if (!dateString) return "";
+    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+  } catch {
+    return "just now";
   }
-
-  let offset = 0;
-  const arcs = segments
-    .filter(s => s.value > 0)
-    .map(s => {
-      const pct = s.value / total;
-      const dash = pct * circumference;
-      const gap = circumference - dash;
-      const arc = { ...s, dash, gap, offset };
-      offset += dash;
-      return arc;
-    });
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
-      {arcs.map((arc, i) => (
-        <circle
-          key={i}
-          cx={cx} cy={cy} r={r}
-          fill="none"
-          stroke={arc.color}
-          strokeWidth={stroke}
-          strokeDasharray={`${arc.dash} ${arc.gap}`}
-          strokeDashoffset={-arc.offset}
-          strokeLinecap="butt"
-        />
-      ))}
-      {/* Center text — rotate back to normal */}
-      <g style={{ transform: `rotate(90deg) translate(-${size}px, 0)` }}>
-        <text x={size - cx} y={cy - 4} textAnchor="middle" fontSize="22" fontWeight="700" fill="var(--text-primary)">{total}</text>
-        <text x={size - cx} y={cy + 14} textAnchor="middle" fontSize="9" fill="var(--text-muted)">Total Projects</text>
-      </g>
-    </svg>
-  );
-}
-
-/* ─── Dashboard Stat Tile for Moved Stats ─────────────────────────────────── */
-function DashboardStatTile({ icon: Icon, label, value, to }) {
-  return (
-    <Link
-      to={to}
-      className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-sm"
-      style={{ textDecoration: "none" }}
-    >
-      {/* Left Node */}
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
-        <Icon className="w-5 h-5" />
-      </div>
-      {/* Right Node */}
-      <div className="min-w-0 flex flex-col">
-        <span className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{value}</span>
-        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">{label}</span>
-      </div>
-    </Link>
-  );
 }
 
 /* ─── Component ──────────────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+
+  /* ── Live clock state ── */
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["project-stats"],
     queryFn: () => getProjectStats().then(r => r.data),
   });
 
-  const { data: activityData, isLoading: activityLoading } = useQuery({
+  const { data: activityData } = useQuery({
     queryKey: ["recent-activity"],
     queryFn: () => getRecentActivity(5).then(r => r.data),
-  });
-
-  const { data: notifData } = useQuery({
-    queryKey: ["unread-count"],
-    queryFn: () => getUnreadCount().then(r => r.data),
-  });
-
-  // Queries for moved statistics
-  const { data: classesData } = useQuery({
-    queryKey: ["classes"],
-    queryFn: () => listClasses().then(r => r.data),
-  });
-
-  const { data: facultyData } = useQuery({
-    queryKey: ["faculty"],
-    queryFn: () => listFaculty().then(r => r.data.faculty),
-  });
-
-  const { data: updatesData } = useQuery({
-    queryKey: ["updates"],
-    queryFn: () => listUpdates().then(r => r.data),
-  });
-
-  const { data: forumMembersData } = useQuery({
-    queryKey: ["forum-members"],
-    queryFn: () => listForumMembers().then(r => r.data.members),
   });
 
   const { data: forumPostsData } = useQuery({
@@ -186,8 +92,6 @@ export default function DashboardPage() {
       label: "Total Projects",
       value: total,
       icon: FolderKanban,
-      iconBg: "#EDE9FE",
-      iconColor: "#8B5CF6",
       emptyLabel: "No projects created yet",
     },
     {
@@ -195,8 +99,6 @@ export default function DashboardPage() {
       label: "In Progress",
       value: stats?.in_progress ?? 0,
       icon: TrendingUp,
-      iconBg: "#ECFDF5",
-      iconColor: "#10B981",
       emptyLabel: "No projects in progress",
     },
     {
@@ -204,8 +106,6 @@ export default function DashboardPage() {
       label: "Students in Projects",
       value: stats?.student_count ?? 0,
       icon: Users,
-      iconBg: "#F0FDF4",
-      iconColor: "#22C55E",
       emptyLabel: "No students assigned",
     },
     {
@@ -213,52 +113,21 @@ export default function DashboardPage() {
       label: "Completed",
       value: stats?.completed ?? 0,
       icon: CheckCircle,
-      iconBg: "#ECFDF5",
-      iconColor: "#10B981",
       emptyLabel: "No projects completed",
     },
   ];
 
-  /* ─ Donut segments ─ */
-  const donutSegments = [
-    { label: "Not Started", value: stats?.not_started ?? 0, color: "#9CA3AF" },
-    { label: "In Progress", value: stats?.in_progress ?? 0, color: "#8B5CF6" },
-    { label: "Review", value: stats?.review ?? 0, color: "#F59E0B" },
-    { label: "Completed", value: stats?.completed ?? 0, color: "#059669" },
-    { label: "On Hold", value: stats?.on_hold ?? 0, color: "#F59E0B" },
-    { label: "Cancelled", value: (stats?.cancelled ?? 0) + (stats?.low_activity ?? 0), color: "#EF4444" },
-  ];
-
   const activities = activityData?.activities ?? [];
+  const latestActivity = activities[0] || null;
 
-  // Re-calculate statistics for moved sections
-  const classesList = classesData?.classes || [];
-  const classesCount = classesList.length;
-  const totalStudentsCount = classesList.reduce((s, c) => s + (c.student_count ?? 0), 0);
-  const classInchargesCount = classesList.filter(c => c.incharge).length;
-  const ugClassesCount = classesList.filter(c => c.class_name?.startsWith("UG")).length;
-  const pgClassesCount = classesList.filter(c => c.class_name?.startsWith("PG")).length;
-
-  const facultyList = facultyData || [];
-  const facultyCount = facultyList.length;
-  const facultyInchargesCount = facultyList.filter(f => f.class_incharge_of).length;
-  const facultyProjectsCount = facultyList.reduce((s, f) => s + (f.project_count || 0), 0);
-  const professorsCount = facultyList.filter(f => f.designation === "Professor").length;
-
-  const updatesList = updatesData?.updates || [];
-  const updatesCount = updatesList.length;
-  const updatesLikesCount = updatesList.reduce((s, u) => s + (u.like_count || 0), 0);
-  const updatesPhotosCount = updatesList.filter(u => u.attachment_url && u.attachment_type === "image").length;
-  const updatesFilesCount = updatesList.filter(u => u.attachment_url && u.attachment_type === "file").length;
-
-  const forumMembersList = forumMembersData || [];
   const forumPostsList = forumPostsData || [];
-  const forumPostsCount = forumPostsList.length;
-  const forumLikesCount = forumPostsList.reduce((s, p) => s + (p.like_count || 0), 0);
-  const forumCoordinatorsCount = forumMembersList.filter(m => m.is_update_coordinator).length;
+  const sortedPosts = [...forumPostsList].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  );
+  const latestPost = sortedPosts[0] || null;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       {/* ── Welcome Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -271,8 +140,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Centralized Department Statistics Hub ── */}
-      <div className="space-y-6">
+      {/* ── Department Statistics Hub ── */}
+      <div className="space-y-5">
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
             Department Statistics Hub
@@ -282,8 +151,8 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Row 1: Core Metrics Grid */}
-        <div className="grid grid-cols-4 gap-5">
+        {/* Core Metrics Grid */}
+        <div className="grid grid-cols-4 gap-4">
           {statCards.map(card => {
             const Icon = card.icon;
             return (
@@ -291,11 +160,11 @@ export default function DashboardPage() {
                 key={card.key}
                 to="/projects"
                 id={`stat-card-${card.key}`}
-                className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:shadow-sm group block"
+                className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4 flex items-center gap-3.5 transition-all duration-200 hover:shadow-sm group block"
                 style={{ textDecoration: "none" }}
               >
                 {/* Left Node */}
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
                   <Icon className="w-5 h-5" />
                 </div>
                 {/* Right Node */}
@@ -309,317 +178,137 @@ export default function DashboardPage() {
             );
           })}
         </div>
+      </div>
 
-        {/* Row 2: Secondary Metrics Grid */}
-        <div className="grid grid-cols-2 gap-5 mt-6">
-          <DashboardStatTile icon={Users} label="Total Students" value={totalStudentsCount} to="/classes" />
-          <DashboardStatTile icon={Users} label="Total Faculty" value={facultyCount} to="/faculty" />
+      {/* ── Date & Time Card ── */}
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4 flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 shrink-0">
+          <Clock className="w-5 h-5" />
+        </div>
+        <div className="min-w-0 flex flex-col">
+          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+            {format(currentTime, "EEEE, d MMMM yyyy")}
+          </span>
+          <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight tabular-nums">
+            {format(currentTime, "hh:mm:ss a")}
+          </span>
         </div>
       </div>
 
-      {/* ── Main Grid (Projects Overview + Right Panel) ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left — Projects Overview */}
-        <div className="xl:col-span-2 space-y-6">
-          {/* Projects Overview Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="text-base font-bold text-slate-850 dark:text-slate-200">
-                  Projects Overview
-                </h2>
-                <p className="text-xs mt-0.5 text-slate-400 dark:text-slate-500">
-                  Track your projects by status
-                </p>
-              </div>
-              <button
-                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
-              >
-                This Month
-                <ChevronRight className="w-3 h-3 rotate-90" />
-              </button>
-            </div>
+      {/* ── Latest Forum Post + Latest Project Update ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 md:gap-12 max-w-xl mx-auto py-2">
-              {/* Donut */}
-              <div className="flex-shrink-0 flex flex-col items-center justify-center">
-                <DonutChart segments={donutSegments} total={total} />
-              </div>
-
-              {/* Status Legend Table */}
-              <div className="w-full max-w-[260px]">
-                <div className="space-y-1.5">
-                  {donutSegments.map(seg => {
-                    const pct = total > 0 ? Math.round((seg.value / total) * 100) : 0;
-                    return (
-                      <div
-                        key={seg.label}
-                        className="flex items-center gap-3 py-1.5 px-2.5 rounded-xl transition-all duration-150 hover:bg-slate-50/80 dark:hover:bg-slate-800/40"
-                      >
-                        <span
-                          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                          style={{ background: seg.color }}
-                        />
-                        <span
-                          className="flex-1 text-sm font-medium text-slate-500 dark:text-slate-450"
-                        >
-                          {seg.label}
-                        </span>
-                        <span
-                          className="text-sm font-bold w-6 text-right text-slate-900 dark:text-white"
-                        >
-                          {seg.value}
-                        </span>
-                        <span
-                          className="text-xs w-10 text-right font-semibold text-slate-400 dark:text-slate-500"
-                        >
-                          {pct}%
-                        </span>
-                      </div>
-                    );
-                  })}
+        {/* Card A — Latest Forum Post */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Latest Forum Post</h3>
+            {latestPost ? (
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2.5">
+                  {/* Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    {(latestPost.posted_by?.name || "?").charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                      {latestPost.posted_by?.name || "Unknown"}
+                    </p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                      {formatPostTime(latestPost.created_at)}
+                    </p>
+                  </div>
+                  {/* Like count */}
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500 shrink-0">
+                    <Heart className="w-3 h-3" />
+                    <span>{latestPost.like_count || 0}</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Activity Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="text-base font-bold text-slate-850 dark:text-slate-200">
-                  Recent Activity
-                </h2>
-                <p className="text-xs mt-0.5 text-slate-400 dark:text-slate-500">
-                  Stay updated with the latest activities
-                </p>
-              </div>
-              <Link
-                to="/projects"
-                className="text-xs font-semibold text-indigo-655 dark:text-indigo-400 hover:text-indigo-700 transition-colors"
-                style={{ textDecoration: "none" }}
-              >
-                View All
-              </Link>
-            </div>
-
-            {activityLoading ? (
-              <div className="flex justify-center py-8"><Spinner /></div>
-            ) : activities.length === 0 ? (
-              <div className="flex flex-col items-center py-10 text-center">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-3 bg-slate-50 dark:bg-slate-800"
-                >
-                  <Activity className="w-8 h-8 text-slate-400 dark:text-slate-500" />
-                </div>
-                <p className="text-sm font-semibold mb-1 text-slate-900 dark:text-white">
-                  No recent activity
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500">
-                  Activities will appear here once you start working on projects.
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">
+                  {latestPost.content}
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {activities.map(item => {
-                  const meta = statusMeta(item.status);
-                  return (
-                    <Link
-                      key={item.id}
-                      to={`/projects/${item.id}`}
-                      className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all duration-150 group"
-                      style={{
-                        textDecoration: "none",
-                      }}
-                    >
-                      <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{ background: meta.bg }}
-                      >
-                        <FolderKanban className="w-4 h-4" style={{ color: meta.color }} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate text-slate-900 dark:text-white">
-                          {item.name}
-                        </p>
-                        <p className="text-xs truncate mt-0.5 text-slate-400 dark:text-slate-500">
-                          {item.last_message
-                            ? `${item.last_message.sender_name}: ${item.last_message.content}`
-                            : "No activity yet"
-                          }
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                        <span
-                          className="status-pill"
-                          style={{ background: meta.bg, color: meta.color }}
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
-                          {meta.label}
-                        </span>
-                        <span className="text-xs text-slate-400 dark:text-slate-500">
-                          <Clock className="w-3 h-3 inline mr-0.5" />
-                          {timeAgo(item.updated_at)}
-                        </span>
-                      </div>
-                    </Link>
-                  );
-                })}
+              <div className="flex flex-col items-center py-6 text-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-slate-50 dark:bg-slate-700/40">
+                  <MessageSquare className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                </div>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">No forum posts yet</p>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Right Panel */}
-        <div className="space-y-6">
-          {/* Upcoming Deadlines */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-850 dark:text-slate-200">
-                Upcoming Deadlines
-              </h2>
-              <button
-                className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
-              >
-                <CalendarDays className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex flex-col items-center py-8 text-center">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mb-3 bg-slate-50 dark:bg-slate-800"
-              >
-                <CalendarDays className="w-8 h-8 text-slate-400 dark:text-slate-500" />
-              </div>
-              <p className="text-sm font-semibold mb-1 text-slate-900 dark:text-white">
-                No upcoming Deadlines
-              </p>
-              <p className="text-xs leading-relaxed text-slate-400 dark:text-slate-500">
-                You're all caught up! New deadlines will appear here.
-              </p>
-            </div>
-          </div>
-
-          {/* Department Insights Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6">
-            <h2 className="text-base font-bold mb-1 text-slate-850 dark:text-slate-200">
-              Department Insights
-            </h2>
-            <p className="text-xs mb-5 text-slate-400 dark:text-slate-500">
-              Key metrics and project analytics
-            </p>
-
-            <div className="space-y-5">
-              {/* Completion Rate */}
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Project Completion Rate
-                  </span>
-                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    {total > 0 ? Math.round(((stats?.completed ?? 0) / total) * 100) : 0}%
-                  </span>
-                </div>
-                {/* Progress Bar Container */}
-                <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800/60 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500"
-                    style={{
-                      width: `${total > 0 ? Math.round(((stats?.completed ?? 0) / total) * 100) : 0}%`,
-                    }}
-                  />
-                </div>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                  {stats?.completed ?? 0} out of {total} projects completed
-                </p>
-              </div>
-
-              {/* Department Health Indicator */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40">
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Activity Status
-                  </p>
-                  <p className="text-sm font-bold mt-0.5 text-slate-800 dark:text-slate-200">
-                    {stats?.low_activity > 2
-                      ? "Attention Required"
-                      : stats?.low_activity > 0
-                        ? "Active & Stable"
-                        : total > 0
-                          ? "100% Active"
-                          : "No Active Projects"}
-                  </p>
-                </div>
-                <span
-                  className="status-pill text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 leading-none"
-                  style={{
-                    background:
-                      stats?.low_activity > 2
-                        ? "rgba(239, 68, 68, 0.1)"
-                        : stats?.low_activity > 0
-                          ? "rgba(245, 158, 11, 0.1)"
-                          : "rgba(16, 185, 129, 0.1)",
-                    color:
-                      stats?.low_activity > 2
-                        ? "#EF4444"
-                        : stats?.low_activity > 0
-                          ? "#F59E0B"
-                          : "#10B981",
-                  }}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{
-                      background:
-                        stats?.low_activity > 2
-                          ? "#EF4444"
-                          : stats?.low_activity > 0
-                            ? "#F59E0B"
-                            : "#10B981",
-                    }}
-                  />
-                  {stats?.low_activity > 2
-                    ? "Attention"
-                    : stats?.low_activity > 0
-                      ? "Warning"
-                      : "Excellent"}
-                </span>
-              </div>
-
-              {/* Engagement Insight */}
-              <div className="flex items-start gap-3">
-                <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-indigo-50 dark:bg-indigo-950/50"
-                >
-                  <Users className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">
-                    Student Coverage
-                  </p>
-                  <p className="text-sm font-bold mt-0.5 text-slate-800 dark:text-slate-200">
-                    {stats?.student_count ?? 0} Students Assigned
-                  </p>
-                  <p className="text-xs text-slate-450 dark:text-slate-500 mt-0.5">
-                    Actively collaborating in project workspaces
-                  </p>
-                </div>
-              </div>
-
-              {/* Micro Platform Status Indicators */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-wrap gap-x-4 gap-y-1.5">
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>Real-time Gateway</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>Cloud Sync</span>
-                </div>
-              </div>
-            </div>
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+            <Link
+              to="/forum"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              style={{ textDecoration: "none" }}
+            >
+              View Forum
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
+
+        {/* Card B — Latest Project Update */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Latest Project Update</h3>
+            {latestActivity ? (() => {
+              const meta = statusMeta(latestActivity.status);
+              return (
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2.5">
+                    {/* Status icon */}
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: meta.bg }}
+                    >
+                      <FolderKanban className="w-4 h-4" style={{ color: meta.color }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {latestActivity.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                        {timeAgo(latestActivity.updated_at)}
+                      </p>
+                    </div>
+                    {/* Status pill */}
+                    <span
+                      className="status-pill shrink-0"
+                      style={{ background: meta.bg, color: meta.color }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
+                      {meta.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">
+                    {latestActivity.last_message
+                      ? `${latestActivity.last_message.sender_name}: ${latestActivity.last_message.content}`
+                      : "No activity yet"}
+                  </p>
+                </div>
+              );
+            })() : (
+              <div className="flex flex-col items-center py-6 text-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-slate-50 dark:bg-slate-700/40">
+                  <FolderKanban className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                </div>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">No recent project activity</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+            <Link
+              to="/projects"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              style={{ textDecoration: "none" }}
+            >
+              View Projects
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
       </div>
     </div>
   );
