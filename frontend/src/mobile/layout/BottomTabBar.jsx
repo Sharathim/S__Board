@@ -2,7 +2,7 @@ import { useLocation, NavLink } from "react-router-dom";
 import { LayoutDashboard, FolderKanban, MessageSquare, Megaphone, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import MoreSheet from "./MoreSheet";
 
 const TAB_ITEMS = [
@@ -18,6 +18,31 @@ export default function BottomTabBar() {
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
 
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // If close to top (scrollY < 10), always show
+      if (currentScrollY < 10) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY.current) {
+        // Scrolling down
+        setVisible(false);
+      } else {
+        // Scrolling up
+        setVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const filteredTabs = TAB_ITEMS.filter(
     (item) => !item.roles || item.roles.includes(user?.role)
   );
@@ -28,11 +53,12 @@ export default function BottomTabBar() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[100] mobile-glass border-t"
+        className="fixed bottom-0 left-0 right-0 z-[100] mobile-glass border-t transition-transform duration-300 ease-in-out"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           borderRadius: "20px 20px 0 0",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          transform: visible ? "translateY(0)" : "translateY(100%)",
         }}
       >
         <div className="flex items-center justify-around h-[60px] px-2">
