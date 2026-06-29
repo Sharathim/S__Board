@@ -3,13 +3,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import {
   listUpdates, createUpdate, editUpdate, deleteUpdate, toggleUpdateLike,
-  listCoordinators
+  listCoordinators, listEligibleCoordinators, assignCoordinator
 } from "../../api/updates";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Pagination } from "../../components/shared/Pagination";
 import { Avatar } from "../../components/ui/Avatar";
+import { SearchPicker } from "../../components/shared/SearchPicker";
 import {
   Megaphone, Plus, Heart, Edit2, Trash2, X,
   Search, Calendar, FileText, Image, ArrowUpRight,
@@ -264,6 +265,7 @@ function LikeButton({ liked, count, onClick }) {
 // ─── MAIN UPDATES PAGE ──────────────────────────────────────────────────────
 export default function UpdatesPage() {
   const { user } = useAuth();
+  const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
@@ -272,6 +274,7 @@ export default function UpdatesPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState("all");
+  const [coordPickerOpen, setCoordPickerOpen] = useState(false);
 
   // Form compose states
   const [compType, setCompType] = useState("Announcement");
@@ -308,6 +311,16 @@ export default function UpdatesPage() {
   // isUpdateCoordinator check: only flagged faculty or students in the coordinators list
   const isUpdateCoordinator = user?.faculty?.is_update_coordinator
     || (user?.role === "STUDENT" && (coordData?.coordinators || []).some(c => c.name === user?.name));
+
+  const assignCoordMutation = useMutation({
+    mutationFn: ({ kind, refId }) => assignCoordinator(kind, refId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coordinators"] });
+      setCoordPickerOpen(false);
+      showSuccess("Coordinator assigned successfully.");
+    },
+    onError: () => showError("Failed to assign coordinator."),
+  });
 
   const createMutation = useMutation({
     mutationFn: (formData) => createUpdate(formData),
@@ -523,29 +536,28 @@ export default function UpdatesPage() {
         </div>
       )}
 
-      {/* ── Page Hero Header ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-indigo-600 to-blue-700 p-6 sm:p-8 shadow-2xl shadow-primary-500/25">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "24px 24px" }} />
-        <div className="relative flex flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-lg shrink-0">
-              <Megaphone className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">Announcements</h1>
-                <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold border border-white/20 backdrop-blur-sm">OFFICIAL</span>
-              </div>
-              <p className="text-xs sm:text-sm text-blue-200 font-medium leading-tight">
-                Department updates, announcements, achievements and events.
-              </p>
-            </div>
-          </div>
+      {/* ── Page Header Row ── */}
+      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
+        </div>
+
+        {/* Right side actions */}
+        <div className="flex items-center gap-2">
+          {isHOD && (
+            <button
+              type="button"
+              onClick={() => setCoordPickerOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-650 hover:from-violet-750 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/20 active:scale-95 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Updates coordinator
+            </button>
+          )}
           {isUpdateCoordinator && (
             <button
               type="button"
               onClick={triggerCreateModal}
-              className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 shrink-0 border border-white/10"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-650 hover:from-violet-750 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/20 active:scale-95 shrink-0"
             >
               <Plus className="w-4 h-4" /> Create Update
             </button>
@@ -967,6 +979,19 @@ export default function UpdatesPage() {
         message="Are you sure you want to delete this announcement? This action is permanent and cannot be undone."
         confirmText="Delete Announcement"
         danger
+      />
+
+      {/* Coordinator Assignment picker */}
+      <SearchPicker
+        open={coordPickerOpen}
+        onClose={() => setCoordPickerOpen(false)}
+        title="Add Update Coordinator"
+        queryKey="eligible-coordinators"
+        fetchFn={(search) => listEligibleCoordinators(search).then(r => r.data.eligible)}
+        onPick={(item) => assignCoordMutation.mutate({ kind: item.kind, refId: item.ref_id })}
+        picking={assignCoordMutation.isPending}
+        placeholder="Search faculty or forum members…"
+        emptyText="No eligible faculty or forum members found."
       />
 
     </div>
