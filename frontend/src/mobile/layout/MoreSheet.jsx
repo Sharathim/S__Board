@@ -5,7 +5,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
-import { useIsMobile } from "../../hooks/useIsMobile";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import BottomSheet from "./BottomSheet";
@@ -21,7 +20,6 @@ const MORE_ITEMS = [
 export default function MoreSheet({ open, onClose }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { setForceView } = useIsMobile();
   const { unreadCount } = useNotificationContext();
   const navigate = useNavigate();
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);

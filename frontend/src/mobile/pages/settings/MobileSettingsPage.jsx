@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../hooks/useTheme";
-import { useIsMobile } from "../../../hooks/useIsMobile";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import { Avatar } from "../../../components/ui/Avatar";
 import api from "../../../api/axios";
@@ -33,7 +32,6 @@ function ToggleSwitch({ enabled, onChange }) {
 export default function MobileSettingsPage() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { setForceView } = useIsMobile();
   const [name, setName] = useState(user?.name || "");
   const [pushEnabled, setPushEnabled] = useState(user?.push_enabled !== false);
   const [saveSuccess, setSaveSuccess] = useState(false);

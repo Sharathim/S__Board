@@ -9,16 +9,14 @@ const STORAGE_KEY = "hive_force_view";
  * Uses matchMedia 'change' event (not resize) for live switching.
  */
 export function useIsMobile() {
-  const [override, setOverrideState] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
-    }
-  });
-
   const [matchesMedia, setMatchesMedia] = useState(() => {
     if (typeof window === "undefined") return false;
+    
+    // Proactively clear any legacy override from localStorage
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+
     return window.matchMedia(MOBILE_QUERY).matches;
   });
 
@@ -29,24 +27,5 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  const setForceView = useCallback((value) => {
-    // value: "mobile" | "desktop" | null
-    if (value) {
-      localStorage.setItem(STORAGE_KEY, value);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    setOverrideState(value);
-  }, []);
-
-  let isMobile;
-  if (override === "mobile") {
-    isMobile = true;
-  } else if (override === "desktop") {
-    isMobile = false;
-  } else {
-    isMobile = matchesMedia;
-  }
-
-  return { isMobile, setForceView, override };
+  return { isMobile: matchesMedia };
 }
