@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTheme } from "../../hooks/useTheme";
 
 /**
  * Generic bottom sheet primitive. Slides up from the bottom with backdrop.
  * Modeled on Modal.jsx's createPortal + escape + body-scroll-lock pattern.
  */
 export default function BottomSheet({ open, onClose, title, children }) {
+  const { theme } = useTheme();
   const overlayRef = useRef(null);
   const sheetRef = useRef(null);
   const [closing, setClosing] = useState(false);
@@ -56,7 +58,7 @@ export default function BottomSheet({ open, onClose, title, children }) {
     >
       <div
         ref={sheetRef}
-        className={`w-full max-h-[85vh] bg-white dark:bg-slate-900 rounded-t-[20px] shadow-2xl flex flex-col overflow-hidden ${closing ? "mobile-sheet-exit" : "mobile-sheet-enter"}`}
+        className={`w-full max-h-[85vh] ${theme === "dark" ? "bg-slate-900" : "bg-white"} rounded-t-[20px] shadow-2xl flex flex-col overflow-hidden ${closing ? "mobile-sheet-exit" : "mobile-sheet-enter"}`}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -71,7 +73,10 @@ export default function BottomSheet({ open, onClose, title, children }) {
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4">
+        <div 
+          className="flex-1 overflow-y-auto overscroll-contain px-5 pt-4"
+          style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}
+        >
           {children}
         </div>
       </div>

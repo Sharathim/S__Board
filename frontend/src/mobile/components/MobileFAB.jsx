@@ -1,10 +1,12 @@
 import { Plus } from "lucide-react";
+import { createPortal } from "react-dom";
 
 /**
  * Circular floating action button, positioned bottom-right above the tab bar.
+ * Rendered using a portal to avoid parent stacking context/transform bugs.
  */
 export default function MobileFAB({ onClick, icon: Icon = Plus, label, className = "" }) {
-  return (
+  return createPortal(
     <button
       onClick={onClick}
       className={`mobile-tappable fixed z-[90] w-14 h-14 rounded-full bg-gradient-to-br from-primary-600 to-violet-600 text-white shadow-xl shadow-primary-500/25 flex items-center justify-center hover:shadow-primary-500/40 transition-all active:scale-90 ${className}`}
@@ -15,6 +17,8 @@ export default function MobileFAB({ onClick, icon: Icon = Plus, label, className
       title={label}
     >
       <Icon className="w-6 h-6" />
-    </button>
+    </button>,
+    document.body
   );
 }
+
