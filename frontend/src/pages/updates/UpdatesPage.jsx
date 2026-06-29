@@ -250,11 +250,10 @@ function LikeButton({ liked, count, onClick }) {
     <button
       type="button"
       onClick={handleLike}
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-xs transition-all duration-200 border ${
-        liked
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all duration-200 border ${liked
           ? "bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30 text-rose-500 shadow-sm"
           : "bg-gray-50/50 dark:bg-gray-900/20 border-gray-150 dark:border-gray-850/55 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-      } ${animate ? "scale-110" : "scale-100"}`}
+        } ${animate ? "scale-110" : "scale-100"}`}
     >
       <Heart className={`w-4 h-4 transition-all duration-200 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
       <span>{count}</span>
@@ -591,11 +590,10 @@ export default function UpdatesPage() {
               key={tab.key}
               type="button"
               onClick={() => { setActiveFilterTab(tab.key); setPage(1); }}
-              className={`px-1 py-1.5 text-sm transition-all shrink-0 relative ${
-                activeFilterTab === tab.key
+              className={`px-1 py-1.5 text-sm transition-all shrink-0 relative ${activeFilterTab === tab.key
                   ? "text-violet-650 dark:text-violet-400 font-bold"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-850 dark:hover:text-gray-205"
-              }`}
+                }`}
             >
               {tab.label}
               {activeFilterTab === tab.key && (
@@ -643,10 +641,10 @@ export default function UpdatesPage() {
             return (
               <article
                 key={update.id}
-                className="group bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/60 shadow-sm p-4 sm:p-5"
+                className="group bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/60 shadow-sm p-4 sm:p-[18px] md:p-6"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center justify-between gap-3 mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-sm shrink-0 shadow-sm">
                       {(parsed.department || "D").charAt(0).toUpperCase()}
@@ -679,7 +677,7 @@ export default function UpdatesPage() {
                             <button
                               type="button"
                               onClick={() => { openEditModal(update); setOpenKebabId(null); }}
-                              className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:text-violet-600 hover:bg-violet-50 dark:hover:text-violet-400 dark:hover:bg-violet-900/20 flex items-center gap-2 transition-colors"
+                              className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
                             >
                               <Edit2 className="w-3.5 h-3.5" /> Edit
                             </button>
@@ -699,26 +697,26 @@ export default function UpdatesPage() {
 
                 {/* Title */}
                 {parsed.title && (
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug mt-3 mb-1">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug mt-3.5 mb-1.5">
                     {parsed.title}
                   </h2>
                 )}
 
                 {/* Description */}
-                <p className="text-sm text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-line mb-3">
+                <p className="text-sm text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-line mb-4">
                   {parsed.description}
                 </p>
 
                 {/* Media Renderer */}
                 {urls.length > 0 && (
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <CardMediaRenderer urls={urls} />
                   </div>
                 )}
 
                 {/* Tags */}
                 {parsed.tags && parsed.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {parsed.tags.map((tag, i) => (
                       <span key={i} className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-955/35 text-violet-650 dark:text-violet-400 text-xs font-bold shrink-0">
                         {tag}
@@ -729,7 +727,7 @@ export default function UpdatesPage() {
 
                 {/* Event Details */}
                 {(parsed.update_type === "Event" || parsed.date_time || parsed.location) && (
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
                     {parsed.date_time && (
                       <span className="flex items-center gap-1.5 shrink-0">
                         <Calendar className="w-4 h-4 text-gray-400" />
@@ -746,7 +744,7 @@ export default function UpdatesPage() {
                 )}
 
                 {/* Card Divider Line */}
-                <div className="h-px bg-gray-100 dark:bg-gray-750/60 my-3" />
+                <div className="h-px bg-gray-100 dark:bg-gray-750/60 my-4" />
 
                 {/* Bottom Actions - Likes Only */}
                 <div className="flex items-center">
@@ -794,7 +792,7 @@ export default function UpdatesPage() {
 
             {/* Form scrollable container */}
             <div className="p-6 flex-1 overflow-y-auto space-y-5">
-              
+
               {/* Department */}
               <div className="bg-gray-50 dark:bg-gray-900/35 p-3.5 rounded-2xl border border-gray-150 dark:border-gray-700/60">
                 <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Department</label>

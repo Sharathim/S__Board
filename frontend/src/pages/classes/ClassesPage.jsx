@@ -15,31 +15,30 @@ import { useState } from "react";
 
 // ─── Class display metadata ────────────────────────────────────────────────
 const CLASS_META = {
-  UG_1A: { label: "UG 1A", short: "1A",  level: "UG",  year: 1, gradient: "from-violet-500 to-purple-600",  ring: "ring-violet-200 dark:ring-violet-900/60",  bg: "bg-violet-50 dark:bg-violet-900/20",  text: "text-violet-700 dark:text-violet-300", border: "border-violet-200 dark:border-violet-800/50" },
-  UG_1B: { label: "UG 1B", short: "1B",  level: "UG",  year: 1, gradient: "from-blue-500 to-indigo-600",    ring: "ring-blue-200 dark:ring-blue-900/60",      bg: "bg-blue-50 dark:bg-blue-900/20",      text: "text-blue-700 dark:text-blue-300",   border: "border-blue-200 dark:border-blue-800/50"   },
-  UG_2A: { label: "UG 2A", short: "2A",  level: "UG",  year: 2, gradient: "from-pink-500 to-rose-600",      ring: "ring-pink-200 dark:ring-pink-900/60",      bg: "bg-pink-50 dark:bg-pink-900/20",      text: "text-pink-700 dark:text-pink-300",   border: "border-pink-200 dark:border-pink-800/50"   },
-  UG_2B: { label: "UG 2B", short: "2B",  level: "UG",  year: 2, gradient: "from-amber-500 to-orange-500",   ring: "ring-amber-200 dark:ring-amber-900/60",    bg: "bg-amber-50 dark:bg-amber-900/20",    text: "text-amber-700 dark:text-amber-300", border: "border-amber-200 dark:border-amber-800/50" },
-  UG_3A: { label: "UG 3A", short: "3A",  level: "UG",  year: 3, gradient: "from-emerald-500 to-teal-600",   ring: "ring-emerald-200 dark:ring-emerald-900/60",bg: "bg-emerald-50 dark:bg-emerald-900/20",text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/50" },
-  UG_3B: { label: "UG 3B", short: "3B",  level: "UG",  year: 3, gradient: "from-cyan-500 to-sky-600",       ring: "ring-cyan-200 dark:ring-cyan-900/60",      bg: "bg-cyan-50 dark:bg-cyan-900/20",      text: "text-cyan-700 dark:text-cyan-300",   border: "border-cyan-200 dark:border-cyan-800/50"   },
-  PG_1A: { label: "PG 1A", short: "PG1A",level: "PG",  year: 1, gradient: "from-fuchsia-500 to-pink-600",   ring: "ring-fuchsia-200 dark:ring-fuchsia-900/60",bg: "bg-fuchsia-50 dark:bg-fuchsia-900/20",text: "text-fuchsia-700 dark:text-fuchsia-300", border: "border-fuchsia-200 dark:border-fuchsia-800/50" },
-  PG_2A: { label: "PG 2A", short: "PG2A",level: "PG",  year: 2, gradient: "from-indigo-500 to-blue-600",    ring: "ring-indigo-200 dark:ring-indigo-900/60",  bg: "bg-indigo-50 dark:bg-indigo-900/20",  text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
+  UG_1A: { label: "UG 1A", short: "1A", level: "UG", year: 1, gradient: "from-violet-500 to-purple-600", ring: "ring-violet-200 dark:ring-violet-900/60", bg: "bg-violet-50 dark:bg-violet-900/20", text: "text-violet-700 dark:text-violet-300", border: "border-violet-200 dark:border-violet-800/50" },
+  UG_1B: { label: "UG 1B", short: "1B", level: "UG", year: 1, gradient: "from-blue-500 to-indigo-600", ring: "ring-blue-200 dark:ring-blue-900/60", bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-700 dark:text-blue-300", border: "border-blue-200 dark:border-blue-800/50" },
+  UG_2A: { label: "UG 2A", short: "2A", level: "UG", year: 2, gradient: "from-pink-500 to-rose-600", ring: "ring-pink-200 dark:ring-pink-900/60", bg: "bg-pink-50 dark:bg-pink-900/20", text: "text-pink-700 dark:text-pink-300", border: "border-pink-200 dark:border-pink-800/50" },
+  UG_2B: { label: "UG 2B", short: "2B", level: "UG", year: 2, gradient: "from-amber-500 to-orange-500", ring: "ring-amber-200 dark:ring-amber-900/60", bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-300", border: "border-amber-200 dark:border-amber-800/50" },
+  UG_3A: { label: "UG 3A", short: "3A", level: "UG", year: 3, gradient: "from-emerald-500 to-teal-600", ring: "ring-emerald-200 dark:ring-emerald-900/60", bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/50" },
+  UG_3B: { label: "UG 3B", short: "3B", level: "UG", year: 3, gradient: "from-cyan-500 to-sky-600", ring: "ring-cyan-200 dark:ring-cyan-900/60", bg: "bg-cyan-50 dark:bg-cyan-900/20", text: "text-cyan-700 dark:text-cyan-300", border: "border-cyan-200 dark:border-cyan-800/50" },
+  PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, gradient: "from-fuchsia-500 to-pink-600", ring: "ring-fuchsia-200 dark:ring-fuchsia-900/60", bg: "bg-fuchsia-50 dark:bg-fuchsia-900/20", text: "text-fuchsia-700 dark:text-fuchsia-300", border: "border-fuchsia-200 dark:border-fuchsia-800/50" },
+  PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, gradient: "from-indigo-500 to-blue-600", ring: "ring-indigo-200 dark:ring-indigo-900/60", bg: "bg-indigo-50 dark:bg-indigo-900/20", text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
 };
 
 function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   const hasIncharge = !!c.incharge;
 
   const cardContent = (
-    <div className={`group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative ${
-      c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
-    }`}>
-      <div className={`p-4 flex flex-col flex-1 justify-between ${meta.bg} bg-opacity-[0.04] dark:bg-opacity-[0.06]`}>
-        <div className="space-y-3">
+    <div className={`group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative ${c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
+      }`}>
+      <div className="p-5 flex flex-col flex-1 justify-between">
+        <div className="space-y-4">
           {/* Header Row */}
           <div className="flex items-center justify-between">
             <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md ring-2 ring-offset-1 ${meta.ring} shrink-0`}>
               <span className="text-sm font-extrabold text-white">{meta.short}</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
                 {meta.level} · Year {meta.year}
               </span>
@@ -60,11 +59,10 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
           </div>
 
           {/* Class Incharge block */}
-          <div className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
-            hasIncharge
+          <div className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${hasIncharge
               ? "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100/60 dark:border-emerald-900/30"
               : "bg-slate-50/50 dark:bg-gray-900/30 border-slate-100/60 dark:border-gray-800/40 border-dashed"
-          }`}>
+            }`}>
             {hasIncharge ? (
               <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="ring-2 ring-emerald-500/20" />
             ) : (
@@ -109,11 +107,10 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
           <div className="mt-4 pt-3.5 border-t border-dashed border-gray-100 dark:border-gray-700/50">
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAssignIncharge(c.class_name); }}
-              className={`w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 border ${
-                hasIncharge
+              className={`w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 border ${hasIncharge
                   ? "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 border-amber-200 dark:border-amber-900/40"
                   : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/40"
-              }`}
+                }`}
             >
               <Crown className="w-3.5 h-3.5" />
               {hasIncharge ? `Change Incharge` : "Assign Incharge"}
@@ -181,20 +178,18 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
                     type="button"
                     onClick={() => setSelectedFacultyId(f.id)}
                     disabled={isPending}
-                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left disabled:opacity-50 group ${
-                      isSelected
+                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left disabled:opacity-50 group ${isSelected
                         ? "border-primary-500 bg-primary-50/20 dark:bg-primary-950/15"
                         : "border-gray-100 dark:border-gray-700/60 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-800/20"
-                    }`}
+                      }`}
                   >
                     <Avatar src={f.profile_picture} name={f.name} size="sm" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">{f.name}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{f.designation}</p>
                     </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                      isSelected ? "border-primary-600 bg-primary-600 text-white" : "border-gray-350 dark:border-gray-600"
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${isSelected ? "border-primary-600 bg-primary-600 text-white" : "border-gray-350 dark:border-gray-600"
+                      }`}>
                       {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
                     </div>
                   </button>
@@ -275,7 +270,7 @@ export default function ClassesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
 
-            {/* ── Page Header ── */}
+      {/* ── Page Header ── */}
       <div className="flex flex-row items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
@@ -286,7 +281,7 @@ export default function ClassesPage() {
           </div>
         </div>
 
-                {/* Right side actions */}
+        {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* HOD only: Student registration toggle "+ New Student" */}
           {isHOD && (
@@ -295,11 +290,10 @@ export default function ClassesPage() {
                 type="button"
                 onClick={() => toggleRegMutation.mutate()}
                 disabled={toggleRegMutation.isPending}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${
-                  regOpen
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${regOpen
                     ? "bg-emerald-500 text-white shadow-sm"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
+                  }`}
               >
                 <span>+ New Student</span>
               </button>

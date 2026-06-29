@@ -15,7 +15,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   ArrowLeft, Edit2, Trash2, Paperclip, CheckCircle,
   Image, File, Download, FolderKanban, Plus, MoreVertical, Pencil,
-  Calendar, Clock, ShieldAlert, X, ArrowRight, HelpCircle
+  Calendar, Clock, ShieldAlert, X
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -24,11 +24,11 @@ export default function ProjectDetailPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
-  
+
   // UI Dropdown states
   const [projectKebabOpen, setProjectKebabOpen] = useState(false);
   const [openKebabId, setOpenKebabId] = useState(null);
-  
+
   // Modals state
   const [editProjectModalOpen, setEditProjectModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -231,10 +231,10 @@ export default function ProjectDetailPage() {
   };
 
   // Group and format members
-  const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
-  const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-  const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
-  
+  const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
+  const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+  const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
+
   const allMembers = [
     ...facultyMembers.map(m => ({ ...m, ringClass: "ring-violet-500" })),
     ...forumMembers.map(m => ({ ...m, ringClass: "ring-blue-500" })),
@@ -309,11 +309,10 @@ export default function ProjectDetailPage() {
           <div>
             <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Status</span>
             <div className="mt-1">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                project.status === "COMPLETED"
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${project.status === "COMPLETED"
                   ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                   : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
-              }`}>
+                }`}>
                 {project.status === "COMPLETED" ? "Completed" : "In Progress"}
               </span>
             </div>
@@ -341,7 +340,7 @@ export default function ProjectDetailPage() {
               )}
             </div>
           </div>
-          
+
           {/* Optional Project Deadline Display */}
           {project.deadline && (
             <div className="flex items-center gap-1.5 text-xs text-red-500 font-semibold bg-red-500/5 px-3 py-1 rounded-xl border border-red-500/10">
@@ -378,7 +377,7 @@ export default function ProjectDetailPage() {
           reversedMessages.map(msg => {
             let updateData = { title: "", accomplishment: "", next: "", guidelines: "" };
             if (msg.is_deleted) return null;
-            
+
             try {
               updateData = JSON.parse(msg.content);
             } catch (e) {
@@ -389,138 +388,128 @@ export default function ProjectDetailPage() {
                 guidelines: "No guidance required."
               };
             }
-            
+
             const msgSender = msg.sender || {};
             const isMsgEditable = isEditable(msg);
-            
+
             return (
-              <div key={msg.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden space-y-3">
-                {/* Status accent stripe at top */}
-                <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${statusMeta(project.status).color}, transparent)` }} />
-
-                <div className="px-5 pb-5 space-y-3">
-                  {/* Top Row: User details and kebab */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <Avatar src={msgSender.profile_picture} name={msgSender.name} size="sm" />
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-gray-900 dark:text-white">{msgSender.name}</span>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-750 text-gray-500 dark:text-gray-450 border border-gray-200/40 dark:border-gray-700/40">
-                            {msgSender.role}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-gray-400 dark:text-gray-500">
-                          {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
-                          {msg.is_edited && <span className="text-[9px] opacity-60 ml-1">(edited)</span>}
-                        </div>
+              <div key={msg.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm p-6 hover:shadow-md transition-all duration-300 relative overflow-visible space-y-4">
+                {/* Top Row: User details and kebab */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="sm" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">{msgSender.name}</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-750 text-gray-500 dark:text-gray-450 border border-gray-200/40 dark:border-gray-700/40">
+                          {msgSender.role}
+                        </span>
                       </div>
-                    </div>
-
-                    {/* Kebab dropdown container */}
-                    <div className="relative update-kebab-container">
-                      <button
-                        onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
-                        className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-750 text-gray-400 transition-colors"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                      {openKebabId === msg.id && (
-                        <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 z-30 animate-fade-in">
-                          {isMsgEditable ? (
-                            <button
-                              onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
-                            >
-                              <Pencil className="w-3.5 h-3.5 text-indigo-500" />
-                              ✏️ Edit Update
-                            </button>
-                          ) : (
-                            <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-500 italic border-b border-gray-100 dark:border-gray-800">
-                              {"Edit expired (>30m)"}
-                            </div>
-                          )}
-                          <button
-                            onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-655 dark:text-red-400 hover:bg-red-55/10 dark:hover:bg-red-950/20 transition-colors text-left"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                            🗑 Delete Update
-                          </button>
-                        </div>
-                      )}
+                      <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                        {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
+                        {msg.is_edited && <span className="text-[9px] opacity-60 ml-1">(edited)</span>}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Title */}
+                  {/* Kebab dropdown container */}
+                  <div className="relative update-kebab-container">
+                    <button
+                      onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
+                      className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-750 text-gray-400 transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {openKebabId === msg.id && (
+                      <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 z-30 animate-fade-in">
+                        {isMsgEditable ? (
+                          <button
+                            onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+                          >
+                            <Pencil className="w-3.5 h-3.5 text-indigo-500" />
+                            ✏️ Edit Update
+                          </button>
+                        ) : (
+                          <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-500 italic border-b border-gray-100 dark:border-gray-800">
+                            {"Edit expired (>30m)"}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-655 dark:text-red-400 hover:bg-red-55/10 dark:hover:bg-red-950/20 transition-colors text-left"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                          🗑 Delete Update
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-gray-150 dark:bg-gray-750" />
+
+                {/* Title */}
+                <div>
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug tracking-tight">
                     {updateData.title || "Progress Update"}
                   </h3>
-
-                  {/* Accomplishment */}
-                  <div className="border-l-[3px] border-emerald-400 dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-r-xl p-3 flex items-start gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">What did you complete?</span>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mt-0.5">
-                        {updateData.accomplishment}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* What's Next */}
-                  <div className="border-l-[3px] border-blue-400 dark:border-blue-500 bg-blue-50/40 dark:bg-blue-950/10 rounded-r-xl p-3 flex items-start gap-2.5">
-                    <ArrowRight className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">What's Next</span>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">
-                        {updateData.next || "Continue working on remaining tasks."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Guidelines Needed */}
-                  <div className="border-l-[3px] border-amber-400 dark:border-amber-500 bg-amber-50/40 dark:bg-amber-950/10 rounded-r-xl p-3 flex items-start gap-2.5">
-                    <HelpCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Guidelines Needed</span>
-                      <p className={`text-sm mt-0.5 ${
-                        !updateData.guidelines || updateData.guidelines === "No guidance required."
-                          ? "text-gray-400 dark:text-gray-500 italic"
-                          : "text-gray-750 dark:text-gray-300 font-medium"
-                      }`}>
-                        {updateData.guidelines || "No guidance required."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Attachment Display */}
-                  {msg.attachment_url && (
-                    <div className="pt-1">
-                      {msg.attachment_type === "image" ? (
-                        <div className="mt-1 relative group max-w-sm rounded-2xl overflow-hidden border border-gray-150 dark:border-gray-750 shadow-sm cursor-zoom-in">
-                          <img
-                            src={msg.attachment_url}
-                            alt={msg.attachment_name || "Attachment"}
-                            onClick={() => setEnlargedImage(msg.attachment_url)}
-                            className="w-full max-h-60 object-cover hover:scale-[1.01] transition-transform duration-300"
-                          />
-                        </div>
-                      ) : (
-                        <a
-                          href={msg.attachment_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-755 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
-                        >
-                          <File className="w-4 h-4 text-violet-500 shrink-0" />
-                          <span className="truncate max-w-[200px] sm:max-w-xs">{msg.attachment_name || "Download Attachment"}</span>
-                          <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        </a>
-                      )}
-                    </div>
-                  )}
                 </div>
+
+                {/* Accomplishment */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">What did you complete?</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {updateData.accomplishment}
+                  </p>
+                </div>
+
+                {/* What's Next */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">What's Next</span>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {updateData.next || "Continue working on remaining tasks."}
+                  </p>
+                </div>
+
+                {/* Guidelines Needed */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Guidelines Needed</span>
+                  <p className={`text-sm ${!updateData.guidelines || updateData.guidelines === "No guidance required."
+                      ? "text-gray-400 dark:text-gray-500 italic"
+                      : "text-gray-750 dark:text-gray-300 font-medium"
+                    }`}>
+                    {updateData.guidelines || "No guidance required."}
+                  </p>
+                </div>
+
+                {/* Attachment Display */}
+                {msg.attachment_url && (
+                  <div className="pt-2">
+                    {msg.attachment_type === "image" ? (
+                      <div className="mt-1.5 relative group max-w-sm rounded-2xl overflow-hidden border border-gray-150 dark:border-gray-750 shadow-sm cursor-zoom-in">
+                        <img
+                          src={msg.attachment_url}
+                          alt={msg.attachment_name || "Attachment"}
+                          onClick={() => setEnlargedImage(msg.attachment_url)}
+                          className="w-full max-h-60 object-cover hover:scale-[1.01] transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <a
+                        href={msg.attachment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-755 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
+                      >
+                        <File className="w-4 h-4 text-violet-500 shrink-0" />
+                        <span className="truncate max-w-[200px] sm:max-w-xs">{msg.attachment_name || "Download Attachment"}</span>
+                        <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })

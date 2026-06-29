@@ -378,17 +378,16 @@ export default function ForumPage() {
           postsByDay.map((group) => (
             <div
               key={group.dateString}
-              className="space-y-4"
+              className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl p-6 shadow-sm space-y-4"
             >
               {/* Date Header */}
-              <div className="flex items-center gap-2 px-1">
-                <Calendar className="w-3.5 h-3.5 text-violet-500" />
-                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
-                <div className="flex-1 h-px bg-gray-100 dark:bg-gray-750/50" />
+              <div className="flex items-center gap-2 pb-3.5 border-b border-gray-100 dark:border-gray-750/50">
+                <Calendar className="w-4 h-4 text-violet-500" />
+                <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
               </div>
 
               {/* Group Posts */}
-              <div className="space-y-4">
+              <div className="space-y-4 pt-1">
                 {group.posts.map((post) => {
                   const isAuthor = post.posted_by?.id === user?.id;
                   const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
@@ -398,11 +397,11 @@ export default function ForumPage() {
                   return (
                     <div
                       key={post.id}
-                      className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-150 dark:border-gray-700/60 shadow-sm p-4 space-y-3 hover:shadow-md transition-all duration-200"
+                      className="p-5 rounded-2xl bg-slate-50/50 dark:bg-gray-900/35 border border-slate-100 dark:border-gray-800/50 space-y-4 hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors"
                     >
                       {/* Post Header (Author details) */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
                           <Avatar
                             src={post.posted_by?.profile_picture}
                             name={post.posted_by?.name}
@@ -467,7 +466,7 @@ export default function ForumPage() {
 
                       {/* Image Attachment */}
                       {post.attachment_url && (
-                        <div className="mt-1">
+                        <div className="mt-2.5">
                           {(() => {
                             const urls = post.attachment_url.split(',').filter(Boolean);
                             if (urls.length === 0) return null;
@@ -522,12 +521,12 @@ export default function ForumPage() {
                       )}
 
                       {/* Post Footer */}
-                      <div className="flex items-center gap-4 pt-2 border-t border-gray-100 dark:border-gray-700/40">
+                      <div className="flex items-center gap-4 pt-2.5 border-t border-gray-100 dark:border-gray-800/40">
                         <button
                           onClick={() => likeMutation.mutate(post.id)}
-                          className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-lg transition-all ${post.liked
-                              ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20"
-                              : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                          className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-all ${post.liked
+                            ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30"
+                            : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
                             }`}
                         >
                           <Heart
