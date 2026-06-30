@@ -15,9 +15,112 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   ArrowLeft, Edit2, Trash2, Paperclip, CheckCircle,
   Image, File, Download, FolderKanban, Plus, MoreVertical, Pencil,
-  Calendar, Clock, ShieldAlert, X
+  Calendar, Clock, ShieldAlert, X, TrendingUp, AlertCircle
 } from "lucide-react";
 import { format } from "date-fns";
+
+function getFileType(url) {
+  if (!url) return "unknown";
+  const lower = url.toLowerCase();
+  if (lower.endsWith(".mp4") || lower.endsWith(".mov") || lower.endsWith(".webm") || lower.endsWith(".avi")) {
+    return "video";
+  }
+  if (lower.endsWith(".pdf") || lower.endsWith(".docx") || lower.endsWith(".doc") || lower.endsWith(".xls") || lower.endsWith(".xlsx") || lower.endsWith(".ppt") || lower.endsWith(".pptx")) {
+    return "document";
+  }
+  return "image";
+}
+
+function ProgressAttachmentRenderer({ attachmentUrl, attachmentType, attachmentName, onImageClick }) {
+  if (!attachmentUrl) return null;
+  const urls = attachmentUrl.split(",").filter(Boolean);
+  if (urls.length === 0) return null;
+
+  const images = urls.filter(url => getFileType(url) === "image");
+  const others = urls.filter(url => getFileType(url) !== "image");
+
+  return (
+    <div className="w-full space-y-3">
+      {images.length > 0 && (
+        <div className={`images-${Math.min(images.length, 3)}`}>
+          {images.length === 1 && (
+            <img
+              src={images[0]}
+              alt={attachmentName || "Attachment"}
+              onClick={() => onImageClick(images[0])}
+              className="update-card-img cursor-zoom-in"
+              loading="lazy"
+            />
+          )}
+          {images.length === 2 && (
+            <>
+              <img
+                src={images[0]}
+                alt={attachmentName || "Attachment 1"}
+                onClick={() => onImageClick(images[0])}
+                className="update-card-img cursor-zoom-in"
+                loading="lazy"
+              />
+              <img
+                src={images[1]}
+                alt={attachmentName || "Attachment 2"}
+                onClick={() => onImageClick(images[1])}
+                className="update-card-img cursor-zoom-in"
+                loading="lazy"
+              />
+            </>
+          )}
+          {images.length >= 3 && (
+            <>
+              <div className="img-span-top">
+                <img
+                  src={images[0]}
+                  alt={attachmentName || "Attachment 1"}
+                  onClick={() => onImageClick(images[0])}
+                  className="update-card-img cursor-zoom-in"
+                  loading="lazy"
+                />
+              </div>
+              <div className="img-span-bottom">
+                <img
+                  src={images[1]}
+                  alt={attachmentName || "Attachment 2"}
+                  onClick={() => onImageClick(images[1])}
+                  className="update-card-img cursor-zoom-in"
+                  loading="lazy"
+                />
+              </div>
+              <div className="img-span-bottom">
+                <img
+                  src={images[2]}
+                  alt={attachmentName || "Attachment 3"}
+                  onClick={() => onImageClick(images[2])}
+                  className="update-card-img cursor-zoom-in"
+                  loading="lazy"
+                />
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {others.map((url, idx) => (
+        <div key={idx} className="pt-1">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-755 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
+          >
+            <File className="w-4 h-4 text-violet-500 shrink-0" />
+            <span className="truncate max-w-[200px] sm:max-w-xs">{attachmentName || "Download Attachment"}</span>
+            <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+          </a>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -413,21 +516,21 @@ export default function ProjectDetailPage() {
             const isMsgEditable = isEditable(msg);
 
             return (
-              <div key={msg.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm p-6 hover:shadow-md transition-all duration-300 relative overflow-visible space-y-4">
+              <div key={msg.id} className="progress-monitor-card p-[18px] sm:p-6 mb-6 flex flex-col justify-between">
                 {/* Top Row: User details and kebab */}
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="flex items-center gap-3">
-                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="sm" />
+                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="sm" className="w-10 h-10 rounded-full" />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">{msgSender.name}</span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-750 text-gray-500 dark:text-gray-450 border border-gray-200/40 dark:border-gray-700/40">
+                        <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">{msgSender.name}</span>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30 leading-none">
                           {msgSender.role}
                         </span>
                       </div>
-                      <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                      <div className="text-[13px] text-gray-400 dark:text-gray-500 mt-1 leading-none">
                         {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
-                        {msg.is_edited && <span className="text-[9px] opacity-60 ml-1">(edited)</span>}
+                        {msg.is_edited && <span className="text-[11px] opacity-60 ml-1">(edited)</span>}
                       </div>
                     </div>
                   </div>
@@ -436,7 +539,7 @@ export default function ProjectDetailPage() {
                   <div className="relative update-kebab-container">
                     <button
                       onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
-                      className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-750 text-gray-400 transition-colors"
+                      className="p-1.5 rounded-full kebab-hover-btn text-gray-400 transition-colors"
                     >
                       <MoreVertical className="w-4 h-4" />
                     </button>
@@ -448,7 +551,7 @@ export default function ProjectDetailPage() {
                             className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
                           >
                             <Pencil className="w-3.5 h-3.5 text-indigo-500" />
-                            ✏️ Edit Update
+                            Edit Update
                           </button>
                         ) : (
                           <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-500 italic border-b border-gray-100 dark:border-gray-800">
@@ -460,76 +563,68 @@ export default function ProjectDetailPage() {
                           className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-655 dark:text-red-400 hover:bg-red-55/10 dark:hover:bg-red-950/20 transition-colors text-left"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                          🗑 Delete Update
+                          Delete Update
                         </button>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Divider */}
-                <div className="h-px bg-gray-150 dark:bg-gray-750" />
-
                 {/* Title */}
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug tracking-tight">
+                <div className="mb-4">
+                  <h3 className="text-[18px] md:text-[20px] font-bold text-gray-900 dark:text-white leading-snug tracking-tight line-clamp-2">
                     {updateData.title || "Progress Update"}
                   </h3>
                 </div>
 
-                {/* Accomplishment */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">What did you complete?</span>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {updateData.accomplishment}
-                  </p>
-                </div>
+                {/* Info Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                  {/* Accomplishment */}
+                  <div className="bg-[#F8F9FC] dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm mt-0.5">
+                      <CheckCircle className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1 flex flex-col">
+                      <span className="text-[11px] font-bold text-slate-400 dark:text-gray-550 tracking-wider uppercase mb-1">Key Accomplishment</span>
+                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed break-words">{updateData.accomplishment}</p>
+                    </div>
+                  </div>
 
-                {/* What's Next */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">What's Next</span>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {updateData.next || "Continue working on remaining tasks."}
-                  </p>
-                </div>
+                  {/* What's Next */}
+                  <div className="bg-[#F8F9FC] dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-sm mt-0.5">
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1 flex flex-col">
+                      <span className="text-[11px] font-bold text-slate-400 dark:text-gray-550 tracking-wider uppercase mb-1">What's Next</span>
+                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed break-words">{updateData.next || "Continue working on remaining tasks."}</p>
+                    </div>
+                  </div>
 
-                {/* Guidelines Needed */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Guidelines Needed</span>
-                  <p className={`text-sm ${!updateData.guidelines || updateData.guidelines === "No guidance required."
-                      ? "text-gray-400 dark:text-gray-500 italic"
-                      : "text-gray-750 dark:text-gray-300 font-medium"
-                    }`}>
-                    {updateData.guidelines || "No guidance required."}
-                  </p>
+                  {/* Guidelines Needed */}
+                  <div className="bg-[#F8F9FC] dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-955/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm mt-0.5">
+                      <AlertCircle className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1 flex flex-col">
+                      <span className="text-[11px] font-bold text-slate-400 dark:text-gray-550 tracking-wider uppercase mb-1">Guidelines Needed</span>
+                      <p className={`text-[15px] break-words ${!updateData.guidelines || updateData.guidelines === "No guidance required."
+                          ? "text-gray-405 dark:text-gray-500 italic"
+                          : "text-gray-750 dark:text-gray-250 font-medium"
+                        }`}>
+                        {updateData.guidelines || "No guidelines required"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Attachment Display */}
-                {msg.attachment_url && (
-                  <div className="pt-2">
-                    {msg.attachment_type === "image" ? (
-                      <div className="mt-1.5 relative group max-w-sm rounded-2xl overflow-hidden border border-gray-150 dark:border-gray-750 shadow-sm cursor-zoom-in">
-                        <img
-                          src={msg.attachment_url}
-                          alt={msg.attachment_name || "Attachment"}
-                          onClick={() => setEnlargedImage(msg.attachment_url)}
-                          className="w-full max-h-60 object-cover hover:scale-[1.01] transition-transform duration-300"
-                        />
-                      </div>
-                    ) : (
-                      <a
-                        href={msg.attachment_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-755 max-w-fit hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-xs font-semibold text-gray-700 dark:text-gray-300 shadow-sm"
-                      >
-                        <File className="w-4 h-4 text-violet-500 shrink-0" />
-                        <span className="truncate max-w-[200px] sm:max-w-xs">{msg.attachment_name || "Download Attachment"}</span>
-                        <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      </a>
-                    )}
-                  </div>
-                )}
+                <ProgressAttachmentRenderer
+                  attachmentUrl={msg.attachment_url}
+                  attachmentType={msg.attachment_type}
+                  attachmentName={msg.attachment_name}
+                  onImageClick={setEnlargedImage}
+                />
               </div>
             );
           })

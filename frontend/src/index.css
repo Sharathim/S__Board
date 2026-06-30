@@ -1015,3 +1015,52 @@ a, button { transition: all 0.15s ease; }
     max-height: 246px;
   }
 }
+
+
+/* ─── Progress Monitor Card Redesign ─── */
+.progress-monitor-card {
+  max-width: 850px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #FFFFFF;
+  border: 1px solid #ECECEC;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: progress-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dark .progress-monitor-card {
+  background-color: rgb(15 23 42 / 0.95);
+  border-color: rgba(139, 92, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.progress-monitor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+}
+
+.dark .progress-monitor-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes progress-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kebab-hover-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark kebab-hover-btn:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
