@@ -416,7 +416,7 @@ export default function ProjectsPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-1 text-[10px] text-gray-405 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
-                    <span>Last updated: {timeAgo(project.updated_at)}</span>
+                    <span>Last updated: {format(new Date(project.updated_at), "MMM d, yyyy")}</span>
                   </div>
                 </div>
               </div>
