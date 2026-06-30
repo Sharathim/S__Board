@@ -6,10 +6,27 @@ from ..utils.auth_middleware import require_auth, require_hod, optional_user
 from ..utils.cloudinary_helper import upload_file
 from ..utils.fcm_helper import send_bulk_notification, send_notification
 from datetime import datetime, timedelta
+import json
 
 updates_bp = Blueprint("updates", __name__)
 
 MAX_COORDINATORS = 2
+
+
+def _build_update_preview(raw_content: str) -> tuple[str, str]:
+    """Returns (title, body) for a notification, parsing JSON-encoded update content if present."""
+    try:
+        parsed = json.loads(raw_content)
+        if isinstance(parsed, dict):
+            title = parsed.get("title") or f"New {parsed.get('update_type', 'Update')}"
+            desc = parsed.get("description", "")
+            body = (desc[:100] + "…") if len(desc) > 100 else desc
+            return title, (body or "A new update has been posted.")
+    except (json.JSONDecodeError, TypeError):
+        pass
+    # Plain text fallback
+    body = (raw_content[:100] + "…") if len(raw_content) > 100 else raw_content
+    return "New department update", (body or "A new update has been posted.")
 
 
 def _optional_user():
@@ -117,11 +134,11 @@ def create_update():
         uid for (uid,) in db.session.query(User.id).filter(User.id != user.id).all()
     ]
     if recipient_ids:
-        preview = (content[:80] + "…") if len(content) > 80 else content
+        notif_title, notif_body = _build_update_preview(content)
         send_bulk_notification(
             recipient_ids=recipient_ids,
-            title="New department update",
-            body=preview or "A new update has been posted.",
+            title=notif_title,
+            body=notif_body,
             notif_type="new_update",
             reference_id=update.id,
         )

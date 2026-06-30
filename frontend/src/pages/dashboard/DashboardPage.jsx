@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 import { Avatar } from "../../components/ui/Avatar";
+import { parseUpdateContent } from "../../utils/updateContent";
 import {
   FolderKanban, TrendingUp, Users, CheckCircle,
   Clock, MessageSquare, Megaphone, Heart, ChevronRight
@@ -39,36 +40,47 @@ function parseForumPostContent(content = "") {
   return { title: "", body: content };
 }
 
-function parseAnnouncementContent(contentStr) {
-  try {
-    const parsed = JSON.parse(contentStr);
-    if (parsed && typeof parsed === "object" && "description" in parsed) {
-      return {
-        department: parsed.department || "PG Department of Computer Science",
-        update_type: parsed.update_type || "Announcement",
-        title: parsed.title || "",
-        description: parsed.description || "",
-        date_time: parsed.date_time || "",
-        location: parsed.location || "",
-        tags: parsed.tags || [],
-        visibility: parsed.visibility || "All Hive",
-        allow_comments: parsed.allow_comments !== false
-      };
-    }
-  } catch (e) {
-    // Treat as raw text
+function DashboardAttachmentPreview({ attachmentUrl }) {
+  if (!attachmentUrl) return null;
+  const urls = attachmentUrl.split(",").filter(Boolean);
+  if (urls.length === 0) return null;
+
+  const isVideo = (url) => url.endsWith(".mp4") || url.endsWith(".webm") || url.includes("/video/upload/");
+
+  if (urls.length === 1) {
+    const url = urls[0];
+    return (
+      <div className="rounded-xl overflow-hidden mb-2.5 border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 h-28 w-full">
+        {isVideo(url) ? (
+          <video src={url} className="w-full h-full object-cover" />
+        ) : (
+          <img src={url} alt="attachment preview" className="w-full h-full object-cover" />
+        )}
+      </div>
+    );
   }
-  return {
-    department: "PG Department of Computer Science",
-    update_type: "Announcement",
-    title: "",
-    description: contentStr || "",
-    date_time: "",
-    location: "",
-    tags: [],
-    visibility: "All Hive",
-    allow_comments: true
-  };
+
+  return (
+    <div className="grid grid-cols-3 gap-1.5 mb-2.5 h-20 w-full">
+      {urls.slice(0, 3).map((url, idx) => {
+        const isLast = idx === 2 && urls.length > 3;
+        return (
+          <div key={idx} className="relative rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 h-full w-full">
+            {isVideo(url) ? (
+              <video src={url} className="w-full h-full object-cover" />
+            ) : (
+              <img src={url} alt="attachment preview" className="w-full h-full object-cover" />
+            )}
+            {isLast && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-black">
+                +{urls.length - 3}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 /* ─── Live Date & Time Card ──────────────────────────────────────────────── */
@@ -138,14 +150,12 @@ function LatestForumPostCard({ posts }) {
   }
 
   const relativeTime = timeAgo(post.created_at);
-  const urls = post.attachment_url ? post.attachment_url.split(",").filter(Boolean) : [];
-  const thumbnail = urls.length > 0 ? urls[0] : null;
   const { title, body } = parseForumPostContent(post.content);
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
       <div>
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/60 mb-3">
+        <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
             <MessageSquare className="w-4 h-4 text-violet-500" />
             Latest Forum Post
@@ -155,7 +165,7 @@ function LatestForumPostCard({ posts }) {
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-2.5">
           <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="xs" />
           <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
@@ -164,14 +174,14 @@ function LatestForumPostCard({ posts }) {
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-105 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {post.posted_by?.role}
             </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-550 flex items-center gap-0.5 ml-auto">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-0.5 ml-auto">
               <Clock className="w-2.5 h-2.5" />
               {relativeTime}
             </span>
           </div>
         </div>
 
-        <div className="space-y-2 mb-3">
+        <div className="space-y-1 mb-2.5">
           {title ? (
             <>
               <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 leading-snug">
@@ -182,20 +192,16 @@ function LatestForumPostCard({ posts }) {
               </p>
             </>
           ) : (
-            <p className="text-xs text-slate-700 dark:text-slate-350 line-clamp-3 leading-relaxed">
+            <p className="text-xs text-slate-700 dark:text-slate-350 line-clamp-2 leading-relaxed">
               {body}
             </p>
           )}
         </div>
 
-        {thumbnail && (
-          <div className="rounded-xl overflow-hidden mb-3 border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 h-28 w-full">
-            <img src={thumbnail} alt="attachment preview" className="w-full h-full object-cover" />
-          </div>
-        )}
+        <DashboardAttachmentPreview attachmentUrl={post.attachment_url} />
       </div>
 
-      <div className="flex items-center gap-4 pt-2.5 border-t border-slate-100 dark:border-slate-800/40 text-slate-400 mt-auto">
+      <div className="flex items-center gap-4 pt-2 text-slate-400 mt-auto">
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold">
           <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
           <span>{post.like_count || 0}</span>
@@ -233,15 +239,13 @@ function LatestUpdateCard({ updates }) {
     );
   }
 
-  const parsed = parseAnnouncementContent(update.content);
+  const parsed = parseUpdateContent(update.content);
   const relativeTime = timeAgo(update.created_at);
-  const urls = update.attachment_url ? update.attachment_url.split(",").filter(Boolean) : [];
-  const thumbnail = urls.length > 0 ? urls[0] : null;
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
       <div>
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/60 mb-3">
+        <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
             <Megaphone className="w-4 h-4 text-violet-500" />
             Latest Update
@@ -251,42 +255,38 @@ function LatestUpdateCard({ updates }) {
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-2.5">
           <div className="w-6 h-6 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-[10px] shrink-0 shadow-sm">
             {(parsed.department || "D").charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-slate-850 dark:text-slate-200 truncate">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
               {parsed.department || "PG Department of CS"}
             </span>
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-105 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {parsed.update_type || "Info"}
+              {parsed.updateType || "Info"}
             </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-550 flex items-center gap-0.5 ml-auto">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-0.5 ml-auto">
               <Clock className="w-2.5 h-2.5" />
               {relativeTime}
             </span>
           </div>
         </div>
 
-        <div className="space-y-2 mb-3">
-          {parsed.title && (
+        <div className="space-y-1 mb-2.5">
+          {parsed.title && parsed.title !== parsed.department && parsed.title !== "Update" && parsed.title !== "Announcement" && parsed.title !== "Event" && (
             <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 leading-snug">
               {parsed.title}
             </h4>
           )}
           <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-            {parsed.description}
+            {parsed.description || "No updates yet"}
           </p>
         </div>
 
-        {thumbnail && (
-          <div className="rounded-xl overflow-hidden mb-3 border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 h-28 w-full">
-            <img src={thumbnail} alt="attachment preview" className="w-full h-full object-cover" />
-          </div>
-        )}
+        <DashboardAttachmentPreview attachmentUrl={update.attachment_url} />
       </div>
-      <div className="flex items-center gap-4 pt-2.5 border-t border-slate-100 dark:border-slate-800/40 text-slate-400 mt-auto">
+      <div className="flex items-center gap-4 pt-2 text-slate-400 mt-auto">
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold">
           <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
           <span>{update.like_count || 0}</span>
@@ -434,22 +434,22 @@ export default function DashboardPage() {
                 key={card.key}
                 to={card.to}
                 id={`stat-card-${card.key}`}
-                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-3.5 flex items-center gap-3 transition-all duration-200 hover:shadow-md group block"
+                className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-2.5 sm:p-3.5 flex items-center gap-2.5 sm:gap-3 transition-all duration-200 hover:shadow-md group block"
                 style={{ textDecoration: "none" }}
               >
                 {/* Left Node */}
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: card.iconBg, color: card.iconColor }}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 {/* Right Node */}
                 <div className="min-w-0 flex-1 flex flex-col">
-                  <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                  <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
                     {card.value}
                   </span>
-                  <span className="text-[10px] sm:text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1 truncate">
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase text-slate-405 dark:text-slate-500 mt-1 truncate">
                     {card.label}
                   </span>
                 </div>

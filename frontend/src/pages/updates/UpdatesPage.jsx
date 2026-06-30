@@ -6,6 +6,7 @@ import {
   listCoordinators, listEligibleCoordinators, assignCoordinator
 } from "../../api/updates";
 import { useAuth } from "../../context/AuthContext";
+import { parseUpdateContent } from "../../utils/updateContent";
 import { Spinner } from "../../components/ui/Spinner";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Pagination } from "../../components/shared/Pagination";
@@ -50,32 +51,15 @@ function getFileType(url) {
 }
 
 function parseAnnouncementContent(contentStr) {
-  try {
-    const parsed = JSON.parse(contentStr);
-    if (parsed && typeof parsed === "object" && "description" in parsed) {
-      return {
-        department: parsed.department || "PG Department of Computer Science",
-        update_type: parsed.update_type || "Announcement",
-        title: parsed.title || "",
-        description: parsed.description || "",
-        date_time: parsed.date_time || "",
-        location: parsed.location || "",
-        tags: parsed.tags || [],
-        visibility: parsed.visibility || "All Hive",
-        allow_comments: parsed.allow_comments !== false
-      };
-    }
-  } catch (e) {
-    // Treat as raw text
-  }
+  const parsed = parseUpdateContent(contentStr);
   return {
-    department: "PG Department of Computer Science",
-    update_type: "Announcement",
-    title: "",
-    description: contentStr || "",
-    date_time: "",
-    location: "",
-    tags: [],
+    department: parsed.department || "PG Department of Computer Science",
+    update_type: parsed.updateType || "Announcement",
+    title: parsed.isStructured && parsed.title !== parsed.updateType ? parsed.title : "",
+    description: parsed.description || "",
+    date_time: parsed.dateTime || "",
+    location: parsed.location || "",
+    tags: parsed.tags || [],
     visibility: "All Hive",
     allow_comments: true
   };

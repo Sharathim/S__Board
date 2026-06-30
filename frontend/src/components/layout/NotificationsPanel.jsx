@@ -4,6 +4,7 @@ import { listNotifications, markAllRead, markRead } from "../../api/notification
 import { useNotificationContext } from "../../context/NotificationContext";
 import { Bell, CheckCheck, X, Mail, MailOpen } from "lucide-react";
 import { format } from "date-fns";
+import { parseUpdateContent } from "../../utils/updateContent";
 
 const notificationIcons = {
   project_assigned: "📋",
@@ -126,7 +127,11 @@ export function NotificationsPanel({ open, onClose }) {
                         </p>
                         {!n.is_read && <span className="w-2 h-2 bg-primary-500 rounded-full shrink-0" />}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words">{n.body}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words">
+                        {n.type === "new_update"
+                          ? (parseUpdateContent(n.body).description || n.body)
+                          : n.body}
+                      </p>
                       <p className="text-[11px] text-gray-400 mt-1">{format(new Date(n.created_at), "MMM d, h:mm a")}</p>
                     </div>
                     {n.is_read

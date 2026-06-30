@@ -8,6 +8,7 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Bell, CheckCheck, Mail, MailOpen } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
+import { parseUpdateContent } from "../../utils/updateContent";
 
 const notificationIcons = {
   project_assigned: "📋",
@@ -83,7 +84,11 @@ export default function NotificationsPage() {
                   </p>
                   {!n.is_read && <span className="w-2 h-2 bg-primary-500 rounded-full shrink-0" />}
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">{n.body}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {n.type === "new_update"
+                    ? (parseUpdateContent(n.body).description || n.body)
+                    : n.body}
+                </p>
                 <p className="text-xs text-gray-400 mt-1">{format(new Date(n.created_at), "MMM d, yyyy 'at' h:mm a")}</p>
               </div>
               {n.is_read ? <MailOpen className="w-4 h-4 text-gray-300" /> : <Mail className="w-4 h-4 text-primary-500" />}
