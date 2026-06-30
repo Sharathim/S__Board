@@ -21,7 +21,8 @@ import {
   MessageSquare, Heart, Trash2, UserPlus, Crown, Send, Image,
   X, Search, Edit2, Clock, Sparkles, AlertCircle,
   CheckCircle2, Users, ShieldAlert, Award, Flame,
-  TrendingUp, Hash, BookOpen, Plus, ChevronDown, Star, Calendar
+  TrendingUp, Hash, BookOpen, Plus, ChevronDown, Star, Calendar,
+  Share2
 } from "lucide-react";
 import { useState, useMemo, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -43,6 +44,15 @@ function formatPostTime(dateString) {
   } catch {
     return "just now";
   }
+}
+
+function parseForumPostContent(content = "") {
+  if (!content) return { title: "", body: "" };
+  const lines = content.split("\n").map(l => l.trim()).filter(Boolean);
+  if (lines.length > 1) {
+    return { title: lines[0], body: lines.slice(1).join("\n") };
+  }
+  return { title: "", body: content };
 }
 
 function RoleBadge({ role }) {
@@ -397,7 +407,7 @@ export default function ForumPage() {
                   return (
                     <div
                       key={post.id}
-                      className="p-5 rounded-2xl bg-slate-50/50 dark:bg-gray-900/35 border border-slate-100 dark:border-gray-800/50 space-y-4 hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors"
+                      className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4 hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors"
                     >
                       {/* Post Header (Author details) */}
                       <div className="flex items-center justify-between gap-3">
@@ -405,32 +415,32 @@ export default function ForumPage() {
                           <Avatar
                             src={post.posted_by?.profile_picture}
                             name={post.posted_by?.name}
-                            size="md"
-                            className="ring-2 ring-gray-100 dark:ring-gray-700 shrink-0"
+                            size="sm"
+                            className="ring-2 ring-slate-100 dark:ring-slate-805 shrink-0"
                           />
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">
                                 {post.posted_by?.name}
                               </span>
                               <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 {post.posted_by?.role}
                               </span>
                               {isAuthor && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-800/30 uppercase tracking-wide">
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
                                   You
                                 </span>
                               )}
                               {post.is_edited && (
-                                <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 dark:border-amber-800/30 uppercase tracking-wide">
+                                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
                                   Edited
                                 </span>
                               )}
+                              <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 ml-1.5">
+                                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                {formatPostTime(post.created_at)}
+                              </span>
                             </div>
-                            <span className="text-[10px] text-gray-400 dark:text-gray-505 mt-0.5 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
                           </div>
                         </div>
 
@@ -460,19 +470,33 @@ export default function ForumPage() {
                       </div>
 
                       {/* Content */}
-                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
-                        {post.content}
-                      </p>
+                      <div className="space-y-1 mt-2.5">
+                        {(() => {
+                          const { title, body } = parseForumPostContent(post.content);
+                          return (
+                            <>
+                              {title && (
+                                <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug">
+                                  {title}
+                                </h3>
+                              )}
+                              <p className="text-sm text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+                                {body}
+                              </p>
+                            </>
+                          );
+                        })()}
+                      </div>
 
                       {/* Image Attachment */}
                       {post.attachment_url && (
-                        <div className="mt-2.5">
+                        <div className="mt-3">
                           {(() => {
                             const urls = post.attachment_url.split(',').filter(Boolean);
                             if (urls.length === 0) return null;
                             if (urls.length === 1) {
                               return (
-                                <div className="rounded-xl border border-gray-100 dark:border-gray-700/60 overflow-hidden bg-gray-50 dark:bg-gray-900/30 max-h-96 flex items-center justify-center animate-fade-in">
+                                <div className="rounded-xl border border-slate-100 dark:border-slate-800/60 overflow-hidden bg-slate-50 dark:bg-slate-950/20 max-h-96 flex items-center justify-center animate-fade-in">
                                   <img
                                     src={urls[0]}
                                     alt="post attachment"
@@ -482,36 +506,11 @@ export default function ForumPage() {
                                 </div>
                               );
                             }
-                            if (urls.length === 2) {
-                              return (
-                                <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
-                                  {urls.map((url, i) => (
-                                    <img key={i} src={url} alt={`attachment-${i}`} className="w-full h-40 object-cover hover:scale-[1.01] transition-transform duration-205" />
-                                  ))}
-                                </div>
-                              );
-                            }
-                            if (urls.length === 3) {
-                              return (
-                                <div className="grid grid-cols-3 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 h-48 animate-fade-in">
-                                  <img src={urls[0]} alt="attachment-0" className="col-span-2 w-full h-full object-cover" />
-                                  <div className="grid grid-rows-2 gap-2 h-full">
-                                    <img src={urls[1]} alt="attachment-1" className="w-full h-full object-cover" />
-                                    <img src={urls[2]} alt="attachment-2" className="w-full h-full object-cover" />
-                                  </div>
-                                </div>
-                              );
-                            }
                             return (
-                              <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
-                                {urls.slice(0, 4).map((url, i) => (
-                                  <div key={i} className="relative h-32">
-                                    <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
-                                    {i === 3 && urls.length > 4 && (
-                                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-extrabold text-sm animate-fade-in">
-                                        +{urls.length - 4}
-                                      </div>
-                                    )}
+                              <div className="grid grid-cols-3 gap-2.5 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 animate-fade-in">
+                                {urls.map((url, i) => (
+                                  <div key={i} className="relative aspect-square sm:aspect-video md:aspect-[4/3] rounded-lg overflow-hidden shrink-0">
+                                    <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-200" />
                                   </div>
                                 ))}
                               </div>
@@ -521,18 +520,37 @@ export default function ForumPage() {
                       )}
 
                       {/* Post Footer */}
-                      <div className="flex items-center gap-4 pt-2.5 border-t border-gray-100 dark:border-gray-800/40">
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/40 mt-4 text-slate-400">
+                        <div className="flex items-center gap-6">
+                          <button
+                            onClick={() => likeMutation.mutate(post.id)}
+                            className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 transition-all ${post.liked
+                              ? "text-rose-500"
+                              : "text-gray-400 hover:text-rose-500"
+                              }`}
+                          >
+                            <Heart
+                              className={`w-4 h-4 transition-all group-active/like:scale-120 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                            />
+                            <span>{post.like_count || 0}</span>
+                          </button>
+
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                            <MessageSquare className="w-4 h-4 text-violet-500" />
+                            <span>0</span>
+                          </span>
+                        </div>
+
                         <button
-                          onClick={() => likeMutation.mutate(post.id)}
-                          className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-all ${post.liked
-                            ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30"
-                            : "text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-                            }`}
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
+                            showSuccess("Link copied to clipboard!");
+                          }}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-405 hover:text-indigo-600 transition-colors"
+                          title="Copy link to post"
                         >
-                          <Heart
-                            className={`w-3.5 h-3.5 transition-all group-active/like:scale-125 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                          />
-                          <span>{post.like_count || 0}</span>
+                          <Share2 className="w-4 h-4" />
+                          <span>Share</span>
                         </button>
                       </div>
                     </div>

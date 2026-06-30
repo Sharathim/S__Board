@@ -29,9 +29,9 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   const hasIncharge = !!c.incharge;
 
   const cardContent = (
-    <div className={`group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative ${c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
+    <div className={`group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between h-full relative ${c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
       }`}>
-      <div className="p-5 flex flex-col flex-1 justify-between">
+      <div className="p-4 flex flex-col flex-1 justify-between">
         <div className="space-y-4">
           {/* Header Row */}
           <div className="flex items-center justify-between">
@@ -80,7 +80,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2.5 rounded-xl flex items-center gap-2">
+            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2 rounded-xl flex items-center gap-2">
               <Users className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
               <div>
                 <div className="text-xs font-extrabold text-gray-800 dark:text-gray-200">{c.student_count ?? 0}</div>
@@ -88,7 +88,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
               </div>
             </div>
 
-            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2.5 rounded-xl flex items-center gap-2">
+            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2 rounded-xl flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-violet-500 dark:text-violet-400 shrink-0" />
               <div>
                 <div className="text-xs font-extrabold text-gray-800 dark:text-gray-200">
