@@ -325,60 +325,36 @@ export default function ProjectDetailPage() {
           
           <div className="flex flex-wrap items-center gap-6">
             {/* Faculty Group */}
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase">Faculty</span>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-500 uppercase">Faculty</span>
               {facultyMembers.length > 0 ? (
-                <div className="flex -space-x-2">
-                  {facultyMembers.map(m => (
-                    <Avatar
-                      key={m.id}
-                      src={m.profile_picture}
-                      name={m.name}
-                      size="sm"
-                      className="ring-2 ring-white dark:ring-gray-800"
-                    />
-                  ))}
-                </div>
+                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
+                  {facultyMembers.map(m => m.name).join(", ")}
+                </span>
               ) : (
                 <span className="text-xs text-gray-400 italic">None</span>
               )}
             </div>
 
             {/* Forum Group */}
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase">Forum</span>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-500 uppercase">Forum</span>
               {forumMembers.length > 0 ? (
-                <div className="flex -space-x-2">
-                  {forumMembers.map(m => (
-                    <Avatar
-                      key={m.id}
-                      src={m.profile_picture}
-                      name={m.name}
-                      size="sm"
-                      className="ring-2 ring-white dark:ring-gray-800"
-                    />
-                  ))}
-                </div>
+                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
+                  {forumMembers.map(m => m.name).join(", ")}
+                </span>
               ) : (
                 <span className="text-xs text-gray-400 italic">None</span>
               )}
             </div>
 
             {/* Students Group */}
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase">Students</span>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-500 uppercase">Students</span>
               {studentMembers.length > 0 ? (
-                <div className="flex -space-x-2">
-                  {studentMembers.map(m => (
-                    <Avatar
-                      key={m.id}
-                      src={m.profile_picture}
-                      name={m.name}
-                      size="sm"
-                      className="ring-2 ring-white dark:ring-gray-800"
-                    />
-                  ))}
-                </div>
+                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
+                  {studentMembers.map(m => m.name).join(", ")}
+                </span>
               ) : (
                 <span className="text-xs text-gray-400 italic">None</span>
               )}

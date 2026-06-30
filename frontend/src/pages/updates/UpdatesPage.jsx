@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import {
   listUpdates, createUpdate, editUpdate, deleteUpdate, toggleUpdateLike,
-  listCoordinators, listEligibleCoordinators, assignCoordinator
+  listCoordinators, listEligibleCoordinators, assignCoordinator, removeCoordinator
 } from "../../api/updates";
 import { useAuth } from "../../context/AuthContext";
 import { parseUpdateContent } from "../../utils/updateContent";
@@ -144,54 +144,66 @@ function ImageGallery({ urls }) {
 
 // ─── Card Media Dispatcher ──────────────────────────────────────────────────
 function CardMediaRenderer({ urls }) {
-  const mediaUrls = urls.filter(url => getFileType(url) !== "document");
-  const docUrls = urls.filter(url => getFileType(url) === "document");
+  const imageUrls = urls.filter(url => getFileType(url) === "image");
+  const otherUrls = urls.filter(url => getFileType(url) !== "image");
 
-  const renderMediaItem = (url) => {
-    const type = getFileType(url);
-    if (type === "video") {
+  const renderImageGallery = () => {
+    if (imageUrls.length === 0) return null;
+    const count = Math.min(imageUrls.length, 3);
+    const gridClass = `images-${count}`;
+
+    if (count === 1) {
       return (
-        <video
-          src={url}
-          controls
-          className="w-full h-full object-cover rounded-xl"
-        />
+        <div className={`${gridClass} mb-3 shadow-sm`}>
+          <img src={imageUrls[0]} alt="attachment" className="update-card-img" />
+        </div>
       );
     }
+
+    if (count === 2) {
+      return (
+        <div className={`${gridClass} mb-3 shadow-sm`}>
+          <img src={imageUrls[0]} alt="attachment" className="update-card-img" />
+          <img src={imageUrls[1]} alt="attachment" className="update-card-img" />
+        </div>
+      );
+    }
+
     return (
-      <img
-        src={url}
-        alt="attachment"
-        className="w-full h-full object-cover rounded-xl hover:scale-[1.03] transition-transform duration-200"
-      />
+      <div className={`${gridClass} mb-3 shadow-sm`}>
+        <div className="img-span-top">
+          <img src={imageUrls[0]} alt="attachment" className="update-card-img" />
+        </div>
+        <div className="img-span-bottom">
+          <img src={imageUrls[1]} alt="attachment" className="update-card-img" />
+        </div>
+        <div className="img-span-bottom">
+          <img src={imageUrls[2]} alt="attachment" className="update-card-img" />
+        </div>
+      </div>
     );
   };
 
   return (
-    <div className="w-full space-y-4">
-      {mediaUrls.length === 1 && (
-        <div className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-955/20 max-h-[480px] aspect-video w-full border border-slate-100 dark:border-slate-800/60">
-          {renderMediaItem(mediaUrls[0])}
-        </div>
-      )}
-      {mediaUrls.length > 1 && (
-        <div className="grid grid-cols-3 gap-2.5 w-full rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-955/20 p-1">
-          {mediaUrls.map((url, idx) => (
-            <div key={idx} className="relative aspect-square sm:aspect-video md:aspect-[4/3] rounded-lg overflow-hidden shrink-0">
-              {renderMediaItem(url)}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="w-full">
+      {renderImageGallery()}
 
-      {docUrls.length > 0 && (
-        <div className="space-y-2 mt-3">
-          {docUrls.map((docUrl, idx) => {
-            const filename = decodeURIComponent(docUrl.split("/").pop() || "Attachment Document");
+      {otherUrls.length > 0 && (
+        <div className="space-y-2 mt-2">
+          {otherUrls.map((url, idx) => {
+            const type = getFileType(url);
+            if (type === "video") {
+              return (
+                <div key={idx} className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950/20 max-h-[260px] aspect-video w-full border border-slate-100 dark:border-slate-800/60 mb-2">
+                  <video src={url} controls className="w-full h-full object-cover" />
+                </div>
+              );
+            }
+            const filename = decodeURIComponent(url.split("/").pop() || "Attachment Document");
             return (
               <a
                 key={idx}
-                href={docUrl}
+                href={url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 rounded-xl border border-gray-150 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-900/35 hover:bg-gray-100/50 dark:hover:bg-gray-800/40 transition-colors"
@@ -201,7 +213,7 @@ function CardMediaRenderer({ urls }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{filename}</p>
-                  <p className="text-[10px] text-gray-400">PDF Document</p>
+                  <p className="text-[10px] text-gray-400 uppercase font-semibold">Document Attachment</p>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-gray-400 shrink-0" />
               </a>
@@ -213,7 +225,6 @@ function CardMediaRenderer({ urls }) {
   );
 }
 
-// ─── Like Action Button with bounce animation ─────────────────────────────
 function LikeButton({ liked, count, onClick }) {
   const [animate, setAnimate] = useState(false);
 
@@ -292,7 +303,16 @@ export default function UpdatesPage() {
   const assignCoordMutation = useMutation({
     mutationFn: ({ kind, refId }) => assignCoordinator(kind, refId),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coordinators"] });  const removeCoordMutation = useMutation({
+    mutationFn: ({ kind, refId }) => removeCoordinator(kind, refId),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coordinators"] });
+      showSuccess("Coordinator removed successfully.");
+    },
+    onError: () => showError("Failed to remove coordinator."),
+  });
+
+
       setCoordPickerOpen(false);
       showSuccess("Coordinator assigned successfully.");
     },
@@ -513,7 +533,7 @@ export default function UpdatesPage() {
         </div>
       )}
 
-      {/* ── Page Header Row ── */}
+      {/* ─── Page Header Row ─── */}
       <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-5">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
@@ -542,7 +562,37 @@ export default function UpdatesPage() {
         </div>
       </div>
 
-      {/* ── Mobile Floating Action Button ── */}
+      {/* HOD Screen: Active Updates Coordinators List */}
+      {isHOD && coordData?.coordinators && coordData.coordinators.length > 0 && (
+        <div className="bg-slate-50/50 dark:bg-gray-805/40 border border-gray-200/50 dark:border-gray-700/60 rounded-2xl p-4 mt-2">
+          <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2.5">
+            Active Updates Coordinators
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {coordData.coordinators.map(coord => (
+              <div
+                key={`${coord.kind}-${coord.ref_id}`}
+                className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-xl border border-gray-150 dark:border-gray-800 shadow-sm"
+              >
+                <Avatar src={coord.profile_picture} name={coord.name} size="xs" className="w-5 h-5 rounded-full shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-gray-805 dark:text-gray-200 leading-none truncate max-w-[120px]">{coord.name}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id })}
+                  className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 transition-all shrink-0 ml-1"
+                  title="Remove Coordinator"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Mobile Floating Action Button ─── */}
       {isUpdateCoordinator && (
         <button
           type="button"
@@ -598,7 +648,7 @@ export default function UpdatesPage() {
         </div>
       </div>
 
-      {/* ── Content Feed ── */}
+      {/* ─── Content Feed ─── */}
       {finalUpdates.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl border border-gray-150 dark:border-gray-700/60 shadow-sm">
           <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
@@ -610,7 +660,7 @@ export default function UpdatesPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="updates-feed-container space-y-6">
           {finalUpdates.map(update => {
             const parsed = parseAnnouncementContent(update.content);
             const urls = update.attachment_url ? update.attachment_url.split(',').filter(Boolean) : [];
@@ -618,27 +668,25 @@ export default function UpdatesPage() {
             return (
               <article
                 key={update.id}
-                className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4 sm:p-[18px] md:p-6 hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors"
+                className="update-card mx-auto p-4 sm:p-[18px] md:p-6 mb-6 flex flex-col justify-between"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
                       {(parsed.department || "D").charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">
-                          {parsed.department || "PG Department of Computer Science"}
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          {parsed.update_type || "Announcement"}
-                        </span>
-                        <span className="text-xs text-gray-450 dark:text-gray-500 flex items-center gap-1 ml-1.5">
-                          <Clock className="w-3.5 h-3.5 text-gray-405 shrink-0" />
-                          {formatTime(update.created_at)}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400 leading-none">
+                        {parsed.department || "PG Department of Computer Science"}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-505 dark:text-gray-400 uppercase tracking-wider leading-none">
+                        {parsed.update_type || "Announcement"}
+                      </span>
+                      <span className="text-xs text-gray-450 dark:text-gray-500 flex items-center gap-1.5 ml-1.5 leading-none">
+                        <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        {formatTime(update.created_at)}
+                      </span>
                     </div>
                   </div>
 
@@ -648,7 +696,7 @@ export default function UpdatesPage() {
                       <button
                         type="button"
                         onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-250 transition-colors"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-605 dark:hover:text-gray-250 transition-colors"
                       >
                         <span className="text-lg font-bold tracking-widest leading-none block -mt-1">...</span>
                       </button>
@@ -678,35 +726,24 @@ export default function UpdatesPage() {
 
                 {/* Title */}
                 {parsed.title && (
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug mt-3.5 mb-1.5">
+                  <h2 className="text-[18px] md:text-[20px] font-black text-gray-900 dark:text-white leading-snug mb-1.5 line-clamp-2">
                     {parsed.title}
                   </h2>
                 )}
 
                 {/* Description */}
-                <p className="text-sm text-gray-750 dark:text-gray-350 leading-relaxed whitespace-pre-line mb-4">
+                <p className="text-[15px] text-gray-750 dark:text-gray-350 leading-relaxed mb-4 line-clamp-3">
                   {parsed.description}
                 </p>
 
                 {/* Media Renderer */}
                 {urls.length > 0 && (
-                  <div className="mb-4">
+                  <div className="mb-4 w-full">
                     <CardMediaRenderer urls={urls} />
                   </div>
                 )}
 
-                {/* Tags */}
-                {parsed.tags && parsed.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {parsed.tags.map((tag, i) => (
-                      <span key={i} className="px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-955/35 text-violet-650 dark:text-violet-400 text-xs font-bold shrink-0">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Event Details */}
+                {/* Date & Location Row */}
                 {(parsed.update_type === "Event" || parsed.date_time || parsed.location) && (
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs font-semibold text-gray-505 dark:text-gray-400">
                     {parsed.date_time && (
@@ -724,49 +761,24 @@ export default function UpdatesPage() {
                   </div>
                 )}
 
-                {/* Card Divider Line */}
-                <div className="h-px bg-slate-100 dark:bg-slate-800/60 my-4" />
-
-                {/* Bottom Actions - Likes, Comments & Share */}
-                <div className="flex items-center justify-between pt-1 text-slate-400">
-                  <div className="flex items-center gap-6">
-                    <button
-                      onClick={() => likeMutation.mutate(update.id)}
-                      className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 transition-all ${update.liked
-                        ? "text-rose-500"
-                        : "text-gray-400 hover:text-rose-500"
-                        }`}
-                    >
-                      <Heart
-                        className={`w-4 h-4 transition-all group-active/like:scale-120 duration-150 ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                      />
-                      <span>{update.like_count || 0}</span>
-                    </button>
-
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-                      <MessageSquare className="w-4 h-4 text-violet-500" />
-                      <span>0</span>
-                    </span>
-                  </div>
-
+                {/* Footer containing only Like button aligned to the left */}
+                <div className="flex items-center pt-2.5 border-t border-gray-100 dark:border-gray-800/60 mt-auto">
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/updates#update-${update.id}`);
-                      showSuccess("Link copied to clipboard!");
-                    }}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-405 hover:text-indigo-650 transition-colors"
-                    title="Copy link to update"
+                    onClick={() => likeMutation.mutate(update.id)}
+                    className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1.5 transition-all ${
+                      update.liked ? "text-rose-500" : "text-gray-400 hover:text-rose-500"
+                    }`}
                   >
-                    <Share2 className="w-4 h-4" />
-                    <span>Share</span>
+                    <Heart
+                      className={`w-4 h-4 transition-all ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                    />
+                    <span>{update.like_count || 0}</span>
                   </button>
                 </div>
-
               </article>
             );
           })}
 
-          
           <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
         </div>
       )}

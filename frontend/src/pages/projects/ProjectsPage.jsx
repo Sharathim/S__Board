@@ -341,81 +341,42 @@ export default function ProjectsPage() {
                 <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-700/60 flex flex-col gap-3">
                   <div className="grid grid-cols-3 gap-2">
                     {/* Faculty */}
-                    <div className="flex flex-col gap-1 min-w-0">
+                    <div className="flex flex-col gap-0.5 min-w-0">
                       <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Faculty</span>
                       {facultyMembers.length > 0 ? (
-                        <div className="flex -space-x-1.5 shrink-0 overflow-hidden">
-                          {facultyMembers.slice(0, 2).map((m, idx) => (
-                            <Avatar
-                              key={m.id || idx}
-                              src={m.profile_picture}
-                              name={m.name}
-                              size="xs"
-                              className="ring-2 ring-white dark:ring-gray-800"
-                            />
-                          ))}
-                          {facultyMembers.length > 2 && (
-                            <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-750 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-800 shrink-0">
-                              +{facultyMembers.length - 2}
-                            </div>
-                          )}
-                        </div>
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-gray-250 truncate">
+                          {facultyMembers.map(m => m.name).join(", ")}
+                        </span>
                       ) : (
                         <span className="text-[10px] text-gray-400 italic">None</span>
                       )}
                     </div>
 
                     {/* Forum */}
-                    <div className="flex flex-col gap-1 min-w-0">
+                    <div className="flex flex-col gap-0.5 min-w-0">
                       <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Forum</span>
                       {forumMembers.length > 0 ? (
-                        <div className="flex -space-x-1.5 shrink-0 overflow-hidden">
-                          {forumMembers.slice(0, 2).map((m, idx) => (
-                            <Avatar
-                              key={m.id || idx}
-                              src={m.profile_picture}
-                              name={m.name}
-                              size="xs"
-                              className="ring-2 ring-white dark:ring-gray-800"
-                            />
-                          ))}
-                          {forumMembers.length > 2 && (
-                            <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-750 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-800 shrink-0">
-                              +{forumMembers.length - 2}
-                            </div>
-                          )}
-                        </div>
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-gray-250 truncate">
+                          {forumMembers.map(m => m.name).join(", ")}
+                        </span>
                       ) : (
                         <span className="text-[10px] text-gray-400 italic">None</span>
                       )}
                     </div>
 
                     {/* Students */}
-                    <div className="flex flex-col gap-1 min-w-0">
+                    <div className="flex flex-col gap-0.5 min-w-0">
                       <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Students</span>
                       {studentMembers.length > 0 ? (
-                        <div className="flex -space-x-1.5 shrink-0 overflow-hidden">
-                          {studentMembers.slice(0, 2).map((m, idx) => (
-                            <Avatar
-                              key={m.id || idx}
-                              src={m.profile_picture}
-                              name={m.name}
-                              size="xs"
-                              className="ring-2 ring-white dark:ring-gray-800"
-                            />
-                          ))}
-                          {studentMembers.length > 2 && (
-                            <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-750 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-800 shrink-0">
-                              +{studentMembers.length - 2}
-                            </div>
-                          )}
-                        </div>
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-gray-250 truncate">
+                          {studentMembers.map(m => m.name).join(", ")}
+                        </span>
                       ) : (
                         <span className="text-[10px] text-gray-400 italic">None</span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between mt-1 text-[10px] text-gray-405 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
+                  <div className="flex items-center justify-between mt-1 text-[10px] text-gray-450 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
                     <span>Last updated: {format(new Date(project.updated_at), "MMM d, yyyy")}</span>
                   </div>
                 </div>
@@ -467,24 +428,11 @@ export default function ProjectsPage() {
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Faculty:</span>
                     {facultyMembers.length > 0 ? (
-                      <div className="flex -space-x-1.5 shrink-0">
-                        {facultyMembers.slice(0, 3).map((m, idx) => (
-                          <Avatar
-                            key={m.id || idx}
-                            src={m.profile_picture}
-                            name={m.name}
-                            size="sm"
-                            className="ring-2 ring-white dark:ring-gray-800 w-6 h-6 rounded-full"
-                          />
-                        ))}
-                        {facultyMembers.length > 3 && (
-                          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-850">
-                            +{facultyMembers.length - 3}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs font-semibold text-slate-755 dark:text-gray-200 truncate">
+                        {facultyMembers.map(m => m.name).join(", ")}
+                      </span>
                     ) : (
-                      <span className="text-xs text-gray-450 dark:text-gray-500">—</span>
+                      <span className="text-xs text-gray-400 italic">None</span>
                     )}
                   </div>
 
@@ -492,24 +440,11 @@ export default function ProjectsPage() {
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Forum:</span>
                     {forumMembers.length > 0 ? (
-                      <div className="flex -space-x-1.5 shrink-0">
-                        {forumMembers.slice(0, 3).map((m, idx) => (
-                          <Avatar
-                            key={m.id || idx}
-                            src={m.profile_picture}
-                            name={m.name}
-                            size="sm"
-                            className="ring-2 ring-white dark:ring-gray-800 w-6 h-6 rounded-full"
-                          />
-                        ))}
-                        {forumMembers.length > 3 && (
-                          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-850">
-                            +{forumMembers.length - 3}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs font-semibold text-slate-755 dark:text-gray-200 truncate">
+                        {forumMembers.map(m => m.name).join(", ")}
+                      </span>
                     ) : (
-                      <span className="text-xs text-gray-450 dark:text-gray-500">—</span>
+                      <span className="text-xs text-gray-400 italic">None</span>
                     )}
                   </div>
 
@@ -517,24 +452,11 @@ export default function ProjectsPage() {
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Students:</span>
                     {studentMembers.length > 0 ? (
-                      <div className="flex -space-x-1.5 shrink-0">
-                        {studentMembers.slice(0, 3).map((m, idx) => (
-                          <Avatar
-                            key={m.id || idx}
-                            src={m.profile_picture}
-                            name={m.name}
-                            size="sm"
-                            className="ring-2 ring-white dark:ring-gray-800 w-6 h-6 rounded-full"
-                          />
-                        ))}
-                        {studentMembers.length > 3 && (
-                          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-850">
-                            +{studentMembers.length - 3}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs font-semibold text-slate-755 dark:text-gray-200 truncate">
+                        {studentMembers.map(m => m.name).join(", ")}
+                      </span>
                     ) : (
-                      <span className="text-xs text-gray-455 dark:text-gray-500">—</span>
+                      <span className="text-xs text-gray-400 italic">None</span>
                     )}
                   </div>
 

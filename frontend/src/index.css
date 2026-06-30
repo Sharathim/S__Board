@@ -887,3 +887,131 @@ a, button { transition: all 0.15s ease; }
   border: 1px solid rgba(139, 92, 246, 0.16) !important;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7) !important;
 }
+
+
+/* ─── Updates Feed Redesign Gallery ─── */
+.updates-feed-container {
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.update-card {
+  max-width: 820px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #FFFFFF;
+  border: 1px solid #ECECEC;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .update-card {
+  background-color: rgb(15 23 42 / 0.9);
+  border-color: rgba(139, 92, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.update-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+}
+
+.dark .update-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Image Zoom on Hover */
+.update-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.update-card-img:hover {
+  transform: scale(1.04);
+}
+
+/* 1 Image Grid */
+.images-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  max-height: 260px;
+  height: 260px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* 2 Images Grid */
+.images-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-height: 220px;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* 3 Images Grid (Premium Gallery Layout) */
+.images-3 {
+  display: grid;
+  grid-template-rows: 65% 35%;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+  max-height: 380px;
+  height: 380px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* 3 Images Grid specific placement */
+.images-3 .img-span-top {
+  grid-column: span 2;
+  grid-row: 1;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.images-3 .img-span-bottom {
+  grid-row: 2;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Like Button Scale Animation */
+.like-btn-scale {
+  transition: transform 0.15s ease;
+}
+.like-btn-scale:active {
+  transform: scale(0.85);
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .images-1 {
+    height: 180px;
+    max-height: 180px;
+  }
+  .images-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    height: 140px;
+    max-height: 140px;
+  }
+  .images-3 {
+    grid-template-rows: 160px 80px;
+    gap: 6px;
+    height: 246px; /* 160 + 80 + gap */
+    max-height: 246px;
+  }
+}
