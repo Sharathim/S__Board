@@ -337,41 +337,86 @@ export default function ProjectsPage() {
                   </div>
                 </div>
 
-                {/* Card Footer */}
-                <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
-                  {/* Member avatars */}
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    {allMembers.length > 0 ? (
-                      <>
-                        <div className="flex -space-x-1.5 shrink-0">
-                          {visibleMembers.map((m, idx) => (
+                {/* Card Footer - Members Grid by Role */}
+                <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-700/60 flex flex-col gap-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Faculty */}
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Faculty</span>
+                      {facultyMembers.length > 0 ? (
+                        <div className="flex -space-x-1.5 shrink-0 overflow-hidden">
+                          {facultyMembers.slice(0, 2).map((m, idx) => (
                             <Avatar
                               key={m.id || idx}
                               src={m.profile_picture}
                               name={m.name}
-                              size="sm"
-                              className={`ring-2 ${m.ringClass} w-6.5 h-6.5 rounded-full`}
+                              size="xs"
+                              className="ring-2 ring-white dark:ring-gray-800"
                             />
                           ))}
-                          {restCount > 0 && (
-                            <div className="w-6.5 h-6.5 rounded-full bg-slate-200 dark:bg-gray-800 border border-slate-350 dark:border-gray-700 flex items-center justify-center text-[9px] font-extrabold text-gray-655 dark:text-gray-400 ring-2 ring-white dark:ring-gray-900">
-                              +{restCount}
+                          {facultyMembers.length > 2 && (
+                            <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-750 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-800 shrink-0">
+                              +{facultyMembers.length - 2}
                             </div>
                           )}
                         </div>
-                        <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-505 uppercase tracking-wider truncate">
-                          Team Workspace
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-[10px] font-bold text-slate-400 dark:text-gray-555 uppercase tracking-wider">No contributors</span>
-                    )}
-                  </div>
+                      ) : (
+                        <span className="text-[10px] text-gray-400 italic">None</span>
+                      )}
+                    </div>
 
-                  {/* Metadata */}
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{format(new Date(project.updated_at), "MMM d")}</span>
+                    {/* Forum */}
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Forum</span>
+                      {forumMembers.length > 0 ? (
+                        <div className="flex -space-x-1.5 shrink-0 overflow-hidden">
+                          {forumMembers.slice(0, 2).map((m, idx) => (
+                            <Avatar
+                              key={m.id || idx}
+                              src={m.profile_picture}
+                              name={m.name}
+                              size="xs"
+                              className="ring-2 ring-white dark:ring-gray-800"
+                            />
+                          ))}
+                          {forumMembers.length > 2 && (
+                            <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-750 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-800 shrink-0">
+                              +{forumMembers.length - 2}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-gray-400 italic">None</span>
+                      )}
+                    </div>
+
+                    {/* Students */}
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Students</span>
+                      {studentMembers.length > 0 ? (
+                        <div className="flex -space-x-1.5 shrink-0 overflow-hidden">
+                          {studentMembers.slice(0, 2).map((m, idx) => (
+                            <Avatar
+                              key={m.id || idx}
+                              src={m.profile_picture}
+                              name={m.name}
+                              size="xs"
+                              className="ring-2 ring-white dark:ring-gray-800"
+                            />
+                          ))}
+                          {studentMembers.length > 2 && (
+                            <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-750 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-gray-400 ring-2 ring-white dark:ring-gray-800 shrink-0">
+                              +{studentMembers.length - 2}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-gray-400 italic">None</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-1 text-[10px] text-gray-405 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
+                    <span>Last updated: {timeAgo(project.updated_at)}</span>
                   </div>
                 </div>
               </div>

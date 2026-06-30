@@ -75,54 +75,45 @@ export default function MobileFacultyPage() {
 
   return (
     <div className="space-y-4 mobile-fade-in">
-      {/* Invite Banner (HOD only) */}
+      {/* Top Header/Button Row - left side free, right end button */}
       {isHOD && invite && (
-        <MobileCard className={`!border ${invite.is_active ? "!border-emerald-200 dark:!border-emerald-800/50" : ""}`}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-              invite.is_active ? "bg-emerald-50 dark:bg-emerald-950/30" : "bg-gray-100 dark:bg-slate-800"
-            }`}>
-              <Link2 className={`w-4 h-4 ${invite.is_active ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400"}`} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-gray-900 dark:text-white">Faculty Invite Link</p>
-              <p className={`text-[10px] font-bold px-1.5 py-0.5 rounded inline-block mt-0.5 ${
-                invite.is_active ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" : "bg-gray-100 dark:bg-slate-800 text-gray-500"
-              }`}>
-                {invite.is_active ? "ACTIVE" : "INACTIVE"}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {invite.is_active && invite.invite_link && (
-              <button onClick={handleCopy} className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-                copied ? "bg-emerald-500 text-white" : "bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300"
-              }`}>
-                {copied ? <><CheckCheck className="w-3.5 h-3.5 inline mr-1" />Copied!</> : <><Copy className="w-3.5 h-3.5 inline mr-1" />Copy Link</>}
-              </button>
-            )}
+        <div className="flex justify-between items-center py-1">
+          <div />
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-gray-200/60 dark:border-slate-800/80 shadow-sm shrink-0">
             <button
               onClick={() => toggleInviteMutation.mutate()}
               disabled={toggleInviteMutation.isPending}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 invite.is_active
-                  ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50"
-                  : "bg-emerald-500 text-white shadow-sm"
+                  ? "bg-emerald-500 text-white shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
-              {invite.is_active ? "Disable" : "Enable"}
+              <span>+ Faculty</span>
             </button>
+            {invite.is_active && invite.invite_link && (
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(invite.invite_link);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                title="Copy Invite Link"
+              >
+                {copied ? <CheckCheck className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            )}
           </div>
-        </MobileCard>
+        </div>
       )}
 
-      <MobileSearchBar value={search} onChange={setSearch} placeholder="Search faculty..." />
-
-      {filtered.length === 0 ? (
+      {facultyList.length === 0 ? (
         <MobileEmptyState icon={GraduationCap} title="No faculty found" description={isHOD ? "Enable the invite link to let faculty register." : "Faculty will appear here."} />
       ) : (
         <div className="space-y-3">
-          {filtered.map(fac => (
+          {facultyList.map(fac => (
             <MobileCard key={fac.id}>
               <div className="flex items-start gap-3">
                 <Avatar src={fac.profile_picture} name={fac.name} size="md" className="ring-2 ring-gray-100 dark:ring-slate-700 w-11 h-11 rounded-xl shrink-0" />

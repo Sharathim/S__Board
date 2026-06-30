@@ -319,24 +319,68 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Members Avatars Row */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2">Team Members:</span>
-            <div className="flex -space-x-2.5">
-              {visibleMembers.map(m => (
-                <Avatar
-                  key={m.id}
-                  src={m.profile_picture}
-                  name={m.name}
-                  size="sm"
-                  className={`ring-2 ring-white dark:ring-gray-800 ${m.ringClass}`}
-                />
-              ))}
-              {restCount > 0 && (
-                <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-750 text-gray-600 dark:text-gray-300 flex items-center justify-center text-xs font-bold border-2 border-white dark:border-gray-800 ring-2 ring-indigo-500/10">
-                  +{restCount}
+        {/* Members List - Grouped by Role */}
+        <div className="mt-6 pt-5 border-t border-dashed border-gray-150 dark:border-gray-750/60 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Team Members:</span>
+          
+          <div className="flex flex-wrap items-center gap-6">
+            {/* Faculty Group */}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase">Faculty</span>
+              {facultyMembers.length > 0 ? (
+                <div className="flex -space-x-2">
+                  {facultyMembers.map(m => (
+                    <Avatar
+                      key={m.id}
+                      src={m.profile_picture}
+                      name={m.name}
+                      size="sm"
+                      className="ring-2 ring-white dark:ring-gray-800"
+                    />
+                  ))}
                 </div>
+              ) : (
+                <span className="text-xs text-gray-400 italic">None</span>
+              )}
+            </div>
+
+            {/* Forum Group */}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase">Forum</span>
+              {forumMembers.length > 0 ? (
+                <div className="flex -space-x-2">
+                  {forumMembers.map(m => (
+                    <Avatar
+                      key={m.id}
+                      src={m.profile_picture}
+                      name={m.name}
+                      size="sm"
+                      className="ring-2 ring-white dark:ring-gray-800"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs text-gray-400 italic">None</span>
+              )}
+            </div>
+
+            {/* Students Group */}
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-400 uppercase">Students</span>
+              {studentMembers.length > 0 ? (
+                <div className="flex -space-x-2">
+                  {studentMembers.map(m => (
+                    <Avatar
+                      key={m.id}
+                      src={m.profile_picture}
+                      name={m.name}
+                      size="sm"
+                      className="ring-2 ring-white dark:ring-gray-800"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs text-gray-400 italic">None</span>
               )}
             </div>
           </div>

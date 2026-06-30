@@ -43,19 +43,25 @@ export default function MobileClassesPage() {
 
   return (
     <div className="space-y-5 mobile-fade-in">
-      {/* HOD toggle */}
+      {/* Top Header/Button Row - left side free, right end button */}
       {isHOD && (
-        <button
-          onClick={() => toggleRegMutation.mutate()}
-          disabled={toggleRegMutation.isPending}
-          className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all ${
-            regOpen
-              ? "bg-emerald-500 text-white shadow-sm"
-              : "bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-slate-700"
-          }`}
-        >
-          {regOpen ? "✓ Student Registration Open" : "+ Open Student Registration"}
-        </button>
+        <div className="flex justify-between items-center py-1">
+          <div />
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-gray-200/60 dark:border-slate-800/80 shadow-sm shrink-0">
+            <button
+              type="button"
+              onClick={() => toggleRegMutation.mutate()}
+              disabled={toggleRegMutation.isPending}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                regOpen
+                  ? "bg-emerald-500 text-white shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+            >
+              <span>+ New Student</span>
+            </button>
+          </div>
+        </div>
       )}
 
       {/* UG Section */}
