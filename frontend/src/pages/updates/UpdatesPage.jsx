@@ -533,19 +533,16 @@ export default function UpdatesPage() {
         </div>
       )}
 
-      {/* ─── Page Header Row ─── */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-5">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
-        </div>
-
-        {/* Right side actions */}
+      {/* ─── Page Header Row & Actions ─── */}
+      {/* Desktop Header Row (Hidden on Mobile) */}
+      <div className="hidden sm:flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3">
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
         <div className="flex items-center gap-2">
           {isHOD && (
             <button
               type="button"
               onClick={() => setCoordPickerOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-650 hover:from-violet-750 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/20 active:scale-95 shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
             >
               <Plus className="w-4 h-4" /> Updates coordinator
             </button>
@@ -554,7 +551,7 @@ export default function UpdatesPage() {
             <button
               type="button"
               onClick={triggerCreateModal}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-650 hover:from-violet-750 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/20 active:scale-95 shrink-0"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
             >
               <Plus className="w-4 h-4" /> Create Update
             </button>
@@ -562,51 +559,60 @@ export default function UpdatesPage() {
         </div>
       </div>
 
-      {/* HOD Screen: Active Updates Coordinators List */}
-      {isHOD && coordData?.coordinators && coordData.coordinators.length > 0 && (
-        <div className="bg-slate-50/50 dark:bg-gray-805/40 border border-gray-200/50 dark:border-gray-700/60 rounded-2xl p-4 mt-2">
-          <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2.5">
-            Active Updates Coordinators
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {coordData.coordinators.map(coord => (
-              <div
-                key={`${coord.kind}-${coord.ref_id}`}
-                className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-xl border border-gray-150 dark:border-gray-800 shadow-sm"
-              >
-                <Avatar src={coord.profile_picture} name={coord.name} size="xs" className="w-5 h-5 rounded-full shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-gray-805 dark:text-gray-200 leading-none truncate max-w-[120px]">{coord.name}</p>
-                </div>
+      {/* Mobile Actions (Only shown on mobile) */}
+      <div className="sm:hidden flex flex-col gap-3 mt-1">
+        {isHOD && (
+          <button
+            type="button"
+            onClick={() => setCoordPickerOpen(true)}
+            className="w-full justify-center inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95"
+          >
+            <Plus className="w-4 h-4" /> Updates coordinator
+          </button>
+        )}
+        {isUpdateCoordinator && (
+          <button
+            type="button"
+            onClick={triggerCreateModal}
+            className="w-full justify-center inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95"
+          >
+            <Plus className="w-4 h-4" /> Create Update
+          </button>
+        )}
+      </div>
+
+      {/* Coordinators Row (compact pill chips) */}
+      <div className="flex flex-wrap items-center gap-2 mt-2.5 mb-1.5">
+        <span className="text-[10px] sm:text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1">Coordinators:</span>
+        {coordData?.coordinators && coordData.coordinators.length > 0 ? (
+          coordData.coordinators.map(coord => (
+            <div
+              key={`${coord.kind}-${coord.ref_id}`}
+              className="flex items-center gap-1.5 bg-white dark:bg-gray-905 px-2.5 py-1 rounded-full border border-gray-200 dark:border-gray-800 shadow-sm"
+            >
+              <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="rounded-full shrink-0" />
+              <span className="text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200 truncate max-w-[120px]">{coord.name}</span>
+              {isHOD && (
                 <button
                   type="button"
                   onClick={() => removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id })}
-                  className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 transition-all shrink-0 ml-1"
+                  className="p-0.5 rounded-full text-gray-450 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 transition-all shrink-0"
                   title="Remove Coordinator"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                 </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              )}
+            </div>
+          ))
+        ) : (
+          <span className="text-xs text-gray-400 dark:text-gray-500 italic">No Update Coordinators Assigned</span>
+        )}
+      </div>
 
-      {/* ─── Mobile Floating Action Button ─── */}
-      {isUpdateCoordinator && (
-        <button
-          type="button"
-          onClick={triggerCreateModal}
-          className="sm:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-650 text-white flex items-center justify-center shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      )}
-
-      {/* ── Filters Bar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-805 pb-3 mt-4">
-        {/* Tabs */}
-        <div className="flex gap-6 overflow-x-auto scrollbar-none shrink-0">
+      {/* Filter Bar (Reverse column order on mobile to show search on top of tabs) */}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-805 pb-2.5 mt-2">
+        {/* Filter Tabs (responsive wrapping, no scrolling on mobile) */}
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5 shrink-0">
           {[
             { key: "all", label: "All" },
             { key: "announcements", label: "Announcements" },
@@ -617,14 +623,15 @@ export default function UpdatesPage() {
               key={tab.key}
               type="button"
               onClick={() => { setActiveFilterTab(tab.key); setPage(1); }}
-              className={`px-1 py-1.5 text-sm transition-all shrink-0 relative ${activeFilterTab === tab.key
+              className={`px-0.5 py-1 text-xs sm:text-sm transition-all shrink-0 relative ${
+                activeFilterTab === tab.key
                   ? "text-violet-650 dark:text-violet-400 font-bold"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-850 dark:hover:text-gray-205"
-                }`}
+              }`}
             >
               {tab.label}
               {activeFilterTab === tab.key && (
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-violet-600 rounded-full animate-fade-in" />
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-violet-600 rounded-full" />
               )}
             </button>
           ))}
@@ -641,7 +648,7 @@ export default function UpdatesPage() {
             className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-905 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-605">
+            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-605">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -668,7 +675,7 @@ export default function UpdatesPage() {
             return (
               <article
                 key={update.id}
-                className="update-card mx-auto p-4 sm:p-[18px] md:p-6 mb-6 flex flex-col justify-between"
+                className="update-card mx-auto p-4 sm:p-[16px] md:p-5 mb-5 flex flex-col justify-between"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between gap-3 mb-4">
@@ -726,7 +733,7 @@ export default function UpdatesPage() {
 
                 {/* Title */}
                 {parsed.title && (
-                  <h2 className="text-[18px] md:text-[20px] font-black text-gray-900 dark:text-white leading-snug mb-1.5 line-clamp-2">
+                  <h2 className="text-[19px] md:text-[21px] font-black tracking-tight mb-2 text-gray-900 dark:text-white leading-snug line-clamp-2">
                     {parsed.title}
                   </h2>
                 )}

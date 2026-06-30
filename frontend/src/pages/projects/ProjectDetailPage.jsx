@@ -31,6 +31,22 @@ function getFileType(url) {
   return "image";
 }
 
+const getStatusBadge = (status) => {
+  const meta = {
+    "Not Started": "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-400 dark:border-slate-800",
+    "In Progress": "bg-violet-50 text-violet-700 border-violet-100 dark:bg-violet-955/35 dark:text-violet-400 dark:border-violet-900/30",
+    "Review": "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-955/35 dark:text-blue-400 dark:border-blue-900/30",
+    "Completed": "bg-emerald-50 text-emerald-750 border-emerald-100 dark:bg-emerald-955/35 dark:text-emerald-400 dark:border-emerald-900/30",
+    "On Hold": "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-955/35 dark:text-amber-400 dark:border-amber-900/30"
+  };
+  const style = meta[status] || meta["In Progress"];
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border ${style}`}>
+      {status}
+    </span>
+  );
+};
+
 function ProgressAttachmentRenderer({ attachmentUrl, attachmentType, attachmentName, onImageClick }) {
   if (!attachmentUrl) return null;
   const urls = attachmentUrl.split(",").filter(Boolean);
@@ -145,9 +161,13 @@ export default function ProjectDetailPage() {
 
   // Add/Edit Progress Update fields
   const [formTitle, setFormTitle] = useState("");
-  const [formAccomplishment, setFormAccomplishment] = useState("");
-  const [formNext, setFormNext] = useState("");
-  const [formGuidelines, setFormGuidelines] = useState("");
+  const [formSummary, setFormSummary] = useState("");
+  const [formCompletion, setFormCompletion] = useState(0);
+  const [formStatus, setFormStatus] = useState("In Progress");
+  const [formCompletedThisWeek, setFormCompletedThisWeek] = useState("");
+  const [formNextMilestone, setFormNextMilestone] = useState("");
+  const [formChallenges, setFormChallenges] = useState("");
+  const [formSupport, setFormSupport] = useState("");
   const [formAttachment, setFormAttachment] = useState(null);
 
   // Fetch Project
@@ -173,21 +193,32 @@ export default function ProjectDetailPage() {
   // Sync add/edit progress form when editingMsg changes
   useEffect(() => {
     if (editingMsg) {
-      let parsed = { title: "", accomplishment: "", next: "", guidelines: "" };
+      let parsed = {};
       try {
         parsed = JSON.parse(editingMsg.content);
       } catch (e) {
-        parsed = { title: "Progress Update", accomplishment: editingMsg.content || "", next: "", guidelines: "" };
+        parsed = {
+          title: "Progress Update",
+          accomplishment: editingMsg.content || ""
+        };
       }
-      setFormTitle(parsed.title || "");
-      setFormAccomplishment(parsed.accomplishment || "");
-      setFormNext(parsed.next || "");
-      setFormGuidelines(parsed.guidelines === "No guidance required." ? "" : parsed.guidelines || "");
+      setFormTitle(parsed.title || "Progress Update");
+      setFormSummary(parsed.summary || parsed.accomplishment || "");
+      setFormCompletion(typeof parsed.completion === "number" ? parsed.completion : 0);
+      setFormStatus(parsed.status || "In Progress");
+      setFormCompletedThisWeek(parsed.completed_this_week || parsed.accomplishment || "");
+      setFormNextMilestone(parsed.next_milestone || parsed.next || "");
+      setFormChallenges(parsed.challenges || "");
+      setFormSupport(parsed.support || (parsed.guidelines && parsed.guidelines !== "No guidance required." ? parsed.guidelines : "") || "");
     } else {
       setFormTitle("");
-      setFormAccomplishment("");
-      setFormNext("");
-      setFormGuidelines("");
+      setFormSummary("");
+      setFormCompletion(0);
+      setFormStatus("In Progress");
+      setFormCompletedThisWeek("");
+      setFormNextMilestone("");
+      setFormChallenges("");
+      setFormSupport("");
     }
     setFormAttachment(null);
   }, [editingMsg]);
@@ -314,9 +345,13 @@ export default function ProjectDetailPage() {
     }
     const contentJson = JSON.stringify({
       title: formTitle,
-      accomplishment: formAccomplishment,
-      next: formNext,
-      guidelines: formGuidelines.trim() || "No guidance required."
+      summary: formSummary,
+      completion: Number(formCompletion),
+      status: formStatus,
+      completed_this_week: formCompletedThisWeek,
+      next_milestone: formNextMilestone,
+      challenges: formChallenges,
+      support: formSupport
     });
 
     if (editingMsg) {
@@ -413,8 +448,8 @@ export default function ProjectDetailPage() {
             <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Status</span>
             <div className="mt-1">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${project.status === "COMPLETED"
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                  : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
                 }`}>
                 {project.status === "COMPLETED" ? "Completed" : "In Progress"}
               </span>
@@ -425,7 +460,7 @@ export default function ProjectDetailPage() {
         {/* Members List - Grouped by Role */}
         <div className="mt-6 pt-5 border-t border-dashed border-gray-150 dark:border-gray-750/60 flex flex-col sm:flex-row sm:items-center gap-4">
           <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Team Members:</span>
-          
+
           <div className="flex flex-wrap items-center gap-6">
             {/* Faculty Group */}
             <div className="flex flex-col gap-0.5 min-w-0">
@@ -498,17 +533,40 @@ export default function ProjectDetailPage() {
           </div>
         ) : (
           reversedMessages.map(msg => {
-            let updateData = { title: "", accomplishment: "", next: "", guidelines: "" };
+            let updateData = {
+              title: "",
+              summary: "",
+              completion: 0,
+              status: "In Progress",
+              completed_this_week: "",
+              next_milestone: "",
+              challenges: "",
+              support: ""
+            };
             if (msg.is_deleted) return null;
 
             try {
-              updateData = JSON.parse(msg.content);
+              const parsed = JSON.parse(msg.content);
+              updateData = {
+                title: parsed.title || "Progress Update",
+                summary: parsed.summary || parsed.accomplishment || "",
+                completion: typeof parsed.completion === "number" ? parsed.completion : 0,
+                status: parsed.status || "In Progress",
+                completed_this_week: parsed.completed_this_week || parsed.accomplishment || "",
+                next_milestone: parsed.next_milestone || parsed.next || "",
+                challenges: parsed.challenges || "",
+                support: parsed.support || (parsed.guidelines && parsed.guidelines !== "No guidance required." ? parsed.guidelines : "") || ""
+              };
             } catch (e) {
               updateData = {
                 title: "Progress Update",
-                accomplishment: msg.content || "",
-                next: "Continue working on tasks.",
-                guidelines: "No guidance required."
+                summary: msg.content || "",
+                completion: 0,
+                status: "In Progress",
+                completed_this_week: msg.content || "",
+                next_milestone: "Continue working on tasks.",
+                challenges: "",
+                support: ""
               };
             }
 
@@ -516,19 +574,23 @@ export default function ProjectDetailPage() {
             const isMsgEditable = isEditable(msg);
 
             return (
-              <div key={msg.id} className="progress-monitor-card p-[18px] sm:p-6 mb-6 flex flex-col justify-between">
+              <div key={msg.id} className="progress-monitor-card p-[18px] sm:p-6 mb-5 flex flex-col justify-between">
                 {/* Top Row: User details and kebab */}
-                <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-3">
-                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="sm" className="w-10 h-10 rounded-full" />
+                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="md" className="rounded-full shrink-0" />
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">{msgSender.name}</span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30 leading-none">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-bold text-gray-905 dark:text-white leading-none">{msgSender.name}</span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-750 text-gray-500 dark:text-gray-405 border border-gray-200/40 dark:border-gray-700/40 leading-none">
                           {msgSender.role}
                         </span>
+                        {getStatusBadge(updateData.status)}
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-violet-50 dark:bg-violet-955/30 text-violet-650 dark:text-violet-400 border border-violet-100/30 dark:border-violet-900/20 leading-none">
+                          {updateData.completion}%
+                        </span>
                       </div>
-                      <div className="text-[13px] text-gray-400 dark:text-gray-500 mt-1 leading-none">
+                      <div className="text-[13px] text-gray-400 dark:text-gray-500 mt-1.5 leading-none">
                         {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
                         {msg.is_edited && <span className="text-[11px] opacity-60 ml-1">(edited)</span>}
                       </div>
@@ -544,17 +606,17 @@ export default function ProjectDetailPage() {
                       <MoreVertical className="w-4 h-4" />
                     </button>
                     {openKebabId === msg.id && (
-                      <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 z-30 animate-fade-in">
+                      <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                         {isMsgEditable ? (
                           <button
                             onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-55 dark:hover:bg-gray-700/50 transition-colors text-left"
                           >
                             <Pencil className="w-3.5 h-3.5 text-indigo-500" />
                             Edit Update
                           </button>
                         ) : (
-                          <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-500 italic border-b border-gray-100 dark:border-gray-800">
+                          <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-505 italic border-b border-gray-100 dark:border-gray-800">
                             {"Edit expired (>30m)"}
                           </div>
                         )}
@@ -571,51 +633,72 @@ export default function ProjectDetailPage() {
                 </div>
 
                 {/* Title */}
-                <div className="mb-4">
-                  <h3 className="text-[18px] md:text-[20px] font-bold text-gray-900 dark:text-white leading-snug tracking-tight line-clamp-2">
+                <div className="mb-2">
+                  <h3 className="text-[18px] md:text-[20px] font-black text-gray-900 dark:text-white leading-snug tracking-tight line-clamp-2">
                     {updateData.title || "Progress Update"}
                   </h3>
                 </div>
 
-                {/* Info Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                  {/* Accomplishment */}
-                  <div className="bg-[#F8F9FC] dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 flex gap-3 items-start">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm mt-0.5">
-                      <CheckCircle className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0 flex-1 flex flex-col">
-                      <span className="text-[11px] font-bold text-slate-400 dark:text-gray-550 tracking-wider uppercase mb-1">Key Accomplishment</span>
-                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed break-words">{updateData.accomplishment}</p>
-                    </div>
-                  </div>
+                {/* Summary */}
+                {updateData.summary && (
+                  <p className="text-[15px] text-gray-500 dark:text-gray-400 mb-3.5 leading-relaxed italic border-l-2 border-gray-200 dark:border-gray-750 pl-3">
+                    {updateData.summary}
+                  </p>
+                )}
 
-                  {/* What's Next */}
-                  <div className="bg-[#F8F9FC] dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 flex gap-3 items-start">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-sm mt-0.5">
-                      <TrendingUp className="w-4 h-4" />
+                {/* 2x2 Info Grid (Adapts to content, empty cards are hidden) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3.5">
+                  {/* Completed This Week */}
+                  {updateData.completed_this_week && (
+                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
+                      <div className="flex gap-2.5 items-center">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                          <CheckCircle className="w-4 h-4" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Completed This Week</span>
+                      </div>
+                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.completed_this_week}</p>
                     </div>
-                    <div className="min-w-0 flex-1 flex flex-col">
-                      <span className="text-[11px] font-bold text-slate-400 dark:text-gray-550 tracking-wider uppercase mb-1">What's Next</span>
-                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed break-words">{updateData.next || "Continue working on remaining tasks."}</p>
-                    </div>
-                  </div>
+                  )}
 
-                  {/* Guidelines Needed */}
-                  <div className="bg-[#F8F9FC] dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100/60 dark:border-slate-800/50 flex gap-3 items-start">
-                    <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-955/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm mt-0.5">
-                      <AlertCircle className="w-4 h-4" />
+                  {/* Next Milestone */}
+                  {updateData.next_milestone && (
+                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
+                      <div className="flex gap-2.5 items-center">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-sm">
+                          <TrendingUp className="w-4 h-4" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Next Milestone</span>
+                      </div>
+                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.next_milestone}</p>
                     </div>
-                    <div className="min-w-0 flex-1 flex flex-col">
-                      <span className="text-[11px] font-bold text-slate-400 dark:text-gray-550 tracking-wider uppercase mb-1">Guidelines Needed</span>
-                      <p className={`text-[15px] break-words ${!updateData.guidelines || updateData.guidelines === "No guidance required."
-                          ? "text-gray-405 dark:text-gray-500 italic"
-                          : "text-gray-750 dark:text-gray-250 font-medium"
-                        }`}>
-                        {updateData.guidelines || "No guidelines required"}
-                      </p>
+                  )}
+
+                  {/* Challenges */}
+                  {updateData.challenges && (
+                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
+                      <div className="flex gap-2.5 items-center">
+                        <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-sm">
+                          <ShieldAlert className="w-4 h-4" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Challenges / Blockers</span>
+                      </div>
+                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.challenges}</p>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Support Needed */}
+                  {updateData.support && (
+                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
+                      <div className="flex gap-2.5 items-center">
+                        <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-955/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm">
+                          <AlertCircle className="w-4 h-4" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Support Needed</span>
+                      </div>
+                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.support}</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Attachment Display */}
@@ -625,6 +708,22 @@ export default function ProjectDetailPage() {
                   attachmentName={msg.attachment_name}
                   onImageClick={setEnlargedImage}
                 />
+
+                {/* Compact Footer */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800/60 text-xs font-semibold text-gray-400 mt-3">
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(updateData.status)}
+                    <span className="text-gray-300 dark:text-gray-700">•</span>
+                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-[11px] font-bold">
+                      {updateData.completion}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span>Updated by <strong className="text-gray-700 dark:text-gray-200">{msgSender.name}</strong></span>
+                    <span className="text-gray-300 dark:text-gray-700">•</span>
+                    <span>{format(new Date(msg.created_at), "d MMM yyyy")}</span>
+                  </div>
+                </div>
               </div>
             );
           })
@@ -662,9 +761,9 @@ export default function ProjectDetailPage() {
 
       {/* ─── 5. Add / Edit Progress Update Modal ─── */}
       <Modal open={addModalOpen} onClose={() => { setAddModalOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress Update" : "Publish Progress Update"}>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Update Title</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Update Title *</label>
             <input
               type="text"
               value={formTitle}
@@ -676,36 +775,89 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Key Accomplishment</label>
-            <textarea
-              value={formAccomplishment}
-              onChange={e => setFormAccomplishment(e.target.value)}
-              placeholder="What did you achieve in this phase?"
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Short Summary *</label>
+            <input
+              type="text"
+              value={formSummary}
+              onChange={e => setFormSummary(e.target.value)}
+              placeholder="Brief 1-sentence overview of current progress..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
-              rows={3}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Completion Percentage ({formCompletion}%)</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={formCompletion}
+                  onChange={e => setFormCompletion(Number(e.target.value))}
+                  className="flex-1 h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-violet-650"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Current Status</label>
+              <select
+                value={formStatus}
+                onChange={e => setFormStatus(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+              >
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Review">Review</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+          </div>
+
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">What's Next</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Completed This Week</label>
             <textarea
-              value={formNext}
-              onChange={e => setFormNext(e.target.value)}
-              placeholder="What are the next steps / goals?"
-              required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              value={formCompletedThisWeek}
+              onChange={e => setFormCompletedThisWeek(e.target.value)}
+              placeholder="What tasks did you complete this week?"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
               rows={2}
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Guidelines Needed (Optional)</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Next Milestone</label>
             <textarea
-              value={formGuidelines}
-              onChange={e => setFormGuidelines(e.target.value)}
-              placeholder="Any specific questions or guidance required from faculty?"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              value={formNextMilestone}
+              onChange={e => setFormNextMilestone(e.target.value)}
+              placeholder="What are the next goals / sprint plan?"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Challenges / Blockers</label>
+            <textarea
+              value={formChallenges}
+              onChange={e => setFormChallenges(e.target.value)}
+              placeholder="Any technical or resource blockers? (Optional)"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Support Needed</label>
+            <textarea
+              value={formSupport}
+              onChange={e => setFormSupport(e.target.value)}
+              placeholder="Any support, reviews, or approvals needed? (Optional)"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
               rows={2}
             />
           </div>
@@ -717,19 +869,19 @@ export default function ProjectDetailPage() {
               {formAttachment ? (
                 <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
                   <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-md">
-                    📄 {formAttachment.name}
+                    {formAttachment.name}
                   </span>
                   <button
                     type="button"
                     onClick={() => setFormAttachment(null)}
-                    className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-450 hover:text-red-550 transition-colors"
+                    className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 text-gray-455 hover:text-red-550 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
                 <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-500 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center">
-                  <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-500 mb-1" />
+                  <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-555 mb-1" />
                   <span className="text-xs font-semibold text-gray-500 dark:text-gray-450">Attach file (Max 10MB)</span>
                   <input
                     type="file"

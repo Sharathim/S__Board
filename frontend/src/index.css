@@ -906,7 +906,7 @@ a, button { transition: all 0.15s ease; }
   border: 1px solid #ECECEC;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
 }
 
 .dark .update-card {
@@ -933,7 +933,7 @@ a, button { transition: all 0.15s ease; }
 }
 
 .update-card-img:hover {
-  transform: scale(1.04);
+  transform: scale(1.02);
 }
 
 /* 1 Image Grid */
@@ -1016,10 +1016,9 @@ a, button { transition: all 0.15s ease; }
   }
 }
 
-
 /* ─── Progress Monitor Card Redesign ─── */
 .progress-monitor-card {
-  max-width: 850px;
+  max-width: 900px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -1027,7 +1026,7 @@ a, button { transition: all 0.15s ease; }
   border: 1px solid #ECECEC;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: progress-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -1061,6 +1060,15 @@ a, button { transition: all 0.15s ease; }
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
-.dark kebab-hover-btn:hover {
+.dark .kebab-hover-btn:hover {
   background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.info-card-glow {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.info-card-glow:hover {
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.08) !important;
 }
