@@ -539,7 +539,7 @@ export default function UpdatesPage() {
       <div className="hidden sm:flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3">
         <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
         <div className="flex items-center gap-2">
-          {/* Coordinator Avatars (Desktop) — Only visible to HOD and coordinators */}
+          {/* Coordinator Avatars (Desktop) */}
           {(isHOD || isUpdateCoordinator) && coordData?.coordinators && coordData.coordinators.length > 0 && (
             <div className="flex items-center -space-x-1.5 mr-2">
               {coordData.coordinators.map(coord => {
@@ -555,7 +555,7 @@ export default function UpdatesPage() {
                       <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-8 h-8 rounded-full" />
                     </button>
                     {isSelected && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[60] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
                         <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
                         {isHOD ? (
                           <button
@@ -565,7 +565,7 @@ export default function UpdatesPage() {
                               removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
                               setSelectedCoordForRemove(null);
                             }}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-955/20 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
                           >
                             Remove
                           </button>
@@ -601,58 +601,59 @@ export default function UpdatesPage() {
         </div>
       </div>
 
-      {/* Mobile Actions/Coordinators Row (Only shown on mobile for HOD and coordinators) */}
-      {(isHOD || isUpdateCoordinator) && (
-        <div className="sm:hidden flex items-center justify-between gap-2 mt-1">
-          {isHOD ? (
-            <div className="flex items-center justify-between gap-2 w-full">
-              {/* Avatars on the left */}
-              <div className="flex items-center -space-x-1.5 shrink-0">
-                {coordData?.coordinators && coordData.coordinators.map(coord => {
-                  const isSelected = selectedCoordForRemove === `${coord.kind}-${coord.ref_id}`;
-                  return (
-                    <div key={`${coord.kind}-${coord.ref_id}`} className="relative shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCoordForRemove(isSelected ? null : `${coord.kind}-${coord.ref_id}`)}
-                        className="block rounded-full ring-2 ring-white dark:ring-slate-900 overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
-                        title={coord.name}
-                      >
-                        <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-8 h-8 rounded-full" />
-                      </button>
-                      {isSelected && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[60] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
-                              setSelectedCoordForRemove(null);
-                            }}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Fixed Width Coordinator Button on the right */}
-              <button
-                type="button"
-                onClick={() => setCoordPickerOpen(true)}
-                className="w-28 shrink-0 justify-center inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5 shrink-0" /> Coordinator
-              </button>
+      {/* Mobile Actions/Coordinators Row (Only shown on mobile) */}
+      <div className="sm:hidden flex items-center justify-between gap-2 mt-1">
+        {/* Render Coordinator profiles + Button for HOD */}
+        {isHOD ? (
+          <div className="flex items-center justify-between w-full gap-3">
+            {/* Left: profiles */}
+            <div className="flex items-center -space-x-1.5 shrink-0">
+              {coordData?.coordinators && coordData.coordinators.map(coord => {
+                const isSelected = selectedCoordForRemove === `${coord.kind}-${coord.ref_id}`;
+                return (
+                  <div key={`${coord.kind}-${coord.ref_id}`} className="relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCoordForRemove(isSelected ? null : `${coord.kind}-${coord.ref_id}`)}
+                      className="block rounded-full ring-2 ring-white dark:ring-slate-900 overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
+                      title={coord.name}
+                    >
+                      <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-8 h-8 rounded-full" />
+                    </button>
+                    {isSelected && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
+                        <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
+                            setSelectedCoordForRemove(null);
+                          }}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-955/20 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          ) : (
-            /* If not HOD but is update coordinator: just show avatars on mobile */
-            coordData?.coordinators && coordData.coordinators.length > 0 && (
+            
+            {/* Right: fixed button */}
+            <button
+              type="button"
+              onClick={() => setCoordPickerOpen(true)}
+              className="w-[130px] justify-center inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5" /> Coordinator
+            </button>
+          </div>
+        ) : (
+          /* For non-HOD, but is coordinator: show profiles */
+          isUpdateCoordinator && coordData?.coordinators && coordData.coordinators.length > 0 && (
+            <div className="flex items-center gap-2">
               <div className="flex items-center -space-x-1.5">
                 {coordData.coordinators.map(coord => {
                   const isSelected = selectedCoordForRemove === `${coord.kind}-${coord.ref_id}`;
@@ -667,7 +668,7 @@ export default function UpdatesPage() {
                         <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-7 h-7 rounded-full" />
                       </button>
                       {isSelected && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[60] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
                           <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
                           <span className="text-slate-400 dark:text-slate-500 font-medium px-1">Coordinator</span>
                         </div>
@@ -676,20 +677,20 @@ export default function UpdatesPage() {
                   );
                 })}
               </div>
-            )
-          )}
-
-          {isUpdateCoordinator && !isHOD && (
-            <button
-              type="button"
-              onClick={triggerCreateModal}
-              className="justify-center inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
-            >
-              <Plus className="w-3.5 h-3.5" /> Create
-            </button>
-          )}
-        </div>
-      )}
+            </div>
+          )
+        )}
+        
+        {isUpdateCoordinator && (
+          <button
+            type="button"
+            onClick={triggerCreateModal}
+            className="justify-center inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
+          >
+            <Plus className="w-3.5 h-3.5" /> Create
+          </button>
+        )}
+      </div>
 
       {/* Filter Bar (Reverse column order on mobile to show search on top of tabs) */}
       <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-805 pb-2.5 mt-2">

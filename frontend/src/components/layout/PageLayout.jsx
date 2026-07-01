@@ -3,7 +3,14 @@ import { TopBar } from "./TopBar";
 import { ToastContainer } from "../ui/Toast";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
 
+import { useEffect } from "react";
+
 export default function PageLayout() {
+  useEffect(() => {
+    const currentViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
+    localStorage.setItem("dpms_total_views", (currentViews + 1).toString());
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
 
