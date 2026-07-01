@@ -437,8 +437,8 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="shrink-0 z-10 hidden md:block">
-          <img src="/dashboard-light.png" alt="Dashboard Overview" className="block dark:hidden h-64 lg:h-80 w-auto object-contain" />
-          <img src="/dashboard-dark.png" alt="Dashboard Overview" className="hidden dark:block h-64 lg:h-80 w-auto object-contain" />
+          <img src="/dashboard-light.png" alt="Dashboard Overview" className="block dark:hidden h-48 lg:h-56 w-auto object-contain" />
+          <img src="/dashboard-dark.png" alt="Dashboard Overview" className="hidden dark:block h-48 lg:h-56 w-auto object-contain" />
         </div>
       </div>
 
@@ -488,7 +488,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <LatestForumPostCard posts={forumPostsList} />
         <LatestUpdateCard updates={updatesList} />
-        
+
         {/* Two vertical cards: Total Views and Total Users */}
         <div className="flex flex-col gap-4 justify-between h-full">
           {/* Total Views Card */}
