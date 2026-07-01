@@ -7,7 +7,7 @@ import BottomTabBar from "./BottomTabBar";
  */
 export default function MobileShell() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
       <MobileTopBar />
 
       {/* Page content — padded to clear fixed bars */}

@@ -64,7 +64,7 @@ export default function MobileStudentOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-gray-50 dark:bg-gray-950 mobile-fade-in">
+    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#fbfbff] dark:bg-[#020617] mobile-fade-in transition-colors duration-300">
       <div className="w-full max-w-md mx-auto space-y-6">
         
         {/* Brand header */}

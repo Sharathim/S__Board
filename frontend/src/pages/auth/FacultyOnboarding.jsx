@@ -62,7 +62,7 @@ export default function FacultyOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
       <div className="w-full max-w-lg">
 
         {/* ── Brand header ── */}

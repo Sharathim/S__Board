@@ -10,19 +10,7 @@ const FEATURES = [
 
 export function HeroSection() {
   return (
-    <section className="relative h-screen bg-white overflow-hidden pt-[72px] flex items-center">
-
-      {/* ── Background ── */}
-      <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
-        <img
-          src="/building.jpg"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover object-center opacity-[0.55] saturate-[0.85]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white from-[40%] via-white/50 via-[60%] to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white/80 to-transparent" />
-      </div>
+    <section className="relative h-screen bg-[#fbfbff] dark:bg-[#020617] overflow-hidden pt-[72px] flex items-center transition-colors duration-300">
 
       {/* ── Ambient blobs ── */}
       <div className="absolute top-16 right-0 w-[400px] h-[400px] rounded-full bg-primary-50/50 blur-3xl pointer-events-none" aria-hidden="true" />

@@ -80,7 +80,7 @@
 
   /* Theme Tokens mapping to Provided Variables */
   /* Backgrounds */
-  --background:        var(--color-4);
+  --background:        #fbfbff;
   --surface:           var(--color-4);
   --surface-hover:     var(--color-11);
   --surface-secondary: var(--color-4);
@@ -124,7 +124,7 @@
 
 .dark {
   /* Dark Mode Mapped Variables — Pure Black / Premium Dark Theme */
-  --background:        #000000;
+  --background:        #020617;
   --surface:           rgba(17, 24, 39, 0.45);
   --surface-hover:     rgba(17, 24, 39, 0.65);
   --surface-secondary: rgba(17, 24, 39, 0.3);
@@ -762,55 +762,7 @@ a, button { transition: all 0.15s ease; }
 }
 
 .app-page-bg-container {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* ─── Premium Background Image Container (Shared Assets) ────────────────── */
-.app-page-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  will-change: opacity, filter;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app-page-bg.light-bg {
-  background-image: url('/bg-abstract.png');
-  opacity: 1;
-  filter: brightness(1);
-  z-index: 2;
-}
-
-.dark .app-page-bg.light-bg {
-  opacity: 0;
-  z-index: 1;
-}
-
-.app-page-bg.dark-bg {
-  background-image: url('/bg-abstract-dark.png');
-  opacity: 0;
-  filter: brightness(0.75);
-  z-index: 1;
-}
-
-/* Translucent dark overlay to control background image contrast dynamically */
-.app-page-bg.dark-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(7, 6, 15, 0.35); /* Subtle 35% dark space-indigo overlay mask */
-  z-index: 3;
-}
-
-.dark .app-page-bg.dark-bg {
-  opacity: 1;
-  z-index: 2;
+  display: none;
 }
 
 /* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */

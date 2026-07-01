@@ -87,7 +87,7 @@ export default function FeaturesPage() {
   const [projectsCount, setProjectsCount] = useState(65);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-indigo-500 selection:text-white pt-[72px]">
+    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] text-slate-800 font-sans selection:bg-indigo-500 selection:text-white pt-[72px] transition-colors duration-300">
       
       {/* ── BACKGROUND AMBIENT GLOWS ── */}
       <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-indigo-50/50 via-transparent to-transparent pointer-events-none" />
