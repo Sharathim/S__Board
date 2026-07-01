@@ -43,6 +43,9 @@ export function NotificationsPanel({ open, onClose }) {
     },
   });
 
+  const notifications = data?.notifications || [];
+  const unread = notifications.filter(n => !n.is_read).length;
+
   useEffect(() => {
     const onEsc = (e) => { if (e.key === "Escape") onClose?.(); };
     if (open) window.addEventListener("keydown", onEsc);
@@ -54,9 +57,6 @@ export function NotificationsPanel({ open, onClose }) {
       markAllMutation.mutate();
     }
   }, [open, unread]);
-
-  const notifications = data?.notifications || [];
-  const unread = notifications.filter(n => !n.is_read).length;
 
   return (
     <>
