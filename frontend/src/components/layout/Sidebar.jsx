@@ -127,7 +127,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
         {/* ── Logo / Brand (Mobile Only) ── */}
         <div className="flex items-center h-16 flex-shrink-0 gap-3 px-4 lg:hidden border-b border-slate-100 dark:border-slate-800/80">
           <div className="relative">
-            <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain flex-shrink-0" />
+            <img src="/logo-icon.png" alt="Hive" className="w-10 h-10 object-contain flex-shrink-0" />
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-base font-semibold tracking-tight leading-none block text-slate-900 dark:text-white">
@@ -150,7 +150,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
         )}>
           {uniqueNavItems.map(item => {
             const Icon = item.icon;
-            const showBadge = item.to === "/forum" && unreadCount > 0;
+            const showBadge = false;
 
             return (
               <NavLink

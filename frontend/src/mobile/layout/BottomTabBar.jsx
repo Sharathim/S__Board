@@ -8,7 +8,7 @@ import MoreSheet from "./MoreSheet";
 const TAB_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Home", roles: ["HOD"] },
   { to: "/projects", icon: FolderKanban, label: "Projects", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/forum", icon: MessageSquare, label: "Forum", badge: true, roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/forum", icon: MessageSquare, label: "Forum", roles: ["HOD", "FACULTY", "STUDENT"] },
   { to: "/updates", icon: Megaphone, label: "Updates", roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 

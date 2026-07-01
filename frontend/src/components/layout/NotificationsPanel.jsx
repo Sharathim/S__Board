@@ -49,6 +49,12 @@ export function NotificationsPanel({ open, onClose }) {
     return () => window.removeEventListener("keydown", onEsc);
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (open && unread > 0) {
+      markAllMutation.mutate();
+    }
+  }, [open, unread]);
+
   const notifications = data?.notifications || [];
   const unread = notifications.filter(n => !n.is_read).length;
 
@@ -57,14 +63,14 @@ export function NotificationsPanel({ open, onClose }) {
       {/* Dim backdrop */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 top-16 z-30 bg-black/30 backdrop-blur-[1px] transition-opacity duration-200 ${
+        className={`fixed inset-0 top-16 z-30 bg-black/30 md:bg-transparent backdrop-blur-[1px] md:backdrop-blur-none transition-opacity duration-200 ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
-      {/* Top sheet */}
+      {/* Top sheet / Desktop Dropdown Card */}
       <div
-        className={`fixed left-0 right-0 top-16 z-40 origin-top bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-xl transition-all duration-300 ease-out ${
+        className={`fixed left-0 right-0 top-16 z-40 origin-top bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-xl transition-all duration-300 ease-out md:absolute md:left-auto md:right-0 md:top-[calc(100%+12px)] md:w-[400px] md:rounded-2xl md:border md:border-slate-200 md:dark:border-slate-800 md:max-h-[500px] md:overflow-y-auto ${
           open ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 pointer-events-none"
         }`}
       >

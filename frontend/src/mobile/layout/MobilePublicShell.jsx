@@ -68,7 +68,7 @@ export default function MobilePublicShell() {
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
-          <img src="/logo-icon.png" alt="Hive" className="w-7 h-7 object-contain" />
+          <img src="/logo-icon.png" alt="Hive" className="w-9 h-9 object-contain" />
           <span className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">Hive</span>
         </div>
 

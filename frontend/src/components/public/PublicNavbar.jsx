@@ -39,13 +39,13 @@ export function PublicNavbar() {
             <img
               src="/logo-icon.png"
               alt="DPMS"
-              className="h-12 w-12 object-contain sm:hidden transition-transform duration-200 group-hover:scale-105"
+              className="h-14 w-14 object-contain sm:hidden transition-transform duration-200 group-hover:scale-105"
             />
             {/* Full logo with name on sm+ */}
             <img
               src="/logo-full.png"
               alt="DPMS — Department Project Management System"
-              className="hidden sm:block h-16 w-auto min-w-[180px] object-contain object-left transition-transform duration-200 group-hover:scale-[1.02]"
+              className="hidden sm:block h-[72px] w-auto min-w-[180px] object-contain object-left transition-transform duration-200 group-hover:scale-[1.02]"
             />
           </Link>
 

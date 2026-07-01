@@ -7,7 +7,7 @@ import { Pagination } from "../../components/shared/Pagination";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Bell, CheckCheck, Mail, MailOpen } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { parseUpdateContent } from "../../utils/updateContent";
 
 const notificationIcons = {
@@ -41,6 +41,15 @@ export default function NotificationsPage() {
       queryClient.invalidateQueries({ queryKey: ["unread-count"] });
     },
   });
+
+  useEffect(() => {
+    if (data?.notifications) {
+      const hasUnread = data.notifications.some(n => !n.is_read);
+      if (hasUnread) {
+        markAllMutation.mutate();
+      }
+    }
+  }, [data]);
 
   if (isLoading) return <Spinner />;
 

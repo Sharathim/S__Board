@@ -402,31 +402,24 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* ── Welcome Header ── */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Welcome back, {getFirstName(user?.name)}
+      {/* ── Welcome Header Banner ── */}
+      <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+        <div className="space-y-2 z-10 max-w-xl">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <span className="text-primary-600 dark:text-primary-400">Welcome back,</span> {getFirstName(user?.name)}
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium">
             Here's what's happening in your department today.
           </p>
         </div>
+        <div className="shrink-0 z-10 flex justify-center md:justify-end">
+          <img src="/dashboard-light.png" alt="Dashboard Overview" className="block dark:hidden h-24 sm:h-28 w-auto object-contain" />
+          <img src="/dashboard-dark.png" alt="Dashboard Overview" className="hidden dark:block h-24 sm:h-28 w-auto object-contain" />
+        </div>
       </div>
 
-      {/* ── Centralized Department Statistics Hub ── */}
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            Department Statistics Hub
-          </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            Real-time statistics compiled from all sections of the portal.
-          </p>
-        </div>
-
-        {/* Row 1: Unified Metrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 lg:gap-3">
+      {/* Row 1: Unified Metrics Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 lg:gap-3">
           {allStats.map(card => {
             const Icon = card.icon;
             return (
@@ -457,7 +450,6 @@ export default function DashboardPage() {
             );
           })}
         </div>
-      </div>
 
       {/* ── Live clock, Latest Forum Post, and Latest Update Row ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

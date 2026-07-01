@@ -171,7 +171,7 @@ export function TopBar() {
           <img
             src="/logo-icon.png"
             alt="Hive"
-            className="w-7 h-7 object-contain flex-shrink-0"
+            className="w-9 h-9 object-contain flex-shrink-0"
           />
           <span
             className="font-bold text-base tracking-tight"
@@ -202,7 +202,7 @@ export function TopBar() {
 
           {navItems.map(item => {
             const Icon = item.icon;
-            const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
+            const isForumWithBadge = false;
 
             return (
               <NavLink
@@ -375,7 +375,7 @@ export function TopBar() {
                 <img
                   src="/logo-icon.png"
                   alt="Hive"
-                  className="w-6 h-6 object-contain"
+                  className="w-8 h-8 object-contain"
                 />
                 <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
                   Hive Menu
@@ -394,7 +394,7 @@ export function TopBar() {
             <div className="flex-1 overflow-y-auto flex flex-col gap-1.5 pr-0.5">
               {navItems.map(item => {
                 const Icon = item.icon;
-                const isForumWithBadge = item.to === "/forum" && unreadCount > 0;
+                const isForumWithBadge = false;
 
                 return (
                   <NavLink

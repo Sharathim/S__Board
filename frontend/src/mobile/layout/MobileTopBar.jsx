@@ -62,7 +62,7 @@ export default function MobileTopBar({ title: titleProp }) {
             <img
               src="/logo-icon.png"
               alt="Hive"
-              className="w-7 h-7 object-contain shrink-0"
+              className="w-9 h-9 object-contain shrink-0"
             />
           )}
         </div>

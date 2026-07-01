@@ -229,8 +229,11 @@ def toggle_like(update_id):
 def _count_coordinators():
     from ..models.faculty import Faculty
     from ..models.forum_member import ForumMember
-    fac = Faculty.query.filter_by(is_update_coordinator=True).count()
-    fm = ForumMember.query.filter_by(is_update_coordinator=True).count()
+    from ..models.user import User
+    from ..models.student import Student
+    
+    fac = Faculty.query.filter_by(is_update_coordinator=True).join(User).count()
+    fm = ForumMember.query.filter_by(is_update_coordinator=True).join(Student).join(User).count()
     return fac + fm
 
 
