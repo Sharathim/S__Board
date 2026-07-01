@@ -11,3 +11,6 @@ export const onboardStudent = (data) =>
 
 export const updateFCMToken = (fcmToken) =>
   api.post("/auth/fcm-token", { fcm_token: fcmToken });
+
+export const trackView = () => api.post("/auth/track-view");
+export const getViewStats = () => api.get("/auth/track-view");

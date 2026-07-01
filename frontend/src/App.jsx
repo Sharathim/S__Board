@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { trackView } from "./api/auth";
 import { useAuth } from "./context/AuthContext";
 import { SessionLoader } from "./components/ui/SessionLoader";
 import PageLayout from "./components/layout/PageLayout";
@@ -44,9 +46,18 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function RouteTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    trackView().catch(() => {});
+  }, [location.pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <RouteTracker />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="/" element={<HomePage />} />

@@ -1,4 +1,4 @@
-﻿from flask import Blueprint, request, jsonify, g, current_app
+from flask import Blueprint, request, jsonify, g, current_app
 from ..models.user import User, UserRole
 from ..models.invite import InviteLink
 from ..models.faculty import Faculty
@@ -209,3 +209,45 @@ def _serialize_user(user):
             "is_forum_member": user.student_profile.is_forum_member,
         }
     return out
+
+
+@auth_bp.route("/track-view", methods=["GET", "POST"])
+def track_view():
+    from sqlalchemy import text
+    # Make sure table exists
+    try:
+        db.session.execute(text("""
+            CREATE TABLE IF NOT EXISTS page_views (
+                id SERIAL PRIMARY KEY,
+                is_logged_in BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    if request.method == "POST":
+        auth_header = request.headers.get("Authorization")
+        is_logged_in = auth_header is not None and auth_header.startswith("Bearer ")
+        try:
+            db.session.execute(
+                text("INSERT INTO page_views (is_logged_in) VALUES (:is_logged_in)"),
+                {"is_logged_in": is_logged_in}
+            )
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            
+    # Calculate total views (default to a fallback if DB query fails)
+    try:
+        total_views = db.session.execute(text("SELECT COUNT(*) FROM page_views")).scalar() or 0
+    except Exception:
+        total_views = 0
+        
+    total_users = User.query.count()
+    
+    return jsonify({
+        "total_views": total_views,
+        "total_users": total_users
+    })
