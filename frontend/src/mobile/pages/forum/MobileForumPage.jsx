@@ -12,7 +12,7 @@ import { Avatar } from "../../../components/ui/Avatar";
 import { SearchPicker } from "../../../components/shared/SearchPicker";
 import {
   MessageSquare, Heart, Trash2, Edit2, Clock,
-  Calendar, Plus, Image, X, UserPlus
+  Calendar, Plus, Image, X, UserPlus, Share2
 } from "lucide-react";
 import { useState, useMemo, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -39,6 +39,8 @@ export default function MobileForumPage() {
   const [pendingStudent, setPendingStudent] = useState(null);
   const [rolePreset, setRolePreset] = useState("President");
   const [customRole, setCustomRole] = useState("");
+  const [lightboxImage, setLightboxImage] = useState(null);
+  
   const fileInputRef = useRef(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [filePreviews, setFilePreviews] = useState([]);
@@ -127,12 +129,24 @@ export default function MobileForumPage() {
   }
 
   return (
-    <div className="space-y-4 mobile-fade-in">
+    <div className="space-y-4 mobile-fade-in pb-16">
+      
+      {/* Zoom Animation for Lightbox */}
+      <style>{`
+        @keyframes mobileZoomIn {
+          from { opacity: 0; transform: scale(0.96); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-mobile-zoom {
+          animation: mobileZoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
+
       {/* Header actions */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800/40 pb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-gray-900 dark:text-white">Posts</h2>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400">
+          <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Posts</h2>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
             {postList.length}
           </span>
         </div>
@@ -140,7 +154,8 @@ export default function MobileForumPage() {
           {isHOD && (
             <button
               onClick={() => setPickerOpen(true)}
-              className="mobile-tappable w-8 h-8 rounded-xl flex items-center justify-center bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400"
+              className="mobile-tappable w-8 h-8 rounded-xl flex items-center justify-center bg-violet-50 dark:bg-violet-950/30 text-violet-650 dark:text-violet-400 border border-violet-100 dark:border-violet-900/40"
+              title="Add Member"
             >
               <UserPlus className="w-4 h-4" />
             </button>
@@ -160,61 +175,93 @@ export default function MobileForumPage() {
       {postsByDay.length === 0 ? (
         <MobileEmptyState icon={MessageSquare} title="No posts yet" description="Be the first to share something!" />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {postsByDay.map(group => (
-            <div key={group.dateString}>
-              <div className="flex items-center gap-2 mb-3">
+            <div key={group.dateString} className="space-y-3">
+              
+              {/* Date Header Divider */}
+              <div className="flex items-center gap-2 pt-2 mb-1">
                 <Calendar className="w-3.5 h-3.5 text-violet-500" />
-                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
+                <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
+                <div className="h-[1px] flex-1 bg-gray-100 dark:bg-slate-800/40" />
               </div>
+
+              {/* Feed Card List */}
               <div className="space-y-3">
                 {group.posts.map(post => {
                   const isAuthor = post.posted_by?.id === user?.id;
                   const canEdit = isAuthor && (new Date() - new Date(post.created_at)) < 30 * 60 * 1000;
                   const canDelete = isAuthor || isHOD;
                   return (
-                    <MobileCard key={post.id}>
-                      <div className="flex items-center justify-between gap-2 mb-2">
+                    <MobileCard key={post.id} className="border border-slate-100 dark:border-slate-800/60 shadow-sm">
+                      
+                      {/* Card Author Info */}
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
                         <div className="flex items-center gap-2 min-w-0">
-                          <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-8 h-8 ring-2 ring-gray-100 dark:ring-slate-700" />
+                          <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-8 h-8 ring-2 ring-violet-500/5 shrink-0" />
                           <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap leading-none">
                               <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{post.posted_by?.name}</span>
-                              {isAuthor && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">You</span>}
+                              {isAuthor && <span className="text-[8px] font-bold px-1.5 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">You</span>}
                             </div>
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5">
-                              <Clock className="w-3 h-3" />
-                              {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 mt-0.5">
+                              <Clock className="w-3 h-3 text-gray-400" />
+                              {formatPostTime(post.created_at)}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0">
                           {canEdit && (
-                            <button onClick={() => { setEditTarget(post); setEditContent(post.content); }} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-violet-600">
-                              <Edit2 className="w-3 h-3" />
+                            <button onClick={() => { setEditTarget(post); setEditContent(post.content); }} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-violet-650">
+                              <Edit2 className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {canDelete && (
                             <button onClick={() => setDeleteTarget(post)} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500">
-                              <Trash2 className="w-3 h-3" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
                       </div>
 
-                      <p className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed mb-2">{post.content}</p>
+                      {/* Content Body */}
+                      <p className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed mb-3">
+                        {post.content}
+                      </p>
 
+                      {/* Image attachments (RESTYLED: aspect-ratio control & clickable Lightbox) */}
                       {post.attachment_url && (
-                        <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-slate-700/50 mb-2">
+                        <div className="mb-3">
                           {(() => {
                             const urls = post.attachment_url.split(',').filter(Boolean);
-                            if (urls.length === 1) return <img src={urls[0]} alt="attachment" className="w-full object-cover max-h-64" />;
+                            if (urls.length === 1) {
+                              return (
+                                <div 
+                                  className="rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 max-h-64 flex items-center justify-center cursor-pointer"
+                                  onClick={() => setLightboxImage(urls[0])}
+                                >
+                                  <img 
+                                    src={urls[0]} 
+                                    alt="attachment" 
+                                    className="w-full max-h-64 object-contain" 
+                                  />
+                                </div>
+                              );
+                            }
                             return (
-                              <div className={`grid gap-1 ${urls.length === 2 ? "grid-cols-2" : "grid-cols-2"}`}>
+                              <div className="grid grid-cols-2 gap-1.5 rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 p-1.5 bg-slate-50 dark:bg-slate-950/20">
                                 {urls.slice(0, 4).map((url, i) => (
-                                  <div key={i} className="relative h-32">
+                                  <div 
+                                    key={i} 
+                                    className="relative h-24 rounded-lg overflow-hidden cursor-pointer"
+                                    onClick={() => setLightboxImage(url)}
+                                  >
                                     <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
-                                    {i === 3 && urls.length > 4 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-bold text-sm">+{urls.length - 4}</div>}
+                                    {i === 3 && urls.length > 4 && (
+                                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-bold text-xs">
+                                        +{urls.length - 4}
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -223,21 +270,34 @@ export default function MobileForumPage() {
                         </div>
                       )}
 
-                      <div className="flex items-center pt-2 border-t border-gray-50 dark:border-slate-800/40">
+                      {/* Footer Actions (Likes, Share) */}
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-slate-800/40">
                         <button
                           onClick={() => likeMutation.mutate(post.id)}
-                          className={`mobile-tappable inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-xl transition-all ${
-                            post.liked ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20" : "text-gray-400 hover:text-rose-500"
+                          className={`mobile-tappable inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl transition-all ${
+                            post.liked ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20" : "text-gray-400 hover:text-rose-550"
                           }`}
                         >
-                          <Heart className={`w-3.5 h-3.5 ${post.liked ? "fill-rose-500" : ""}`} />
-                          {post.like_count || 0}
+                          <Heart className={`w-3.5 h-3.5 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`} />
+                          <span>{post.like_count || 0}</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
+                          }}
+                          className="mobile-tappable inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 px-2 py-1 hover:text-indigo-500"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>Share</span>
                         </button>
                       </div>
+
                     </MobileCard>
                   );
                 })}
               </div>
+
             </div>
           ))}
         </div>
@@ -246,7 +306,7 @@ export default function MobileForumPage() {
       {/* Create Post Modal */}
       <Modal open={postModalOpen} onClose={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }} title="Create Post">
         <div className="space-y-3 pt-1">
-          <textarea value={newPost} onChange={e => setNewPost(e.target.value)} placeholder="Share something..." rows={4}
+          <textarea value={newPost} onChange={e => setNewPost(e.target.value)} placeholder="Share something with the forum..." rows={4}
             className="w-full p-3 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none" />
           {filePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
@@ -289,7 +349,7 @@ export default function MobileForumPage() {
       </Modal>
 
       {/* Delete Confirm */}
-      <ConfirmDialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={() => deleteMutation.mutate(deleteTarget.id)} title="Delete Post" message="Delete this post?" confirmText="Delete" danger />
+      <ConfirmDialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={() => deleteMutation.mutate(deleteTarget.id)} title="Delete Post" message="Are you sure you want to delete this post? This action cannot be undone." confirmText="Delete" danger />
 
       {/* Add Member Picker */}
       <SearchPicker open={pickerOpen} onClose={() => setPickerOpen(false)} title="Add Forum Member" queryKey="eligible-students"
@@ -305,7 +365,7 @@ export default function MobileForumPage() {
               <Avatar src={pendingStudent.profile_picture} name={pendingStudent.name} size="sm" />
               <div className="min-w-0">
                 <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{pendingStudent.name}</p>
-                <p className="text-[10px] text-gray-500 truncate">{pendingStudent.email}</p>
+                <p className="text-[10px] text-gray-505 truncate">{pendingStudent.email}</p>
               </div>
             </div>
             <select value={rolePreset} onChange={e => { setRolePreset(e.target.value); if (e.target.value !== "Custom") setCustomRole(""); }}
@@ -313,7 +373,7 @@ export default function MobileForumPage() {
               <option value="President">President</option><option value="Vice President">Vice President</option><option value="Treasurer">Treasurer</option><option value="Secretary">Secretary</option><option value="Custom">Custom...</option>
             </select>
             {rolePreset === "Custom" && (
-              <input type="text" value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..." className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm" />
+              <input type="text" value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..." className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-slate-705 bg-white dark:bg-slate-900 text-sm" />
             )}
             <div className="flex gap-3">
               <button onClick={() => setPendingStudent(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-sm font-semibold text-gray-500">Cancel</button>
@@ -325,6 +385,30 @@ export default function MobileForumPage() {
           </div>
         </Modal>
       )}
+
+      {/* ── Image Lightbox Modal Overlay (Mobile) ── */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button 
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="max-w-[95vw] max-h-[85vh] flex items-center justify-center">
+            <img 
+              src={lightboxImage} 
+              alt="Lightbox Mobile preview" 
+              className="max-w-full max-h-[85vh] object-contain rounded-lg animate-mobile-zoom"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

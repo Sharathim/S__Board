@@ -18,11 +18,9 @@ import { SearchPicker } from "../../components/shared/SearchPicker";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
-  MessageSquare, Heart, Trash2, UserPlus, Crown, Send, Image,
-  X, Search, Edit2, Clock, Sparkles, AlertCircle,
-  CheckCircle2, Users, ShieldAlert, Award, Flame,
-  TrendingUp, Hash, BookOpen, Plus, ChevronDown, Star, Calendar,
-  Share2
+  MessageSquare, Heart, Trash2, Crown, Image,
+  X, Search, Edit2, Clock, AlertCircle,
+  CheckCircle2, Users, Plus, Calendar, Share2
 } from "lucide-react";
 import { useState, useMemo, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -55,16 +53,6 @@ function parseForumPostContent(content = "") {
   return { title: "", body: content };
 }
 
-function RoleBadge({ role }) {
-  const meta = FORUM_ROLE_META[role] || FORUM_ROLE_META.Member;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${meta.color}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
-      {role}
-    </span>
-  );
-}
-
 export default function ForumPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
@@ -73,7 +61,6 @@ export default function ForumPage() {
   const [newPost, setNewPost] = useState("");
   const [postSearchQuery, setPostSearchQuery] = useState("");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pendingStudent, setPendingStudent] = useState(null);
   const [rolePreset, setRolePreset] = useState("President");
@@ -92,6 +79,7 @@ export default function ForumPage() {
 
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [postModalOpen, setPostModalOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const canPost = user?.student?.is_forum_member === true;
 
@@ -246,12 +234,17 @@ export default function ForumPage() {
     );
   }, [memberList, memberSearchQuery]);
 
-  const coordinators = useMemo(() => memberList.filter(m => m.is_update_coordinator), [memberList]);
-
   const postList = posts || [];
-  const filteredPosts = postList;
-
-  const totalLikes = useMemo(() => postList.reduce((acc, p) => acc + (p.like_count || 0), 0), [postList]);
+  
+  // Real Search Filtering on Posts!
+  const filteredPosts = useMemo(() => {
+    if (!postSearchQuery.trim()) return postList;
+    const q = postSearchQuery.toLowerCase();
+    return postList.filter(p =>
+      p.content?.toLowerCase().includes(q) ||
+      p.posted_by?.name?.toLowerCase().includes(q)
+    );
+  }, [postList, postSearchQuery]);
 
   const postsByDay = useMemo(() => {
     const groups = {};
@@ -288,7 +281,7 @@ export default function ForumPage() {
               <MessageSquare className="w-7 h-7 text-white" />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-400 dark:text-gray-505">Loading Forum...</p>
+          <p className="text-sm font-semibold text-gray-400 dark:text-gray-500 animate-pulse">Loading Forum...</p>
         </div>
       </div>
     );
@@ -321,6 +314,13 @@ export default function ForumPage() {
           transform: rotate(45deg);
           animation: glitter 3s infinite linear;
         }
+        @keyframes zoomIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-zoom-in {
+          animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
       `}</style>
 
       {/* Toast Notifications */}
@@ -351,7 +351,7 @@ export default function ForumPage() {
           </button>
         </div>
 
-        {/* Straight Right End Actions */}
+        {/* Header End Actions (Mobile-friendly access triggers) */}
         <div className="flex items-center gap-2">
           {isHOD && (
             <button
@@ -364,7 +364,7 @@ export default function ForumPage() {
           {canPost && (
             <button
               onClick={() => setPostModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
+              className="lg:hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
             >
               <Plus className="w-4 h-4" /> Post
             </button>
@@ -372,194 +372,394 @@ export default function ForumPage() {
         </div>
       </div>
 
-      {/* Date Grouped Posts */}
-      <div className="space-y-6">
-        {postsByDay.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-sm">
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
-              <MessageSquare className="w-7 h-7 text-gray-300 dark:text-gray-655" />
-            </div>
-            <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">No posts shared yet</h4>
-            <p className="text-xs text-gray-400 mt-1 max-w-xs">
-              Be the first to share something with the forum!
-            </p>
+      {/* Main Grid Layout: Feed left, Sidebar right */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        {/* Left column: Feed */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Post Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search posts by content or author..."
+              value={postSearchQuery}
+              onChange={(e) => setPostSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-10 py-2.5 text-sm rounded-2xl border border-gray-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
+            />
+            {postSearchQuery && (
+              <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
-        ) : (
-          postsByDay.map((group) => (
-            <div
-              key={group.dateString}
-              className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl p-6 shadow-sm space-y-4"
-            >
-              {/* Date Header */}
-              <div className="flex items-center gap-2 pb-3.5 border-b border-gray-100 dark:border-gray-750/50">
-                <Calendar className="w-4 h-4 text-violet-500" />
-                <span className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
+
+          {/* Inline Feed Post Composer */}
+          {canPost && (
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-3xl p-5 shadow-[0_2px_12px_rgba(30,50,80,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-4">
+              <div className="flex gap-3">
+                <Avatar
+                  src={user?.profile_picture}
+                  name={user?.name}
+                  size="sm"
+                  className="shrink-0 ring-2 ring-violet-500/10"
+                />
+                <div className="flex-1">
+                  <textarea
+                    value={newPost}
+                    onChange={(e) => setNewPost(e.target.value)}
+                    placeholder="Share something with the department forum..."
+                    rows={newPost.trim() || selectedFiles.length > 0 ? 4 : 2}
+                    className="w-full p-3.5 text-sm rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
+                  />
+                </div>
               </div>
 
-              {/* Group Posts */}
-              <div className="space-y-4 pt-1">
-                {group.posts.map((post) => {
-                  const isAuthor = post.posted_by?.id === user?.id;
-                  const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
-                  const canEdit = isAuthor && isWithinEditWindow;
-                  const canDelete = isAuthor || isHOD;
+              {/* Upload Previews */}
+              {filePreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 pl-12">
+                  {filePreviews.map((preview, idx) => (
+                    <div key={idx} className="relative rounded-2xl border border-gray-150 dark:border-gray-700 overflow-hidden h-24 bg-gray-50 dark:bg-gray-900/30 animate-fade-in group">
+                      <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeFile(idx)}
+                        className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                  return (
-                    <div
-                      key={post.id}
-                      className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4 hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors"
+              {/* Actions Row */}
+              <div className="flex items-center justify-between pl-12 pt-3.5 border-t border-slate-100 dark:border-slate-800/40">
+                <div>
+                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-805 transition-all"
+                  >
+                    <Image className="w-4 h-4 text-violet-500" />
+                    Add Image
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {(newPost.trim() || selectedFiles.length > 0) && (
+                    <button
+                      type="button"
+                      onClick={() => { setNewPost(""); setSelectedFiles([]); setFilePreviews([]); }}
+                      className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                     >
-                      {/* Post Header (Author details) */}
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <Avatar
-                            src={post.posted_by?.profile_picture}
-                            name={post.posted_by?.name}
-                            size="sm"
-                            className="ring-2 ring-slate-100 dark:ring-slate-805 shrink-0"
-                          />
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">
-                                {post.posted_by?.name}
-                              </span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {post.posted_by?.role}
-                              </span>
-                              {isAuthor && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
-                                  You
+                      Clear
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handlePublish}
+                    disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md disabled:opacity-50"
+                  >
+                    {createMutation.isPending ? "Publishing..." : "Publish Post"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Posts Feed Area */}
+          <div className="space-y-6">
+            {postsByDay.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
+                <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
+                  <MessageSquare className="w-7 h-7 text-gray-300 dark:text-gray-600" />
+                </div>
+                <h4 className="text-sm font-bold text-gray-700 dark:text-gray-350">No posts matched search</h4>
+                <p className="text-xs text-gray-400 mt-1 max-w-xs">
+                  Try adjusting your search queries or share a new post!
+                </p>
+              </div>
+            ) : (
+              postsByDay.map((group) => (
+                <div key={group.dateString} className="space-y-4">
+                  
+                  {/* Clean Date Divider */}
+                  <div className="flex items-center gap-4 my-6">
+                    <span className="text-[10px] font-black tracking-widest text-gray-400 dark:text-gray-505 uppercase flex items-center gap-1.5 shrink-0 bg-gray-50 dark:bg-slate-950/20 py-1 px-3.5 rounded-full border border-gray-200/50 dark:border-slate-800/30">
+                      <Calendar className="w-3.5 h-3.5 text-violet-500" />
+                      {group.dateString}
+                    </span>
+                    <div className="h-[1px] w-full bg-gray-150 dark:bg-slate-800/40" />
+                  </div>
+
+                  {/* Individual Post Cards */}
+                  {group.posts.map((post) => {
+                    const isAuthor = post.posted_by?.id === user?.id;
+                    const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
+                    const canEdit = isAuthor && isWithinEditWindow;
+                    const canDelete = isAuthor || isHOD;
+
+                    return (
+                      <div
+                        key={post.id}
+                        className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-[0_2px_12px_rgba(30,50,80,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-4 hover:border-violet-200 dark:hover:border-violet-850/40 hover:shadow-[0_8px_30px_rgba(139,92,246,0.08)] transition-all duration-300"
+                      >
+                        {/* Post Header (Author info + actions) */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <Avatar
+                              src={post.posted_by?.profile_picture}
+                              name={post.posted_by?.name}
+                              size="sm"
+                              className="ring-2 ring-slate-50 dark:ring-slate-800 shrink-0"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">
+                                  {post.posted_by?.name}
                                 </span>
-                              )}
-                              {post.is_edited && (
-                                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
-                                  Edited
+                                <span className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                  {post.posted_by?.role}
                                 </span>
-                              )}
-                              <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 ml-1.5">
-                                <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                {formatPostTime(post.created_at)}
-                              </span>
+                                {isAuthor && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
+                                    You
+                                  </span>
+                                )}
+                                {post.is_edited && (
+                                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                                    Edited
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 ml-1.5">
+                                  <Clock className="w-3.5 h-3.5 text-gray-400" />
+                                  {formatPostTime(post.created_at)}
+                                </span>
+                              </div>
                             </div>
                           </div>
+
+                          {/* Actions (Edit / Delete) */}
+                          {(canEdit || canDelete) && (
+                            <div className="flex items-center gap-1">
+                              {canEdit && (
+                                <button
+                                  onClick={() => openEditModal(post)}
+                                  className="p-1.5 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
+                                  title="Edit post (30 min window)"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {canDelete && (
+                                <button
+                                  onClick={() => setDeleteTarget(post)}
+                                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-505 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                  title="Delete post"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
 
-                        {/* Edit/Delete actions */}
-                        {(canEdit || canDelete) && (
-                          <div className="flex items-center gap-1">
-                            {canEdit && (
-                              <button
-                                onClick={() => openEditModal(post)}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
-                                title="Edit post (30 min window)"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                            {canDelete && (
-                              <button
-                                onClick={() => setDeleteTarget(post)}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                                title="Delete post"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content */}
-                      <div className="space-y-1 mt-2.5">
-                        {(() => {
-                          const { title, body } = parseForumPostContent(post.content);
-                          return (
-                            <>
-                              {title && (
-                                <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug">
-                                  {title}
-                                </h3>
-                              )}
-                              <p className="text-sm text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
-                                {body}
-                              </p>
-                            </>
-                          );
-                        })()}
-                      </div>
-
-                      {/* Image Attachment */}
-                      {post.attachment_url && (
-                        <div className="mt-3">
+                        {/* Content text */}
+                        <div className="space-y-1 mt-2.5">
                           {(() => {
-                            const urls = post.attachment_url.split(',').filter(Boolean);
-                            if (urls.length === 0) return null;
-                            if (urls.length === 1) {
-                              return (
-                                <div className="rounded-xl border border-slate-100 dark:border-slate-800/60 overflow-hidden bg-slate-50 dark:bg-slate-950/20 max-h-96 flex items-center justify-center animate-fade-in">
-                                  <img
-                                    src={urls[0]}
-                                    alt="post attachment"
-                                    className="w-full object-cover max-h-96"
-                                    onError={(e) => { e.target.parentElement.style.display = "none"; }}
-                                  />
-                                </div>
-                              );
-                            }
+                            const { title, body } = parseForumPostContent(post.content);
                             return (
-                              <div className="grid grid-cols-3 gap-2.5 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 animate-fade-in">
-                                {urls.map((url, i) => (
-                                  <div key={i} className="relative aspect-square sm:aspect-video md:aspect-[4/3] rounded-lg overflow-hidden shrink-0">
-                                    <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-200" />
-                                  </div>
-                                ))}
-                              </div>
+                              <>
+                                {title && (
+                                  <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug">
+                                    {title}
+                                  </h3>
+                                )}
+                                <p className="text-sm text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+                                  {body}
+                                </p>
+                              </>
                             );
                           })()}
                         </div>
-                      )}
 
-                      {/* Post Footer */}
-                      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/40 mt-4 text-slate-400">
-                        <div className="flex items-center gap-6">
+                        {/* Image Attachment (RESTYLED: object-contain with max-height to fix oversizing) */}
+                        {post.attachment_url && (
+                          <div className="mt-3">
+                            {(() => {
+                              const urls = post.attachment_url.split(',').filter(Boolean);
+                              if (urls.length === 0) return null;
+                              if (urls.length === 1) {
+                                return (
+                                  <div 
+                                    className="rounded-2xl border border-slate-100 dark:border-slate-800/60 overflow-hidden bg-slate-50 dark:bg-slate-950/20 max-h-[480px] flex items-center justify-center animate-fade-in cursor-pointer hover:opacity-95 transition-all"
+                                    onClick={() => setLightboxImage(urls[0])}
+                                  >
+                                    <img
+                                      src={urls[0]}
+                                      alt="post attachment"
+                                      className="w-full max-h-[480px] object-contain rounded-2xl"
+                                      onError={(e) => { e.target.parentElement.style.display = "none"; }}
+                                    />
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div className="grid grid-cols-3 gap-2.5 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 p-2 animate-fade-in">
+                                  {urls.map((url, i) => (
+                                    <div 
+                                      key={i} 
+                                      className="relative aspect-square sm:aspect-video rounded-xl overflow-hidden shrink-0 cursor-pointer"
+                                      onClick={() => setLightboxImage(url)}
+                                    >
+                                      <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-200" />
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
+
+                        {/* Card footer (Likes, Comments, Share) */}
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/40 mt-4 text-slate-400">
+                          <div className="flex items-center gap-6">
+                            <button
+                              onClick={() => likeMutation.mutate(post.id)}
+                              className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 transition-all ${post.liked
+                                ? "text-rose-500 animate-pulse"
+                                : "text-gray-400 hover:text-rose-500"
+                                }`}
+                            >
+                              <Heart
+                                className={`w-4 h-4 transition-all group-active/like:scale-125 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                              />
+                              <span>{post.like_count || 0}</span>
+                            </button>
+
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                              <MessageSquare className="w-4 h-4 text-violet-500" />
+                              <span>0</span>
+                            </span>
+                          </div>
+
                           <button
-                            onClick={() => likeMutation.mutate(post.id)}
-                            className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 transition-all ${post.liked
-                              ? "text-rose-500"
-                              : "text-gray-400 hover:text-rose-500"
-                              }`}
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
+                              showSuccess("Link copied to clipboard!");
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-405 hover:text-indigo-650 transition-colors"
+                            title="Copy link to post"
                           >
-                            <Heart
-                              className={`w-4 h-4 transition-all group-active/like:scale-120 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                            />
-                            <span>{post.like_count || 0}</span>
+                            <Share2 className="w-4 h-4" />
+                            <span>Share</span>
                           </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
-                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-                            <MessageSquare className="w-4 h-4 text-violet-500" />
-                            <span>0</span>
+        {/* Right column: Sticky Sidebar (Directory, Quick management) */}
+        <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-3xl p-5 shadow-[0_2px_12px_rgba(30,50,80,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-5">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800/80 pb-3">
+              <div className="flex items-center gap-2">
+                <Users className="w-4.5 h-4.5 text-violet-500" />
+                <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Forum Roster</h2>
+              </div>
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400">
+                {memberList.length}
+              </span>
+            </div>
+
+            {/* Inline Quick Add Roster (for HOD) */}
+            {isHOD && (
+              <button
+                onClick={() => setPickerOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-dashed border-violet-200 dark:border-violet-800/40 text-violet-650 dark:text-violet-400 text-xs font-bold hover:bg-violet-50 dark:hover:bg-violet-950/20 hover:border-violet-400 transition-all active:scale-98"
+              >
+                <Plus className="w-4 h-4" /> Add Forum Member
+              </button>
+            )}
+
+            {/* Roster Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search forum members..."
+                value={memberSearchQuery}
+                onChange={(e) => setMemberSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-9 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+              />
+              {memberSearchQuery && (
+                <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-650">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Roster Members List (Sidebar view) */}
+            <div className="space-y-3.5 max-h-[380px] overflow-y-auto pr-1">
+              {filteredMembers.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-6 italic">No members found</p>
+              ) : (
+                filteredMembers.map(m => (
+                  <div
+                    key={m.id}
+                    className="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800/20 hover:bg-gray-100/80 dark:hover:bg-gray-805 transition-all border border-gray-100/60 dark:border-gray-800/10"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-gray-100 dark:ring-gray-800 shrink-0 w-8 h-8" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">
+                            {m.class_name?.replace("_", " ")}
+                          </span>
+                          <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.2 rounded">
+                            {m.role}
                           </span>
                         </div>
-
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
-                            showSuccess("Link copied to clipboard!");
-                          }}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-405 hover:text-indigo-600 transition-colors"
-                          title="Copy link to post"
-                        >
-                          <Share2 className="w-4 h-4" />
-                          <span>Share</span>
-                        </button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {isHOD && (
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <button
+                          onClick={() => coordMutation.mutate(m.id)}
+                          disabled={coordMutation.isPending}
+                          className={`p-1 rounded-lg transition-colors ${m.is_update_coordinator ? "text-amber-500 bg-amber-50 dark:bg-amber-900/20" : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"}`}
+                          title={m.is_update_coordinator ? "Revoke Coordinator" : "Make Coordinator"}
+                        >
+                          <Crown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => removeMutation.mutate(m.id)}
+                          disabled={removeMutation.isPending}
+                          className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          title="Remove member"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
-          ))
-        )}
+          </div>
+        </div>
+
       </div>
 
       {/* ── Add Member Picker ── */}
@@ -570,8 +770,8 @@ export default function ForumPage() {
         queryKey="eligible-students"
         fetchFn={(search) => listEligibleStudents(search).then(r => r.data.students)}
         onPick={(student) => { setPendingStudent(student); setPickerOpen(false); }}
-        placeholder="Search 3A/3B students by name, email, roll…"
-        emptyText="No eligible students found (3A/3B, not already members)."
+        placeholder="Search students by name, email, roll…"
+        emptyText="No eligible students found (not already members)."
       />
 
       {/* ── Role Selection Modal ── */}
@@ -649,7 +849,7 @@ export default function ForumPage() {
         </Modal>
       )}
 
-      {/* ── Members Directory Modal ── */}
+      {/* ── Members Directory Modal (Fallback for smaller viewports) ── */}
       <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory">
         <div className="space-y-4 pt-1">
           {/* Member Search */}
@@ -660,10 +860,10 @@ export default function ForumPage() {
               placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+              className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-105 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
             />
             {memberSearchQuery && (
-              <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -683,8 +883,8 @@ export default function ForumPage() {
                     <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-gray-100 dark:ring-gray-700 shrink-0" />
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
-                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
-                        Class: <span className="font-semibold text-gray-700 dark:text-gray-300">{m.class_name?.replace("_", " ")}</span> · Role: <span className="font-semibold text-gray-700 dark:text-gray-300">{m.role}</span>
+                      <p className="text-[10px] text-gray-505 dark:text-gray-400 mt-1">
+                        Class: <span className="font-semibold text-gray-750 dark:text-gray-300">{m.class_name?.replace("_", " ")}</span> · Role: <span className="font-semibold text-gray-750 dark:text-gray-300">{m.role}</span>
                       </p>
                     </div>
                   </div>
@@ -701,7 +901,7 @@ export default function ForumPage() {
                       <button
                         onClick={() => removeMutation.mutate(m.id)}
                         disabled={removeMutation.isPending}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-505 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                         title="Remove member"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -715,7 +915,7 @@ export default function ForumPage() {
         </div>
       </Modal>
 
-      {/* ── Create Forum Post Modal ── */}
+      {/* ── Create Forum Post Modal (Keeping fallback / triggers) ── */}
       <Modal open={postModalOpen} onClose={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }} title="Create Forum Post">
         <div className="space-y-4 pt-1">
           <div className="flex items-center gap-3">
@@ -731,7 +931,7 @@ export default function ForumPage() {
             onChange={(e) => setNewPost(e.target.value)}
             placeholder="Share something with the forum..."
             rows={4}
-            className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
+            className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-101 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
           />
 
           {/* Previews */}
@@ -757,7 +957,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-755 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-505 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-755 transition-all"
             >
               <Image className="w-3.5 h-3.5 text-violet-500" />
               Add Image
@@ -779,7 +979,7 @@ export default function ForumPage() {
                 setPostModalOpen(false);
               }}
               disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
             >
               {createMutation.isPending ? "Publishing..." : "Publish Post"}
             </button>
@@ -794,7 +994,7 @@ export default function ForumPage() {
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             rows={5}
-            className="w-full p-4 text-sm rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none"
+            className="w-full p-4 text-sm rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-101 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none"
             placeholder="Edit your post..."
           />
           <div className="flex gap-3">
@@ -825,6 +1025,29 @@ export default function ForumPage() {
         confirmText={deleteMutation.isPending ? "Deleting..." : "Delete Post"}
         danger
       />
+
+      {/* ── Image Lightbox Modal overlay ── */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button 
+            onClick={() => setLightboxImage(null)}
+            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-[95vw] max-h-[90vh] flex items-center justify-center p-4">
+            <img 
+              src={lightboxImage} 
+              alt="Lightbox attachment" 
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl animate-zoom-in"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );
