@@ -149,8 +149,8 @@ jobs:
             # Log into GHCR on the EC2 host using GITHUB_TOKEN
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
             
-            # Pull the latest images from GHCR
-            docker compose pull
+            # Pull the latest images from GHCR (targeted and quiet to avoid SSH progress logs overhead)
+            docker compose pull -q backend frontend
             
             # Recreate and start containers
             docker compose up -d --remove-orphans
