@@ -409,17 +409,17 @@ export default function ForumPage() {
         <div className="lg:col-span-2 space-y-5">
           
           {/* Post Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="relative flex items-center">
+            <Search className="absolute left-3.5 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search posts by content or author..."
               value={postSearchQuery}
               onChange={(e) => setPostSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
+              className="w-full pl-10 pr-10 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
             />
             {postSearchQuery && (
-              <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 text-gray-400 hover:text-gray-600">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -715,18 +715,18 @@ export default function ForumPage() {
             )}
 
             {/* Roster Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
+            <div className="relative flex items-center">
+              <Search className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search forum members..."
                 value={memberSearchQuery}
                 onChange={(e) => setMemberSearchQuery(e.target.value)}
-                className="w-full pl-8.5 pr-8.5 py-1.8 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+                className="w-full pl-9 pr-9 py-1.5 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
               />
               {memberSearchQuery && (
-                <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-650">
-                  <X className="w-3 h-3" />
+                <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 text-gray-405 hover:text-gray-650">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -742,14 +742,14 @@ export default function ForumPage() {
                     className="flex items-center justify-between gap-2.5 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/20 hover:bg-gray-100/80 dark:hover:bg-gray-805 transition-all border border-gray-100/60 dark:border-gray-850/10"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-1 ring-gray-100 dark:ring-gray-800 shrink-0 w-7.5 h-7.5" />
+                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-1 ring-gray-100 dark:ring-gray-800 shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wide">
                             {m.class_name?.replace("_", " ")}
                           </span>
-                          <span className="text-[8px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.2 rounded">
+                          <span className="text-[8px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.5 rounded">
                             {m.role}
                           </span>
                         </div>
