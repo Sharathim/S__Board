@@ -14,7 +14,7 @@ import {
   MessageSquare, Heart, Trash2, Edit2, Clock,
   Calendar, Plus, Image, X, UserPlus, Share2
 } from "lucide-react";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
@@ -22,6 +22,15 @@ import MobileEmptyState from "../../components/MobileEmptyState";
 function formatPostTime(dateString) {
   try { return formatDistanceToNow(new Date(dateString), { addSuffix: true }); }
   catch { return "just now"; }
+}
+
+function parseForumPostContent(content = "") {
+  if (!content) return { title: "", body: "" };
+  const lines = content.split("\n").map(l => l.trim()).filter(Boolean);
+  if (lines.length > 1) {
+    return { title: lines[0], body: lines.slice(1).join("\n") };
+  }
+  return { title: "", body: content };
 }
 
 export default function MobileForumPage() {
@@ -39,7 +48,11 @@ export default function MobileForumPage() {
   const [pendingStudent, setPendingStudent] = useState(null);
   const [rolePreset, setRolePreset] = useState("President");
   const [customRole, setCustomRole] = useState("");
-  const [lightboxImage, setLightboxImage] = useState(null);
+  
+  // Compact states
+  const [expandedPostIds, setExpandedPostIds] = useState({});
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   
   const fileInputRef = useRef(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -53,6 +66,22 @@ export default function MobileForumPage() {
     queryKey: ["forum-posts"],
     queryFn: () => listForumPosts({ page: 1, per_page: 50 }).then(r => r.data.posts),
   });
+
+  // Lightbox arrow navigation keys
+  useEffect(() => {
+    if (lightboxImages.length === 0) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight") {
+        setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+      } else if (e.key === "Escape") {
+        setLightboxImages([]);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxImages]);
 
   const createMutation = useMutation({
     mutationFn: (data) => createForumPost(data),
@@ -124,12 +153,21 @@ export default function MobileForumPage() {
     })).sort((a, b) => new Date(b.posts[0].created_at) - new Date(a.posts[0].created_at));
   }, [postList]);
 
+  const handleOpenLightbox = (urls, index) => {
+    setLightboxImages(urls);
+    setLightboxIndex(index);
+  };
+
+  const toggleExpandPost = (postId) => {
+    setExpandedPostIds(prev => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
   if (membersLoading || postsLoading) {
     return <div className="flex items-center justify-center h-64"><Spinner /></div>;
   }
 
   return (
-    <div className="space-y-4 mobile-fade-in pb-16">
+    <div className="space-y-4 mobile-fade-in playbook pb-16">
       
       {/* Zoom Animation for Lightbox */}
       <style>{`
@@ -143,9 +181,9 @@ export default function MobileForumPage() {
       `}</style>
 
       {/* Header actions */}
-      <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800/40 pb-3">
+      <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800/40 pb-2">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Posts</h2>
+          <h2 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Posts</h2>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
             {postList.length}
           </span>
@@ -175,36 +213,41 @@ export default function MobileForumPage() {
       {postsByDay.length === 0 ? (
         <MobileEmptyState icon={MessageSquare} title="No posts yet" description="Be the first to share something!" />
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {postsByDay.map(group => (
-            <div key={group.dateString} className="space-y-3">
+            <div key={group.dateString} className="space-y-2.5">
               
               {/* Date Header Divider */}
-              <div className="flex items-center gap-2 pt-2 mb-1">
-                <Calendar className="w-3.5 h-3.5 text-violet-500" />
+              <div className="flex items-center gap-2 pt-1 mb-1">
+                <Calendar className="w-3 h-3 text-violet-500" />
                 <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
                 <div className="h-[1px] flex-1 bg-gray-100 dark:bg-slate-800/40" />
               </div>
 
               {/* Feed Card List */}
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {group.posts.map(post => {
                   const isAuthor = post.posted_by?.id === user?.id;
                   const canEdit = isAuthor && (new Date() - new Date(post.created_at)) < 30 * 60 * 1000;
                   const canDelete = isAuthor || isHOD;
+                  
+                  const { title, body } = parseForumPostContent(post.content);
+                  const isExpanded = !!expandedPostIds[post.id];
+                  const hasLongBody = body.length > 180;
+
                   return (
-                    <MobileCard key={post.id} className="border border-slate-100 dark:border-slate-800/60 shadow-sm">
+                    <MobileCard key={post.id} className="p-3.5 border border-slate-100 dark:border-slate-800/50 shadow-sm space-y-2">
                       
                       {/* Card Author Info */}
-                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-8 h-8 ring-2 ring-violet-500/5 shrink-0" />
+                          <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-7 h-7 ring-2 ring-violet-500/5 shrink-0" />
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap leading-none">
                               <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{post.posted_by?.name}</span>
                               {isAuthor && <span className="text-[8px] font-bold px-1.5 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">You</span>}
                             </div>
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 mt-0.5">
+                            <span className="text-[9px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 mt-0.5">
                               <Clock className="w-3 h-3 text-gray-400" />
                               {formatPostTime(post.created_at)}
                             </span>
@@ -213,48 +256,64 @@ export default function MobileForumPage() {
                         <div className="flex items-center gap-0.5 shrink-0">
                           {canEdit && (
                             <button onClick={() => { setEditTarget(post); setEditContent(post.content); }} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-violet-650">
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Edit2 className="w-3 h-3" />
                             </button>
                           )}
                           {canDelete && (
                             <button onClick={() => setDeleteTarget(post)} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500">
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-3 h-3" />
                             </button>
                           )}
                         </div>
                       </div>
 
-                      {/* Content Body */}
-                      <p className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed mb-3">
-                        {post.content}
-                      </p>
+                      {/* Content Body (Compact Text Truncation) */}
+                      <div className="space-y-0.8">
+                        {title && (
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-white leading-tight">
+                            {title}
+                          </h4>
+                        )}
+                        <p className="text-[11px] text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
+                          {isExpanded ? body : (hasLongBody ? body.slice(0, 180) + "..." : body)}
+                          {hasLongBody && (
+                            <button
+                              type="button"
+                              onClick={() => toggleExpandPost(post.id)}
+                              className="text-violet-600 dark:text-violet-400 font-bold ml-1 hover:underline focus:outline-none"
+                            >
+                              {isExpanded ? "Show Less" : "Read More"}
+                            </button>
+                          )}
+                        </p>
+                      </div>
 
-                      {/* Image attachments (RESTYLED: aspect-ratio control & clickable Lightbox) */}
+                      {/* Compact Image attachments (Restyled height limits & clickable) */}
                       {post.attachment_url && (
-                        <div className="mb-3">
+                        <div className="mb-1">
                           {(() => {
                             const urls = post.attachment_url.split(',').filter(Boolean);
                             if (urls.length === 1) {
                               return (
                                 <div 
-                                  className="rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 max-h-64 flex items-center justify-center cursor-pointer"
-                                  onClick={() => setLightboxImage(urls[0])}
+                                  className="rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 max-h-40 flex items-center justify-center cursor-pointer"
+                                  onClick={() => handleOpenLightbox(urls, 0)}
                                 >
                                   <img 
                                     src={urls[0]} 
                                     alt="attachment" 
-                                    className="w-full max-h-64 object-contain" 
+                                    className="w-full h-40 object-cover" 
                                   />
                                 </div>
                               );
                             }
                             return (
-                              <div className="grid grid-cols-2 gap-1.5 rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 p-1.5 bg-slate-50 dark:bg-slate-950/20">
+                              <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 p-1 bg-slate-50 dark:bg-slate-950/20">
                                 {urls.slice(0, 4).map((url, i) => (
                                   <div 
                                     key={i} 
-                                    className="relative h-24 rounded-lg overflow-hidden cursor-pointer"
-                                    onClick={() => setLightboxImage(url)}
+                                    className="relative h-20 rounded-lg overflow-hidden cursor-pointer"
+                                    onClick={() => handleOpenLightbox(urls, i)}
                                   >
                                     <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover" />
                                     {i === 3 && urls.length > 4 && (
@@ -271,14 +330,14 @@ export default function MobileForumPage() {
                       )}
 
                       {/* Footer Actions (Likes, Share) */}
-                      <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-slate-800/40">
+                      <div className="flex items-center justify-between pt-1.8 border-t border-gray-50 dark:border-slate-800/40 mt-1">
                         <button
                           onClick={() => likeMutation.mutate(post.id)}
-                          className={`mobile-tappable inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-xl transition-all ${
+                          className={`mobile-tappable inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-lg transition-all ${
                             post.liked ? "text-rose-500 bg-rose-50 dark:bg-rose-950/20" : "text-gray-400 hover:text-rose-550"
                           }`}
                         >
-                          <Heart className={`w-3.5 h-3.5 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`} />
+                          <Heart className={`w-3.5 h-3.5 ${post.liked ? "fill-rose-500" : ""}`} />
                           <span>{post.like_count || 0}</span>
                         </button>
 
@@ -286,7 +345,7 @@ export default function MobileForumPage() {
                           onClick={() => {
                             navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
                           }}
-                          className="mobile-tappable inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 px-2 py-1 hover:text-indigo-500"
+                          className="mobile-tappable inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 px-2 py-0.5 hover:text-indigo-500"
                         >
                           <Share2 className="w-3.5 h-3.5" />
                           <span>Share</span>
@@ -320,7 +379,7 @@ export default function MobileForumPage() {
           )}
           <div className="flex items-center gap-2">
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
-            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-slate-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-800">
+            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-slate-700 text-gray-505 hover:bg-gray-55 dark:hover:bg-slate-800">
               <Image className="w-3.5 h-3.5 text-violet-500" /> Add Image
             </button>
           </div>
@@ -343,7 +402,7 @@ export default function MobileForumPage() {
           <div className="flex gap-3">
             <button onClick={() => setEditTarget(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-sm font-semibold text-gray-500">Cancel</button>
             <button onClick={() => editMutation.mutate({ id: editTarget.id, content: editContent })} disabled={editMutation.isPending || !editContent.trim()}
-              className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-bold disabled:opacity-50">{editMutation.isPending ? "Saving..." : "Save"}</button>
+              className="flex-1 py-2.5 rounded-xl bg-violet-650 text-white text-sm font-bold disabled:opacity-50">{editMutation.isPending ? "Saving..." : "Save"}</button>
           </div>
         </div>
       </Modal>
@@ -373,7 +432,7 @@ export default function MobileForumPage() {
               <option value="President">President</option><option value="Vice President">Vice President</option><option value="Treasurer">Treasurer</option><option value="Secretary">Secretary</option><option value="Custom">Custom...</option>
             </select>
             {rolePreset === "Custom" && (
-              <input type="text" value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..." className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-slate-705 bg-white dark:bg-slate-900 text-sm" />
+              <input type="text" value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..." className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-slate-750 bg-white dark:bg-slate-900 text-sm" />
             )}
             <div className="flex gap-3">
               <button onClick={() => setPendingStudent(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-sm font-semibold text-gray-500">Cancel</button>
@@ -386,25 +445,55 @@ export default function MobileForumPage() {
         </Modal>
       )}
 
-      {/* ── Image Lightbox Modal Overlay (Mobile) ── */}
-      {lightboxImage && (
+      {/* ── Image Lightbox Modal Overlay (Mobile with gallery navigation) ── */}
+      {lightboxImages.length > 0 && (
         <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm"
-          onClick={() => setLightboxImage(null)}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm"
+          onClick={() => setLightboxImages([])}
         >
           <button 
-            onClick={() => setLightboxImage(null)}
-            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 text-white"
+            onClick={() => setLightboxImages([])}
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 text-white z-[10000]"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="max-w-[95vw] max-h-[85vh] flex items-center justify-center">
+
+          {/* Navigation Arrows for Mobile */}
+          {lightboxImages.length > 1 && (
+            <>
+              <button
+                className="absolute left-3 p-3 rounded-full bg-white/5 active:bg-white/15 text-white z-[10000]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+                }}
+              >
+                <span className="text-2xl font-bold leading-none">&lsaquo;</span>
+              </button>
+              <button
+                className="absolute right-3 p-3 rounded-full bg-white/5 active:bg-white/15 text-white z-[10000]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+                }}
+              >
+                <span className="text-2xl font-bold leading-none">&rsaquo;</span>
+              </button>
+            </>
+          )}
+
+          <div className="max-w-[95vw] max-h-[80vh] flex flex-col items-center justify-center">
             <img 
-              src={lightboxImage} 
+              src={lightboxImages[lightboxIndex]} 
               alt="Lightbox Mobile preview" 
-              className="max-w-full max-h-[85vh] object-contain rounded-lg animate-mobile-zoom"
+              className="max-w-full max-h-[75vh] object-contain rounded-lg animate-mobile-zoom"
               onClick={(e) => e.stopPropagation()}
             />
+            {lightboxImages.length > 1 && (
+              <span className="text-white/60 text-xs font-bold mt-3 select-none bg-black/50 px-3 py-1 rounded-full border border-white/5">
+                {lightboxIndex + 1} / {lightboxImages.length}
+              </span>
+            )}
           </div>
         </div>
       )}

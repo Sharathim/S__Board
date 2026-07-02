@@ -22,7 +22,7 @@ import {
   X, Search, Edit2, Clock, AlertCircle,
   CheckCircle2, Users, Plus, Calendar, Share2
 } from "lucide-react";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
@@ -79,7 +79,11 @@ export default function ForumPage() {
 
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [postModalOpen, setPostModalOpen] = useState(false);
-  const [lightboxImage, setLightboxImage] = useState(null);
+  
+  // Compact state expansions
+  const [expandedPostIds, setExpandedPostIds] = useState({});
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const canPost = user?.student?.is_forum_member === true;
 
@@ -92,6 +96,22 @@ export default function ForumPage() {
     queryKey: ["forum-posts"],
     queryFn: () => listForumPosts({ page: 1, per_page: 50 }).then(r => r.data.posts),
   });
+
+  // Lightbox key listener for arrow navigation
+  useEffect(() => {
+    if (lightboxImages.length === 0) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight") {
+        setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+      } else if (e.key === "Escape") {
+        setLightboxImages([]);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxImages]);
 
   const showSuccess = (msg) => { setSuccessMessage(msg); setTimeout(() => setSuccessMessage(""), 3500); };
   const showError = (msg) => { setErrorMessage(msg); setTimeout(() => setErrorMessage(""), 4000); };
@@ -236,7 +256,7 @@ export default function ForumPage() {
 
   const postList = posts || [];
   
-  // Real Search Filtering on Posts!
+  // Real Search Filtering on Posts
   const filteredPosts = useMemo(() => {
     if (!postSearchQuery.trim()) return postList;
     const q = postSearchQuery.toLowerCase();
@@ -270,6 +290,15 @@ export default function ForumPage() {
       };
     }).sort((a, b) => new Date(b.posts[0].created_at) - new Date(a.posts[0].created_at));
   }, [filteredPosts]);
+
+  const handleOpenLightbox = (urls, index) => {
+    setLightboxImages(urls);
+    setLightboxIndex(index);
+  };
+
+  const toggleExpandPost = (postId) => {
+    setExpandedPostIds(prev => ({ ...prev, [postId]: !prev[postId] }));
+  };
 
   if (membersLoading || postsLoading) {
     return (
@@ -338,45 +367,45 @@ export default function ForumPage() {
       )}
 
       {/* Redesigned Header Row */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-5 mb-8">
+      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-4 mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Forum</h1>
+          <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Forum</h1>
           {/* Vibrant, glittering count icon */}
           <button
             onClick={() => setShowMembersModal(true)}
-            className="glitter-btn w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 hover:scale-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(139,92,246,0.6)] hover:shadow-[0_0_18px_rgba(139,92,246,0.8)] shrink-0"
+            className="glitter-btn w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-white bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 hover:scale-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(139,92,246,0.5)] shrink-0"
             title="View Forum Directory"
           >
             {memberList.length}
           </button>
         </div>
 
-        {/* Header End Actions (Mobile-friendly access triggers) */}
+        {/* Header End Actions */}
         <div className="flex items-center gap-2">
           {isHOD && (
             <button
               onClick={() => setPickerOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.8 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md active:scale-95 shrink-0"
             >
-              <Plus className="w-4 h-4" /> Add Member
+              <Plus className="w-3.5 h-3.5" /> Add Member
             </button>
           )}
           {canPost && (
             <button
               onClick={() => setPostModalOpen(true)}
-              className="lg:hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md hover:shadow-violet-500/20 active:scale-95 shrink-0"
+              className="lg:hidden inline-flex items-center gap-1.5 px-3.5 py-1.8 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md active:scale-95 shrink-0"
             >
-              <Plus className="w-4 h-4" /> Post
+              <Plus className="w-3.5 h-3.5" /> Post
             </button>
           )}
         </div>
       </div>
 
       {/* Main Grid Layout: Feed left, Sidebar right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
         {/* Left column: Feed */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-5">
           
           {/* Post Search Bar */}
           <div className="relative">
@@ -386,7 +415,7 @@ export default function ForumPage() {
               placeholder="Search posts by content or author..."
               value={postSearchQuery}
               onChange={(e) => setPostSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 text-sm rounded-2xl border border-gray-250 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
+              className="w-full pl-10 pr-10 py-2.2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
             />
             {postSearchQuery && (
               <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -397,35 +426,35 @@ export default function ForumPage() {
 
           {/* Inline Feed Post Composer */}
           {canPost && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-3xl p-5 shadow-[0_2px_12px_rgba(30,50,80,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm space-y-3">
               <div className="flex gap-3">
                 <Avatar
                   src={user?.profile_picture}
                   name={user?.name}
                   size="sm"
-                  className="shrink-0 ring-2 ring-violet-500/10"
+                  className="shrink-0 w-8 h-8 ring-2 ring-violet-500/10"
                 />
                 <div className="flex-1">
                   <textarea
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                     placeholder="Share something with the department forum..."
-                    rows={newPost.trim() || selectedFiles.length > 0 ? 4 : 2}
-                    className="w-full p-3.5 text-sm rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
+                    rows={newPost.trim() || selectedFiles.length > 0 ? 3 : 1}
+                    className="w-full p-2.5 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
                   />
                 </div>
               </div>
 
               {/* Upload Previews */}
               {filePreviews.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 pl-12">
+                <div className="grid grid-cols-3 gap-2.5 pl-11">
                   {filePreviews.map((preview, idx) => (
-                    <div key={idx} className="relative rounded-2xl border border-gray-150 dark:border-gray-700 overflow-hidden h-24 bg-gray-50 dark:bg-gray-900/30 animate-fade-in group">
+                    <div key={idx} className="relative rounded-xl border border-gray-155 dark:border-gray-700 overflow-hidden h-16 bg-gray-50 dark:bg-gray-900/30 animate-fade-in group">
                       <img src={preview} alt="preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => removeFile(idx)}
-                        className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+                        className="absolute top-1 right-1 p-0.5 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -435,15 +464,15 @@ export default function ForumPage() {
               )}
 
               {/* Actions Row */}
-              <div className="flex items-center justify-between pl-12 pt-3.5 border-t border-slate-100 dark:border-slate-800/40">
+              <div className="flex items-center justify-between pl-11 pt-2.5 border-t border-slate-100 dark:border-slate-800/40">
                 <div>
                   <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-805 transition-all"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-805 transition-all"
                   >
-                    <Image className="w-4 h-4 text-violet-500" />
+                    <Image className="w-3.5 h-3.5 text-violet-500" />
                     Add Image
                   </button>
                 </div>
@@ -453,7 +482,7 @@ export default function ForumPage() {
                     <button
                       type="button"
                       onClick={() => { setNewPost(""); setSelectedFiles([]); setFilePreviews([]); }}
-                      className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-750 text-[11px] font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                     >
                       Clear
                     </button>
@@ -462,7 +491,7 @@ export default function ForumPage() {
                     type="button"
                     onClick={handlePublish}
                     disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md disabled:opacity-50"
+                    className="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-700 hover:to-indigo-700 text-white text-[11px] font-bold transition-all shadow-sm disabled:opacity-50"
                   >
                     {createMutation.isPending ? "Publishing..." : "Publish Post"}
                   </button>
@@ -472,70 +501,76 @@ export default function ForumPage() {
           )}
 
           {/* Posts Feed Area */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {postsByDay.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
-                <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
-                  <MessageSquare className="w-7 h-7 text-gray-300 dark:text-gray-600" />
+              <div className="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3 border border-gray-100 dark:border-gray-700/40">
+                  <MessageSquare className="w-6 h-6 text-gray-300 dark:text-gray-600" />
                 </div>
-                <h4 className="text-sm font-bold text-gray-700 dark:text-gray-350">No posts matched search</h4>
-                <p className="text-xs text-gray-400 mt-1 max-w-xs">
+                <h4 className="text-xs font-bold text-gray-700 dark:text-gray-350">No posts matched search</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5 max-w-xs">
                   Try adjusting your search queries or share a new post!
                 </p>
               </div>
             ) : (
               postsByDay.map((group) => (
-                <div key={group.dateString} className="space-y-4">
+                <div key={group.dateString} className="space-y-3">
                   
                   {/* Clean Date Divider */}
-                  <div className="flex items-center gap-4 my-6">
-                    <span className="text-[10px] font-black tracking-widest text-gray-400 dark:text-gray-505 uppercase flex items-center gap-1.5 shrink-0 bg-gray-50 dark:bg-slate-950/20 py-1 px-3.5 rounded-full border border-gray-200/50 dark:border-slate-800/30">
-                      <Calendar className="w-3.5 h-3.5 text-violet-500" />
+                  <div className="flex items-center gap-3 my-4">
+                    <span className="text-[9px] font-black tracking-widest text-gray-400 dark:text-gray-505 uppercase flex items-center gap-1 shrink-0 bg-gray-55 dark:bg-slate-950/20 py-0.8 px-3 rounded-full border border-gray-200/40 dark:border-slate-800/20">
+                      <Calendar className="w-3 h-3 text-violet-500" />
                       {group.dateString}
                     </span>
-                    <div className="h-[1px] w-full bg-gray-150 dark:bg-slate-800/40" />
+                    <div className="h-[1px] w-full bg-gray-150 dark:bg-slate-800/30" />
                   </div>
 
-                  {/* Individual Post Cards */}
+                  {/* Individual Post Cards (RESTYLED: COMPACT DESIGN) */}
                   {group.posts.map((post) => {
                     const isAuthor = post.posted_by?.id === user?.id;
                     const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
                     const canEdit = isAuthor && isWithinEditWindow;
                     const canDelete = isAuthor || isHOD;
+                    
+                    const { title, body } = parseForumPostContent(post.content);
+                    const isExpanded = !!expandedPostIds[post.id];
+                    const hasLongBody = body.length > 220;
+                    
+                    const urls = post.attachment_url ? post.attachment_url.split(',').filter(Boolean) : [];
 
                     return (
                       <div
                         key={post.id}
-                        className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-[0_2px_12px_rgba(30,50,80,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-4 hover:border-violet-200 dark:hover:border-violet-850/40 hover:shadow-[0_8px_30px_rgba(139,92,246,0.08)] transition-all duration-300"
+                        className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/70 shadow-[0_1px_8px_rgba(30,50,80,0.02)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-850/40 hover:shadow-[0_4px_16px_rgba(139,92,246,0.04)] transition-all duration-200"
                       >
                         {/* Post Header (Author info + actions) */}
                         <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <Avatar
                               src={post.posted_by?.profile_picture}
                               name={post.posted_by?.name}
-                              size="sm"
-                              className="ring-2 ring-slate-50 dark:ring-slate-800 shrink-0"
+                              size="xs"
+                              className="ring-2 ring-slate-50 dark:ring-slate-800 shrink-0 w-7 h-7"
                             />
                             <div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm font-bold text-gray-900 dark:text-white leading-none">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">
                                   {post.posted_by?.name}
                                 </span>
-                                <span className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                   {post.posted_by?.role}
                                 </span>
                                 {isAuthor && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
+                                  <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
                                     You
                                   </span>
                                 )}
                                 {post.is_edited && (
-                                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                                  <span className="text-[8px] font-semibold px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
                                     Edited
                                   </span>
                                 )}
-                                <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1 ml-1.5">
+                                <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 ml-1">
                                   <Clock className="w-3.5 h-3.5 text-gray-400" />
                                   {formatPostTime(post.created_at)}
                                 </span>
@@ -545,104 +580,91 @@ export default function ForumPage() {
 
                           {/* Actions (Edit / Delete) */}
                           {(canEdit || canDelete) && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5">
                               {canEdit && (
                                 <button
                                   onClick={() => openEditModal(post)}
-                                  className="p-1.5 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
+                                  className="p-1 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
                                   title="Edit post (30 min window)"
                                 >
-                                  <Edit2 className="w-3.5 h-3.5" />
+                                  <Edit2 className="w-3 h-3" />
                                 </button>
                               )}
                               {canDelete && (
                                 <button
                                   onClick={() => setDeleteTarget(post)}
-                                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-505 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                  className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                                   title="Delete post"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <Trash2 className="w-3 h-3" />
                                 </button>
                               )}
                             </div>
                           )}
                         </div>
 
-                        {/* Content text */}
-                        <div className="space-y-1 mt-2.5">
-                          {(() => {
-                            const { title, body } = parseForumPostContent(post.content);
-                            return (
-                              <>
-                                {title && (
-                                  <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug">
-                                    {title}
-                                  </h3>
+                        {/* Split Content: Text Left, Thumbnail Right (Compact Space Saving) */}
+                        <div className="flex gap-4 items-start justify-between">
+                          <div className="flex-1 min-w-0 space-y-1">
+                            {title && (
+                              <h3 className="text-xs font-bold text-gray-900 dark:text-white leading-snug">
+                                {title}
+                              </h3>
+                            )}
+                            <p className="text-xs text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+                              {isExpanded ? body : (hasLongBody ? body.slice(0, 220) + "..." : body)}
+                              {hasLongBody && (
+                                <button
+                                  type="button"
+                                  onClick={() => toggleExpandPost(post.id)}
+                                  className="text-violet-650 dark:text-violet-400 font-bold ml-1 hover:underline focus:outline-none"
+                                >
+                                  {isExpanded ? "Show Less" : "Read More"}
+                                </button>
+                              )}
+                            </p>
+                          </div>
+
+                          {/* Image Attachment (Desktop Side-by-Side Thumbnail) */}
+                          {urls.length > 0 && (
+                            <div className="shrink-0 animate-fade-in">
+                              <div 
+                                className="relative w-40 h-24 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 cursor-pointer shadow-sm hover:scale-[1.01] hover:brightness-95 transition-all group"
+                                onClick={() => handleOpenLightbox(urls, 0)}
+                              >
+                                <img
+                                  src={urls[0]}
+                                  alt="attachment thumbnail"
+                                  className="w-full h-full object-cover"
+                                />
+                                {urls.length > 1 && (
+                                  <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-[10px] font-black text-white uppercase tracking-wider">
+                                    +{urls.length - 1} More
+                                  </div>
                                 )}
-                                <p className="text-sm text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
-                                  {body}
-                                </p>
-                              </>
-                            );
-                          })()}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Image Attachment (RESTYLED: object-contain with max-height to fix oversizing) */}
-                        {post.attachment_url && (
-                          <div className="mt-3">
-                            {(() => {
-                              const urls = post.attachment_url.split(',').filter(Boolean);
-                              if (urls.length === 0) return null;
-                              if (urls.length === 1) {
-                                return (
-                                  <div 
-                                    className="rounded-2xl border border-slate-100 dark:border-slate-800/60 overflow-hidden bg-slate-50 dark:bg-slate-950/20 max-h-[480px] flex items-center justify-center animate-fade-in cursor-pointer hover:opacity-95 transition-all"
-                                    onClick={() => setLightboxImage(urls[0])}
-                                  >
-                                    <img
-                                      src={urls[0]}
-                                      alt="post attachment"
-                                      className="w-full max-h-[480px] object-contain rounded-2xl"
-                                      onError={(e) => { e.target.parentElement.style.display = "none"; }}
-                                    />
-                                  </div>
-                                );
-                              }
-                              return (
-                                <div className="grid grid-cols-3 gap-2.5 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 p-2 animate-fade-in">
-                                  {urls.map((url, i) => (
-                                    <div 
-                                      key={i} 
-                                      className="relative aspect-square sm:aspect-video rounded-xl overflow-hidden shrink-0 cursor-pointer"
-                                      onClick={() => setLightboxImage(url)}
-                                    >
-                                      <img src={url} alt={`attachment-${i}`} className="w-full h-full object-cover hover:scale-[1.03] transition-transform duration-200" />
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            })()}
-                          </div>
-                        )}
-
-                        {/* Card footer (Likes, Comments, Share) */}
-                        <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/40 mt-4 text-slate-400">
-                          <div className="flex items-center gap-6">
+                        {/* Card footer */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/40 mt-1 text-slate-400">
+                          <div className="flex items-center gap-5">
                             <button
                               onClick={() => likeMutation.mutate(post.id)}
-                              className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 transition-all ${post.liked
-                                ? "text-rose-500 animate-pulse"
+                              className={`group/like inline-flex items-center gap-1 text-[11px] font-semibold py-1 transition-all ${post.liked
+                                ? "text-rose-500"
                                 : "text-gray-400 hover:text-rose-500"
                                 }`}
                             >
                               <Heart
-                                className={`w-4 h-4 transition-all group-active/like:scale-125 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                                className={`w-3.5 h-3.5 transition-all group-active/like:scale-120 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
                               />
                               <span>{post.like_count || 0}</span>
                             </button>
 
-                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400">
-                              <MessageSquare className="w-4 h-4 text-violet-500" />
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400">
+                              <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
                               <span>0</span>
                             </span>
                           </div>
@@ -652,10 +674,10 @@ export default function ForumPage() {
                               navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
                               showSuccess("Link copied to clipboard!");
                             }}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-405 hover:text-indigo-650 transition-colors"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-405 hover:text-indigo-650 transition-colors"
                             title="Copy link to post"
                           >
-                            <Share2 className="w-4 h-4" />
+                            <Share2 className="w-3.5 h-3.5" />
                             <span>Share</span>
                           </button>
                         </div>
@@ -669,64 +691,64 @@ export default function ForumPage() {
         </div>
 
         {/* Right column: Sticky Sidebar (Directory, Quick management) */}
-        <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-3xl p-5 shadow-[0_2px_12px_rgba(30,50,80,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-5">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800/80 pb-3">
+        <div className="lg:col-span-1 space-y-5 lg:sticky lg:top-24">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800/80 pb-2.5">
               <div className="flex items-center gap-2">
-                <Users className="w-4.5 h-4.5 text-violet-500" />
-                <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Forum Roster</h2>
+                <Users className="w-4 h-4 text-violet-500" />
+                <h2 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Forum Roster</h2>
               </div>
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400">
+              <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-655 dark:text-violet-405">
                 {memberList.length}
               </span>
             </div>
 
-            {/* Inline Quick Add Roster (for HOD) */}
+            {/* Inline Quick Add Roster */}
             {isHOD && (
               <button
                 onClick={() => setPickerOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-dashed border-violet-200 dark:border-violet-800/40 text-violet-650 dark:text-violet-400 text-xs font-bold hover:bg-violet-50 dark:hover:bg-violet-950/20 hover:border-violet-400 transition-all active:scale-98"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-violet-200 dark:border-violet-800/40 text-violet-650 dark:text-violet-400 text-xs font-bold hover:bg-violet-50 dark:hover:bg-violet-950/20 hover:border-violet-400 transition-all active:scale-98"
               >
-                <Plus className="w-4 h-4" /> Add Forum Member
+                <Plus className="w-3.5 h-3.5" /> Add Forum Member
               </button>
             )}
 
             {/* Roster Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search forum members..."
                 value={memberSearchQuery}
                 onChange={(e) => setMemberSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-9 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+                className="w-full pl-8.5 pr-8.5 py-1.8 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
               />
               {memberSearchQuery && (
                 <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-650">
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                 </button>
               )}
             </div>
 
             {/* Roster Members List (Sidebar view) */}
-            <div className="space-y-3.5 max-h-[380px] overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
               {filteredMembers.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-6 italic">No members found</p>
+                <p className="text-xs text-gray-400 text-center py-5 italic">No members found</p>
               ) : (
                 filteredMembers.map(m => (
                   <div
                     key={m.id}
-                    className="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800/20 hover:bg-gray-100/80 dark:hover:bg-gray-805 transition-all border border-gray-100/60 dark:border-gray-800/10"
+                    className="flex items-center justify-between gap-2.5 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/20 hover:bg-gray-100/80 dark:hover:bg-gray-805 transition-all border border-gray-100/60 dark:border-gray-850/10"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-gray-100 dark:ring-gray-800 shrink-0 w-8 h-8" />
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-1 ring-gray-100 dark:ring-gray-800 shrink-0 w-7.5 h-7.5" />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wide">
+                          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wide">
                             {m.class_name?.replace("_", " ")}
                           </span>
-                          <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.2 rounded">
+                          <span className="text-[8px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.2 rounded">
                             {m.role}
                           </span>
                         </div>
@@ -771,7 +793,7 @@ export default function ForumPage() {
         fetchFn={(search) => listEligibleStudents(search).then(r => r.data.students)}
         onPick={(student) => { setPendingStudent(student); setPickerOpen(false); }}
         placeholder="Search students by name, email, roll…"
-        emptyText="No eligible students found (not already members)."
+        emptyText="No eligible students found."
       />
 
       {/* ── Role Selection Modal ── */}
@@ -849,7 +871,7 @@ export default function ForumPage() {
         </Modal>
       )}
 
-      {/* ── Members Directory Modal (Fallback for smaller viewports) ── */}
+      {/* ── Members Directory Modal ── */}
       <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory">
         <div className="space-y-4 pt-1">
           {/* Member Search */}
@@ -860,7 +882,7 @@ export default function ForumPage() {
               placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-105 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+              className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-105 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
             />
             {memberSearchQuery && (
               <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
@@ -901,7 +923,7 @@ export default function ForumPage() {
                       <button
                         onClick={() => removeMutation.mutate(m.id)}
                         disabled={removeMutation.isPending}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-505 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-505 hover:bg-red-55 transition-colors"
                         title="Remove member"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -915,7 +937,7 @@ export default function ForumPage() {
         </div>
       </Modal>
 
-      {/* ── Create Forum Post Modal (Keeping fallback / triggers) ── */}
+      {/* ── Create Forum Post Modal ── */}
       <Modal open={postModalOpen} onClose={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }} title="Create Forum Post">
         <div className="space-y-4 pt-1">
           <div className="flex items-center gap-3">
@@ -931,7 +953,7 @@ export default function ForumPage() {
             onChange={(e) => setNewPost(e.target.value)}
             placeholder="Share something with the forum..."
             rows={4}
-            className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-101 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
+            className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-101 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
           />
 
           {/* Previews */}
@@ -957,7 +979,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-505 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-755 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-505 hover:text-gray-700 dark:hover:text-gray-305 hover:bg-gray-55 transition-all"
             >
               <Image className="w-3.5 h-3.5 text-violet-500" />
               Add Image
@@ -1026,25 +1048,57 @@ export default function ForumPage() {
         danger
       />
 
-      {/* ── Image Lightbox Modal overlay ── */}
-      {lightboxImage && (
+      {/* ── Image Lightbox Modal with Gallery Navigation ── */}
+      {lightboxImages.length > 0 && (
         <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
-          onClick={() => setLightboxImage(null)}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setLightboxImages([])}
         >
+          {/* Close button */}
           <button 
-            onClick={() => setLightboxImage(null)}
-            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            onClick={() => setLightboxImages([])}
+            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[10000]"
           >
             <X className="w-6 h-6" />
           </button>
-          <div className="max-w-[95vw] max-h-[90vh] flex items-center justify-center p-4">
+
+          {/* Navigation Arrows */}
+          {lightboxImages.length > 1 && (
+            <>
+              <button
+                className="absolute left-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[10000] focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+                }}
+              >
+                <span className="text-3xl font-black leading-none">&lsaquo;</span>
+              </button>
+              <button
+                className="absolute right-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[10000] focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+                }}
+              >
+                <span className="text-3xl font-black leading-none">&rsaquo;</span>
+              </button>
+            </>
+          )}
+
+          {/* Large image view */}
+          <div className="max-w-[95vw] max-h-[85vh] flex flex-col items-center justify-center p-4">
             <img 
-              src={lightboxImage} 
-              alt="Lightbox attachment" 
-              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl animate-zoom-in"
+              src={lightboxImages[lightboxIndex]} 
+              alt="Lightbox view" 
+              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl animate-zoom-in"
               onClick={(e) => e.stopPropagation()}
             />
+            {lightboxImages.length > 1 && (
+              <span className="text-white/60 text-xs font-bold mt-4 select-none bg-black/40 px-3 py-1 rounded-full border border-white/5">
+                {lightboxIndex + 1} / {lightboxImages.length}
+              </span>
+            )}
           </div>
         </div>
       )}
