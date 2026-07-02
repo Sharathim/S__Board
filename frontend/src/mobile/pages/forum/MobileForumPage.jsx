@@ -13,7 +13,7 @@ import { Avatar } from "../../../components/ui/Avatar";
 import { SearchPicker } from "../../../components/shared/SearchPicker";
 import {
   MessageSquare, Heart, Trash2, Edit2, Clock,
-  Calendar, Plus, Image, X, UserPlus, Share2, Users, Crown
+  Calendar, Plus, Image, X, UserPlus, Share2, Users, Crown, Search
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
