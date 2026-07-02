@@ -11,9 +11,10 @@ import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 import { Avatar } from "../../components/ui/Avatar";
 import { parseUpdateContent } from "../../utils/updateContent";
+import MailComposerModal from "./MailComposerModal";
 import {
   FolderKanban, TrendingUp, Users, CheckCircle,
-  Clock, MessageSquare, Megaphone, Heart, ChevronRight, Eye
+  Clock, MessageSquare, Megaphone, Heart, ChevronRight, Eye, Mail
 } from "lucide-react";
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
@@ -314,6 +315,7 @@ function LatestUpdateCard({ updates }) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["project-stats"],
@@ -431,9 +433,18 @@ export default function DashboardPage() {
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium">
             Here's what's happening in your department today.
           </p>
-          {/* Desktop-only Live Clock inside the Banner */}
-          <div className="hidden md:block pt-3">
+          {/* Live Clock inside the Banner */}
+          <div className="pt-3 flex flex-col sm:flex-row sm:items-center gap-3">
             <LiveClockCard inline={true} />
+            {(user?.role === "HOD" || user?.role === "FACULTY") && (
+              <button
+                onClick={() => setIsMailModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-indigo-650 bg-indigo-50/50 hover:bg-indigo-100/60 dark:text-indigo-400 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/40 rounded-xl border border-indigo-100/40 dark:border-indigo-850/40 transition-colors w-fit"
+              >
+                <Mail className="w-4 h-4 shrink-0" />
+                Send Mail to Hive
+              </button>
+            )}
           </div>
         </div>
         <div className="shrink-0 z-10 hidden md:block">
@@ -455,7 +466,7 @@ export default function DashboardPage() {
               style={{ textDecoration: "none" }}
             >
               {/* Desktop layout: Icon and count on the same line */}
-              <div className="flex items-center justify-between w-full md:flex-row md:items-center">
+              <div className="flex items-center justify-between w-auto md:w-full md:flex-row md:items-center">
                 <div
                   className="w-8 h-8 sm:w-9 sm:h-9 md:w-7 md:h-7 rounded-lg sm:rounded-xl md:rounded-lg flex items-center justify-center shrink-0"
                   style={{ backgroundColor: card.iconBg, color: card.iconColor }}
@@ -516,6 +527,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <MailComposerModal isOpen={isMailModalOpen} onClose={() => setIsMailModalOpen(false)} />
     </div>
   );
 }
