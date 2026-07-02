@@ -708,7 +708,7 @@ export default function ForumPage() {
             {isHOD && (
               <button
                 onClick={() => setPickerOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-violet-200 dark:border-violet-800/40 text-violet-650 dark:text-violet-400 text-xs font-bold hover:bg-violet-50 dark:hover:bg-violet-950/20 hover:border-violet-400 transition-all active:scale-98"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 hover:shadow-lg active:scale-95 active:translate-y-[1px]"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Forum Member
               </button>

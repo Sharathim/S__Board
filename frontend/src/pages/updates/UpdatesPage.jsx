@@ -265,6 +265,32 @@ export default function UpdatesPage() {
   const [openKebabId, setOpenKebabId] = useState(null);
   const [selectedCoordForRemove, setSelectedCoordForRemove] = useState(null);
 
+  // Compact states & gallery modal
+  const [expandedUpdateIds, setExpandedUpdateIds] = useState({});
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const handleOpenLightbox = (urls, index) => {
+    setLightboxImages(urls);
+    setLightboxIndex(index);
+  };
+
+  // Keyboard navigation for Lightbox
+  useEffect(() => {
+    if (lightboxImages.length === 0) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight") {
+        setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+      } else if (e.key === "Escape") {
+        setLightboxImages([]);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxImages]);
+
   // Form compose states
   const [compType, setCompType] = useState("Announcement");
   const [compTitle, setCompTitle] = useState("");
@@ -750,120 +776,169 @@ export default function UpdatesPage() {
           </p>
         </div>
       ) : (
-        <div className="updates-feed-container space-y-6">
+        <div className="updates-feed-container space-y-4">
           {finalUpdates.map(update => {
             const parsed = parseAnnouncementContent(update.content);
             const urls = update.attachment_url ? update.attachment_url.split(',').filter(Boolean) : [];
+            const imageUrls = urls.filter(url => getFileType(url) === "image");
+            const otherUrls = urls.filter(url => getFileType(url) !== "image");
+            const hasImages = imageUrls.length > 0;
 
             return (
               <article
                 key={update.id}
-                className="update-card mx-auto p-4 sm:p-[16px] md:p-5 mb-5 flex flex-col justify-between"
+                className="update-card mx-auto p-4 sm:p-5 mb-4 flex flex-col justify-between"
               >
-                {/* Header */}
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
-                      {(parsed.department || "D").charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400 leading-none">
-                        {parsed.department || "PG Department of Computer Science"}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-505 dark:text-gray-400 uppercase tracking-wider leading-none">
-                        {parsed.update_type || "Announcement"}
-                      </span>
-                      <span className="text-xs text-gray-450 dark:text-gray-500 flex items-center gap-1.5 ml-1.5 leading-none">
-                        <Clock className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        {formatTime(update.created_at)}
-                      </span>
-                    </div>
-                  </div>
+                <div className={hasImages ? "grid grid-cols-1 md:grid-cols-10 gap-5" : "w-full"}>
+                  
+                  {/* Left Content Area */}
+                  <div className={hasImages ? "col-span-1 md:col-span-7 flex flex-col justify-between min-w-0" : "w-full min-w-0"}>
+                    <div>
+                      {/* Header */}
+                      <div className="flex items-center justify-between gap-3 mb-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-8 h-8 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
+                            {(parsed.department || "D").charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap min-w-0 leading-none">
+                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">
+                              {parsed.department || "PG Department of Computer Science"}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-505 dark:text-gray-450 uppercase tracking-wider">
+                              {parsed.update_type || "Announcement"}
+                            </span>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-gray-400" />
+                              {formatTime(update.created_at)}
+                            </span>
+                          </div>
+                        </div>
 
-                  {/* Actions Kebab Menu for Coordinators & HOD */}
-                  {(isHOD || (isUpdateCoordinator && update.posted_by === user?.id)) && (
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-605 dark:hover:text-gray-250 transition-colors"
-                      >
-                        <span className="text-lg font-bold tracking-widest leading-none block -mt-1">...</span>
-                      </button>
-                      {openKebabId === update.id && (
-                        <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg z-20 py-1">
-                          {update.posted_by === user?.id && (
+                        {/* Actions Kebab Menu for Coordinators & HOD */}
+                        {(isHOD || (isUpdateCoordinator && update.posted_by === user?.id)) && (
+                          <div className="relative shrink-0">
                             <button
                               type="button"
-                              onClick={() => { openEditModal(update); setOpenKebabId(null); }}
-                              className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                              onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
+                              className="p-1 rounded-lg text-gray-400 hover:text-gray-605 dark:hover:text-gray-250 transition-colors"
                             >
-                              <Edit2 className="w-3.5 h-3.5" /> Edit
+                              <span className="text-lg font-bold tracking-widest leading-none block -mt-1">...</span>
                             </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => { setDeleteTarget(update.id); setOpenKebabId(null); }}
-                            className="w-full text-left px-4 py-2 text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 flex items-center gap-2"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" /> Delete
-                          </button>
-                        </div>
+                            {openKebabId === update.id && (
+                              <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg z-20 py-1">
+                                {update.posted_by === user?.id && (
+                                  <button
+                                    type="button"
+                                    onClick={() => { openEditModal(update); setOpenKebabId(null); }}
+                                    className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" /> Edit
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => { setDeleteTarget(update.id); setOpenKebabId(null); }}
+                                  className="w-full text-left px-4 py-2 text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 flex items-center gap-2"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      {parsed.title && (
+                        <h2 className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-white leading-snug line-clamp-2">
+                          {parsed.title}
+                        </h2>
                       )}
+
+                      {/* Description with Read More Toggle */}
+                      {(() => {
+                        const isExpanded = !!expandedUpdateIds[update.id];
+                        const hasLongDesc = parsed.description.length > 200;
+                        return (
+                          <p className="text-xs sm:text-sm text-gray-750 dark:text-gray-350 leading-relaxed mb-3 break-words">
+                            {isExpanded ? parsed.description : (hasLongDesc ? parsed.description.slice(0, 200) + "..." : parsed.description)}
+                            {hasLongDesc && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedUpdateIds(prev => ({ ...prev, [update.id]: !prev[update.id] }))}
+                                className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
+                              >
+                                {isExpanded ? "Show Less" : "Read More"}
+                              </button>
+                            )}
+                          </p>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Non-image attachments (Videos / PDFs) */}
+                    {otherUrls.length > 0 && (
+                      <div className="mb-3">
+                        <CardMediaRenderer urls={otherUrls} />
+                      </div>
+                    )}
+
+                    {/* Footer Date, Location & Like */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
+                      {(parsed.update_type === "Event" || parsed.date_time || parsed.location) ? (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-405">
+                          {parsed.date_time && (
+                            <span className="flex items-center gap-1 shrink-0">
+                              <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                              {formatEventDate(parsed.date_time)}
+                            </span>
+                          )}
+                          {parsed.location && (
+                            <span className="flex items-center gap-1 truncate max-w-[150px] sm:max-w-none">
+                              <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                              {parsed.location}
+                            </span>
+                          )}
+                        </div>
+                      ) : <div />}
+
+                      <button
+                        type="button"
+                        onClick={() => likeMutation.mutate(update.id)}
+                        className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 transition-all ${
+                          update.liked ? "text-rose-500 animate-pulse" : "text-gray-400 hover:text-rose-500"
+                        }`}
+                      >
+                        <Heart
+                          className={`w-3.5 h-3.5 transition-all ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                        />
+                        <span>{update.like_count || 0}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right Image Thumbnail Block (Desktop Split, Mobile stack) */}
+                  {hasImages && (
+                    <div className="col-span-1 md:col-span-3 flex flex-col justify-center">
+                      <div 
+                        className="relative rounded-2xl overflow-hidden border border-gray-105 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950/20 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer"
+                        onClick={() => handleOpenLightbox(imageUrls, 0)}
+                      >
+                        <img 
+                          src={imageUrls[0]} 
+                          alt="thumbnail" 
+                          className="w-full h-36 md:h-28 object-cover rounded-xl hover:scale-[1.02] transition-transform duration-300" 
+                        />
+                        {imageUrls.length > 1 && (
+                          <div className="absolute inset-0.5 bg-black/60 rounded-xl flex flex-col items-center justify-center text-white gap-0.5">
+                            <span className="text-base font-black">+{imageUrls.length - 1}</span>
+                            <span className="text-[9px] font-black uppercase tracking-wider text-white/80">More Photos</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
-                </div>
 
-                {/* Title */}
-                {parsed.title && (
-                  <h2 className="text-[19px] md:text-[21px] font-black tracking-tight mb-2 text-gray-900 dark:text-white leading-snug line-clamp-2">
-                    {parsed.title}
-                  </h2>
-                )}
-
-                {/* Description */}
-                <p className="text-[15px] text-gray-750 dark:text-gray-350 leading-relaxed mb-4 line-clamp-3">
-                  {parsed.description}
-                </p>
-
-                {/* Media Renderer */}
-                {urls.length > 0 && (
-                  <div className="mb-4 w-full">
-                    <CardMediaRenderer urls={urls} />
-                  </div>
-                )}
-
-                {/* Date & Location Row */}
-                {(parsed.update_type === "Event" || parsed.date_time || parsed.location) && (
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs font-semibold text-gray-505 dark:text-gray-400">
-                    {parsed.date_time && (
-                      <span className="flex items-center gap-1.5 shrink-0">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        {formatEventDate(parsed.date_time)}
-                      </span>
-                    )}
-                    {parsed.location && (
-                      <span className="flex items-center gap-1.5 truncate">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        {parsed.location}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Footer containing only Like button aligned to the left */}
-                <div className="flex items-center pt-2.5 border-t border-gray-100 dark:border-gray-800/60 mt-auto">
-                  <button
-                    onClick={() => likeMutation.mutate(update.id)}
-                    className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1.5 transition-all ${
-                      update.liked ? "text-rose-500" : "text-gray-400 hover:text-rose-500"
-                    }`}
-                  >
-                    <Heart
-                      className={`w-4 h-4 transition-all ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                    />
-                    <span>{update.like_count || 0}</span>
-                  </button>
                 </div>
               </article>
             );
@@ -1111,6 +1186,62 @@ export default function UpdatesPage() {
         placeholder="Search faculty or forum members…"
         emptyText="No eligible faculty or forum members found."
       />
+
+      {/* ── Image Lightbox Modal with Gallery Navigation ── */}
+      {lightboxImages.length > 0 && createPortal(
+        <div 
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
+          onClick={() => setLightboxImages([])}
+        >
+          {/* Close button */}
+          <button 
+            onClick={() => setLightboxImages([])}
+            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[100000]"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Navigation Arrows */}
+          {lightboxImages.length > 1 && (
+            <>
+              <button
+                className="absolute left-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[100000] focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+                }}
+              >
+                <span className="text-3xl font-black leading-none">&lsaquo;</span>
+              </button>
+              <button
+                className="absolute right-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[100000] focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+                }}
+              >
+                <span className="text-3xl font-black leading-none">&rsaquo;</span>
+              </button>
+            </>
+          )}
+
+          {/* Large image view */}
+          <div className="max-w-[95vw] max-h-[85vh] flex flex-col items-center justify-center p-4">
+            <img 
+              src={lightboxImages[lightboxIndex]} 
+              alt="Lightbox view" 
+              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl animate-zoom-in"
+              onClick={(e) => e.stopPropagation()}
+            />
+            {lightboxImages.length > 1 && (
+              <span className="text-white/60 text-xs font-bold mt-4 select-none bg-black/40 px-3 py-1 rounded-full border border-white/5">
+                {lightboxIndex + 1} / {lightboxImages.length}
+              </span>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
 
     </div>
   );
