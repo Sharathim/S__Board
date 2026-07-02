@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { createPortal } from "react-dom";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
 
@@ -446,14 +447,14 @@ export default function MobileForumPage() {
       )}
 
       {/* ── Image Lightbox Modal Overlay (Mobile with gallery navigation) ── */}
-      {lightboxImages.length > 0 && (
+      {lightboxImages.length > 0 && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm"
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm"
           onClick={() => setLightboxImages([])}
         >
           <button 
             onClick={() => setLightboxImages([])}
-            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 text-white z-[10000]"
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 text-white z-[100000]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -462,7 +463,7 @@ export default function MobileForumPage() {
           {lightboxImages.length > 1 && (
             <>
               <button
-                className="absolute left-3 p-3 rounded-full bg-white/5 active:bg-white/15 text-white z-[10000]"
+                className="absolute left-3 p-3 rounded-full bg-white/5 active:bg-white/15 text-white z-[100000]"
                 onClick={(e) => {
                   e.stopPropagation();
                   setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
@@ -471,7 +472,7 @@ export default function MobileForumPage() {
                 <span className="text-2xl font-bold leading-none">&lsaquo;</span>
               </button>
               <button
-                className="absolute right-3 p-3 rounded-full bg-white/5 active:bg-white/15 text-white z-[10000]"
+                className="absolute right-3 p-3 rounded-full bg-white/5 active:bg-white/15 text-white z-[100000]"
                 onClick={(e) => {
                   e.stopPropagation();
                   setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
@@ -495,7 +496,8 @@ export default function MobileForumPage() {
               </span>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

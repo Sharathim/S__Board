@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { createPortal } from "react-dom";
 
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
 
@@ -1049,15 +1050,15 @@ export default function ForumPage() {
       />
 
       {/* ── Image Lightbox Modal with Gallery Navigation ── */}
-      {lightboxImages.length > 0 && (
+      {lightboxImages.length > 0 && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
           onClick={() => setLightboxImages([])}
         >
           {/* Close button */}
           <button 
             onClick={() => setLightboxImages([])}
-            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[10000]"
+            className="absolute top-5 right-5 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[100000]"
           >
             <X className="w-6 h-6" />
           </button>
@@ -1066,7 +1067,7 @@ export default function ForumPage() {
           {lightboxImages.length > 1 && (
             <>
               <button
-                className="absolute left-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[10000] focus:outline-none"
+                className="absolute left-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[100000] focus:outline-none"
                 onClick={(e) => {
                   e.stopPropagation();
                   setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
@@ -1075,7 +1076,7 @@ export default function ForumPage() {
                 <span className="text-3xl font-black leading-none">&lsaquo;</span>
               </button>
               <button
-                className="absolute right-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[10000] focus:outline-none"
+                className="absolute right-5 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-[100000] focus:outline-none"
                 onClick={(e) => {
                   e.stopPropagation();
                   setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
@@ -1100,7 +1101,8 @@ export default function ForumPage() {
               </span>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
