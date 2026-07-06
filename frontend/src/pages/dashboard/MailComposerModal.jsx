@@ -176,7 +176,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
           <div className="flex items-center gap-2 py-2.5 border-b border-slate-100 dark:border-slate-800/60">
             <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 w-16 shrink-0">From:</span>
             <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              {smtpStatus.smtp_user ? `S-DESK Board <${smtpStatus.smtp_user}>` : "S-DESK Board Administrator"}
+              {smtpStatus.smtp_user ? `HIVE Board <${smtpStatus.smtp_user}>` : "HIVE Board Administrator"}
             </span>
           </div>
 

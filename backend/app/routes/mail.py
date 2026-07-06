@@ -31,7 +31,7 @@ def get_smtp_status():
 @require_auth
 def get_recipients():
     """
-    Query and return all active registered users in S-DESK, sorted by name, 
+    Query and return all active registered users in HIVE, sorted by name, 
     to populate the selected recipients UI.
     """
     if g.current_user.role not in [UserRole.HOD, UserRole.FACULTY]:
@@ -57,7 +57,7 @@ def get_recipients():
 @require_auth
 def send_mail():
     """
-    Sends email to a select segment or chosen lists of users inside the S-DESK hive.
+    Sends email to a select segment or chosen lists of users inside the HIVE.
     """
     if g.current_user.role not in [UserRole.HOD, UserRole.FACULTY]:
         return jsonify({"error": "Access denied"}), 403
@@ -170,14 +170,14 @@ def send_mail():
     <body>
         <div class="container">
             <div class="header">
-                <h1>S-DESK Department Announcement</h1>
+                <h1>HIVE Department Announcement</h1>
                 <div class="meta-badge">Sent by {sender_name} ({sender_role})</div>
             </div>
             <div class="content">
                 {formatted_body}
             </div>
             <div class="footer">
-                <p>This message was sent to you from the S-DESK Academic Management Board.</p>
+                <p>This message was sent to you from the HIVE Academic Management Board.</p>
                 <p style="margin-top: 8px; font-weight: bold; color: #475569;">Do not reply directly to this email.</p>
             </div>
         </div>
@@ -186,7 +186,7 @@ def send_mail():
     """
 
     plain_text_body = f"""
-    S-DESK Department Announcement
+    HIVE Department Announcement
     Sent by: {sender_name} ({sender_role})
     
     --------------------------------------------------
@@ -194,7 +194,7 @@ def send_mail():
     {body}
     
     --------------------------------------------------
-    This message was sent to you from the S-DESK Academic Management Board.
+    This message was sent to you from the HIVE Academic Management Board.
     Do not reply directly to this email.
     """
 
