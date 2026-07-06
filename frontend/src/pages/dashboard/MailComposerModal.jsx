@@ -356,15 +356,15 @@ export default function MailComposerModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-black/60 backdrop-blur-md animate-fade-in">
       
       {/* ========================================== */}
       {/*          DESKTOP CONTAINER LAYOUT          */}
       {/* ========================================== */}
-      <div className="hidden lg:flex relative w-full max-w-[1100px] h-[800px] max-h-[92vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[20px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
+      <div className="hidden lg:flex relative w-screen h-screen bg-white dark:bg-slate-900 shadow-none flex-col overflow-hidden transform transition-all animate-slide-up select-none">
         
         {/* Top Header */}
-        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900 mt-2">
+        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
             {/* Purple Megaphone Box */}
             <div className="w-12 h-12 rounded-[14px] flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 shrink-0">
