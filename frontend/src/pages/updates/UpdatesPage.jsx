@@ -16,7 +16,7 @@ import {
   Megaphone, Plus, Heart, Edit2, Trash2, X,
   Search, Calendar, FileText, Image, ArrowUpRight,
   AlertCircle, CheckCircle2, Clock, MapPin, ChevronRight,
-  TrendingUp, Award, Globe, MessageSquare, Share2
+  TrendingUp, Award, Globe, MessageSquare, Share2, Users
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -264,6 +264,7 @@ export default function UpdatesPage() {
   const [coordPickerOpen, setCoordPickerOpen] = useState(false);
   const [openKebabId, setOpenKebabId] = useState(null);
   const [selectedCoordForRemove, setSelectedCoordForRemove] = useState(null);
+  const [showViewCoordsModal, setShowViewCoordsModal] = useState(false);
 
   // Compact states & gallery modal
   const [expandedUpdateIds, setExpandedUpdateIds] = useState({});
@@ -544,7 +545,7 @@ export default function UpdatesPage() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12 w-full">
+    <div className="animate-fade-in pb-12 w-full">
 
       {/* Toast Notifications */}
       {successMessage && (
@@ -562,7 +563,7 @@ export default function UpdatesPage() {
 
       {/* ─── Page Header Row & Actions ─── */}
       {/* Desktop Header Row (Hidden on Mobile) */}
-      <div className="hidden sm:flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3">
+      <div className="hidden sm:flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
         <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
         <div className="flex items-center gap-2">
           {/* Coordinator Avatars (Desktop) */}
@@ -628,9 +629,9 @@ export default function UpdatesPage() {
       </div>
 
       {/* Mobile Actions/Coordinators Row (Only shown on mobile) */}
-      <div className="sm:hidden flex items-center justify-between gap-2 mt-1">
-        {/* Render Coordinator profiles + Button for HOD */}
-        {isHOD ? (
+      {isHOD && (
+        <div className="sm:hidden flex items-center justify-between gap-2 mt-1 mb-6">
+          {/* Render Coordinator profiles + Button for HOD */}
           <div className="flex items-center justify-between w-full gap-3">
             {/* Left: profiles */}
             <div className="flex items-center -space-x-1.5 shrink-0">
@@ -676,50 +677,11 @@ export default function UpdatesPage() {
               <Plus className="w-3.5 h-3.5" /> Coordinator
             </button>
           </div>
-        ) : (
-          /* For non-HOD, but is coordinator: show profiles */
-          isUpdateCoordinator && coordData?.coordinators && coordData.coordinators.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center -space-x-1.5">
-                {coordData.coordinators.map(coord => {
-                  const isSelected = selectedCoordForRemove === `${coord.kind}-${coord.ref_id}`;
-                  return (
-                    <div key={`${coord.kind}-${coord.ref_id}`} className="relative shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCoordForRemove(isSelected ? null : `${coord.kind}-${coord.ref_id}`)}
-                        className="block rounded-full ring-2 ring-white dark:ring-slate-900 overflow-hidden focus:outline-none"
-                        title={coord.name}
-                      >
-                        <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-7 h-7 rounded-full" />
-                      </button>
-                      {isSelected && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
-                          <span className="text-slate-400 dark:text-slate-500 font-medium px-1">Coordinator</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )
-        )}
-        
-        {isUpdateCoordinator && (
-          <button
-            type="button"
-            onClick={triggerCreateModal}
-            className="justify-center inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
-          >
-            <Plus className="w-3.5 h-3.5" /> Create
-          </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Filter Bar (Reverse column order on mobile to show search on top of tabs) */}
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-805 pb-2.5 mt-2">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-150 dark:border-gray-805 pb-2.5 mt-2 mb-6">
         {/* Filter Tabs (responsive wrapping, no scrolling on mobile) */}
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 shrink-0">
           {[
@@ -1238,6 +1200,90 @@ export default function UpdatesPage() {
                 {lightboxIndex + 1} / {lightboxImages.length}
               </span>
             )}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Mobile Floating Actions for Update Coordinators */}
+      {isUpdateCoordinator && !isHOD && (
+        <div className="sm:hidden fixed bottom-[80px] right-4 z-40 flex flex-col gap-3">
+          {/* View Coordinators Floating Button */}
+          <button
+            type="button"
+            onClick={() => setShowViewCoordsModal(true)}
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 text-violet-600 dark:text-violet-400 shadow-xl border border-slate-200/80 dark:border-slate-700 active:scale-95 transition-all"
+            title="View Coordinators"
+          >
+            <Users className="w-5.5 h-5.5" />
+          </button>
+          
+          {/* Add Update Floating Button */}
+          <button
+            type="button"
+            onClick={triggerCreateModal}
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-violet-600 hover:bg-violet-750 text-white shadow-xl shadow-violet-500/25 active:scale-95 transition-all"
+            title="Create Update"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </div>
+      )}
+
+      {/* ── View Coordinators Modal (React Portal) ── */}
+      {showViewCoordsModal && createPortal(
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-[5px] p-4 animate-fade-in"
+          onClick={() => setShowViewCoordsModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl shadow-2xl border border-gray-155 dark:border-gray-700/60 flex flex-col overflow-hidden transition-all duration-200 animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-155 dark:border-gray-700/60 shrink-0">
+              <div>
+                <h3 className="text-base font-black text-gray-900 dark:text-white">
+                  Update Coordinators
+                </h3>
+                <p className="text-[11px] text-gray-450 dark:text-gray-500">List of coordinators assigned to post updates.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowViewCoordsModal(false)}
+                className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* List */}
+            <div className="p-5 max-h-[60vh] overflow-y-auto space-y-3">
+              {coordData?.coordinators && coordData.coordinators.length > 0 ? (
+                coordData.coordinators.map(coord => (
+                  <div key={`${coord.kind}-${coord.ref_id}`} className="flex items-center gap-3 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
+                    <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-slate-850 dark:text-slate-200 truncate">{coord.name}</p>
+                      <p className="text-[10px] text-slate-405 dark:text-slate-500 font-medium capitalize">{coord.kind.toLowerCase()} Coordinator</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-center text-gray-400 py-4">No coordinators assigned.</p>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3.5 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-150 dark:border-gray-700/60 flex items-center justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowViewCoordsModal(false)}
+                className="px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>,
         document.body
