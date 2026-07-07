@@ -15,14 +15,14 @@ import { useState } from "react";
 
 // ─── Class display metadata ────────────────────────────────────────────────
 const CLASS_META = {
-  UG_1A: { label: "UG 1A", short: "1A", level: "UG", year: 1, gradient: "from-violet-500 to-purple-600", ring: "ring-violet-200 dark:ring-violet-900/60", bg: "bg-violet-50 dark:bg-violet-900/20", text: "text-violet-700 dark:text-violet-300", border: "border-violet-200 dark:border-violet-800/50" },
-  UG_1B: { label: "UG 1B", short: "1B", level: "UG", year: 1, gradient: "from-blue-500 to-indigo-600", ring: "ring-blue-200 dark:ring-blue-900/60", bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-700 dark:text-blue-300", border: "border-blue-200 dark:border-blue-800/50" },
-  UG_2A: { label: "UG 2A", short: "2A", level: "UG", year: 2, gradient: "from-pink-500 to-rose-600", ring: "ring-pink-200 dark:ring-pink-900/60", bg: "bg-pink-50 dark:bg-pink-900/20", text: "text-pink-700 dark:text-pink-300", border: "border-pink-200 dark:border-pink-800/50" },
-  UG_2B: { label: "UG 2B", short: "2B", level: "UG", year: 2, gradient: "from-amber-500 to-orange-500", ring: "ring-amber-200 dark:ring-amber-900/60", bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-300", border: "border-amber-200 dark:border-amber-800/50" },
-  UG_3A: { label: "UG 3A", short: "3A", level: "UG", year: 3, gradient: "from-emerald-500 to-teal-600", ring: "ring-emerald-200 dark:ring-emerald-900/60", bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/50" },
-  UG_3B: { label: "UG 3B", short: "3B", level: "UG", year: 3, gradient: "from-cyan-500 to-sky-600", ring: "ring-cyan-200 dark:ring-cyan-900/60", bg: "bg-cyan-50 dark:bg-cyan-900/20", text: "text-cyan-700 dark:text-cyan-300", border: "border-cyan-200 dark:border-cyan-800/50" },
-  PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, gradient: "from-fuchsia-500 to-pink-600", ring: "ring-fuchsia-200 dark:ring-fuchsia-900/60", bg: "bg-fuchsia-50 dark:bg-fuchsia-900/20", text: "text-fuchsia-700 dark:text-fuchsia-300", border: "border-fuchsia-200 dark:border-fuchsia-800/50" },
-  PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, gradient: "from-indigo-500 to-blue-600", ring: "ring-indigo-200 dark:ring-indigo-900/60", bg: "bg-indigo-50 dark:bg-indigo-900/20", text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
+  UG_1A: { label: "UG 1A", short: "1A", level: "UG", year: 1, gradient: "from-violet-500 to-violet-600", ring: "ring-violet-200 dark:ring-violet-900/60", bg: "bg-violet-50 dark:bg-violet-900/20", text: "text-violet-700 dark:text-violet-300", border: "border-violet-200 dark:border-violet-800/50" },
+  UG_1B: { label: "UG 1B", short: "1B", level: "UG", year: 1, gradient: "from-blue-500 to-blue-600", ring: "ring-blue-200 dark:ring-blue-900/60", bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-700 dark:text-blue-300", border: "border-blue-200 dark:border-blue-800/50" },
+  UG_2A: { label: "UG 2A", short: "2A", level: "UG", year: 2, gradient: "from-pink-500 to-pink-600", ring: "ring-pink-200 dark:ring-pink-900/60", bg: "bg-pink-50 dark:bg-pink-900/20", text: "text-pink-700 dark:text-pink-300", border: "border-pink-200 dark:border-pink-800/50" },
+  UG_2B: { label: "UG 2B", short: "2B", level: "UG", year: 2, gradient: "from-amber-500 to-amber-600", ring: "ring-amber-200 dark:ring-amber-900/60", bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-300", border: "border-amber-200 dark:border-amber-800/50" },
+  UG_3A: { label: "UG 3A", short: "3A", level: "UG", year: 3, gradient: "from-emerald-500 to-emerald-600", ring: "ring-emerald-200 dark:ring-emerald-900/60", bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/50" },
+  UG_3B: { label: "UG 3B", short: "3B", level: "UG", year: 3, gradient: "from-cyan-500 to-cyan-600", ring: "ring-cyan-200 dark:ring-cyan-900/60", bg: "bg-cyan-50 dark:bg-cyan-900/20", text: "text-cyan-700 dark:text-cyan-300", border: "border-cyan-200 dark:border-cyan-800/50" },
+  PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, gradient: "from-fuchsia-500 to-fuchsia-600", ring: "ring-fuchsia-200 dark:ring-fuchsia-900/60", bg: "bg-fuchsia-50 dark:bg-fuchsia-900/20", text: "text-fuchsia-700 dark:text-fuchsia-300", border: "border-fuchsia-200 dark:border-fuchsia-800/50" },
+  PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, gradient: "from-indigo-500 to-indigo-600", ring: "ring-indigo-200 dark:ring-indigo-900/60", bg: "bg-indigo-50 dark:bg-indigo-900/20", text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
 };
 
 function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
@@ -40,22 +40,22 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
-          {/* Left Icon: Rounded square, 48x48, Radius: 14px, project primary color, Text: UG/PG, Bold, 18px */}
-          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0">
+          {/* Left Icon: Rounded square, 44x44, Radius: 12px, Text UG/PG 18px */}
+          <div className="w-11 h-11 rounded-[12px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0">
             {activeMeta.level}
           </div>
           {/* Title & Subtitle */}
           <div className="min-w-0">
-            <h3 className="text-[22px] font-[700] text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary transition-colors truncate">
+            <h3 className="text-[16px] font-[700] leading-[22px] text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate">
               {activeMeta.label}
             </h3>
-            <p className="text-[13px] text-gray-400 dark:text-gray-500 font-medium leading-none mt-1">
+            <p className="text-[13px] font-[500] text-[var(--text-secondary)] leading-none mt-[2px]">
               {activeMeta.level === "UG" ? "Undergraduate" : "Postgraduate"}
             </p>
           </div>
         </div>
         {c.can_view_details && (
-          <ChevronRight className="w-[18px] h-[18px] text-gray-400 dark:text-gray-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
+          <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
         )}
       </div>
 
@@ -68,46 +68,46 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
             onAssignIncharge(c.class_name);
           }
         }}
-        className={`flex items-center gap-3 h-[52px] bg-[#fafafa] dark:bg-slate-900/60 rounded-[12px] p-[12px_14px] border border-slate-100/50 dark:border-slate-800/40 transition-all ${
+        className={`flex items-center gap-3 h-[48px] bg-[#fafafa] dark:bg-slate-900/60 rounded-[10px] p-[10px_14px] border border-slate-100/50 dark:border-slate-800/40 transition-all ${
           isHOD
             ? "cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700/80"
             : ""
         }`}
       >
         {hasIncharge ? (
-          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6 h-6 ring-2 ring-primary/20 shrink-0" />
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-[34px] h-[34px] ring-2 ring-primary/20 shrink-0" />
         ) : (
-          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 shrink-0">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="w-[34px] h-[34px] rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 shrink-0">
+            <ShieldCheck className="w-4 h-4" />
           </div>
         )}
         <div className="min-w-0 flex-1 flex flex-col justify-center">
-          <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider leading-none">Class Incharge</span>
-          <span className={`text-[15px] font-semibold truncate mt-0.5 leading-none ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-gray-450 dark:text-gray-500 italic"}`}>
+          <span className="text-[10px] font-[600] tracking-[0.8px] text-[var(--text-muted)] uppercase leading-none">Class Incharge</span>
+          <span className={`text-[14px] font-[600] leading-[18px] truncate mt-[2px] ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-slate-400 dark:text-slate-500 italic"}`}>
             {hasIncharge ? c.incharge.name : "Not Assigned"}
           </span>
         </div>
       </div>
 
       {/* Statistics Block */}
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-[1.15fr_0.85fr] gap-2.5">
         {/* Students */}
-        <div className="h-[58px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[12px] p-2 px-3 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <Users className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
-            <span className="text-[18px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
-            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1 leading-none">Students</span>
+            <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
+            <span className="text-[10px] font-[600] tracking-[0.5px] text-[var(--text-muted)] uppercase mt-[2px] leading-none">Students</span>
           </div>
         </div>
 
         {/* Year / Forum Members */}
-        <div className="h-[58px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[12px] p-2 px-3 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
-            <span className="text-[18px] font-bold text-gray-800 dark:text-gray-250 leading-none">
+            <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">
               {c.forum_member_count !== undefined ? c.forum_member_count : `Year ${activeMeta.year}`}
             </span>
-            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1 leading-none">
+            <span className="text-[10px] font-[600] tracking-[0.5px] text-[var(--text-muted)] uppercase mt-[2px] leading-none">
               {c.forum_member_count !== undefined ? "Forum" : "Year"}
             </span>
           </div>
