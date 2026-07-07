@@ -120,6 +120,7 @@
   --shadow-card: var(--shadow-1);
   --shadow-md:   0 4px 6px rgba(15, 23, 42, 0.06);
   --shadow-lg:   0 10px 15px rgba(15, 23, 42, 0.08);
+  --border-color: var(--border-light);
 }
 
 .dark {
@@ -150,6 +151,7 @@
   --shadow-card: 0 4px 20px rgba(0,0,0,0.6);
   --shadow-md:   0 8px 32px rgba(0,0,0,0.7);
   --shadow-lg:   0 16px 48px rgba(0,0,0,0.8);
+  --border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
@@ -1024,3 +1026,35 @@ a, button { transition: all 0.15s ease; }
   border-color: rgba(139, 92, 246, 0.3) !important;
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.08) !important;
 }
+
+/* ─── Class Card Redesign ────────────────────────────────────────────────── */
+.class-card-redesign {
+  width: 100%;
+  max-width: 300px;
+  min-height: 250px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+.dark .class-card-redesign {
+  background-color: var(--surface);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.class-card-redesign:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.dark .class-card-redesign:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+

@@ -27,103 +27,98 @@ const CLASS_META = {
 
 function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   const hasIncharge = !!c.incharge;
+  const activeMeta = meta || {
+    label: c.class_name,
+    level: c.class_name.startsWith("PG") ? "PG" : "UG",
+    year: 1
+  };
 
   const cardContent = (
-    <div className={`group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between h-full relative ${c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
-      }`}>
-      <div className="p-4 flex flex-col flex-1 justify-between">
-        <div className="space-y-4">
-          {/* Header Row */}
-          <div className="flex items-center justify-between">
-            <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md ring-2 ring-offset-1 ${meta.ring} shrink-0`}>
-              <span className="text-sm font-extrabold text-white">{meta.short}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
-                {meta.level} · Year {meta.year}
-              </span>
-              {c.can_view_details && (
-                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-655 dark:group-hover:text-gray-300 transition-colors" />
-              )}
-            </div>
+    <div className={`group class-card-redesign mx-auto ${
+      c.can_view_details ? "cursor-pointer" : "opacity-80 cursor-default"
+    }`}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Left Icon: Rounded square, 48x48, Radius: 14px, project primary color, Text: UG/PG, Bold, 18px */}
+          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0">
+            {activeMeta.level}
           </div>
-
-          {/* Title */}
-          <div>
-            <h3 className="text-lg font-extrabold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary-650 dark:group-hover:text-primary-400 transition-colors">
-              {meta.label}
+          {/* Title & Subtitle */}
+          <div className="min-w-0">
+            <h3 className="text-[22px] font-[700] text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary transition-colors truncate">
+              {activeMeta.label}
             </h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">
-              {meta.level === "UG" ? "Undergraduate Programme" : "Postgraduate Programme"}
+            <p className="text-[13px] text-gray-400 dark:text-gray-500 font-medium leading-none mt-1">
+              {activeMeta.level === "UG" ? "Undergraduate" : "Postgraduate"}
             </p>
           </div>
+        </div>
+        {c.can_view_details && (
+          <ChevronRight className="w-[18px] h-[18px] text-gray-400 dark:text-gray-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
+        )}
+      </div>
 
-          {/* Class Incharge block */}
-          <div className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${hasIncharge
-              ? "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100/60 dark:border-emerald-900/30"
-              : "bg-slate-50/50 dark:bg-gray-900/30 border-slate-100/60 dark:border-gray-800/40 border-dashed"
-            }`}>
-            {hasIncharge ? (
-              <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="ring-2 ring-emerald-500/20" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-gray-800 border border-dashed border-slate-300 dark:border-gray-700 flex items-center justify-center text-gray-400">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Class Incharge</div>
-              <div className={`text-xs font-bold truncate ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-gray-400 dark:text-gray-550 italic"}`}>
-                {hasIncharge ? c.incharge.name : "Not assigned"}
-              </div>
-            </div>
+      {/* Class Incharge Info Block */}
+      <div
+        onClick={(e) => {
+          if (isHOD) {
+            e.preventDefault();
+            e.stopPropagation();
+            onAssignIncharge(c.class_name);
+          }
+        }}
+        className={`flex items-center gap-3 h-[52px] bg-[#fafafa] dark:bg-slate-900/60 rounded-[12px] p-[12px_14px] border border-slate-100/50 dark:border-slate-800/40 transition-all ${
+          isHOD
+            ? "cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700/80"
+            : ""
+        }`}
+      >
+        {hasIncharge ? (
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6 h-6 ring-2 ring-primary/20 shrink-0" />
+        ) : (
+          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5" />
           </div>
+        )}
+        <div className="min-w-0 flex-1 flex flex-col justify-center">
+          <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider leading-none">Class Incharge</span>
+          <span className={`text-[15px] font-semibold truncate mt-0.5 leading-none ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-gray-450 dark:text-gray-500 italic"}`}>
+            {hasIncharge ? c.incharge.name : "Not Assigned"}
+          </span>
+        </div>
+      </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2 rounded-xl flex items-center gap-2">
-              <Users className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
-              <div>
-                <div className="text-xs font-extrabold text-gray-800 dark:text-gray-200">{c.student_count ?? 0}</div>
-                <div className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">Students</div>
-              </div>
-            </div>
-
-            <div className="bg-slate-50/40 dark:bg-gray-900/20 border border-slate-100/60 dark:border-gray-800/40 p-2 rounded-xl flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-violet-500 dark:text-violet-400 shrink-0" />
-              <div>
-                <div className="text-xs font-extrabold text-gray-800 dark:text-gray-200">
-                  {c.forum_member_count !== undefined ? c.forum_member_count : meta.year}
-                </div>
-                <div className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase">
-                  {c.forum_member_count !== undefined ? "Forum" : "Year"}
-                </div>
-              </div>
-            </div>
+      {/* Statistics Block */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {/* Students */}
+        <div className="h-[58px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[12px] p-2 px-3 flex items-center gap-[10px]">
+          <Users className="w-[18px] h-[18px] text-primary shrink-0" />
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            <span className="text-[18px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1 leading-none">Students</span>
           </div>
         </div>
 
-        {/* Action Button for HOD */}
-        {isHOD && (
-          <div className="mt-4 pt-3.5 border-t border-dashed border-gray-100 dark:border-gray-700/50">
-            <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAssignIncharge(c.class_name); }}
-              className={`w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 border ${hasIncharge
-                  ? "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 border-amber-200 dark:border-amber-900/40"
-                  : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/40"
-                }`}
-            >
-              <Crown className="w-3.5 h-3.5" />
-              {hasIncharge ? `Change Incharge` : "Assign Incharge"}
-            </button>
+        {/* Year / Forum Members */}
+        <div className="h-[58px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[12px] p-2 px-3 flex items-center gap-[10px]">
+          <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            <span className="text-[18px] font-bold text-gray-800 dark:text-gray-250 leading-none">
+              {c.forum_member_count !== undefined ? c.forum_member_count : `Year ${activeMeta.year}`}
+            </span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1 leading-none">
+              {c.forum_member_count !== undefined ? "Forum" : "Year"}
+            </span>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 
   if (c.can_view_details) {
     return (
-      <Link to={`/classes/${c.class_name}`} className="block h-full">
+      <Link to={`/classes/${c.class_name}`} className="block">
         {cardContent}
       </Link>
     );
@@ -304,13 +299,13 @@ export default function ClassesPage() {
 
       {/* ── UG Classes ── */}
       {ugList.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate</span>
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Undergraduate</span>
             <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
             <span className="text-xs font-bold text-gray-400 dark:text-gray-505">{ugList.length} classes</span>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {ugList.map((c) => (
               <ClassCard
                 key={c.class_name}
@@ -326,13 +321,13 @@ export default function ClassesPage() {
 
       {/* ── PG Classes ── */}
       {pgList.length > 0 && (
-        <div className="space-y-4 pt-4">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Postgraduate</span>
             <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
             <span className="text-xs font-bold text-gray-400 dark:text-gray-550">{pgList.length} classes</span>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {pgList.map((c) => (
               <ClassCard
                 key={c.class_name}

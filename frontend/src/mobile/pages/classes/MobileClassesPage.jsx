@@ -99,71 +99,79 @@ export default function MobileClassesPage() {
 
 function ClassCardMobile({ c, meta }) {
   const hasIncharge = !!c.incharge;
+  const activeMeta = meta || {
+    label: c.class_name,
+    level: c.class_name.startsWith("PG") ? "PG" : "UG",
+    year: 1
+  };
+
   const content = (
-    <MobileCard>
-      <div className="flex items-start gap-3">
-        {/* Colored avatar chip */}
-        <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md shrink-0`}>
-          <span className="text-sm font-extrabold text-white">{meta.short}</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white">{meta.label}</h3>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400">
-              {meta.level} · Year {meta.year}
-            </span>
+    <MobileCard className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Left Icon: Rounded square, 48x48, Radius: 14px, project primary color, Text: UG/PG, Bold, 18px */}
+          <div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0">
+            {activeMeta.level}
           </div>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-            {meta.level === "UG" ? "Undergraduate Programme" : "Postgraduate Programme"}
-          </p>
+          {/* Title & Subtitle */}
+          <div className="min-w-0">
+            <h3 className="text-[20px] font-[700] text-gray-900 dark:text-white leading-tight tracking-tight truncate">
+              {activeMeta.label}
+            </h3>
+            <p className="text-[13px] text-gray-400 dark:text-gray-500 font-medium leading-none mt-1">
+              {activeMeta.level === "UG" ? "Undergraduate" : "Postgraduate"}
+            </p>
+          </div>
         </div>
+        {c.can_view_details && (
+          <ChevronRight className="w-[18px] h-[18px] text-gray-400 dark:text-gray-505 shrink-0" />
+        )}
       </div>
 
-      {/* Incharge */}
-      <div className={`flex items-center gap-3 p-2.5 rounded-xl border mt-3 ${
-        hasIncharge
-          ? "bg-emerald-50/50 dark:bg-emerald-950/10 border-emerald-100/60 dark:border-emerald-900/30"
-          : "bg-gray-50/50 dark:bg-slate-900/30 border-dashed border-gray-200 dark:border-slate-700"
-      }`}>
+      {/* Class Incharge Info Block */}
+      <div
+        className="flex items-center gap-3 h-[52px] bg-[#fafafa] dark:bg-slate-900/60 rounded-[12px] p-[12px_14px] border border-slate-100/50 dark:border-slate-800/40"
+      >
         {hasIncharge ? (
-          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="ring-2 ring-emerald-500/20 w-7 h-7" />
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6 h-6 ring-2 ring-primary/20 shrink-0" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-slate-800 border border-dashed border-gray-300 dark:border-slate-700 flex items-center justify-center">
-            <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
+          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5" />
           </div>
         )}
-        <div className="min-w-0">
-          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Class Incharge</span>
-          <span className={`text-xs font-bold truncate block ${hasIncharge ? "text-gray-700 dark:text-gray-200" : "text-gray-400 italic"}`}>
-            {hasIncharge ? c.incharge.name : "Not assigned"}
+        <div className="min-w-0 flex-1 flex flex-col justify-center">
+          <span className="text-[11px] font-medium text-gray-400 dark:text-gray-550 uppercase tracking-wider leading-none">Class Incharge</span>
+          <span className={`text-[15px] font-semibold truncate mt-0.5 leading-none ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-gray-450 dark:text-gray-500 italic"}`}>
+            {hasIncharge ? c.incharge.name : "Not Assigned"}
           </span>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <div className="bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700/50 p-2 rounded-xl flex items-center gap-2">
-          <Users className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-          <div>
-            <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{c.student_count ?? 0}</span>
-            <span className="text-[9px] text-gray-400 ml-1">Students</span>
+      {/* Statistics Block */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {/* Students */}
+        <div className="h-[58px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[12px] p-2 px-3 flex items-center gap-[10px]">
+          <Users className="w-[18px] h-[18px] text-primary shrink-0" />
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            <span className="text-[18px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1 leading-none">Students</span>
           </div>
         </div>
-        <div className="bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700/50 p-2 rounded-xl flex items-center gap-2">
-          <BookOpen className="w-3.5 h-3.5 text-violet-500 shrink-0" />
-          <div>
-            <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{meta.year}</span>
-            <span className="text-[9px] text-gray-400 ml-1">Year</span>
+
+        {/* Year / Forum Members */}
+        <div className="h-[58px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[12px] p-2 px-3 flex items-center gap-[10px]">
+          <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            <span className="text-[18px] font-bold text-gray-800 dark:text-gray-250 leading-none">
+              {c.forum_member_count !== undefined ? c.forum_member_count : `Year ${activeMeta.year}`}
+            </span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 font-bold uppercase mt-1 leading-none">
+              {c.forum_member_count !== undefined ? "Forum" : "Year"}
+            </span>
           </div>
         </div>
       </div>
-
-      {/* Chevron */}
-      {c.can_view_details && (
-        <div className="flex justify-end mt-2">
-          <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600" />
-        </div>
-      )}
     </MobileCard>
   );
 
