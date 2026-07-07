@@ -270,10 +270,151 @@ export default function UpdatesPage() {
   const [expandedUpdateIds, setExpandedUpdateIds] = useState({});
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd || lightboxImages.length <= 1) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    if (isLeftSwipe) {
+      setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+    } else if (isRightSwipe) {
+      setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+    }
+  };
 
   const handleOpenLightbox = (urls, index) => {
     setLightboxImages(urls);
     setLightboxIndex(index);
+  };
+
+  const renderImageGallery = (imageUrls) => {
+    if (!imageUrls || imageUrls.length === 0) return null;
+
+    const count = imageUrls.length;
+
+    if (count === 1) {
+      return (
+        <div 
+          className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/40 bg-slate-50 dark:bg-slate-900/20 cursor-pointer mb-4"
+          onClick={() => handleOpenLightbox(imageUrls, 0)}
+        >
+          <img 
+            src={imageUrls[0]} 
+            alt="update-media" 
+            className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300" 
+          />
+        </div>
+      );
+    }
+
+    if (count === 2) {
+      return (
+        <div className="grid grid-cols-2 gap-2 aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/40 bg-slate-50 dark:bg-slate-900/20 mb-4">
+          {imageUrls.slice(0, 2).map((url, idx) => (
+            <div 
+              key={idx} 
+              className="h-full overflow-hidden cursor-pointer"
+              onClick={() => handleOpenLightbox(imageUrls, idx)}
+            >
+              <img 
+                src={url} 
+                alt="update-media" 
+                className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300" 
+              />
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (count === 3) {
+      return (
+        <div className="grid grid-cols-3 gap-2 h-48 sm:h-64 w-full rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/40 bg-slate-50 dark:bg-slate-900/20 mb-4">
+          {/* Left Large Image */}
+          <div 
+            className="col-span-2 h-full overflow-hidden cursor-pointer"
+            onClick={() => handleOpenLightbox(imageUrls, 0)}
+          >
+            <img 
+              src={imageUrls[0]} 
+              alt="update-media" 
+              className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300" 
+            />
+          </div>
+          {/* Right Column Stack */}
+          <div className="col-span-1 flex flex-col gap-2 h-full">
+            {imageUrls.slice(1, 3).map((url, idx) => (
+              <div 
+                key={idx} 
+                className="h-[calc(50%-4px)] overflow-hidden cursor-pointer"
+                onClick={() => handleOpenLightbox(imageUrls, idx + 1)}
+              >
+                <img 
+                  src={url} 
+                  alt="update-media" 
+                  className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300" 
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // 4 or more images (2x2 grid aspect-[16/9])
+    return (
+      <div className="grid grid-cols-2 gap-2 aspect-[16/9] w-full rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/40 bg-slate-50 dark:bg-slate-900/20 mb-4">
+        {imageUrls.slice(0, 3).map((url, idx) => (
+          <div 
+            key={idx} 
+            className="h-full overflow-hidden cursor-pointer"
+            onClick={() => handleOpenLightbox(imageUrls, idx)}
+          >
+            <img 
+              src={url} 
+              alt="update-media" 
+              className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300" 
+            />
+          </div>
+        ))}
+        {/* Fourth Block */}
+        <div 
+          className="h-full overflow-hidden cursor-pointer relative"
+          onClick={() => handleOpenLightbox(imageUrls, 3)}
+        >
+          {count === 4 ? (
+            <img 
+              src={imageUrls[3]} 
+              alt="update-media" 
+              className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300" 
+            />
+          ) : (
+            <div className="h-full w-full relative">
+              <img 
+                src={imageUrls[3]} 
+                alt="update-media" 
+                className="w-full h-full object-cover blur-[1.5px]" 
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
+                <span className="text-lg sm:text-2xl font-black">+{count - 3}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   // Keyboard navigation for Lightbox
@@ -745,162 +886,170 @@ export default function UpdatesPage() {
             const imageUrls = urls.filter(url => getFileType(url) === "image");
             const otherUrls = urls.filter(url => getFileType(url) !== "image");
             const hasImages = imageUrls.length > 0;
+            const hasOthers = otherUrls.length > 0;
+            const hasMetadata = parsed.update_type === "Event" || parsed.date_time || parsed.location;
+
+            // Spacing calculations
+            let descMargin = "mb-3";
+            if (hasImages || hasOthers) {
+              descMargin = "mb-4";
+            } else if (hasMetadata) {
+              descMargin = "mb-3.5";
+            }
+
+            let mediaMargin = "mb-3";
+            if (hasMetadata) {
+              mediaMargin = "mb-3.5";
+            }
 
             return (
               <article
                 key={update.id}
-                className="update-card mx-auto p-4 sm:p-5 mb-4 flex flex-col justify-between"
+                className="update-card mx-auto p-4 sm:p-5 mb-6 flex flex-col justify-between"
               >
-                <div className={hasImages ? "grid grid-cols-1 md:grid-cols-10 gap-5" : "w-full"}>
-                  
-                  {/* Left Content Area */}
-                  <div className={hasImages ? "col-span-1 md:col-span-7 flex flex-col justify-between min-w-0" : "w-full min-w-0"}>
-                    <div>
-                      {/* Header */}
-                      <div className="flex items-center justify-between gap-3 mb-2.5">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
-                            {(parsed.department || "D").charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex items-center gap-2 flex-wrap min-w-0 leading-none">
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">
-                              {parsed.department || "PG Department of Computer Science"}
-                            </span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-505 dark:text-gray-450 uppercase tracking-wider">
-                              {parsed.update_type || "Announcement"}
-                            </span>
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-gray-400" />
-                              {formatTime(update.created_at)}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Actions Kebab Menu for Coordinators & HOD */}
-                        {(isHOD || (isUpdateCoordinator && update.posted_by === user?.id)) && (
-                          <div className="relative shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
-                              className="p-1 rounded-lg text-gray-400 hover:text-gray-605 dark:hover:text-gray-250 transition-colors"
-                            >
-                              <span className="text-lg font-bold tracking-widest leading-none block -mt-1">...</span>
-                            </button>
-                            {openKebabId === update.id && (
-                              <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg z-20 py-1">
-                                {update.posted_by === user?.id && (
-                                  <button
-                                    type="button"
-                                    onClick={() => { openEditModal(update); setOpenKebabId(null); }}
-                                    className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5" /> Edit
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => { setDeleteTarget(update.id); setOpenKebabId(null); }}
-                                  className="w-full text-left px-4 py-2 text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 flex items-center gap-2"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" /> Delete
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Title */}
-                      {parsed.title && (
-                        <h2 className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-white leading-snug line-clamp-2">
-                          {parsed.title}
-                        </h2>
-                      )}
-
-                      {/* Description with Read More Toggle */}
-                      {(() => {
-                        const isExpanded = !!expandedUpdateIds[update.id];
-                        const hasLongDesc = parsed.description.length > 200;
-                        return (
-                          <p className="text-xs sm:text-sm text-gray-750 dark:text-gray-350 leading-relaxed mb-3 break-words">
-                            {isExpanded ? parsed.description : (hasLongDesc ? parsed.description.slice(0, 200) + "..." : parsed.description)}
-                            {hasLongDesc && (
-                              <button
-                                type="button"
-                                onClick={() => setExpandedUpdateIds(prev => ({ ...prev, [update.id]: !prev[update.id] }))}
-                                className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
-                              >
-                                {isExpanded ? "Show Less" : "Read More"}
-                              </button>
-                            )}
-                          </p>
-                        );
-                      })()}
+                {/* ─── Header Layout ─── */}
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  {/* LEFT */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Circular department/profile avatar */}
+                    <div className="w-[38px] h-[38px] sm:w-[42px] sm:h-[42px] rounded-full bg-gradient-to-br from-violet-650 to-indigo-650 text-white flex items-center justify-center font-black text-sm sm:text-base shrink-0 shadow-sm">
+                      {(parsed.department || "D").charAt(0).toUpperCase()}
                     </div>
-
-                    {/* Non-image attachments (Videos / PDFs) */}
-                    {otherUrls.length > 0 && (
-                      <div className="mb-3">
-                        <CardMediaRenderer urls={otherUrls} />
-                      </div>
-                    )}
-
-                    {/* Footer Date, Location & Like */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
-                      {(parsed.update_type === "Event" || parsed.date_time || parsed.location) ? (
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-405">
-                          {parsed.date_time && (
-                            <span className="flex items-center gap-1 shrink-0">
-                              <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                              {formatEventDate(parsed.date_time)}
-                            </span>
-                          )}
-                          {parsed.location && (
-                            <span className="flex items-center gap-1 truncate max-w-[150px] sm:max-w-none">
-                              <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                              {parsed.location}
-                            </span>
-                          )}
-                        </div>
-                      ) : <div />}
-
-                      <button
-                        type="button"
-                        onClick={() => likeMutation.mutate(update.id)}
-                        className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 transition-all ${
-                          update.liked ? "text-rose-500 animate-pulse" : "text-gray-400 hover:text-rose-500"
-                        }`}
-                      >
-                        <Heart
-                          className={`w-3.5 h-3.5 transition-all ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                        />
-                        <span>{update.like_count || 0}</span>
-                      </button>
+                    {/* Department Name & Timestamp/Public info */}
+                    <div className="min-w-0 flex flex-col leading-tight">
+                      <span className="text-sm sm:text-[15px] font-medium text-slate-800 dark:text-slate-200 truncate max-w-[220px] sm:max-w-none">
+                        {parsed.department || "PG Department of Computer Science"}
+                      </span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500 font-normal mt-0.5">
+                        {formatTime(update.created_at)} &bull; Public
+                      </span>
                     </div>
                   </div>
 
-                  {/* Right Image Thumbnail Block (Desktop Split, Mobile stack) */}
-                  {hasImages && (
-                    <div className="col-span-1 md:col-span-3 flex flex-col justify-center">
-                      <div 
-                        className="relative rounded-2xl overflow-hidden border border-gray-105 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950/20 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer"
-                        onClick={() => handleOpenLightbox(imageUrls, 0)}
-                      >
-                        <img 
-                          src={imageUrls[0]} 
-                          alt="thumbnail" 
-                          className="w-full h-36 md:h-28 object-cover rounded-xl hover:scale-[1.02] transition-transform duration-300" 
-                        />
-                        {imageUrls.length > 1 && (
-                          <div className="absolute inset-0.5 bg-black/60 rounded-xl flex flex-col items-center justify-center text-white gap-0.5">
-                            <span className="text-base font-black">+{imageUrls.length - 1}</span>
-                            <span className="text-[9px] font-black uppercase tracking-wider text-white/80">More Photos</span>
+                  {/* RIGHT */}
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    {/* Category badge */}
+                    <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-full text-[11px] font-semibold bg-violet-50 dark:bg-violet-955/35 text-violet-650 dark:text-violet-400">
+                      {parsed.update_type || "Announcement"}
+                    </span>
+
+                    {/* Three-dot menu aligned to the far right */}
+                    {(isHOD || (isUpdateCoordinator && update.posted_by === user?.id)) && (
+                      <div className="relative shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
+                        >
+                          <span className="text-sm font-black tracking-widest leading-none block -mt-1">&bull;&bull;&bull;</span>
+                        </button>
+                        {openKebabId === update.id && (
+                          <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-150 dark:border-gray-700 rounded-xl shadow-lg z-20 py-1">
+                            {update.posted_by === user?.id && (
+                              <button
+                                type="button"
+                                onClick={() => { openEditModal(update); setOpenKebabId(null); }}
+                                className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" /> Edit
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => { setDeleteTarget(update.id); setOpenKebabId(null); }}
+                              className="w-full text-left px-4 py-2 text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 flex items-center gap-2"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> Delete
+                            </button>
                           </div>
                         )}
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
 
+                {/* ─── Title ─── */}
+                {parsed.title && (
+                  <h2 className="text-xl sm:text-[26px] font-bold text-slate-900 dark:text-white leading-tight mb-2 tracking-tight">
+                    {parsed.title}
+                  </h2>
+                )}
+
+                {/* ─── Body Description ─── */}
+                {(() => {
+                  const isExpanded = !!expandedUpdateIds[update.id];
+                  const hasLongDesc = parsed.description.length > 200;
+                  return (
+                    <p className={`text-sm sm:text-[15px] text-slate-650 dark:text-slate-350 leading-relaxed break-words ${descMargin} ${!isExpanded ? "line-clamp-4 sm:line-clamp-3" : ""}`}>
+                      {parsed.description}
+                      {hasLongDesc && (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedUpdateIds(prev => ({ ...prev, [update.id]: !prev[update.id] }))}
+                          className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
+                        >
+                          {isExpanded ? "Show Less" : "Read More"}
+                        </button>
+                      )}
+                    </p>
+                  );
+                })()}
+
+                {/* ─── Image Gallery Placement ─── */}
+                {hasImages && (
+                  <div className={mediaMargin}>
+                    {renderImageGallery(imageUrls)}
+                  </div>
+                )}
+
+                {/* Non-image attachments (Videos / PDFs) */}
+                {hasOthers && (
+                  <div className={mediaMargin}>
+                    <CardMediaRenderer urls={otherUrls} />
+                  </div>
+                )}
+
+                {/* ─── Metadata Section ─── */}
+                {hasMetadata && (
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-[13px] font-normal text-slate-500 dark:text-slate-400 mb-3">
+                    {parsed.date_time && (
+                      <span className="flex items-center gap-1.5 shrink-0">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        {formatEventDate(parsed.date_time)}
+                      </span>
+                    )}
+                    {parsed.date_time && parsed.location && (
+                      <span className="text-slate-300 dark:text-slate-700 select-none">&bull;</span>
+                    )}
+                    {parsed.location && (
+                      <span className="flex items-center gap-1.5 truncate max-w-[200px] sm:max-w-none">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        {parsed.location}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* ─── Footer Layout (Engagement) ─── */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/40">
+                  {/* LEFT: Like Heart */}
+                  <button
+                    type="button"
+                    onClick={() => likeMutation.mutate(update.id)}
+                    className={`like-btn-scale inline-flex items-center gap-2 text-xs sm:text-[13px] font-bold transition-all py-1 px-1.5 rounded-lg ${
+                      update.liked ? "text-rose-500" : "text-slate-400 hover:text-rose-500"
+                    }`}
+                  >
+                    <Heart
+                      className={`w-4 h-4 transition-all ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                    />
+                    <span>{update.like_count || 0}</span>
+                  </button>
+
+                  {/* RIGHT: Post Age */}
+                  <span className="text-xs sm:text-[13px] text-slate-400 dark:text-slate-500 font-normal">
+                    {formatTime(update.created_at)}
+                  </span>
                 </div>
               </article>
             );
@@ -1149,11 +1298,14 @@ export default function UpdatesPage() {
         emptyText="No eligible faculty or forum members found."
       />
 
-      {/* ── Image Lightbox Modal with Gallery Navigation ── */}
+       {/* ── Image Lightbox Modal with Gallery Navigation ── */}
       {lightboxImages.length > 0 && createPortal(
         <div 
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300"
           onClick={() => setLightboxImages([])}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close button */}
           <button 

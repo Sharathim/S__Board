@@ -852,94 +852,40 @@ a, button { transition: all 0.15s ease; }
 }
 
 .update-card {
-  max-width: 820px;
+  max-width: 940px; /* Desktop cards maximum width 900-980px */
   width: 100%;
   margin-left: auto;
   margin-right: auto;
   background-color: #FFFFFF;
-  border: 1px solid #ECECEC;
+  border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.015);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
 }
 
 .dark .update-card {
   background-color: rgb(15 23 42 / 0.9);
-  border-color: rgba(139, 92, 246, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .update-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+  transform: translateY(-3px); /* Card lifts by 3px */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04); /* Shadow slightly increases */
 }
 
 .dark .update-card:hover {
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
 /* Image Zoom on Hover */
-.update-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
+.update-card img {
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.update-card-img:hover {
-  transform: scale(1.02);
-}
-
-/* 1 Image Grid */
-.images-1 {
-  display: grid;
-  grid-template-columns: 1fr;
-  width: 100%;
-  max-height: 260px;
-  height: 260px;
-  overflow: hidden;
-  border-radius: 16px;
-}
-
-/* 2 Images Grid */
-.images-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  width: 100%;
-  max-height: 220px;
-  height: 220px;
-  overflow: hidden;
-  border-radius: 16px;
-}
-
-/* 3 Images Grid (Premium Gallery Layout) */
-.images-3 {
-  display: grid;
-  grid-template-rows: 65% 35%;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  width: 100%;
-  max-height: 380px;
-  height: 380px;
-  overflow: hidden;
-  border-radius: 16px;
-}
-
-/* 3 Images Grid specific placement */
-.images-3 .img-span-top {
-  grid-column: span 2;
-  grid-row: 1;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-.images-3 .img-span-bottom {
-  grid-row: 2;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+.update-card img:hover {
+  transform: scale(1.02); /* Images scale to 1.02 on hover */
 }
 
 /* Like Button Scale Animation */
