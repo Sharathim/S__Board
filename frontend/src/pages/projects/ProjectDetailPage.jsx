@@ -229,6 +229,9 @@ export default function ProjectDetailPage() {
     queryFn: () => getMessages(id, { page: 1 }).then(r => r.data),
   });
 
+  const messages = messagesData?.messages || [];
+  const reversedMessages = [...messages].reverse();
+
   // Sync edit project form
   useEffect(() => {
     if (project) {
@@ -398,10 +401,6 @@ export default function ProjectDetailPage() {
 
   if (isLoading) return <Spinner />;
   if (!project) return null;
-
-  const messages = messagesData?.messages || [];
-  // Vertical feed displays the newest update at the top
-  const reversedMessages = [...messages].reverse();
 
   // Check if current user can edit/delete update (edit allowed only within 30 minutes)
   const isEditable = (msg) => {
