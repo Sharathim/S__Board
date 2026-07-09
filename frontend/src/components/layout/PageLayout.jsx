@@ -1,32 +1,66 @@
-import { Outlet } from "react-router-dom";
-import { TopBar } from "./TopBar";
+import { useState, useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { SidePanel } from "./SidePanel";
+import { FloatingActions } from "./FloatingActions";
+import { PageTransition } from "./PageTransition";
 import { ToastContainer } from "../ui/Toast";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
 
-import { useEffect } from "react";
-
 export default function PageLayout() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+
   useEffect(() => {
     const currentViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
     localStorage.setItem("dpms_total_views", (currentViews + 1).toString());
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Load collapsed state from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("dpms_sidebar_collapsed");
+    if (saved === "true") setIsCollapsed(true);
+  }, []);
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem("dpms_sidebar_collapsed", String(next));
+      return next;
+    });
+  };
+
   return (
-    <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
+    <div className="app-layout">
+      {/* Left Side Panel */}
+      <SidePanel
+        isCollapsed={isCollapsed}
+        onToggleCollapse={handleToggleCollapse}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
 
-      {/* Floating Navbar */}
-      <div className="relative z-50">
-        <TopBar />
+      {/* Main Content Area */}
+      <div className="app-main">
+        {/* Floating Actions (search, theme, notifications, profile) */}
+        <FloatingActions onMobileMenuToggle={() => setMobileOpen(prev => !prev)} />
+
+        {/* Page Content with transitions */}
+        <main className="app-content">
+          <div className="page-content-container">
+            <ErrorBoundary>
+              <PageTransition>
+                <Outlet />
+              </PageTransition>
+            </ErrorBoundary>
+          </div>
+        </main>
       </div>
-
-      {/* Main Content — offset by navbar height + spacing */}
-      <main className="flex-1 overflow-y-auto pt-[88px] relative z-10">
-        <div className="page-content-container">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </div>
-      </main>
 
       <ToastContainer />
     </div>
