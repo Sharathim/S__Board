@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import gsap from "gsap";
 import { usePageTransition } from "../../context/TransitionContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
