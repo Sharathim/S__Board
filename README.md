@@ -8,7 +8,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Installable-ff69b4)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![Firebase](https://img.shields.io/badge/Auth%20%26%20Chat-Firebase-ffca28?logo=firebase)](https://firebase.google.com/)
 
-DPMS (Department Project Management System) is a production-ready, highly responsive Progressive Web App (PWA) designed for a college department to seamlessly manage faculty, classes, students, forum members, projects, and departmental announcements. 
+DPMS (Department Project Management System) is a production-ready, highly responsive Progressive Web App (PWA) designed for a college department to seamlessly manage faculty, classes, students, forum members, projects, and departmental announcements 
 
 This system features a dual-sided architecture (Public & Authenticated) built with robust role-based access control (RBAC), real-time collaboration features, offline capabilities, and cloud storage integrations.
 
