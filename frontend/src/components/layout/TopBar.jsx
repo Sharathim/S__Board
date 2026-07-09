@@ -53,6 +53,14 @@ export function TopBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const mobileMenuRef = useRef(null);
+  const navContainerRef = useRef(null);
+
+  // States for scroll hide/show
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // State for sliding pill indicator
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, height: 0, top: 0, opacity: 0 });
 
   const roleColors = getRoleColor(user?.role);
 
@@ -95,12 +103,130 @@ export function TopBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileMenuOpen]);
 
+  // Scroll visibility handler
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // If at or near the top, always show navbar
+      if (currentScrollY < 15) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        // Scrolling down - hide navbar
+        setIsVisible(false);
+      } else {
+        // Scrolling up - show navbar
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  // Dynamic sliding indicator calculation
+  useEffect(() => {
+    const container = navContainerRef.current;
+    if (!container) return;
+
+    const updatePill = () => {
+      const activeEl = container.querySelector(".nav-pill-active");
+      if (activeEl) {
+        setPillStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          height: activeEl.offsetHeight,
+          top: activeEl.offsetTop,
+          opacity: 1,
+        });
+      } else {
+        setPillStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    // Calculate layout parameters after rendering
+    const timer = setTimeout(updatePill, 50);
+
+    window.addEventListener("resize", updatePill);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", updatePill);
+    };
+  }, [location.pathname, navItems]);
+
   return (
     <>
-      {/* ── Desktop Top Utility Bar (hidden on mobile) ── */}
-      <header className="desktop-topbar hidden md:flex" id="main-topbar">
-        {/* Right-aligned actions */}
-        <div className="flex items-center gap-1.5 ml-auto">
+      {/* ── Floating Glassmorphic Pill Navbar ── */}
+      <nav
+        className="navbar-glass"
+        id="main-navbar"
+        style={{
+          transform: isVisible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-100px)",
+          transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease",
+        }}
+      >
+        {/* ── Left: Logo + Brand ── */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <img
+            src="/logo-icon.png"
+            alt="Hive"
+            className="w-9 h-9 object-contain flex-shrink-0"
+          />
+          <span
+            className="font-bold text-base tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Hive
+          </span>
+        </div>
+
+        {/* ── Center: Nav Links with sliding smooth indicator (Desktop only) ── */}
+        <div
+          ref={navContainerRef}
+          className="hidden md:flex items-center gap-1 relative py-1"
+        >
+          {/* Sliding dynamic highlight pill */}
+          <div
+            className="nav-sliding-indicator absolute transition-all duration-300 ease-out"
+            style={{
+              left: `${pillStyle.left}px`,
+              width: `${pillStyle.width}px`,
+              height: `${pillStyle.height}px`,
+              top: `${pillStyle.top}px`,
+              opacity: pillStyle.opacity,
+              borderRadius: "9999px",
+              pointerEvents: "none",
+            }}
+          />
+
+          {navItems.map(item => {
+            const Icon = item.icon;
+            const isForumWithBadge = false;
+
+            return (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                className={({ isActive }) =>
+                  `nav-pill ${isActive ? "nav-pill-active" : ""}`
+                }
+              >
+                <Icon className="nav-pill-icon w-4 h-4 z-10" />
+                <span className="z-10">{item.label}</span>
+                {isForumWithBadge && (
+                  <span className="nav-badge z-10">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
+        </div>
+
+
+        {/* ── Right: Actions + Profile ── */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* Theme Toggle */}
           <button
             id="navbar-theme-btn"
@@ -141,147 +267,89 @@ export function TopBar() {
 
           {/* Separator */}
           <div
-            className="w-px h-6 mx-1"
+            className="hidden sm:block w-px h-6 mx-1"
             style={{ background: "var(--border-light)", opacity: 0.5 }}
           />
 
-          {/* User Profile Dropdown */}
-          <Dropdown
-            trigger={
-              <div id="navbar-user-menu" className="navbar-avatar">
-                {user?.profile_picture ? (
-                  <img
-                    src={user.profile_picture}
-                    alt={user?.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{
-                      background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
-                    }}
-                  >
-                    {getInitials(user?.name)}
-                  </div>
-                )}
-              </div>
-            }
-            align="right"
-          >
-            {/* Dropdown Header */}
-            <div
-              className="px-4 py-4"
-              style={{ borderBottom: "1px solid var(--border-light)" }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
-                  style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
-                >
-                  {user?.profile_picture
-                    ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
-                    : getInitials(user?.name)
-                  }
+          {/* User Profile Dropdown (Hidden on mobile) */}
+          <div className="hidden md:block">
+            <Dropdown
+              trigger={
+                <div id="navbar-user-menu" className="navbar-avatar">
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt={user?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center text-xs font-bold text-white"
+                      style={{
+                        background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
+                      }}
+                    >
+                      {getInitials(user?.name)}
+                    </div>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{user?.name}</p>
-                  <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{user?.email}</p>
-                </div>
-              </div>
-              <span
-                className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg"
-                style={{
-                  background: roleColors.light,
-                  color: roleColors.text,
-                }}
-              >
-                <Sparkles className="w-3 h-3" />
-                {getRoleLabel(user?.role)}
-              </span>
-            </div>
-
-            <DropdownItem onClick={() => navigate("/settings")}>
-              <Settings className="w-4 h-4 inline mr-2" />
-              Settings
-            </DropdownItem>
-
-            <div
-              className="mx-3 my-1"
-              style={{ height: "1px", background: "var(--border-light)" }}
-            />
-
-            <DropdownItem onClick={logout} danger>
-              <LogOut className="w-4 h-4 inline mr-2" />
-              Sign Out
-            </DropdownItem>
-          </Dropdown>
-        </div>
-      </header>
-
-      {/* ── Mobile Floating Pill Navbar (visible only on mobile) ── */}
-      <nav
-        className="navbar-glass md:hidden"
-        id="main-navbar-mobile"
-      >
-        {/* Left: Logo + Brand */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
-          <img
-            src="/logo-icon.png"
-            alt="Hive"
-            className="w-9 h-9 object-contain flex-shrink-0"
-          />
-          <span
-            className="font-bold text-base tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Hive
-          </span>
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="navbar-icon-btn"
-            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
-              {theme === "dark"
-                ? <Sun className="w-[18px] h-[18px]" />
-                : <Moon className="w-[18px] h-[18px]" />
               }
-            </div>
-          </button>
-
-          {/* Notification Bell */}
-          <div className="relative flex items-center">
-            <button
-              onClick={() => setNotifOpen(o => !o)}
-              className="navbar-icon-btn"
-              title="Notifications"
+              align="right"
             >
-              <Bell
-                className={`w-[18px] h-[18px] ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`}
-              />
-              {unreadCount > 0 && (
+              {/* Dropdown Header */}
+              <div
+                className="px-4 py-4"
+                style={{ borderBottom: "1px solid var(--border-light)" }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
+                    style={{ background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})` }}
+                  >
+                    {user?.profile_picture
+                      ? <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                      : getInitials(user?.name)
+                    }
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{user?.name}</p>
+                    <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-muted)" }}>{user?.email}</p>
+                  </div>
+                </div>
                 <span
-                  className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full flex items-center justify-center text-white font-bold leading-none bg-rose-500"
-                  style={{ fontSize: "9px", padding: "0 3px" }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg"
+                  style={{
+                    background: roleColors.light,
+                    color: roleColors.text,
+                  }}
                 >
-                  {unreadCount > 99 ? "99+" : unreadCount}
+                  <Sparkles className="w-3 h-3" />
+                  {getRoleLabel(user?.role)}
                 </span>
-              )}
-            </button>
-            <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+              </div>
+
+              <DropdownItem onClick={() => navigate("/settings")}>
+                <Settings className="w-4 h-4 inline mr-2" />
+                Settings
+              </DropdownItem>
+
+              <div
+                className="mx-3 my-1"
+                style={{ height: "1px", background: "var(--border-light)" }}
+              />
+
+              <DropdownItem onClick={logout} danger>
+                <LogOut className="w-4 h-4 inline mr-2" />
+                Sign Out
+              </DropdownItem>
+            </Dropdown>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger (Positioned at far right on mobile, replacing profile dropdown, hidden on desktop) */}
           <button
             id="navbar-mobile-menu-btn"
             onClick={() => setMobileMenuOpen(prev => !prev)}
-            className="navbar-icon-btn"
+            className="navbar-icon-btn md:hidden"
             title="Menu"
           >
             {mobileMenuOpen ? (
@@ -293,7 +361,7 @@ export function TopBar() {
         </div>
       </nav>
 
-      {/* ── Mobile Nav Sheet (unchanged) ── */}
+      {/* ── Mobile Nav Sheet ── */}
       {mobileMenuOpen && (
         <>
           <div

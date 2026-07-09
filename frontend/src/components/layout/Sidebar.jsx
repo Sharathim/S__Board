@@ -1,13 +1,86 @@
-import { useState, useEffect, useRef } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard, FolderKanban, GraduationCap,
-  MessageSquare, Megaphone, Settings, BookOpen,
-  LogOut, Sparkles, ChevronLeft, ChevronRight
-} from "lucide-react";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
-import { ConfirmDialog } from "../ui/ConfirmDialog";
+import {
+  LayoutDashboard, FolderKanban, Users, GraduationCap,
+  MessageSquare, Megaphone, Settings,
+  X, BookOpen, ChevronRight, PanelLeftClose, LogOut,
+  Sparkles, Shield, Bell
+} from "lucide-react";
+import clsx from "clsx";
+
+const allNavItems = [
+  {
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-violet-500 to-purple-600",
+    glow: "shadow-violet-500/30",
+  },
+  {
+    to: "/projects",
+    label: "Projects",
+    icon: FolderKanban,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-blue-500 to-indigo-600",
+    glow: "shadow-blue-500/30",
+  },
+  {
+    to: "/faculty",
+    label: "Faculty",
+    icon: GraduationCap,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-orange-500 to-amber-600",
+    glow: "shadow-orange-500/30",
+  },
+  {
+    to: "/classes",
+    label: "Classes",
+    icon: BookOpen,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-cyan-500 to-sky-600",
+    glow: "shadow-cyan-500/30",
+  },
+  {
+    to: "/forum",
+    label: "Forum",
+    icon: MessageSquare,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-rose-500 to-pink-600",
+    glow: "shadow-rose-500/30",
+  },
+  {
+    to: "/updates",
+    label: "Announcements",
+    icon: Megaphone,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-yellow-500 to-orange-500",
+    glow: "shadow-yellow-500/30",
+  },
+  {
+    to: "/settings",
+    label: "Settings",
+    icon: Settings,
+    roles: ["HOD", "FACULTY", "STUDENT"],
+    color: "from-slate-500 to-gray-600",
+    glow: "shadow-slate-500/30",
+  },
+];
+
+function getRoleLabel(role) {
+  const map = { HOD: "Administrator", FACULTY: "Faculty Member", STUDENT: "Student" };
+  return map[role] || role;
+}
+
+function getRoleColor(role) {
+  const map = {
+    HOD: "from-violet-500 to-purple-600",
+    FACULTY: "from-blue-500 to-indigo-600",
+    STUDENT: "from-emerald-500 to-teal-600",
+  };
+  return map[role] || "from-gray-500 to-gray-600";
+}
 
 function getInitials(name) {
   if (!name) return "?";
@@ -17,128 +90,128 @@ function getInitials(name) {
     : parts[0][0].toUpperCase();
 }
 
-function getRoleLabel(role) {
-  const map = { HOD: "Administrator", FACULTY: "Faculty", STUDENT: "Student" };
-  return map[role] || role;
-}
-
-function getRoleColor(role) {
-  const map = {
-    HOD: { from: "#7C3AED", to: "#5B21B6", light: "#EDE9FE", text: "#6D28D9" },
-    FACULTY: { from: "#3B82F6", to: "#1D4ED8", light: "#DBEAFE", text: "#1D4ED8" },
-    STUDENT: { from: "#10B981", to: "#059669", light: "#D1FAE5", text: "#059669" },
-  };
-  return map[role] || { from: "#6B7280", to: "#4B5563", light: "#F3F4F6", text: "#6B7280" };
-}
-
-const allNavItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["HOD"] },
-  { to: "/projects", label: "Projects", icon: FolderKanban, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/faculty", label: "Faculty", icon: GraduationCap, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/classes", label: "Classes", icon: BookOpen, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/forum", label: "Forum", icon: MessageSquare, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/updates", label: "Updates", icon: Megaphone, roles: ["HOD", "FACULTY", "STUDENT"] },
-];
-
-export function DesktopSidebar() {
-  const { user, logout } = useAuth();
+export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
   const { unreadCount } = useNotificationContext();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    try {
-      return localStorage.getItem("sidebar_collapsed") === "true";
-    } catch {
-      return false;
-    }
-  });
-  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
-  const navRef = useRef(null);
+  const { user, logout } = useAuth();
 
-  const roleColors = getRoleColor(user?.role);
-
-  // Persist collapse state and notify layout
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebar_collapsed", isCollapsed.toString());
-      window.dispatchEvent(new CustomEvent("sidebar-collapse-change", { detail: { collapsed: isCollapsed } }));
-    } catch {}
-  }, [isCollapsed]);
-
-  // Filter nav items by role and deduplicate
-  const filteredNavs = allNavItems.filter(item =>
+  const navItems = allNavItems.filter(item =>
     !item.roles || item.roles.includes(user?.role)
   );
+
   const seen = new Set();
-  const navItems = filteredNavs.filter(item => {
+  const uniqueNavItems = navItems.filter(item => {
     const key = `${item.label}-${item.to}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
-  const toggleCollapse = () => setIsCollapsed(prev => !prev);
-
   return (
     <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-md"
+          onClick={onClose}
+        />
+      )}
+
       <aside
-        className={`desktop-sidebar ${isCollapsed ? "desktop-sidebar--collapsed" : ""}`}
-        id="desktop-sidebar"
+        className={clsx(
+          "fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 p-4 transition-[width,transform] duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full",
+          isCollapsed ? "w-[72px] lg:w-[72px]" : "w-[260px] lg:w-[260px]",
+          "h-screen lg:h-[calc(100vh-72px)] flex flex-col justify-between"
+        )}
       >
-        {/* ── Logo + Brand ── */}
-        <div className="sidebar-header">
-          <div className="sidebar-logo-area">
-            <img
-              src="/logo-icon.png"
-              alt="Hive"
-              className="sidebar-logo-img"
-            />
-            {!isCollapsed && (
-              <span className="sidebar-brand-text">Hive</span>
-            )}
+        {/* ── Logo / Brand (Mobile Only) ── */}
+        <div className="flex items-center h-16 flex-shrink-0 gap-3 px-4 lg:hidden border-b border-slate-100 dark:border-slate-800/80">
+          <div className="relative">
+            <img src="/logo-icon.png" alt="Hive" className="w-10 h-10 object-contain flex-shrink-0" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="text-base font-semibold tracking-tight leading-none block text-slate-900 dark:text-white">
+              Hive
+            </span>
           </div>
           <button
-            className="sidebar-collapse-btn"
-            onClick={toggleCollapse}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={onClose}
+            className="ml-auto p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-400 dark:text-slate-500 transition-all duration-150"
+            title="Close"
           >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
+            <X className="w-[18px] h-[18px]" />
           </button>
         </div>
 
-        {/* ── Divider ── */}
-        <div className="sidebar-divider" />
-
-        {/* ── Navigation ── */}
-        <nav ref={navRef} className="sidebar-nav">
-          {navItems.map(item => {
+        {/* ── Navigation Menu Links ── */}
+        <nav className={clsx(
+          "flex-1 overflow-y-auto py-4 space-y-1",
+          isCollapsed ? "px-0" : "px-0"
+        )}>
+          {uniqueNavItems.map(item => {
             const Icon = item.icon;
+            const showBadge = false;
+
             return (
               <NavLink
                 key={item.label}
                 to={item.to}
+                end={item.exact}
+                onClick={onClose}
                 className={({ isActive }) =>
-                  `sidebar-nav-item ${isActive ? "sidebar-nav-item--active" : ""} ${isCollapsed ? "sidebar-nav-item--collapsed" : ""}`
+                  clsx(
+                    "group relative flex items-center rounded-xl text-[14px] font-medium transition-all duration-150",
+                    isCollapsed
+                      ? "justify-center p-2.5 mx-0"
+                      : "gap-3 px-4 py-3",
+                    isActive
+                      ? "bg-indigo-600 text-white"
+                      : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                  )
                 }
                 title={isCollapsed ? item.label : undefined}
               >
                 {({ isActive }) => (
                   <>
-                    <div className={`sidebar-nav-icon ${isActive ? "sidebar-nav-icon--active" : ""}`}>
-                      <Icon className="w-[18px] h-[18px]" />
-                    </div>
+                    {/* Icon vector */}
+                    <Icon
+                      className={clsx(
+                        "flex-shrink-0 transition-colors duration-150",
+                        isCollapsed ? "w-5 h-5" : "w-5 h-5",
+                        isActive
+                          ? "text-white"
+                          : "text-slate-500 dark:text-slate-400 group-hover:text-indigo-600"
+                      )}
+                    />
+
+                    {/* Label */}
                     {!isCollapsed && (
-                      <span className="sidebar-nav-label">{item.label}</span>
+                      <span className="flex-1 truncate">
+                        {item.label}
+                      </span>
                     )}
+
+                    {/* Badge */}
+                    {showBadge && (
+                      isCollapsed ? (
+                        <span
+                          className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 border border-white dark:border-slate-900 animate-pulse"
+                        />
+                      ) : (
+                        <span className={clsx(
+                          "text-[10px] font-black rounded-full px-1.5 py-0.5 min-w-[20px] text-center leading-none",
+                          isActive ? "bg-white text-indigo-600" : "bg-rose-500 text-white shadow-sm"
+                        )}>
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )
+                    )}
+
                     {/* Collapsed tooltip */}
                     {isCollapsed && (
-                      <div className="sidebar-tooltip">
+                      <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-slate-100 dark:border-slate-700">
                         {item.label}
-                        <span className="sidebar-tooltip-arrow" />
+                        <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-white dark:bg-slate-800 border-l border-b border-slate-100 dark:border-slate-700" />
                       </div>
                     )}
                   </>
@@ -146,117 +219,57 @@ export function DesktopSidebar() {
               </NavLink>
             );
           })}
-
-          {/* Settings link */}
-          <div className="sidebar-divider" style={{ margin: "8px 0" }} />
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `sidebar-nav-item ${isActive ? "sidebar-nav-item--active" : ""} ${isCollapsed ? "sidebar-nav-item--collapsed" : ""}`
-            }
-            title={isCollapsed ? "Settings" : undefined}
-          >
-            {({ isActive }) => (
-              <>
-                <div className={`sidebar-nav-icon ${isActive ? "sidebar-nav-icon--active" : ""}`}>
-                  <Settings className="w-[18px] h-[18px]" />
-                </div>
-                {!isCollapsed && (
-                  <span className="sidebar-nav-label">Settings</span>
-                )}
-                {isCollapsed && (
-                  <div className="sidebar-tooltip">
-                    Settings
-                    <span className="sidebar-tooltip-arrow" />
-                  </div>
-                )}
-              </>
-            )}
-          </NavLink>
         </nav>
 
-        {/* ── Bottom: User Profile + Logout ── */}
-        <div className="sidebar-footer">
-          <div className="sidebar-divider" />
-
-          {/* User info */}
-          <div
-            className={`sidebar-user-section ${isCollapsed ? "sidebar-user-section--collapsed" : ""}`}
-          >
-            <div className="sidebar-avatar-wrapper">
-              <div
-                className="sidebar-avatar"
-                style={{
-                  background: user?.profile_picture
-                    ? "transparent"
-                    : `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
-                }}
-              >
-                {user?.profile_picture ? (
-                  <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-xs font-bold text-white">{getInitials(user?.name)}</span>
-                )}
-              </div>
-              <span className="sidebar-avatar-status" />
-            </div>
-
-            {!isCollapsed && (
-              <div className="sidebar-user-info">
-                <p className="sidebar-user-name">{user?.name || "User"}</p>
-                <span
-                  className="sidebar-role-badge"
-                  style={{
-                    background: roleColors.light,
-                    color: roleColors.text,
-                  }}
-                >
-                  <Sparkles className="w-2.5 h-2.5" />
-                  {getRoleLabel(user?.role)}
-                </span>
-              </div>
-            )}
-
-            {/* Collapsed tooltip for user */}
-            {isCollapsed && (
-              <div className="sidebar-tooltip">
-                {user?.name || "User"}
-                <span className="sidebar-tooltip-arrow" />
-              </div>
-            )}
-          </div>
-
-          {/* Logout button */}
-          <button
-            onClick={() => setLogoutConfirmOpen(true)}
-            className={`sidebar-logout-btn ${isCollapsed ? "sidebar-logout-btn--collapsed" : ""}`}
-            title={isCollapsed ? "Log Out" : undefined}
-          >
-            <LogOut className="w-4 h-4" />
-            {!isCollapsed && <span>Log Out</span>}
-            {isCollapsed && (
-              <div className="sidebar-tooltip">
+        {/* ── User Profile & Sign Out Module ── */}
+        <div className="flex-shrink-0 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+          {isCollapsed ? (
+            <button
+              onClick={logout}
+              className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95 group relative"
+              title="Log Out"
+            >
+              <LogOut className="w-5 h-5" />
+              <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-slate-100 dark:border-slate-700">
                 Log Out
-                <span className="sidebar-tooltip-arrow" />
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-white dark:bg-slate-800 border-l border-b border-slate-100 dark:border-slate-700" />
               </div>
-            )}
-          </button>
+            </button>
+          ) : (
+            <div className="flex flex-col gap-4 p-2 cursor-default">
+              {/* User info row */}
+              <div className="flex items-center gap-3">
+                {/* Avatar (circular, borderless, bg-gradient as fallback) */}
+                <div className="relative shrink-0">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600">
+                    {user?.profile_picture ? (
+                      <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
+                    ) : (
+                      getInitials(user?.name)
+                    )}
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-slate-900" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold truncate text-slate-800 dark:text-slate-200">{user?.name || "User"}</p>
+                  <p className="text-xs font-medium truncate text-slate-400 dark:text-slate-500 mt-0.5">{getRoleLabel(user?.role)}</p>
+                </div>
+              </div>
+
+              {/* Sign Out row / button */}
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95"
+              >
+                <LogOut className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </aside>
-
-      {/* Logout confirmation Dialog */}
-      <ConfirmDialog
-        open={logoutConfirmOpen}
-        onClose={() => setLogoutConfirmOpen(false)}
-        onConfirm={() => {
-          setLogoutConfirmOpen(false);
-          logout();
-        }}
-        title="Confirm Log Out"
-        message="Are you sure you want to log out of your account?"
-        confirmText="Log Out"
-        danger
-      />
     </>
   );
+}
 }
