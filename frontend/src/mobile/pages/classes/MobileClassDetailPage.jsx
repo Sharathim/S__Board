@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listStudents, grantAccess, removeStudent } from "../../../api/classes";
-import { listFaculty } from "../../../api/faculty";
+import { listStudents, removeStudent } from "../../../api/classes";
 import { assignForumMember } from "../../../api/forum";
 import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../components/ui/Spinner";
@@ -49,7 +48,6 @@ export default function MobileClassDetailPage() {
   const isForumClass = FORUM_CLASSES.includes(className);
   const queryClient = useQueryClient();
 
-  const [showGrantModal, setShowGrantModal] = useState(false);
   const [removeTarget,   setRemoveTarget]   = useState(null);
   const [forumTarget,    setForumTarget]    = useState(null);
   const [forumRole,      setForumRole]      = useState("Member");
@@ -60,22 +58,11 @@ export default function MobileClassDetailPage() {
     queryFn: () => listStudents(className).then((r) => r.data.students),
   });
 
-  const { data: faculty } = useQuery({
-    queryKey: ["faculty"],
-    queryFn: () => listFaculty().then((r) => r.data.faculty),
-    enabled: canManage,
-  });
-
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["students", className] });
     queryClient.invalidateQueries({ queryKey: ["classes"] });
     queryClient.invalidateQueries({ queryKey: ["forum-members"] });
   };
-
-  const grantMutation = useMutation({
-    mutationFn: (facultyId) => grantAccess(className, facultyId),
-    onSuccess: () => { setShowGrantModal(false); queryClient.invalidateQueries({ queryKey: ["classes"] }); },
-  });
 
   const removeMutation = useMutation({
     mutationFn: (studentId) => removeStudent(className, studentId),
@@ -129,15 +116,6 @@ export default function MobileClassDetailPage() {
                 </p>
               )}
             </div>
-            {canManage && (
-              <button
-                onClick={() => setShowGrantModal(true)}
-                className="w-10 h-10 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-all shrink-0"
-                title="Grant Access"
-              >
-                <UserPlus className="w-5 h-5" />
-              </button>
-            )}
           </div>
         </div>
       </MobileCard>
@@ -225,35 +203,6 @@ export default function MobileClassDetailPage() {
           ))}
         </div>
       )}
-
-      {/* Grant Access Modal */}
-      <Modal open={showGrantModal} onClose={() => setShowGrantModal(false)} title={`Grant Access — ${meta.label}`}>
-        <div className="space-y-3 pt-1">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Give another faculty member view access to this class roster.
-          </p>
-          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-            {(faculty || []).filter((f) => f.class_incharge_of !== className).map((f) => (
-              <button
-                key={f.id}
-                onClick={() => grantMutation.mutate(f.id)}
-                disabled={grantMutation.isPending}
-                className="w-full flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-slate-700 hover:border-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950/20 transition-all text-left disabled:opacity-50 group"
-              >
-                <Avatar src={f.profile_picture} name={f.name} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-primary-600 transition-colors">{f.name}</p>
-                  <p className="text-[10px] text-gray-400 truncate mt-0.5">{f.designation}</p>
-                </div>
-                <BookOpen className="w-4 h-4 text-gray-300 group-hover:text-primary-500 transition-colors shrink-0" />
-              </button>
-            ))}
-            {(faculty || []).filter((f) => f.class_incharge_of !== className).length === 0 && (
-              <p className="text-xs text-gray-400 text-center py-6">No faculty available.</p>
-            )}
-          </div>
-        </div>
-      </Modal>
 
       {/* Forum Member Modal */}
       <Modal open={!!forumTarget} onClose={() => setForumTarget(null)} title="Assign to Forum">

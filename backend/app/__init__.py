@@ -36,6 +36,7 @@ def create_app():
     from .routes.auth import auth_bp
     from .routes.faculty import faculty_bp
     from .routes.classes import classes_bp
+    from .routes.notes import notes_bp
     from .routes.forum import forum_bp
     from .routes.projects import projects_bp
     from .routes.updates import updates_bp
@@ -46,6 +47,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(faculty_bp, url_prefix="/api/faculty")
     app.register_blueprint(classes_bp, url_prefix="/api/classes")
+    app.register_blueprint(notes_bp, url_prefix="/api/classes")
     app.register_blueprint(forum_bp, url_prefix="/api/forum")
     app.register_blueprint(projects_bp, url_prefix="/api/projects")
     app.register_blueprint(updates_bp, url_prefix="/api/updates")

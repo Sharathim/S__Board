@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listStudents, grantAccess, removeStudent } from "../../api/classes";
-import { listFaculty } from "../../api/faculty";
+import { listStudents, removeStudent } from "../../api/classes";
 import { assignForumMember } from "../../api/forum";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
@@ -14,6 +13,7 @@ import {
   Mail, MoreVertical, CheckCircle2,
 } from "lucide-react";
 import { useState, useMemo } from "react";
+import NotesDocsTab from "./NotesDocsTab";
 
 const FORUM_CLASSES = ["UG_3A", "UG_3B"];
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
@@ -145,7 +145,7 @@ export default function ClassDetailPage() {
   const isForumClass = FORUM_CLASSES.includes(className);
   const queryClient = useQueryClient();
 
-  const [showGrantModal, setShowGrantModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("students");
   const [removeTarget,   setRemoveTarget]   = useState(null);
   const [forumTarget,    setForumTarget]    = useState(null);
   const [forumRole,      setForumRole]      = useState("Member");
@@ -156,22 +156,11 @@ export default function ClassDetailPage() {
     queryFn: () => listStudents(className).then((r) => r.data.students),
   });
 
-  const { data: faculty } = useQuery({
-    queryKey: ["faculty"],
-    queryFn: () => listFaculty().then((r) => r.data.faculty),
-    enabled: canManage,
-  });
-
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["students", className] });
     queryClient.invalidateQueries({ queryKey: ["classes"] });
     queryClient.invalidateQueries({ queryKey: ["forum-members"] });
   };
-
-  const grantMutation = useMutation({
-    mutationFn: (facultyId) => grantAccess(className, facultyId),
-    onSuccess: () => { setShowGrantModal(false); queryClient.invalidateQueries({ queryKey: ["classes"] }); },
-  });
 
   const removeMutation = useMutation({
     mutationFn: (studentId) => removeStudent(className, studentId),
@@ -234,119 +223,108 @@ export default function ClassDetailPage() {
             </div>
           </div>
 
-          {canManage && (
-            <button
-              onClick={() => setShowGrantModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-violet-600 text-white text-sm font-semibold hover:from-primary-700 hover:to-violet-700 transition-all shadow-sm hover:shadow-primary-glow shrink-0"
-            >
-              <UserPlus className="w-4 h-4" />
-              Grant Access
-            </button>
-          )}
         </div>
       </div>
 
-      {/* ── Students Table ── */}
-      {studentList.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card">
-          <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center mb-5 shadow-md opacity-80`}>
-            <Users className="w-9 h-9 text-white" />
+      {/* Tabs */}
+      <div className="flex border-b border-gray-150 dark:border-gray-700/60 pb-px">
+        <button
+          onClick={() => setActiveTab("students")}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
+            activeTab === "students"
+              ? "border-primary-600 text-primary-600 font-bold"
+              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+          }`}
+        >
+          Students
+        </button>
+        <button
+          onClick={() => setActiveTab("notes")}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
+            activeTab === "notes"
+              ? "border-primary-600 text-primary-600 font-bold"
+              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+          }`}
+        >
+          Notes & Doc's
+        </button>
+      </div>
+
+      {activeTab === "students" ? (
+        studentList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card">
+            <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center mb-5 shadow-md opacity-80`}>
+              <Users className="w-9 h-9 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">No students yet</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+              Students will appear here after they onboard via the class invite link.
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">No students yet</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-            Students will appear here after they onboard via the class invite link.
-          </p>
-        </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800/70 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card overflow-hidden">
+            {/* Table toolbar */}
+            <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-gray-100 dark:border-gray-700/60">
+              <div className="relative flex-1 max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search students…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              <span className="text-xs text-gray-400 dark:text-gray-505 font-medium shrink-0">
+                {filtered.length} of {studentList.length}
+              </span>
+            </div>
+
+            <div className="p-4">
+              {/* Header row for large screens */}
+              <div className={`hidden lg:grid ${
+                canManage 
+                  ? "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr_100px]" 
+                  : "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr]"
+              } gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800/40`}>
+                <span>Student Info</span>
+                <span>Roll No</span>
+                <span>Reg. No</span>
+                <span>Status</span>
+                {canManage && <span className="text-right">Actions</span>}
+              </div>
+
+              <div className="space-y-3 mt-3">
+                {filtered.length > 0 ? (
+                  filtered.map((s) => (
+                    <StudentRow
+                      key={s.id}
+                      s={s}
+                      canManage={canManage}
+                      isHOD={isHOD}
+                      isForumClass={isForumClass}
+                      onForum={(st) => { setForumTarget(st); setForumRole("Member"); }}
+                      onRemove={setRemoveTarget}
+                    />
+                  ))
+                ) : (
+                  <div className="py-12 text-center bg-gray-50/30 dark:bg-gray-900/10 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700/60">
+                    <Search className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400 dark:text-gray-500">No students match "{searchQuery}"</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
       ) : (
-        <div className="bg-white dark:bg-gray-800/70 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card overflow-hidden">
-          {/* Table toolbar */}
-          <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-gray-100 dark:border-gray-700/60">
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search students…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-medium shrink-0">
-              {filtered.length} of {studentList.length}
-            </span>
-          </div>
-
-          <div className="p-4">
-            {/* Header row for large screens */}
-            <div className={`hidden lg:grid ${
-              canManage 
-                ? "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr_100px]" 
-                : "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr]"
-            } gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800/40`}>
-              <span>Student Info</span>
-              <span>Roll No</span>
-              <span>Reg. No</span>
-              <span>Status</span>
-              {canManage && <span className="text-right">Actions</span>}
-            </div>
-
-            <div className="space-y-3 mt-3">
-              {filtered.length > 0 ? (
-                filtered.map((s) => (
-                  <StudentRow
-                    key={s.id}
-                    s={s}
-                    canManage={canManage}
-                    isHOD={isHOD}
-                    isForumClass={isForumClass}
-                    onForum={(st) => { setForumTarget(st); setForumRole("Member"); }}
-                    onRemove={setRemoveTarget}
-                  />
-                ))
-              ) : (
-                <div className="py-12 text-center bg-gray-50/30 dark:bg-gray-900/10 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700/60">
-                  <Search className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No students match "{searchQuery}"</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <NotesDocsTab className={className} />
       )}
-
-      {/* ── Grant Access Modal ── */}
-      <Modal open={showGrantModal} onClose={() => setShowGrantModal(false)} title={`Grant Access — ${meta.label}`}>
-        <div className="space-y-3 pt-1">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Give another faculty member view access to this class roster.
-          </p>
-          <div className="space-y-2 max-h-72 overflow-y-auto">
-            {(faculty || []).filter((f) => f.class_incharge_of !== className).map((f) => (
-              <button
-                key={f.id}
-                onClick={() => grantMutation.mutate(f.id)}
-                disabled={grantMutation.isPending}
-                className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all text-left disabled:opacity-50 group"
-              >
-                <Avatar src={f.profile_picture} name={f.name} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">{f.name}</p>
-                  <p className="text-xs text-gray-400 truncate">{f.designation}</p>
-                </div>
-                <BookOpen className="w-4 h-4 text-gray-300 group-hover:text-primary-500 transition-colors shrink-0" />
-              </button>
-            ))}
-            {(faculty || []).length === 0 && (
-              <p className="text-sm text-gray-400 text-center py-6">No faculty available.</p>
-            )}
-          </div>
-        </div>
-      </Modal>
 
       {/* ── Forum Member Modal ── */}
       <Modal open={!!forumTarget} onClose={() => setForumTarget(null)} title="Assign to Forum">

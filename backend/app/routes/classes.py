@@ -21,7 +21,7 @@ def _can_view_class(user, class_name):
         fp = user.faculty_profile
         if fp.class_incharge_of == class_name:
             return True
-        if class_name in (fp.extra_class_access or []):
+        if class_name in (fp.classes_handling or []):
             return True
         return False
     if user.role == UserRole.STUDENT:
@@ -162,26 +162,6 @@ def remove_student(class_name, student_id):
 
     return jsonify({"ok": True})
 
-
-@classes_bp.route("/<class_name>/grant-access", methods=["POST"])
-@require_auth
-def grant_access(class_name):
-    user = g.current_user
-    if user.role != UserRole.HOD:
-        if not (user.role == UserRole.FACULTY and
-                user.faculty_profile.class_incharge_of == class_name):
-            return jsonify({"error": "Forbidden"}), 403
-
-    data = request.get_json()
-    faculty_id = data.get("faculty_id")
-    faculty = Faculty.query.get_or_404(faculty_id)
-
-    access = list(faculty.extra_class_access or [])
-    if class_name not in access:
-        access.append(class_name)
-        faculty.extra_class_access = access
-        db.session.commit()
-    return jsonify({"ok": True})
 
 
 # ─── Assign Class Incharge (from class perspective) ──────────────────────
