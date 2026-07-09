@@ -37,45 +37,65 @@ function getRoleColor(role) {
 /* ─── Premium GSAP Hover Rolling Text Component ─────────────────────────── */
 function HoverRollText({ text, isHovered, className = "" }) {
   const containerRef = useRef(null);
+  const timelineRef = useRef(null);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const primaries = el.querySelectorAll(".roll-char-primary");
-    const secondaries = el.querySelectorAll(".roll-char-secondary");
-    if (primaries.length === 0) return;
-
-    gsap.killTweensOf([primaries, secondaries]);
-
     if (isHovered) {
-      // Staggered roll up
-      gsap.to(primaries, {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const primaries = el.querySelectorAll(".roll-char-primary");
+      const secondaries = el.querySelectorAll(".roll-char-secondary");
+      if (primaries.length === 0) return;
+
+      // Kill any running timeline
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+      }
+
+      const tl = gsap.timeline();
+      timelineRef.current = tl;
+
+      // Set initial state
+      gsap.set(primaries, { yPercent: 0 });
+      gsap.set(secondaries, { yPercent: 100 });
+
+      const durationVal = 0.25;
+      const staggerVal = 0.02;
+
+      // Phase 1: roll up
+      tl.to(primaries, {
         yPercent: -100,
-        duration: 0.35,
-        ease: "power2.out",
-        stagger: 0.02
+        duration: durationVal,
+        ease: "power2.in",
+        stagger: staggerVal
       });
-      gsap.to(secondaries, {
+      tl.to(secondaries, {
         yPercent: 0,
-        duration: 0.35,
+        duration: durationVal,
+        ease: "power2.in",
+        stagger: staggerVal
+      }, 0);
+
+      // Snap primaries to bottom instantly
+      tl.set(primaries, { yPercent: 100 });
+
+      // Phase 2: roll secondary out, primary in from bottom to 0
+      tl.to(secondaries, {
+        yPercent: -100,
+        duration: durationVal,
         ease: "power2.out",
-        stagger: 0.02
+        stagger: staggerVal
       });
-    } else {
-      // Staggered roll back down
-      gsap.to(primaries, {
+      tl.to(primaries, {
         yPercent: 0,
-        duration: 0.3,
+        duration: durationVal,
         ease: "power2.out",
-        stagger: 0.015
-      });
-      gsap.to(secondaries, {
-        yPercent: 100,
-        duration: 0.3,
-        ease: "power2.out",
-        stagger: 0.015
-      });
+        stagger: staggerVal
+      }, `-=${durationVal + (primaries.length - 1) * staggerVal}`);
+
+      // Reset secondary quietly at the very end
+      tl.set(secondaries, { yPercent: 100 });
     }
   }, [isHovered]);
 
@@ -86,7 +106,11 @@ function HoverRollText({ text, isHovered, className = "" }) {
       {chars.map((char, idx) => {
         if (char === " ") return <span key={idx}>&nbsp;</span>;
         return (
-          <span key={idx} className="roll-char-wrapper relative inline-block overflow-hidden h-[1.25em] leading-none select-none">
+          <span
+            key={idx}
+            className="roll-char-wrapper relative inline-block overflow-hidden h-[1.25em] leading-none select-none"
+            style={{ verticalAlign: "bottom" }}
+          >
             <span className="roll-char-primary inline-block transform-gpu">{char}</span>
             <span className="roll-char-secondary absolute left-0 top-0 inline-block transform-gpu" style={{ transform: "translateY(100%)" }}>{char}</span>
           </span>

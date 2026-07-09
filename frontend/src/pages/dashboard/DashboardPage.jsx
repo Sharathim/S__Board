@@ -27,6 +27,7 @@ function getFirstName(name) {
 /* ─── Premium GSAP Username Roll Component ─────────────────────────────── */
 function DashboardRollingName({ name }) {
   const containerRef = useRef(null);
+  const timelineRef = useRef(null);
 
   const triggerRoll = useCallback(() => {
     const el = containerRef.current;
@@ -36,39 +37,53 @@ function DashboardRollingName({ name }) {
     const secondaries = el.querySelectorAll(".name-char-secondary");
     if (primaries.length === 0) return;
 
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+    }
+
     const tl = gsap.timeline();
-    
-    gsap.killTweensOf([primaries, secondaries]);
+    timelineRef.current = tl;
+
+    // Reset initial state
     gsap.set(primaries, { yPercent: 0 });
     gsap.set(secondaries, { yPercent: 100 });
 
+    const durationVal = 0.25;
+    const staggerVal = 0.02;
+
+    // Phase 1: roll up
     tl.to(primaries, {
       yPercent: -100,
-      duration: 0.4,
-      ease: "power2.inOut",
-      stagger: 0.02
+      duration: durationVal,
+      ease: "power2.in",
+      stagger: staggerVal
     });
     tl.to(secondaries, {
       yPercent: 0,
-      duration: 0.4,
-      ease: "power2.inOut",
-      stagger: 0.02
+      duration: durationVal,
+      ease: "power2.in",
+      stagger: staggerVal
     }, 0);
 
-    // Roll back down
+    // Swap positions instantly
+    tl.set(primaries, { yPercent: 100 });
+
+    // Phase 2: roll secondary up, primary in from bottom
+    tl.to(secondaries, {
+      yPercent: -100,
+      duration: durationVal,
+      ease: "power2.out",
+      stagger: staggerVal
+    });
     tl.to(primaries, {
       yPercent: 0,
-      duration: 0.3,
+      duration: durationVal,
       ease: "power2.out",
-      stagger: 0.015,
-      delay: 0.15
-    });
-    tl.to(secondaries, {
-      yPercent: 100,
-      duration: 0.3,
-      ease: "power2.out",
-      stagger: 0.015
-    }, "-=0.3");
+      stagger: staggerVal
+    }, `-=${durationVal + (primaries.length - 1) * staggerVal}`);
+
+    // Reset secondary quietly at the very end
+    tl.set(secondaries, { yPercent: 100 });
   }, []);
 
   useEffect(() => {
@@ -90,9 +105,13 @@ function DashboardRollingName({ name }) {
       {chars.map((char, idx) => {
         if (char === " ") return <span key={idx}>&nbsp;</span>;
         return (
-          <span key={idx} className="relative inline-block overflow-hidden h-[1.25em] leading-none select-none">
+          <span
+            key={idx}
+            className="relative inline-block overflow-hidden h-[1.25em] leading-none select-none"
+            style={{ verticalAlign: "bottom" }}
+          >
             <span className="name-char-primary inline-block transform-gpu">{char}</span>
-            <span className="name-char-secondary absolute left-0 top-0 inline-block transform-gpu text-primary-600 dark:text-primary-400" style={{ transform: "translateY(100%)" }}>
+            <span className="name-char-secondary absolute left-0 top-0 inline-block transform-gpu text-primary-650 dark:text-primary-400" style={{ transform: "translateY(100%)" }}>
               {char}
             </span>
           </span>
