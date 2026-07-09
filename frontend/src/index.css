@@ -1726,4 +1726,126 @@ button {
   }
 }
 
+/* ─── Upgraded Folder Document Details ───────────────────────────────────── */
+.document-ruled-lines {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: 
+    linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px) 0 8px,
+    linear-gradient(90deg, rgba(139, 92, 246, 0.06) 1px, transparent 1px) 24px 0;
+  background-size: 100% 16px, 100% 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.paper-clip {
+  position: absolute;
+  top: -12px;
+  right: 28px;
+  width: 14px;
+  height: 38px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: transparent;
+  transform: rotate(-14deg);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.paper-clip::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 2px;
+  width: 6px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+.dark .paper-clip {
+  border-color: #475569;
+}
+.dark .paper-clip::after {
+  border-color: #475569;
+}
+
+/* ─── Workspace Portal Transition Styles (Hexagon & Particles) ─────────────── */
+.portal-hexagon-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.portal-hexagon-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed rgba(139, 92, 246, 0.25);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: spin-slow 15s linear infinite;
+}
+
+.portal-hexagon-inner {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border: 3px double rgba(139, 92, 246, 0.85);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(243, 244, 246, 0.95));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  box-shadow: 
+    0 10px 25px rgba(139, 92, 246, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin-slow-reverse 20s linear infinite;
+  z-index: 2;
+}
+
+.dark .portal-hexagon-inner {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.98));
+  border-color: rgba(167, 139, 250, 0.85);
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.portal-hexagon-content {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(0deg); /* Counteract parent rotation if any */
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-slow-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Floating Particles */
+.portal-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+
 

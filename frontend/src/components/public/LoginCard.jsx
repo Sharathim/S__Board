@@ -45,6 +45,7 @@ export function LoginCard() {
 
   const handleGoogleLogin = async () => {
     setPending(true);
+    sessionStorage.setItem("justLoggedIn", "true");
     await loginWithGoogle(activeRole);
     setPending(false);
   };

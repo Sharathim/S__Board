@@ -46,7 +46,7 @@ export function TopBar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
-  const { navigateWithTransition } = usePageTransition();
+  const { navigateWithTransition, triggerPortalTransition } = usePageTransition();
   const [notifOpen, setNotifOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
@@ -344,7 +344,7 @@ export function TopBar() {
         onClose={() => setLogoutConfirmOpen(false)}
         onConfirm={() => {
           setLogoutConfirmOpen(false);
-          logout();
+          triggerPortalTransition("logout", () => logout());
         }}
         title="Confirm Log Out"
         message="Are you sure you want to log out of your account?"
