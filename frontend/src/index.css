@@ -1152,3 +1152,359 @@ button {
 .dark .class-card-redesign:hover {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NEW GLASSMORPHIC + NEOMORPHIC NAVIGATION BUTTONS & DRAWER SYSTEM
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Standalone Floating Neomorphic + Glassmorphic Buttons */
+.neomorphic-glass-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-primary);
+  box-shadow:
+    6px 6px 14px rgba(165, 180, 203, 0.25),
+    -4px -4px 12px rgba(255, 255, 255, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  outline: none;
+}
+
+.neomorphic-glass-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+  box-shadow:
+    8px 8px 18px rgba(165, 180, 203, 0.3),
+    -6px -6px 16px rgba(255, 255, 255, 1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: var(--primary);
+}
+
+.neomorphic-glass-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 3px 3px 6px rgba(165, 180, 203, 0.3),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Dark Mode Neomorphic Button */
+.dark .neomorphic-glass-btn {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, 0.45),
+    -4px -4px 12px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.dark .neomorphic-glass-btn:hover {
+  background: rgba(30, 41, 59, 0.7);
+  box-shadow:
+    10px 10px 24px rgba(0, 0, 0, 0.55),
+    -6px -6px 16px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: var(--primary);
+}
+
+.dark .neomorphic-glass-btn:active {
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.6),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.02);
+}
+
+/* Hamburger Hover Dot Animation */
+.hamburger-btn-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hamburger-hover-dot {
+  position: absolute;
+  right: calc(100% + 12px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  opacity: 0;
+  transform: scale(0) translateX(12px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 10px var(--primary);
+  pointer-events: none;
+}
+
+.hamburger-btn-wrapper:hover .hamburger-hover-dot {
+  opacity: 1;
+  transform: scale(1) translateX(0);
+}
+
+/* Custom Hamburger Icon Lines */
+.hamburger-line {
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 99px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Right Drawer Backdrop */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Floating Drawer Card Container */
+.drawer-container {
+  position: fixed;
+  top: 16px;
+  bottom: 16px;
+  right: 16px;
+  width: calc(100% - 32px);
+  max-width: 380px;
+  z-index: 1010;
+  border-radius: 28px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
+  /* Glassmorphism */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 247, 250, 0.88) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  
+  /* Neomorphic Shadow */
+  box-shadow:
+    -12px 12px 42px rgba(165, 180, 203, 0.22),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.8),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.02);
+
+  transform: translateX(110%) scale(0.96);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.drawer-container.open {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+
+/* Dark Mode Drawer Container */
+.dark .drawer-container {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    -12px 12px 48px rgba(0, 0, 0, 0.6),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.06),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Drawer Close Button */
+.drawer-close-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    4px 4px 10px rgba(165, 180, 203, 0.15),
+    -3px -3px 8px rgba(255, 255, 255, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  outline: none;
+}
+
+.drawer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--primary);
+  transform: scale(1.08) rotate(90deg);
+}
+
+.dark .drawer-close-btn {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .drawer-close-btn:hover {
+  background: rgba(30, 41, 59, 0.7);
+  color: var(--primary);
+}
+
+/* Numbered Vertical Menu Items */
+.drawer-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: 18px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: transparent;
+}
+
+.drawer-nav-item:hover {
+  background: rgba(255, 255, 255, 0.5);
+  padding-left: 22px;
+  box-shadow:
+    2px 4px 12px rgba(165, 180, 203, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.dark .drawer-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    2px 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.drawer-nav-item.active {
+  color: var(--primary);
+  background: rgba(139, 92, 246, 0.08);
+  box-shadow:
+    inset 0 1px 2px rgba(139, 92, 246, 0.05),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .drawer-nav-item.active {
+  background: rgba(167, 139, 250, 0.08);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Circular Arrow on Right Side of Nav Item */
+.drawer-nav-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-1);
+  color: #fff;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.dark .drawer-nav-arrow {
+  background: #f9fafb;
+  color: #020617;
+}
+
+.drawer-nav-item:hover .drawer-nav-arrow {
+  background: var(--primary);
+  color: #fff;
+  transform: translateX(3px) scale(1.05);
+}
+
+.drawer-nav-item.active .drawer-nav-arrow {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Secondary Actions */
+.drawer-nav-item-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  transition: all 0.25s ease;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.drawer-nav-item-secondary:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.dark .drawer-nav-item-secondary:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.drawer-nav-arrow-sm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary);
+  transition: all 0.25s ease;
+}
+
+.dark .drawer-nav-arrow-sm {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.drawer-nav-item-secondary:hover .drawer-nav-arrow-sm {
+  background: var(--primary);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+/* User Profile Card inside Drawer */
+.profile-section-card {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.01),
+    0 6px 18px rgba(165, 180, 203, 0.12);
+  transition: all 0.3s ease;
+}
+
+.dark .profile-section-card {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.12),
+    0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Staggered Item Transition State */
+.stagger-item {
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
