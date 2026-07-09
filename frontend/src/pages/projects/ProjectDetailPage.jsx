@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { usePageTransition } from "../../context/TransitionContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getProject, getMessages, postMessage, editMessage, deleteMessage,
@@ -141,6 +142,7 @@ function ProgressAttachmentRenderer({ attachmentUrl, attachmentType, attachmentN
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { navigateWithTransition } = usePageTransition();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
 
@@ -384,9 +386,12 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
-      <Link to="/projects" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+      <div
+        onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-750 dark:hover:text-gray-300 cursor-pointer"
+      >
         <ArrowLeft className="w-4 h-4" /> Back to Projects
-      </Link>
+      </div>
 
       {/* ─── 1. Top Project Overview Card ─── */}
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm p-6 relative overflow-visible">

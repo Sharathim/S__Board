@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
+import { usePageTransition } from "../../context/TransitionContext";
 import {
   listProjects, getProjectStats, createProject, updateProject, deleteProject,
 } from "../../api/projects";
@@ -137,6 +138,7 @@ export default function ProjectsPage() {
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { navigateWithTransition } = usePageTransition();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -406,7 +408,7 @@ export default function ProjectsPage() {
               return (
                 <div
                   key={project.id}
-                  onClick={() => navigate(`/projects/${project.id}`)}
+                  onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
                   className="group grid grid-cols-1 lg:grid-cols-[minmax(220px,1.5fr)_1fr_1fr_1fr_120px_100px_40px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 cursor-pointer"
                 >
                   {/* Col 1: Icon and Details */}

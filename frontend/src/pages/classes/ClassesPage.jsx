@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { usePageTransition } from "../../context/TransitionContext";
 import { createPortal } from "react-dom";
 import { listClasses, toggleStudentRegistration, assignIncharge } from "../../api/classes";
 import { listFaculty } from "../../api/faculty";
@@ -117,10 +117,14 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   );
 
   if (c.can_view_details) {
+    const meta = CLASS_META[c.class_name];
     return (
-      <Link to={`/classes/${c.class_name}`} className="block">
+      <div 
+        onClick={() => onNavigate(`/classes/${c.class_name}`, meta?.label || c.class_name, BookOpen)} 
+        className="block cursor-pointer"
+      >
         {cardContent}
-      </Link>
+      </div>
     );
   }
   return cardContent;
@@ -223,6 +227,7 @@ export default function ClassesPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
+  const { navigateWithTransition } = usePageTransition();
 
   const [inchargeModal, setInchargeModal] = useState(null);
   const [viewMode, setViewMode] = useState("grid");
@@ -313,6 +318,7 @@ export default function ClassesPage() {
                 meta={CLASS_META[c.class_name]}
                 isHOD={isHOD}
                 onAssignIncharge={setInchargeModal}
+                onNavigate={navigateWithTransition}
               />
             ))}
           </div>
@@ -335,6 +341,7 @@ export default function ClassesPage() {
                 meta={CLASS_META[c.class_name]}
                 isHOD={isHOD}
                 onAssignIncharge={setInchargeModal}
+                onNavigate={navigateWithTransition}
               />
             ))}
           </div>

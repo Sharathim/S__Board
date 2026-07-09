@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { usePageTransition } from "../../context/TransitionContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listStudents, removeStudent } from "../../api/classes";
 import { assignForumMember } from "../../api/forum";
@@ -139,6 +140,7 @@ function StudentRow({ s, canManage, isHOD, isForumClass, onForum, onRemove }) {
 export default function ClassDetailPage() {
   const { className } = useParams();
   const { user } = useAuth();
+  const { navigateWithTransition } = usePageTransition();
   const isHOD = user?.role === "HOD";
   const isIncharge = user?.faculty?.class_incharge_of === className;
   const canManage = isHOD || isIncharge;
@@ -195,10 +197,13 @@ export default function ClassDetailPage() {
 
       {/* ── Back + Header ── */}
       <div>
-        <Link to="/classes" className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4 group">
+        <div
+          onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-505 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4 group cursor-pointer"
+        >
           <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
           Back to Classes
-        </Link>
+        </div>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-center gap-4">

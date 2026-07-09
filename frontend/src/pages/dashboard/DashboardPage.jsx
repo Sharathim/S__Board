@@ -6,7 +6,7 @@ import { listFaculty } from "../../api/faculty";
 import { listUpdates } from "../../api/updates";
 import { listForumPosts } from "../../api/forum";
 import { Spinner } from "../../components/ui/Spinner";
-import { Link } from "react-router-dom";
+import { usePageTransition } from "../../context/TransitionContext";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 import { Avatar } from "../../components/ui/Avatar";
@@ -143,7 +143,7 @@ function LiveClockCard({ inline }) {
 }
 
 /* ─── Latest Forum Post Card ─────────────────────────────────────────────── */
-function LatestForumPostCard({ posts }) {
+function LatestForumPostCard({ posts, onNavigate }) {
   const post = posts && posts.length > 0 ? posts[0] : null;
 
   if (!post) {
@@ -154,9 +154,9 @@ function LatestForumPostCard({ posts }) {
             <MessageSquare className="w-4 h-4 text-violet-500" />
             Latest Forum Post
           </span>
-          <Link to="/forum" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+          <div onClick={() => onNavigate("/forum", "Forum", MessageSquare)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:underline cursor-pointer">
             View Forum
-          </Link>
+          </div>
         </div>
         <div className="flex flex-col items-center justify-center py-6 text-center">
           <MessageSquare className="w-8 h-8 text-slate-350 dark:text-slate-600 mb-2" />
@@ -170,16 +170,16 @@ function LatestForumPostCard({ posts }) {
   const { title, body } = parseForumPostContent(post.content);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
+    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
             <MessageSquare className="w-4 h-4 text-violet-500" />
             Latest Forum Post
           </span>
-          <Link to="/forum" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-0.5" style={{ textDecoration: "none" }}>
+          <div onClick={() => onNavigate("/forum", "Forum", MessageSquare)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-0.5 cursor-pointer">
             Go to Forum <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 mb-2.5">
@@ -233,7 +233,7 @@ function LatestForumPostCard({ posts }) {
 }
 
 /* ─── Latest Update Card ─────────────────────────────────────────────────── */
-function LatestUpdateCard({ updates }) {
+function LatestUpdateCard({ updates, onNavigate }) {
   const update = updates && updates.length > 0 ? updates[0] : null;
 
   if (!update) {
@@ -244,9 +244,9 @@ function LatestUpdateCard({ updates }) {
             <Megaphone className="w-4 h-4 text-violet-500" />
             Latest Update
           </span>
-          <Link to="/updates" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+          <div onClick={() => onNavigate("/updates", "Updates", Megaphone)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:underline cursor-pointer">
             View Updates
-          </Link>
+          </div>
         </div>
         <div className="flex flex-col items-center justify-center py-6 text-center">
           <Megaphone className="w-8 h-8 text-slate-350 dark:text-slate-600 mb-2" />
@@ -260,16 +260,16 @@ function LatestUpdateCard({ updates }) {
   const relativeTime = timeAgo(update.created_at);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-805/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
+    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
             <Megaphone className="w-4 h-4 text-violet-500" />
             Latest Update
           </span>
-          <Link to="/updates" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-0.5" style={{ textDecoration: "none" }}>
+          <div onClick={() => onNavigate("/updates", "Updates", Megaphone)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-0.5 cursor-pointer">
             Go to Updates <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 mb-2.5">
@@ -316,6 +316,7 @@ function LatestUpdateCard({ updates }) {
 export default function DashboardPage() {
   const { user } = useAuth();
   const [isMailModalOpen, setIsMailModalOpen] = useState(false);
+  const { navigateWithTransition } = usePageTransition();
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["project-stats"],
@@ -458,12 +459,11 @@ export default function DashboardPage() {
         {allStats.map(card => {
           const Icon = card.icon;
           return (
-            <Link
+            <div
               key={card.key}
-              to={card.to}
+              onClick={() => navigateWithTransition(card.to, card.label, card.icon)}
               id={`stat-card-${card.key}`}
-              className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-2.5 sm:p-3.5 flex flex-row items-center md:flex-col md:items-start gap-2.5 sm:gap-3 transition-all duration-200 hover:shadow-md group block"
-              style={{ textDecoration: "none" }}
+              className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-2.5 sm:p-3.5 flex flex-row items-center md:flex-col md:items-start gap-2.5 sm:gap-3 transition-all duration-205 hover:shadow-md group block cursor-pointer"
             >
               {/* Desktop layout: Icon and count on the same line */}
               <div className="flex items-center justify-between w-auto md:w-full md:flex-row md:items-center">
@@ -490,15 +490,15 @@ export default function DashboardPage() {
                   {card.label}
                 </span>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
 
       {/* ── Latest Forum Post, Latest Update, and Views/Users Row ── */}
       <div data-animate className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <LatestForumPostCard posts={forumPostsList} />
-        <LatestUpdateCard updates={updatesList} />
+        <LatestForumPostCard posts={forumPostsList} onNavigate={navigateWithTransition} />
+        <LatestUpdateCard updates={updatesList} onNavigate={navigateWithTransition} />
 
         {/* Two vertical cards: Total Views and Total Users */}
         <div className="flex flex-col gap-4 justify-between h-full">
