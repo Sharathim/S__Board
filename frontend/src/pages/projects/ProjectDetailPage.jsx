@@ -48,6 +48,47 @@ const getStatusBadge = (status) => {
   );
 };
 
+function CircularProgressBar({ percentage }) {
+  const radius = 50;
+  const stroke = 6;
+  const normalizedRadius = radius - stroke * 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg height={radius * 2} width={radius * 2} className="transform -rotate-90">
+        <circle
+          stroke="rgba(139, 92, 246, 0.08)"
+          fill="transparent"
+          strokeWidth={stroke}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+        <circle
+          stroke="url(#progressGradient)"
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeDasharray={circumference + ' ' + circumference}
+          style={{ strokeDashoffset, transition: "stroke-dashoffset 0.5s ease" }}
+          strokeLinecap="round"
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+        <defs>
+          <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#a855f7" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <span className="absolute text-base font-black text-gray-800 dark:text-white tracking-tight">{percentage}%</span>
+    </div>
+  );
+}
+
 function ProgressAttachmentRenderer({ attachmentUrl, attachmentType, attachmentName, onImageClick }) {
   if (!attachmentUrl) return null;
   const urls = attachmentUrl.split(",").filter(Boolean);
@@ -157,6 +198,10 @@ export default function ProjectDetailPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [enlargedImage, setEnlargedImage] = useState(null);
 
+  // Refs for animations
+  const feedRef = useRef(null);
+  const sidebarRef = useRef(null);
+
   // Edit Project fields
   const [editProjectName, setEditProjectName] = useState("");
   const [editProjectDesc, setEditProjectDesc] = useState("");
@@ -239,6 +284,39 @@ export default function ProjectDetailPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // GSAP animation for staggered timeline cards
+  useEffect(() => {
+    if (feedRef.current && reversedMessages.length > 0) {
+      const cards = feedRef.current.querySelectorAll(".progress-monitor-card");
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 30, scale: 0.98 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "power2.out",
+            clearProps: "all"
+          }
+        );
+      }
+    }
+  }, [reversedMessages.length]);
+
+  // GSAP animation for sidebar entrance
+  useEffect(() => {
+    if (sidebarRef.current) {
+      gsap.fromTo(
+        sidebarRef.current,
+        { opacity: 0, x: 50 },
+        { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" }
+      );
+    }
+  }, []);
+
   // Socket handlers
   const onNewMessage = useCallback((msg) => {
     queryClient.setQueryData(["messages", id], old => {
@@ -277,9 +355,13 @@ export default function ProjectDetailPage() {
     onSuccess: () => {
       refetchMessages();
       setFormTitle("");
-      setFormAccomplishment("");
-      setFormNext("");
-      setFormGuidelines("");
+      setFormSummary("");
+      setFormCompletion(0);
+      setFormStatus("In Progress");
+      setFormCompletedThisWeek("");
+      setFormNextMilestone("");
+      setFormChallenges("");
+      setFormSupport("");
       setFormAttachment(null);
       queryClient.invalidateQueries({ queryKey: ["project", id] });
     },
@@ -384,355 +466,405 @@ export default function ProjectDetailPage() {
   const restCount = allMembers.length - 5;
   const leadAdvisor = facultyMembers[0]?.name || "Unassigned Advisor";
 
+  const latestMessage = reversedMessages[0];
+  let currentCompletion = 0;
+  if (latestMessage) {
+    try {
+      const parsed = JSON.parse(latestMessage.content);
+      currentCompletion = typeof parsed.completion === "number" ? parsed.completion : 0;
+    } catch (e) {
+      currentCompletion = 0;
+    }
+  }
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10">
-      <div
-        onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-750 dark:hover:text-gray-300 cursor-pointer"
-      >
-        <ArrowLeft className="w-4 h-4" /> Back to Projects
-      </div>
-
-      {/* ─── 1. Top Project Overview Card ─── */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl shadow-sm p-6 relative overflow-visible">
-        {/* Top Header Row */}
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/10 shrink-0">
-              <FolderKanban className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">{project.name}</h1>
-              {project.description && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">{project.description}</p>
-              )}
-            </div>
-          </div>          {/* Top Right Kebab Menu */}
-          {project.status !== "COMPLETED" && (
-            <div className="absolute top-6 right-6 project-kebab-container">
-              <button
-                onClick={() => setProjectKebabOpen(!projectKebabOpen)}
-                className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-gray-900 dark:hover:bg-gray-750 text-gray-400 hover:text-gray-650 transition-colors border border-slate-100 dark:border-gray-850 shadow-sm"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </button>
-              {projectKebabOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-gray-855 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                  <button
-                    onClick={() => { setProjectKebabOpen(false); statusMutation.mutate("COMPLETED"); }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold transition-colors text-left"
-                  >
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    Mark as Completed
-                  </button>
-                </div>
-              )}
-            </div>
-          )}      </div>
-
-        {/* Divider */}
-        <div className="my-5 h-px bg-gray-150 dark:bg-gray-750" />
-
-        {/* Info Grid (SaaS-style blocks) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div>
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Faculty</span>
-            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1 truncate">{leadAdvisor}</div>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Team Size</span>
-            <div className="text-sm font-extrabold text-gray-800 dark:text-gray-200 mt-1">{allMembers.length} Members</div>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Created Date</span>
-            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1">
-              {format(new Date(project.created_at), "MMM d, yyyy")}
-            </div>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Status</span>
-            <div className="mt-1">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${project.status === "COMPLETED"
-                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
-                }`}>
-                {project.status === "COMPLETED" ? "Completed" : "In Progress"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Members List - Grouped by Role */}
-        <div className="mt-6 pt-5 border-t border-dashed border-gray-150 dark:border-gray-750/60 flex flex-col sm:flex-row sm:items-center gap-4">
-          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Team Members:</span>
-
-          <div className="flex flex-wrap items-center gap-6">
-            {/* Faculty Group */}
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-500 uppercase">Faculty</span>
-              {facultyMembers.length > 0 ? (
-                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
-                  {facultyMembers.map(m => m.name).join(", ")}
-                </span>
-              ) : (
-                <span className="text-xs text-gray-400 italic">None</span>
-              )}
-            </div>
-
-            {/* Forum Group */}
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-500 uppercase">Forum</span>
-              {forumMembers.length > 0 ? (
-                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
-                  {forumMembers.map(m => m.name).join(", ")}
-                </span>
-              ) : (
-                <span className="text-xs text-gray-400 italic">None</span>
-              )}
-            </div>
-
-            {/* Students Group */}
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[10px] font-extrabold text-slate-400 dark:text-gray-500 uppercase">Students</span>
-              {studentMembers.length > 0 ? (
-                <span className="text-xs font-bold text-slate-700 dark:text-gray-200">
-                  {studentMembers.map(m => m.name).join(", ")}
-                </span>
-              ) : (
-                <span className="text-xs text-gray-400 italic">None</span>
-              )}
-            </div>
-          </div>
-
-          {/* Optional Project Deadline Display */}
-          {project.deadline && (
-            <div className="flex items-center gap-1.5 text-xs text-red-500 font-semibold bg-red-500/5 px-3 py-1 rounded-xl border border-red-500/10">
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Deadline: {format(new Date(project.deadline), "MMM d, yyyy")}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ─── 2. Progress Monitor Header Block ─── */}
-      <div className="flex items-center justify-between gap-4 flex-wrap pt-4">
-        <div>
-          <h2 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">Progress Monitor</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5">"Track every project update in chronological order."</p>
-        </div>
-        <Button
-          onClick={() => { setEditingMsg(null); setAddModalOpen(true); }}
-          className="gap-1.5 bg-primary-600 hover:bg-primary-700 shadow-sm transition-all rounded-xl"
+    <div className="space-y-6 max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-16">
+      {/* Top Header Navigation */}
+      <div className="flex items-center justify-between">
+        <div
+          onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-indigo-650 dark:hover:text-indigo-400 cursor-pointer transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Progress
-        </Button>
+          <ArrowLeft className="w-4 h-4" /> Back to Projects
+        </div>
+
+        {/* Global Project Actions (like Edit Project / Mark as Completed) */}
+        <div className="flex items-center gap-2">
+          {project.status !== "COMPLETED" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => statusMutation.mutate("COMPLETED")}
+              className="border-emerald-500/35 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl gap-1.5 text-xs"
+            >
+              <CheckCircle className="w-3.5 h-3.5" /> Mark Completed
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setEditProjectModalOpen(true)}
+            className="hover:bg-slate-100 dark:hover:bg-gray-800 text-slate-500 dark:text-slate-400 rounded-xl gap-1.5 text-xs"
+          >
+            <Edit2 className="w-3.5 h-3.5" /> Edit Project
+          </Button>
+        </div>
       </div>
 
-      {/* ─── 3. Progress Update Feed Cards ─── */}
-      <div className="space-y-5">
-        {reversedMessages.length === 0 ? (
-          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-gray-150 dark:border-gray-700/80 rounded-3xl p-10 text-center text-gray-400 dark:text-gray-500">
-            <Clock className="w-8 h-8 mx-auto mb-3 text-gray-350 dark:text-gray-650" />
-            <p className="text-sm font-semibold">No progress updates posted yet.</p>
-            <p className="text-xs mt-1">Click "+ Add Progress" to share your first project milestone.</p>
+      {/* Main Responsive Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Left Side: Progress Monitor Timeline Feed (lg:col-span-8) */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap pb-2">
+            <div>
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                Progress Monitor
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                  {reversedMessages.length} updates
+                </span>
+              </h2>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Track every project update and milestone in chronological order.
+              </p>
+            </div>
+            <Button
+              onClick={() => { setEditingMsg(null); setAddModalOpen(true); }}
+              className="gap-2 bg-gradient-to-r from-indigo-650 to-purple-650 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all rounded-xl font-bold text-xs"
+            >
+              <Plus className="w-4 h-4" /> Add Progress
+            </Button>
           </div>
-        ) : (
-          reversedMessages.map(msg => {
-            let updateData = {
-              title: "",
-              summary: "",
-              completion: 0,
-              status: "In Progress",
-              completed_this_week: "",
-              next_milestone: "",
-              challenges: "",
-              support: ""
-            };
-            if (msg.is_deleted) return null;
 
-            try {
-              const parsed = JSON.parse(msg.content);
-              updateData = {
-                title: parsed.title || "Progress Update",
-                summary: parsed.summary || parsed.accomplishment || "",
-                completion: typeof parsed.completion === "number" ? parsed.completion : 0,
-                status: parsed.status || "In Progress",
-                completed_this_week: parsed.completed_this_week || parsed.accomplishment || "",
-                next_milestone: parsed.next_milestone || parsed.next || "",
-                challenges: parsed.challenges || "",
-                support: parsed.support || (parsed.guidelines && parsed.guidelines !== "No guidance required." ? parsed.guidelines : "") || ""
-              };
-            } catch (e) {
-              updateData = {
-                title: "Progress Update",
-                summary: msg.content || "",
-                completion: 0,
-                status: "In Progress",
-                completed_this_week: msg.content || "",
-                next_milestone: "Continue working on tasks.",
-                challenges: "",
-                support: ""
-              };
-            }
+          {/* Timeline Feed Container */}
+          <div ref={feedRef} className="relative pl-6 sm:pl-8 border-l-2 border-slate-200/60 dark:border-slate-850/60 ml-3 sm:ml-4 py-2 space-y-8">
+            {reversedMessages.length === 0 ? (
+              <div className="bg-white/50 dark:bg-gray-800/30 backdrop-blur-md border border-gray-150 dark:border-gray-800/60 rounded-3xl p-10 text-center text-gray-400 dark:text-gray-500 relative">
+                {/* Visual node alignment for empty feed */}
+                <div className="absolute left-[-32px] sm:left-[-41px] top-12 w-4.5 h-4.5 rounded-full bg-slate-350 dark:bg-slate-700 ring-4 ring-slate-100 dark:ring-slate-900 flex items-center justify-center shadow-sm">
+                  <Clock className="w-2.5 h-2.5 text-white" />
+                </div>
+                <Clock className="w-10 h-10 mx-auto mb-3 text-gray-300 dark:text-gray-700" />
+                <p className="text-sm font-bold text-gray-600 dark:text-gray-400">No progress updates posted yet</p>
+                <p className="text-xs text-gray-405 mt-1">Publish the first milestone using the "+ Add Progress" button above.</p>
+              </div>
+            ) : (
+              reversedMessages.map(msg => {
+                let updateData = {
+                  title: "",
+                  summary: "",
+                  completion: 0,
+                  status: "In Progress",
+                  completed_this_week: "",
+                  next_milestone: "",
+                  challenges: "",
+                  support: ""
+                };
+                if (msg.is_deleted) return null;
 
-            const msgSender = msg.sender || {};
-            const isMsgEditable = isEditable(msg);
+                try {
+                  const parsed = JSON.parse(msg.content);
+                  updateData = {
+                    title: parsed.title || "Progress Update",
+                    summary: parsed.summary || parsed.accomplishment || "",
+                    completion: typeof parsed.completion === "number" ? parsed.completion : 0,
+                    status: parsed.status || "In Progress",
+                    completed_this_week: parsed.completed_this_week || parsed.accomplishment || "",
+                    next_milestone: parsed.next_milestone || parsed.next || "",
+                    challenges: parsed.challenges || "",
+                    support: parsed.support || (parsed.guidelines && parsed.guidelines !== "No guidance required." ? parsed.guidelines : "") || ""
+                  };
+                } catch (e) {
+                  updateData = {
+                    title: "Progress Update",
+                    summary: msg.content || "",
+                    completion: 0,
+                    status: "In Progress",
+                    completed_this_week: msg.content || "",
+                    next_milestone: "Continue working on tasks.",
+                    challenges: "",
+                    support: ""
+                  };
+                }
 
-            return (
-              <div key={msg.id} className="progress-monitor-card p-[18px] sm:p-6 mb-5 flex flex-col justify-between">
-                {/* Top Row: User details and kebab */}
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar src={msgSender.profile_picture} name={msgSender.name} size="md" className="rounded-full shrink-0" />
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-bold text-gray-905 dark:text-white leading-none">{msgSender.name}</span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-gray-750 text-gray-500 dark:text-gray-405 border border-gray-200/40 dark:border-gray-700/40 leading-none">
-                          {msgSender.role}
-                        </span>
-                        {getStatusBadge(updateData.status)}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-violet-50 dark:bg-violet-955/30 text-violet-650 dark:text-violet-400 border border-violet-100/30 dark:border-violet-900/20 leading-none">
-                          {updateData.completion}%
-                        </span>
-                      </div>
-                      <div className="text-[13px] text-gray-400 dark:text-gray-500 mt-1.5 leading-none">
-                        {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
-                        {msg.is_edited && <span className="text-[11px] opacity-60 ml-1">(edited)</span>}
-                      </div>
+                const msgSender = msg.sender || {};
+                const isMsgEditable = isEditable(msg);
+
+                // Nodes mapping
+                const nodeColors = {
+                  "Not Started": "bg-slate-400 ring-slate-150 dark:ring-slate-900",
+                  "In Progress": "bg-indigo-500 ring-indigo-100 dark:ring-indigo-950/40",
+                  "Review": "bg-blue-500 ring-blue-100 dark:ring-blue-950/40",
+                  "Completed": "bg-emerald-500 ring-emerald-100 dark:ring-emerald-950/40",
+                  "On Hold": "bg-amber-500 ring-amber-100 dark:ring-amber-955/20"
+                };
+                const activeColor = nodeColors[updateData.status] || nodeColors["In Progress"];
+
+                return (
+                  <div key={msg.id} className="progress-monitor-card relative bg-white/80 dark:bg-gray-800/65 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-305 group">
+                    
+                    {/* Timeline Node Icon aligned to vertical line */}
+                    <div className={`absolute left-[-32px] sm:left-[-41px] top-7 w-4.5 h-4.5 rounded-full ${activeColor} ring-4 flex items-center justify-center z-10 shadow-sm transition-all duration-300`}>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full" />
                     </div>
-                  </div>
 
-                  {/* Kebab dropdown container */}
-                  <div className="relative update-kebab-container">
-                    <button
-                      onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
-                      className="p-1.5 rounded-full kebab-hover-btn text-gray-400 transition-colors"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                    {openKebabId === msg.id && (
-                      <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                        {isMsgEditable ? (
-                          <button
-                            onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-55 dark:hover:bg-gray-700/50 transition-colors text-left"
-                          >
-                            <Pencil className="w-3.5 h-3.5 text-indigo-500" />
-                            Edit Update
-                          </button>
-                        ) : (
-                          <div className="px-3 py-2 text-[10px] text-gray-400 dark:text-gray-505 italic border-b border-gray-100 dark:border-gray-800">
-                            {"Edit expired (>30m)"}
+                    {/* Top Row: User details and kebab menu */}
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar src={msgSender.profile_picture} name={msgSender.name} size="md" className="rounded-2xl shrink-0 ring-2 ring-white dark:ring-gray-800 shadow-sm" />
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-extrabold text-gray-905 dark:text-white leading-tight">{msgSender.name}</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-750 text-slate-500 dark:text-slate-405 border border-slate-200/30 dark:border-slate-700/30 leading-none">
+                              {msgSender.role}
+                            </span>
+                            {getStatusBadge(updateData.status)}
+                          </div>
+                          <div className="text-[11px] font-medium text-gray-400 dark:text-gray-500 mt-1.5 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
+                            {msg.is_edited && <span className="text-[10px] opacity-60 ml-0.5 font-bold uppercase">(edited)</span>}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dropdown Options */}
+                      <div className="relative update-kebab-container">
+                        <button
+                          onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
+                          className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-755/70 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors border border-transparent hover:border-gray-205 dark:hover:border-gray-700/50"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        {openKebabId === msg.id && (
+                          <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                            {isMsgEditable ? (
+                              <button
+                                onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
+                                className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-205 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors text-left"
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-indigo-500" />
+                                Edit Update
+                              </button>
+                            ) : (
+                              <div className="px-3.5 py-2.5 text-[10px] text-gray-400 dark:text-gray-505 italic border-b border-gray-100 dark:border-gray-800">
+                                {"Edit expired (>30m)"}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
+                              className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-455 hover:bg-rose-50/50 dark:hover:bg-rose-955/20 transition-colors text-left"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                              Delete Update
+                            </button>
                           </div>
                         )}
-                        <button
-                          onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-655 dark:text-red-400 hover:bg-red-55/10 dark:hover:bg-red-950/20 transition-colors text-left"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                          Delete Update
-                        </button>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Progress Card Body */}
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-base sm:text-lg font-black text-gray-905 dark:text-white leading-tight tracking-tight">
+                          {updateData.title}
+                        </h3>
+                        {updateData.summary && (
+                          <p className="text-sm font-semibold text-indigo-650 dark:text-indigo-400 mt-1.5 leading-relaxed pl-2.5 border-l-2 border-indigo-500/40">
+                            {updateData.summary}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* 2x2 Details Layout */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {updateData.completed_this_week && (
+                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                            <div className="flex gap-2 items-center">
+                              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                <CheckCircle className="w-4 h-4" />
+                              </div>
+                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Completed This Week</span>
+                            </div>
+                            <p className="text-xs font-bold text-gray-700 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.completed_this_week}</p>
+                          </div>
+                        )}
+
+                        {updateData.next_milestone && (
+                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                            <div className="flex gap-2 items-center">
+                              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                <TrendingUp className="w-4 h-4" />
+                              </div>
+                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Next Milestone</span>
+                            </div>
+                            <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.next_milestone}</p>
+                          </div>
+                        )}
+
+                        {updateData.challenges && (
+                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                            <div className="flex gap-2 items-center">
+                              <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                                <ShieldAlert className="w-4 h-4" />
+                              </div>
+                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Challenges / Blockers</span>
+                            </div>
+                            <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.challenges}</p>
+                          </div>
+                        )}
+
+                        {updateData.support && (
+                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                            <div className="flex gap-2 items-center">
+                              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                <AlertCircle className="w-4 h-4" />
+                              </div>
+                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Support Needed</span>
+                            </div>
+                            <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.support}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Attachments rendering */}
+                      <ProgressAttachmentRenderer
+                        attachmentUrl={msg.attachment_url}
+                        attachmentType={msg.attachment_type}
+                        attachmentName={msg.attachment_name}
+                        onImageClick={setEnlargedImage}
+                      />
+                    </div>
+
+                    {/* Compact Card Footer */}
+                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-850 border border-slate-200/30 dark:border-slate-700/30 text-[10px] font-extrabold">
+                          {updateData.completion}% Complete
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>By <strong className="text-slate-655 dark:text-slate-300 font-bold">{msgSender.name}</strong></span>
+                        <span>•</span>
+                        <span>{format(new Date(msg.created_at), "d MMM yyyy")}</span>
+                      </div>
+                    </div>
+
                   </div>
-                </div>
+                );
+              })
+            )}
+          </div>
+        </div>
 
-                {/* Title */}
-                <div className="mb-2">
-                  <h3 className="text-[18px] md:text-[20px] font-black text-gray-900 dark:text-white leading-snug tracking-tight line-clamp-2">
-                    {updateData.title || "Progress Update"}
-                  </h3>
-                </div>
+        {/* Right Side: Sticky Overview Panel (lg:col-span-4) */}
+        <div ref={sidebarRef} className="lg:col-span-4 lg:sticky lg:top-[100px] space-y-6">
+          
+          {/* Main Info Card */}
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-3xl shadow-sm p-6 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+            
+            {/* Project Branding Header */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${project.status === "COMPLETED"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                  : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+                  }`}>
+                  {project.status === "COMPLETED" ? "Completed" : "Active Project"}
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">{project.name}</h1>
+              {project.description && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{project.description}</p>
+              )}
+            </div>
 
-                {/* Summary */}
-                {updateData.summary && (
-                  <p className="text-[15px] text-gray-500 dark:text-gray-400 mb-3.5 leading-relaxed italic border-l-2 border-gray-200 dark:border-gray-750 pl-3">
-                    {updateData.summary}
-                  </p>
-                )}
+            {/* Circular Progress Indicator for dynamic feedback */}
+            <div className="my-6 flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800">
+              <CircularProgressBar percentage={currentCompletion} />
+              <span className="text-[10px] font-black text-slate-400 dark:text-slate-505 uppercase tracking-wider mt-2.5">Latest Progress Milestone</span>
+            </div>
 
-                {/* 2x2 Info Grid (Adapts to content, empty cards are hidden) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3.5">
-                  {/* Completed This Week */}
-                  {updateData.completed_this_week && (
-                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
-                      <div className="flex gap-2.5 items-center">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
-                          <CheckCircle className="w-4 h-4" />
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Completed This Week</span>
-                      </div>
-                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.completed_this_week}</p>
-                    </div>
-                  )}
-
-                  {/* Next Milestone */}
-                  {updateData.next_milestone && (
-                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
-                      <div className="flex gap-2.5 items-center">
-                        <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-sm">
-                          <TrendingUp className="w-4 h-4" />
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Next Milestone</span>
-                      </div>
-                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.next_milestone}</p>
-                    </div>
-                  )}
-
-                  {/* Challenges */}
-                  {updateData.challenges && (
-                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
-                      <div className="flex gap-2.5 items-center">
-                        <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-sm">
-                          <ShieldAlert className="w-4 h-4" />
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Challenges / Blockers</span>
-                      </div>
-                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.challenges}</p>
-                    </div>
-                  )}
-
-                  {/* Support Needed */}
-                  {updateData.support && (
-                    <div className="bg-white dark:bg-slate-900/60 p-4 rounded-2xl border border-[#ECECEC] dark:border-slate-800/80 flex gap-3 items-start info-card-glow hover:shadow-sm transition-all duration-300 h-full flex-col justify-start">
-                      <div className="flex gap-2.5 items-center">
-                        <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-955/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm">
-                          <AlertCircle className="w-4 h-4" />
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Support Needed</span>
-                      </div>
-                      <p className="text-[15px] text-gray-750 dark:text-gray-250 leading-relaxed whitespace-pre-line break-words mt-2.5">{updateData.support}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Attachment Display */}
-                <ProgressAttachmentRenderer
-                  attachmentUrl={msg.attachment_url}
-                  attachmentType={msg.attachment_type}
-                  attachmentName={msg.attachment_name}
-                  onImageClick={setEnlargedImage}
-                />
-
-                {/* Compact Footer */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-gray-800/60 text-xs font-semibold text-gray-400 mt-3">
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(updateData.status)}
-                    <span className="text-gray-300 dark:text-gray-700">•</span>
-                    <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 text-[11px] font-bold">
-                      {updateData.completion}%
+            {/* Details Grid */}
+            <div className="space-y-4 pt-2">
+              <div className="flex justify-between items-center text-xs pb-3.5 border-b border-dashed border-gray-150 dark:border-gray-750/60">
+                <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Lead Advisor</span>
+                <span className="font-extrabold text-gray-800 dark:text-gray-250">{leadAdvisor}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs pb-3.5 border-b border-dashed border-gray-150 dark:border-gray-750/60">
+                <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Team Size</span>
+                <span className="font-extrabold text-gray-850 dark:text-gray-200">{allMembers.length} Members</span>
+              </div>
+              <div className="flex justify-between items-center text-xs pb-3.5 border-b border-dashed border-gray-150 dark:border-gray-750/60">
+                <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Created On</span>
+                <span className="font-extrabold text-gray-850 dark:text-gray-200">
+                  {format(new Date(project.created_at), "MMM d, yyyy")}
+                </span>
+              </div>
+              {project.deadline && (
+                <div className="flex flex-col gap-2 p-3 bg-rose-500/5 dark:bg-rose-500/10 border border-rose-500/20 rounded-2xl">
+                  <div className="flex items-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-455">
+                    <Calendar className="w-4 h-4 shrink-0" />
+                    <span>Target Deadline</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-extrabold text-gray-800 dark:text-gray-200">
+                      {format(new Date(project.deadline), "MMM d, yyyy")}
+                    </span>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-955/40 text-rose-600 dark:text-rose-400">
+                      {(() => {
+                        const daysLeft = Math.ceil((new Date(project.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                        return daysLeft > 0 ? `${daysLeft} days left` : "Overdue";
+                      })()}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span>Updated by <strong className="text-gray-700 dark:text-gray-200">{msgSender.name}</strong></span>
-                    <span className="text-gray-300 dark:text-gray-700">•</span>
-                    <span>{format(new Date(msg.created_at), "d MMM yyyy")}</span>
-                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
+              )}
+            </div>
+
+          </div>
+
+          {/* Team Members List Card */}
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-3xl shadow-sm p-6 space-y-4">
+            <h3 className="text-xs font-black text-gray-450 dark:text-gray-400 uppercase tracking-widest">Workspace Members</h3>
+            <div className="space-y-3">
+              
+              {facultyMembers.map(m => (
+                <div key={m.id} className="flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Avatar src={m.profile_picture} name={m.name} size="xs" className="rounded-lg ring-2 ring-violet-500 shadow-sm shrink-0" />
+                    <span className="font-extrabold text-gray-750 dark:text-gray-200 truncate">{m.name}</span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase text-violet-650 dark:text-violet-400 px-1.5 py-0.5 rounded-md bg-violet-500/10">Faculty</span>
+                </div>
+              ))}
+
+              {forumMembers.map(m => (
+                <div key={m.id} className="flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Avatar src={m.profile_picture} name={m.name} size="xs" className="rounded-lg ring-2 ring-blue-500 shadow-sm shrink-0" />
+                    <span className="font-extrabold text-gray-750 dark:text-gray-200 truncate">{m.name}</span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-md bg-blue-500/10">Forum</span>
+                </div>
+              ))}
+
+              {studentMembers.map(m => (
+                <div key={m.id} className="flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Avatar src={m.profile_picture} name={m.name} size="xs" className="rounded-lg ring-2 ring-emerald-500 shadow-sm shrink-0" />
+                    <span className="font-extrabold text-gray-750 dark:text-gray-200 truncate">{m.name}</span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase text-emerald-650 dark:text-emerald-400 px-1.5 py-0.5 rounded-md bg-emerald-500/10">Student</span>
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
       {/* ─── 4. Edit Project Modal ─── */}
@@ -744,7 +876,7 @@ export default function ProjectDetailPage() {
               type="text"
               value={editProjectName}
               onChange={e => setEditProjectName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm"
               required
             />
           </div>
@@ -753,7 +885,7 @@ export default function ProjectDetailPage() {
             <textarea
               value={editProjectDesc}
               onChange={e => setEditProjectDesc(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm resize-none"
               rows={4}
             />
           </div>
@@ -768,7 +900,7 @@ export default function ProjectDetailPage() {
       <Modal open={addModalOpen} onClose={() => { setAddModalOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress Update" : "Publish Progress Update"}>
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Update Title *</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Update Title *</label>
             <input
               type="text"
               value={formTitle}
@@ -787,7 +919,7 @@ export default function ProjectDetailPage() {
               onChange={e => setFormSummary(e.target.value)}
               placeholder="Brief 1-sentence overview of current progress..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm"
             />
           </div>
 
@@ -870,7 +1002,7 @@ export default function ProjectDetailPage() {
           {/* Attachment upload */}
           {!editingMsg && (
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider">Attachment</label>
+              <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Attachment</label>
               {formAttachment ? (
                 <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
                   <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-md">
@@ -885,9 +1017,9 @@ export default function ProjectDetailPage() {
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-500 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center">
+                <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-205 hover:border-indigo-500 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center">
                   <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-555 mb-1" />
-                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-450">Attach file (Max 10MB)</span>
+                  <span className="text-xs font-semibold text-gray-505 dark:text-gray-450">Attach file (Max 10MB)</span>
                   <input
                     type="file"
                     className="hidden"

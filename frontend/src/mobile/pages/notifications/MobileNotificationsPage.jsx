@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listNotifications, markRead, markAllRead } from "../../../api/notifications";
+import { listNotifications, markRead, markAllRead, deleteNotification } from "../../../api/notifications";
 import { Spinner } from "../../../components/ui/Spinner";
-import { Bell, CheckCheck, Clock } from "lucide-react";
+import { Bell, CheckCheck, Clock, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
@@ -21,6 +21,11 @@ export default function MobileNotificationsPage() {
 
   const markAllMutation = useMutation({
     mutationFn: markAllRead,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteNotification,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
@@ -72,17 +77,30 @@ export default function MobileNotificationsPage() {
                     onClick={() => { if (!n.is_read) markReadMutation.mutate(n.id); }}
                     className={`${!n.is_read ? "!border-primary-200/40 dark:!border-primary-800/30 bg-primary-50/30 dark:bg-primary-950/10" : ""}`}
                   >
-                    <div className="flex items-start gap-3">
-                      {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary-500 shrink-0 mt-1.5" />}
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs leading-relaxed ${!n.is_read ? "font-bold text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400"}`}>
-                          {n.message || n.title}
-                        </p>
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 mt-1">
-                          <Clock className="w-3 h-3" />
-                          {(() => { try { return formatDistanceToNow(new Date(n.created_at), { addSuffix: true }); } catch { return ""; } })()}
-                        </span>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary-500 shrink-0 mt-1.5" />}
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs leading-relaxed ${!n.is_read ? "font-bold text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-400"}`}>
+                            {n.message || n.title}
+                          </p>
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 mt-1">
+                            <Clock className="w-3 h-3" />
+                            {(() => { try { return formatDistanceToNow(new Date(n.created_at), { addSuffix: true }); } catch { return ""; } })()}
+                          </span>
+                        </div>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteMutation.mutate(n.id);
+                        }}
+                        disabled={deleteMutation.isPending}
+                        className="mobile-tappable p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all shrink-0 self-center"
+                        title="Delete notification"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </MobileCard>
                 ))}

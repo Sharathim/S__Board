@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listNotifications, markAllRead, markRead } from "../../api/notifications";
+import { listNotifications, markAllRead, markRead, deleteNotification } from "../../api/notifications";
 import { useNotificationContext } from "../../context/NotificationContext";
-import { Bell, CheckCheck, X, Mail, MailOpen } from "lucide-react";
+import { Bell, CheckCheck, X, Mail, MailOpen, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { parseUpdateContent } from "../../utils/updateContent";
 
@@ -44,8 +44,17 @@ export function NotificationsPanel({ open, onClose }) {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteNotification,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      refreshCount();
+    },
+  });
+
   const notifications = data?.notifications || [];
   const unread = notifications.filter(n => !n.is_read).length;
+
 
   useEffect(() => {
     const onEsc = (e) => { if (e.key === "Escape") onClose?.(); };
@@ -147,10 +156,21 @@ export function NotificationsPanel({ open, onClose }) {
                   </p>
                   <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 font-mono">{format(new Date(n.created_at), "MMM d, h:mm a")}</p>
                 </div>
-                <div className="shrink-0 self-center">
+                <div className="shrink-0 flex items-center gap-2 self-center">
                   {n.is_read
                     ? <MailOpen className="w-4 h-4 text-gray-300 dark:text-gray-600" />
                     : <Mail className="w-4 h-4 text-purple-500" />}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteMutation.mutate(n.id);
+                    }}
+                    disabled={deleteMutation.isPending}
+                    className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all"
+                    title="Delete notification"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))}

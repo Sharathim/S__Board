@@ -68,3 +68,16 @@ def unread_count():
         is_read=False
     ).count()
     return jsonify({"count": count})
+
+
+@notifications_bp.route("/<int:notif_id>", methods=["DELETE"])
+@require_auth
+def delete_notification(notif_id):
+    notif = Notification.query.filter_by(
+        id=notif_id,
+        recipient_id=g.current_user.id
+    ).first_or_404()
+    db.session.delete(notif)
+    db.session.commit()
+    return jsonify({"ok": True})
+
