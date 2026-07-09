@@ -9,7 +9,7 @@ import { listForumPosts } from "../../api/forum";
 import { Spinner } from "../../components/ui/Spinner";
 import { usePageTransition } from "../../context/TransitionContext";
 import { useAuth } from "../../context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar } from "../../components/ui/Avatar";
 import { parseUpdateContent } from "../../utils/updateContent";
 import MailComposerModal from "./MailComposerModal";
