@@ -1285,7 +1285,7 @@ button {
   max-width: 380px;
   z-index: 1010;
   border-radius: 28px;
-  padding: 32px;
+  padding: 24px 24px 20px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1507,4 +1507,62 @@ button {
 /* Staggered Item Transition State */
 .stagger-item {
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Glassmorphic + Neomorphic Notifications Dropdown Card */
+.notifications-glass-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  width: 400px;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  padding: 20px;
+  z-index: 1050;
+  
+  /* Glassmorphism */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 247, 250, 0.88) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+
+  /* Neomorphic Shadows */
+  box-shadow:
+    0 12px 36px rgba(165, 180, 203, 0.22),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.8),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.02);
+
+  /* Animation Transition */
+  transform: scale(0.95) translateY(-10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.notifications-glass-panel.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dark .notifications-glass-panel {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.06),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 640px) {
+  .notifications-glass-panel {
+    position: fixed;
+    right: 16px;
+    left: 16px;
+    top: 80px;
+    width: calc(100% - 32px);
+    max-height: calc(80vh - 100px);
+  }
 }

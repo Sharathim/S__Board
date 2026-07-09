@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Bell, Moon, Sun, LogOut, X, Sparkles, Settings, ChevronRight,
@@ -50,6 +50,7 @@ export function TopBar() {
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const drawerRef = useRef(null);
 
   const roleColors = getRoleColor(user?.role);
 
@@ -83,17 +84,36 @@ export function TopBar() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
+  // Close drawer on clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        drawerOpen &&
+        drawerRef.current &&
+        !drawerRef.current.contains(e.target) &&
+        !e.target.closest("#navbar-hamburger-btn")
+      ) {
+        setDrawerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [drawerOpen]);
+
   return (
     <>
       {/* ── Top-Left: Logo & Brand Name (Floating) ── */}
-      <div className="fixed top-5 left-6 z-[100] flex items-center gap-3 select-none">
+      <div 
+        onClick={() => navigate("/dashboard")}
+        className="fixed top-4 left-6 z-[100] flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+      >
         <img
           src="/logo-icon.png"
           alt="Hive Logo"
-          className="w-9 h-9 object-contain flex-shrink-0 filter drop-shadow-[0_2px_8px_rgba(139,92,246,0.15)] dark:drop-shadow-[0_2px_8px_rgba(167,139,250,0.2)]"
+          className="w-14 h-14 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(139,92,246,0.25)] dark:drop-shadow-[0_4px_12px_rgba(167,139,250,0.35)] transition-transform duration-300 hover:rotate-6"
         />
         <span
-          className="font-black text-xl tracking-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-950 dark:from-white dark:via-gray-200 dark:to-gray-300 bg-clip-text text-transparent"
+          className="font-extrabold text-3xl tracking-tighter bg-gradient-to-r from-gray-900 via-purple-950 to-black dark:from-white dark:via-purple-100 dark:to-gray-200 bg-clip-text text-transparent"
         >
           Hive
         </span>
@@ -140,8 +160,8 @@ export function TopBar() {
           <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
         </div>
 
-        {/* Button 3: Hamburger Menu Button */}
-        <div className="hamburger-btn-wrapper">
+        {/* Button 3: Hamburger Menu Button with Spacing */}
+        <div className="hamburger-btn-wrapper ml-5">
           <div className="hamburger-hover-dot" />
           <button
             id="navbar-hamburger-btn"
@@ -159,67 +179,61 @@ export function TopBar() {
       </div>
 
       {/* ── Side Menu Drawer (Right Panel) ── */}
-      <>
-        {/* Backdrop */}
-        <div
-          className={`drawer-backdrop ${drawerOpen ? "open" : ""}`}
+      <div ref={drawerRef} className={`drawer-container ${drawerOpen ? "open" : ""}`}>
+        
+        {/* Close Menu Button */}
+        <button
           onClick={() => setDrawerOpen(false)}
-        />
+          className="drawer-close-btn"
+          title="Close Menu"
+        >
+          <X className="w-4.5 h-4.5" />
+        </button>
 
-        {/* Drawer Panel Card */}
-        <div className={`drawer-container ${drawerOpen ? "open" : ""}`}>
+        {/* Scrollable Content wrapper (prevent bottom profile card cutoff) */}
+        <div className="flex-1 overflow-y-auto pr-1 my-4 flex flex-col justify-between min-h-0 gap-6 mt-12 scrollbar-thin">
           
-          {/* Close Menu Button */}
-          <button
-            onClick={() => setDrawerOpen(false)}
-            className="drawer-close-btn"
-            title="Close Menu"
-          >
-            <X className="w-4.5 h-4.5" />
-          </button>
-
           {/* Navigation Items list (Staggered load) */}
-          <div className="flex flex-col gap-6 mt-12 flex-1">
-            <div className="flex flex-col gap-1.5">
-              {navItems.map((item, idx) => {
-                const indexStr = String(idx + 1).padStart(2, "0");
-                return (
-                  <NavLink
-                    key={item.label}
-                    to={item.to}
-                    onClick={() => setDrawerOpen(false)}
-                    className={({ isActive }) =>
-                      `drawer-nav-item ${isActive ? "active" : ""} stagger-item`
-                    }
-                    style={{
-                      transitionDelay: `${idx * 40}ms`,
-                      transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
-                      opacity: drawerOpen ? 1 : 0,
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] font-mono opacity-50 tracking-wider align-super mr-1">
-                        {indexStr}
-                      </span>
-                      <span className="tracking-tight">{item.label}</span>
-                    </div>
-                    <div className="drawer-nav-arrow">
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  </NavLink>
-                );
-              })}
-            </div>
+          <div className="flex flex-col gap-1.5">
+            {navItems.map((item, idx) => {
+              const indexStr = String(idx + 1).padStart(2, "0");
+              return (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  onClick={() => setDrawerOpen(false)}
+                  className={({ isActive }) =>
+                    `drawer-nav-item ${isActive ? "active" : ""} stagger-item`
+                  }
+                  style={{
+                    transitionDelay: `${idx * 40}ms`,
+                    transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
+                    opacity: drawerOpen ? 1 : 0,
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono opacity-50 tracking-wider align-super mr-1">
+                      {indexStr}
+                    </span>
+                    <span className="tracking-tight">{item.label}</span>
+                  </div>
+                  <div className="drawer-nav-arrow">
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
+                </NavLink>
+              );
+            })}
+          </div>
 
-            {/* Elegant Divider Line */}
+          {/* Divider and Quick Actions */}
+          <div className="flex flex-col gap-4">
             <div
-              className="w-full h-px my-1"
+              className="w-full h-px"
               style={{
                 background: "linear-gradient(90deg, transparent, var(--border-light), transparent)",
               }}
             />
 
-            {/* Quick Actions (Settings & Sign Out) */}
             <div className="flex flex-col gap-1.5">
               <NavLink
                 to="/settings"
@@ -263,60 +277,61 @@ export function TopBar() {
             </div>
           </div>
 
-          {/* User Profile Card (Bottom of Drawer) */}
-          <div
-            className="profile-section-card stagger-item"
-            style={{
-              transitionDelay: `${(navItems.length + 2) * 40}ms`,
-              transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
-              opacity: drawerOpen ? 1 : 0,
-            }}
-          >
-            <div className="flex items-center gap-3.5">
-              
-              {/* Profile Image/Initials */}
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
+        </div>
+
+        {/* User Profile Card (Bottom of Drawer, mt-auto keeps it anchored) */}
+        <div
+          className="profile-section-card stagger-item mt-auto"
+          style={{
+            transitionDelay: `${(navItems.length + 2) * 40}ms`,
+            transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
+            opacity: drawerOpen ? 1 : 0,
+          }}
+        >
+          <div className="flex items-center gap-3.5">
+            
+            {/* Profile Image/Initials */}
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
+              }}
+            >
+              {user?.profile_picture ? (
+                <img
+                  src={user.profile_picture}
+                  alt={user?.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getInitials(user?.name)
+              )}
+            </div>
+
+            {/* User details */}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold truncate text-gray-900 dark:text-white">
+                {user?.name}
+              </p>
+              <p className="text-xs truncate text-gray-500 dark:text-gray-400 mt-0.5">
+                {user?.email}
+              </p>
+              <span
+                className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md mt-2"
                 style={{
-                  background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
+                  background: roleColors.light,
+                  color: roleColors.text,
                 }}
               >
-                {user?.profile_picture ? (
-                  <img
-                    src={user.profile_picture}
-                    alt={user?.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  getInitials(user?.name)
-                )}
-              </div>
-
-              {/* User details */}
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold truncate text-gray-900 dark:text-white">
-                  {user?.name}
-                </p>
-                <p className="text-xs truncate text-gray-500 dark:text-gray-400 mt-0.5">
-                  {user?.email}
-                </p>
-                <span
-                  className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md mt-2"
-                  style={{
-                    background: roleColors.light,
-                    color: roleColors.text,
-                  }}
-                >
-                  <Sparkles className="w-2.5 h-2.5" />
-                  {getRoleLabel(user?.role)}
-                </span>
-              </div>
-
+                <Sparkles className="w-2.5 h-2.5" />
+                {getRoleLabel(user?.role)}
+              </span>
             </div>
-          </div>
 
+          </div>
         </div>
-      </>
+
+      </div>
 
       {/* Logout confirmation Dialog */}
       <ConfirmDialog
