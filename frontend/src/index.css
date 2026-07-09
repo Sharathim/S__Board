@@ -677,6 +677,474 @@ a, button { transition: all 0.15s ease; }
   background: rgba(0, 0, 0, 0.35);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESKTOP SIDEBAR — Premium Glassmorphic Vertical Navigation
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.desktop-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+
+  /* Glassmorphism — frosted glass surface */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(248,250,255,0.88) 50%, rgba(255,255,255,0.9) 100%);
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.02);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.02);
+
+  /* Right border — subtle separator */
+  border-right: 1px solid rgba(139, 92, 246, 0.08);
+
+  /* Neomorphic depth shadow */
+  box-shadow:
+    4px 0 24px rgba(0, 0, 0, 0.04),
+    1px 0 6px rgba(0, 0, 0, 0.02),
+    inset -1px 0 0 rgba(255, 255, 255, 0.5);
+
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+}
+
+.desktop-sidebar--collapsed {
+  width: 72px;
+}
+
+/* Dark mode sidebar */
+.dark .desktop-sidebar {
+  background:
+    linear-gradient(180deg, rgba(8,6,18,0.95) 0%, rgba(15,12,30,0.92) 50%, rgba(8,6,18,0.93) 100%);
+  border-right-color: rgba(139, 92, 246, 0.12);
+  box-shadow:
+    4px 0 32px rgba(0, 0, 0, 0.3),
+    1px 0 8px rgba(0, 0, 0, 0.15),
+    inset -1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Sidebar Header (Logo + Collapse) ── */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 16px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sidebar-logo-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  animation: sidebar-fade-in 0.2s ease-out forwards;
+}
+
+@keyframes sidebar-fade-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Collapse toggle button */
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-muted);
+
+  background: rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-collapse-btn:hover {
+  background: rgba(139, 92, 246, 0.08);
+  color: #7C3AED;
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.sidebar-collapse-btn:active {
+  transform: scale(0.92);
+}
+
+.dark .sidebar-collapse-btn {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.dark .sidebar-collapse-btn:hover {
+  background: rgba(167, 139, 250, 0.12);
+  color: #A78BFA;
+}
+
+/* When collapsed, center the toggle */
+.desktop-sidebar--collapsed .sidebar-header {
+  justify-content: center;
+  padding: 20px 8px 16px;
+}
+
+.desktop-sidebar--collapsed .sidebar-logo-area {
+  display: none;
+}
+
+/* ── Sidebar Divider ── */
+.sidebar-divider {
+  height: 1px;
+  margin: 0 16px;
+  background: var(--border-light);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.desktop-sidebar--collapsed .sidebar-divider {
+  margin: 0 12px;
+}
+
+/* ── Sidebar Navigation ── */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Nav item */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--text-secondary);
+  text-decoration: none;
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+
+  background: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-nav-item:hover {
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.dark .sidebar-nav-item:hover {
+  background: rgba(167, 139, 250, 0.08);
+}
+
+/* Active nav item */
+.sidebar-nav-item--active {
+  color: #fff !important;
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%) !important;
+  box-shadow:
+    0 4px 16px rgba(124, 58, 237, 0.3),
+    0 1px 4px rgba(124, 58, 237, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.dark .sidebar-nav-item--active {
+  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%) !important;
+  box-shadow:
+    0 4px 20px rgba(139, 92, 246, 0.4),
+    0 1px 6px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Collapsed nav item — centered icon */
+.sidebar-nav-item--collapsed {
+  justify-content: center;
+  padding: 10px;
+  gap: 0;
+}
+
+/* Nav icon container */
+.sidebar-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  transition: color 0.2s ease;
+}
+
+.sidebar-nav-icon--active {
+  color: #fff;
+}
+
+/* Nav label */
+.sidebar-nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: sidebar-fade-in 0.2s ease-out forwards;
+}
+
+/* ── Sidebar Tooltip (collapsed state) ── */
+.sidebar-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateY(-50%) translateX(-4px);
+}
+
+.dark .sidebar-tooltip {
+  background: rgba(15, 12, 30, 0.95);
+  border-color: rgba(139, 92, 246, 0.15);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-tooltip-arrow {
+  position: absolute;
+  top: 50%;
+  left: -5px;
+  transform: translateY(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: var(--surface);
+  border-left: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.dark .sidebar-tooltip-arrow {
+  background: rgba(15, 12, 30, 0.95);
+  border-color: rgba(139, 92, 246, 0.15);
+}
+
+/* Show tooltip on hover */
+.sidebar-nav-item--collapsed:hover .sidebar-tooltip,
+.sidebar-user-section--collapsed:hover .sidebar-tooltip,
+.sidebar-logout-btn--collapsed:hover .sidebar-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* ── Sidebar Footer (User + Logout) ── */
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 0 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-user-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  position: relative;
+  cursor: default;
+  margin-top: 8px;
+
+  background: rgba(0, 0, 0, 0.02);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.dark .sidebar-user-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-user-section--collapsed {
+  justify-content: center;
+  padding: 8px;
+}
+
+.sidebar-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-avatar-status {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22C55E;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.dark .sidebar-avatar-status {
+  border-color: rgba(8, 6, 18, 0.95);
+}
+
+.sidebar-user-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: sidebar-fade-in 0.2s ease-out forwards;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+/* Logout button */
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-logout-btn:hover {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.dark .sidebar-logout-btn:hover {
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.sidebar-logout-btn--collapsed {
+  justify-content: center;
+  padding: 9px;
+}
+
+.sidebar-logout-btn:active {
+  transform: scale(0.97);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESKTOP TOP UTILITY BAR — Slim right-aligned actions bar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.desktop-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 56px;
+  padding: 0 24px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+
+  background: rgba(251, 251, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.dark .desktop-topbar {
+  background: rgba(2, 6, 23, 0.6);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Offset main content for sidebar ── */
+@media (min-width: 768px) {
+  .page-content-container {
+    padding-top: 24px;
+  }
+}
+
 /* ─── Forum badge in navbar — glowing dot ────────────────────────────────── */
 .nav-badge {
   position: absolute;
