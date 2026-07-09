@@ -107,7 +107,7 @@ export function TopBar() {
       {/* ── Top-Left: Logo & Brand Name (Floating) ── */}
       <div 
         onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-        className="fixed top-4 left-6 z-[100] flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+        className="absolute top-4 left-6 z-[100] flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
       >
         <img
           src="/logo-icon.png"
@@ -122,7 +122,7 @@ export function TopBar() {
       </div>
 
       {/* ── Top-Right: Action controls (Three floating buttons) ── */}
-      <div className="fixed top-5 right-6 z-[100] flex items-center gap-3">
+      <div className="absolute top-5 right-6 z-[100] flex items-center gap-3">
         
         {/* Button 1: Mode Switcher */}
         <button
