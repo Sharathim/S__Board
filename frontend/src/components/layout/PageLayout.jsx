@@ -27,7 +27,7 @@ export default function PageLayout() {
         {/* Main Content — offset by navbar height + spacing */}
         <main
           ref={pageContentRef}
-          className="flex-1 overflow-y-auto pt-[88px] relative z-10 page-content-animated"
+          className="flex-1 overflow-y-auto mt-[88px] relative z-10 page-content-animated"
         >
           <div className="page-content-container">
             <ErrorBoundary>
