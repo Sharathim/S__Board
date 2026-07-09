@@ -1565,4 +1565,73 @@ button {
     width: calc(100% - 32px);
     max-height: calc(80vh - 100px);
   }
-}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM PAGE TRANSITION SYSTEM
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Transition Card ────────────────────────────────────────────────────── */
+.transition-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  will-change: transform, opacity;
+  min-width: 260px;
+}
+
+.dark .transition-card {
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ─── Orbital Dots ───────────────────────────────────────────────────────── */
+.orbit-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--orbit-size, 4px);
+  height: var(--orbit-size, 4px);
+  border-radius: 50%;
+  background-color: #8B5CF6;
+  opacity: var(--orbit-opacity, 0.3);
+  animation: orbit-dot 3.3s linear infinite;
+  animation-delay: var(--orbit-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes orbit-dot {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) translateX(38px) rotate(0deg) scale(0.8);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(90deg) translateX(38px) rotate(-90deg) scale(1.1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) translateX(38px) rotate(-180deg) scale(0.8);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(270deg) translateX(38px) rotate(-270deg) scale(1.1);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) translateX(38px) rotate(-360deg) scale(0.8);
+  }
+}
+
+/* ─── Page Content GPU Acceleration ──────────────────────────────────────── */
+.page-content-animated {
+  will-change: transform, opacity, filter;
+  transform-origin: center top;
+}
+

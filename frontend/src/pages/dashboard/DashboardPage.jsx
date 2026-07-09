@@ -422,9 +422,9 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8">
       {/* ── Welcome Header Banner ── */}
-      <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+      <div data-animate className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
         <div className="space-y-2 z-10 max-w-xl">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             <span className="text-primary-600 dark:text-primary-400 block mb-1.5">Welcome back,</span>
@@ -454,7 +454,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 1: Unified Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 lg:gap-3">
+      <div data-animate className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 lg:gap-3">
         {allStats.map(card => {
           const Icon = card.icon;
           return (
@@ -496,7 +496,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Latest Forum Post, Latest Update, and Views/Users Row ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div data-animate className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <LatestForumPostCard posts={forumPostsList} />
         <LatestUpdateCard updates={updatesList} />
 

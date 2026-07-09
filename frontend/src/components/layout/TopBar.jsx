@@ -7,6 +7,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
 import { useNotificationContext } from "../../context/NotificationContext";
+import { usePageTransition } from "../../context/TransitionContext";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 
@@ -45,6 +46,7 @@ export function TopBar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
+  const { navigateWithTransition } = usePageTransition();
   const [notifOpen, setNotifOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
@@ -104,7 +106,7 @@ export function TopBar() {
     <>
       {/* ── Top-Left: Logo & Brand Name (Floating) ── */}
       <div 
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
         className="fixed top-4 left-6 z-[100] flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
       >
         <img
@@ -197,14 +199,15 @@ export function TopBar() {
           <div className="flex flex-col gap-1.5">
             {navItems.map((item, idx) => {
               const indexStr = String(idx + 1).padStart(2, "0");
+              const isActive = location.pathname === item.to;
               return (
-                <NavLink
+                <div
                   key={item.label}
-                  to={item.to}
-                  onClick={() => setDrawerOpen(false)}
-                  className={({ isActive }) =>
-                    `drawer-nav-item ${isActive ? "active" : ""} stagger-item`
-                  }
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    navigateWithTransition(item.to, item.label, item.icon);
+                  }}
+                  className={`drawer-nav-item ${isActive ? "active" : ""} stagger-item cursor-pointer`}
                   style={{
                     transitionDelay: `${idx * 40}ms`,
                     transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
@@ -220,7 +223,7 @@ export function TopBar() {
                   <div className="drawer-nav-arrow">
                     <ChevronRight className="w-4 h-4" />
                   </div>
-                </NavLink>
+                </div>
               );
             })}
           </div>
@@ -235,10 +238,12 @@ export function TopBar() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <NavLink
-                to="/settings"
-                onClick={() => setDrawerOpen(false)}
-                className="drawer-nav-item-secondary stagger-item"
+              <div
+                onClick={() => {
+                  setDrawerOpen(false);
+                  navigateWithTransition("/settings", "Settings", Settings);
+                }}
+                className="drawer-nav-item-secondary stagger-item cursor-pointer"
                 style={{
                   transitionDelay: `${(navItems.length) * 40}ms`,
                   transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
@@ -252,7 +257,7 @@ export function TopBar() {
                 <div className="drawer-nav-arrow-sm">
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
-              </NavLink>
+              </div>
 
               <button
                 onClick={() => {
