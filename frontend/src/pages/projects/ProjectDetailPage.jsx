@@ -479,6 +479,25 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-16">
+      <style>{`
+        .scrollbar-premium::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-premium::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-premium::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.2);
+          border-radius: 10px;
+        }
+        .scrollbar-premium::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.4);
+        }
+        .scrollbar-premium {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 163, 175, 0.2) transparent;
+        }
+      `}</style>
       {/* Top Header Navigation */}
       <div className="flex items-center justify-between">
         <div
@@ -536,8 +555,9 @@ export default function ProjectDetailPage() {
             </Button>
           </div>
 
-          {/* Timeline Feed Container */}
-          <div ref={feedRef} className="relative pl-6 sm:pl-8 border-l-2 border-slate-200/60 dark:border-slate-850/60 ml-3 sm:ml-4 py-2 space-y-8">
+          {/* Timeline Feed Scrollable Container */}
+          <div className="overflow-y-auto max-h-[calc(100vh-240px)] lg:max-h-[720px] pr-3 scrollbar-premium">
+            <div ref={feedRef} className="relative pl-6 sm:pl-8 border-l-2 border-slate-200/60 dark:border-slate-850/60 ml-3 sm:ml-4 py-2 space-y-8">
             {reversedMessages.length === 0 ? (
               <div className="bg-white/50 dark:bg-gray-800/30 backdrop-blur-md border border-gray-150 dark:border-gray-800/60 rounded-3xl p-10 text-center text-gray-400 dark:text-gray-500 relative">
                 {/* Visual node alignment for empty feed */}
@@ -754,6 +774,7 @@ export default function ProjectDetailPage() {
                 );
               })
             )}
+            </div>
           </div>
         </div>
 
