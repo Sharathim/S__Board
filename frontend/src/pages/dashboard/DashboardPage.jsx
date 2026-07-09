@@ -1,5 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
+import gsap from "gsap";
 import { getProjectStats } from "../../api/projects";
 import { listClasses } from "../../api/classes";
 import { listFaculty } from "../../api/faculty";
@@ -21,6 +22,84 @@ import {
 function getFirstName(name) {
   if (!name) return "there";
   return name.trim().split(" ")[0];
+}
+
+/* ─── Premium GSAP Username Roll Component ─────────────────────────────── */
+function DashboardRollingName({ name }) {
+  const containerRef = useRef(null);
+
+  const triggerRoll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const primaries = el.querySelectorAll(".name-char-primary");
+    const secondaries = el.querySelectorAll(".name-char-secondary");
+    if (primaries.length === 0) return;
+
+    const tl = gsap.timeline();
+    
+    gsap.killTweensOf([primaries, secondaries]);
+    gsap.set(primaries, { yPercent: 0 });
+    gsap.set(secondaries, { yPercent: 100 });
+
+    tl.to(primaries, {
+      yPercent: -100,
+      duration: 0.4,
+      ease: "power2.inOut",
+      stagger: 0.02
+    });
+    tl.to(secondaries, {
+      yPercent: 0,
+      duration: 0.4,
+      ease: "power2.inOut",
+      stagger: 0.02
+    }, 0);
+
+    // Roll back down
+    tl.to(primaries, {
+      yPercent: 0,
+      duration: 0.3,
+      ease: "power2.out",
+      stagger: 0.015,
+      delay: 0.15
+    });
+    tl.to(secondaries, {
+      yPercent: 100,
+      duration: 0.3,
+      ease: "power2.out",
+      stagger: 0.015
+    }, "-=0.3");
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerRoll();
+    }, 600); // delay to trigger after page unfolds
+    return () => clearTimeout(timer);
+  }, [name, triggerRoll]);
+
+  if (!name) return null;
+  const chars = name.split("");
+
+  return (
+    <span
+      ref={containerRef}
+      onMouseEnter={triggerRoll}
+      className="inline-flex overflow-hidden relative cursor-pointer font-black"
+    >
+      {chars.map((char, idx) => {
+        if (char === " ") return <span key={idx}>&nbsp;</span>;
+        return (
+          <span key={idx} className="relative inline-block overflow-hidden h-[1.25em] leading-none select-none">
+            <span className="name-char-primary inline-block transform-gpu">{char}</span>
+            <span className="name-char-secondary absolute left-0 top-0 inline-block transform-gpu text-primary-600 dark:text-primary-400" style={{ transform: "translateY(100%)" }}>
+              {char}
+            </span>
+          </span>
+        );
+      })}
+    </span>
+  );
 }
 
 function timeAgo(isoStr) {
@@ -429,7 +508,9 @@ export default function DashboardPage() {
         <div className="space-y-2 z-10 max-w-xl">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             <span className="text-primary-600 dark:text-primary-400 block mb-1.5">Welcome back,</span>
-            <span className="block text-3xl sm:text-4xl">{getFirstName(user?.name)}</span>
+            <span className="block text-3xl sm:text-4xl">
+              <DashboardRollingName name={getFirstName(user?.name)} />
+            </span>
           </h1>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium">
             Here's what's happening in your department today.

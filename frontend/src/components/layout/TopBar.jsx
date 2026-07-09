@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import gsap from "gsap";
 import {
   Bell, Moon, Sun, LogOut, X, Sparkles, Settings, ChevronRight,
   LayoutDashboard, FolderKanban, GraduationCap, BookOpen, MessageSquare, Megaphone
@@ -31,6 +32,159 @@ function getRoleColor(role) {
     STUDENT: { from: "#10B981", to: "#059669", light: "#D1FAE5", text: "#059669" },
   };
   return map[role] || { from: "#6B7280", to: "#4B5563", light: "#F3F4F6", text: "#6B7280" };
+}
+
+/* ─── Premium GSAP Hover Rolling Text Component ─────────────────────────── */
+function HoverRollText({ text, isHovered, className = "" }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const primaries = el.querySelectorAll(".roll-char-primary");
+    const secondaries = el.querySelectorAll(".roll-char-secondary");
+    if (primaries.length === 0) return;
+
+    gsap.killTweensOf([primaries, secondaries]);
+
+    if (isHovered) {
+      // Staggered roll up
+      gsap.to(primaries, {
+        yPercent: -100,
+        duration: 0.35,
+        ease: "power2.out",
+        stagger: 0.02
+      });
+      gsap.to(secondaries, {
+        yPercent: 0,
+        duration: 0.35,
+        ease: "power2.out",
+        stagger: 0.02
+      });
+    } else {
+      // Staggered roll back down
+      gsap.to(primaries, {
+        yPercent: 0,
+        duration: 0.3,
+        ease: "power2.out",
+        stagger: 0.015
+      });
+      gsap.to(secondaries, {
+        yPercent: 100,
+        duration: 0.3,
+        ease: "power2.out",
+        stagger: 0.015
+      });
+    }
+  }, [isHovered]);
+
+  const chars = text.split("");
+
+  return (
+    <span ref={containerRef} className={`inline-flex overflow-hidden relative ${className}`}>
+      {chars.map((char, idx) => {
+        if (char === " ") return <span key={idx}>&nbsp;</span>;
+        return (
+          <span key={idx} className="roll-char-wrapper relative inline-block overflow-hidden h-[1.25em] leading-none select-none">
+            <span className="roll-char-primary inline-block transform-gpu">{char}</span>
+            <span className="roll-char-secondary absolute left-0 top-0 inline-block transform-gpu" style={{ transform: "translateY(100%)" }}>{char}</span>
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+/* ─── Drawer link items with isolated hover state tracking ───────────────── */
+function DrawerLink({ idx, item, isActive, drawerOpen, navigateWithTransition, setDrawerOpen }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const indexStr = String(idx + 1).padStart(2, "0");
+
+  return (
+    <div
+      onClick={() => {
+        setDrawerOpen(false);
+        navigateWithTransition(item.to, item.label, item.icon);
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`drawer-nav-item ${isActive ? "active" : ""} stagger-item cursor-pointer`}
+      style={{
+        transitionDelay: `${idx * 40}ms`,
+        transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
+        opacity: drawerOpen ? 1 : 0,
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <span className="text-[11px] font-mono opacity-50 tracking-wider align-super mr-1">
+          {indexStr}
+        </span>
+        <HoverRollText text={item.label} isHovered={isHovered} className="tracking-tight font-extrabold" />
+      </div>
+      <div className="drawer-nav-arrow">
+        <ChevronRight className="w-4 h-4" />
+      </div>
+    </div>
+  );
+}
+
+function DrawerSettingsLink({ idx, drawerOpen, navigateWithTransition, setDrawerOpen }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      onClick={() => {
+        setDrawerOpen(false);
+        navigateWithTransition("/settings", "Settings", Settings);
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="drawer-nav-item-secondary stagger-item cursor-pointer"
+      style={{
+        transitionDelay: `${idx * 40}ms`,
+        transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
+        opacity: drawerOpen ? 1 : 0,
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <Settings className="w-4 h-4" />
+        <HoverRollText text="Settings" isHovered={isHovered} className="font-semibold text-sm" />
+      </div>
+      <div className="drawer-nav-arrow-sm">
+        <ChevronRight className="w-3.5 h-3.5" />
+      </div>
+    </div>
+  );
+}
+
+function DrawerSignOutLink({ idx, drawerOpen, setDrawerOpen, setLogoutConfirmOpen }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <button
+      onClick={() => {
+        setDrawerOpen(false);
+        setLogoutConfirmOpen(true);
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="drawer-nav-item-secondary text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 stagger-item w-full text-left"
+      style={{
+        transitionDelay: `${idx * 40}ms`,
+        transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
+        opacity: drawerOpen ? 1 : 0,
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <LogOut className="w-4 h-4" />
+        <HoverRollText text="Sign Out" isHovered={isHovered} className="font-semibold text-sm" />
+      </div>
+      <div className="drawer-nav-arrow-sm bg-rose-500/10 text-rose-500 dark:bg-rose-500/20">
+        <ChevronRight className="w-3.5 h-3.5" />
+      </div>
+    </button>
+  );
 }
 
 const allNavItems = [
@@ -198,32 +352,17 @@ export function TopBar() {
           {/* Navigation Items list (Staggered load) */}
           <div className="flex flex-col gap-1.5">
             {navItems.map((item, idx) => {
-              const indexStr = String(idx + 1).padStart(2, "0");
               const isActive = location.pathname === item.to;
               return (
-                <div
+                <DrawerLink
                   key={item.label}
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    navigateWithTransition(item.to, item.label, item.icon);
-                  }}
-                  className={`drawer-nav-item ${isActive ? "active" : ""} stagger-item cursor-pointer`}
-                  style={{
-                    transitionDelay: `${idx * 40}ms`,
-                    transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
-                    opacity: drawerOpen ? 1 : 0,
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-[11px] font-mono opacity-50 tracking-wider align-super mr-1">
-                      {indexStr}
-                    </span>
-                    <span className="tracking-tight">{item.label}</span>
-                  </div>
-                  <div className="drawer-nav-arrow">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </div>
+                  idx={idx}
+                  item={item}
+                  isActive={isActive}
+                  drawerOpen={drawerOpen}
+                  navigateWithTransition={navigateWithTransition}
+                  setDrawerOpen={setDrawerOpen}
+                />
               );
             })}
           </div>
@@ -238,47 +377,19 @@ export function TopBar() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <div
-                onClick={() => {
-                  setDrawerOpen(false);
-                  navigateWithTransition("/settings", "Settings", Settings);
-                }}
-                className="drawer-nav-item-secondary stagger-item cursor-pointer"
-                style={{
-                  transitionDelay: `${(navItems.length) * 40}ms`,
-                  transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
-                  opacity: drawerOpen ? 1 : 0,
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <Settings className="w-4 h-4" />
-                  <span>Settings</span>
-                </div>
-                <div className="drawer-nav-arrow-sm">
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
+              <DrawerSettingsLink
+                idx={navItems.length}
+                drawerOpen={drawerOpen}
+                navigateWithTransition={navigateWithTransition}
+                setDrawerOpen={setDrawerOpen}
+              />
 
-              <button
-                onClick={() => {
-                  setDrawerOpen(false);
-                  setLogoutConfirmOpen(true);
-                }}
-                className="drawer-nav-item-secondary text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 stagger-item"
-                style={{
-                  transitionDelay: `${(navItems.length + 1) * 40}ms`,
-                  transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
-                  opacity: drawerOpen ? 1 : 0,
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </div>
-                <div className="drawer-nav-arrow-sm bg-rose-500/10 text-rose-500 dark:bg-rose-500/20">
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </button>
+              <DrawerSignOutLink
+                idx={navItems.length + 1}
+                drawerOpen={drawerOpen}
+                setDrawerOpen={setDrawerOpen}
+                setLogoutConfirmOpen={setLogoutConfirmOpen}
+              />
             </div>
           </div>
 
