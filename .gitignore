@@ -20,3 +20,6 @@ dist/
 
 # Docker volumes
 postgres_data/
+
+
+firebase-service-account.json
