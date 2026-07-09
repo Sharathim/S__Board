@@ -1,27 +1,11 @@
 import { usePageTransition } from "../../context/TransitionContext";
-import { Check } from "lucide-react";
-
-/* Emojis mapped to section names for folder animations */
-const EMOJI_MAP = {
-  Dashboard: "📊",
-  Projects: "📁",
-  Faculty: "👨‍🏫",
-  Classes: "🏫",
-  Forum: "💬",
-  Updates: "📢",
-  Settings: "⚙️",
-  Notifications: "🔔",
-};
-
-function getSectionEmoji(label) {
-  return EMOJI_MAP[label] || "📄";
-}
+import { Check, FolderKanban } from "lucide-react";
 
 /**
  * PageTransitionOverlay
  *
  * Upgraded dual-mode transition overlay:
- *   1. FOLDER Mode: Upgraded 3D folder navigation (ruled lines, metallic paper clip, section emojis).
+ *   1. FOLDER Mode: Upgraded 3D folder navigation (ruled lines, metallic paper clip).
  *   2. PORTAL Mode: Brand entrance/exit screen (concentric hexagons, particles, checkmark pop).
  */
 export default function PageTransitionOverlay() {
@@ -44,6 +28,8 @@ export default function PageTransitionOverlay() {
   } = usePageTransition();
 
   if (!overlayVisible) return null;
+
+  const ActiveIcon = TargetIcon || FolderKanban;
 
   return (
     <div
@@ -76,7 +62,7 @@ export default function PageTransitionOverlay() {
             {/* Ruled lines pattern */}
             <div className="document-ruled-lines" />
 
-            {/* Icon/Emoji wrapper */}
+            {/* Icon wrapper */}
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center relative z-10"
               style={{
@@ -84,18 +70,13 @@ export default function PageTransitionOverlay() {
                 color: "#8B5CF6",
               }}
             >
-              {TargetIcon ? (
-                <TargetIcon className="w-5.5 h-5.5" />
-              ) : (
-                <span className="text-xl">{getSectionEmoji(targetLabel)}</span>
-              )}
+              <ActiveIcon className="w-5.5 h-5.5" />
             </div>
 
-            {/* Loading text with emojis */}
+            {/* Loading text */}
             <div className="flex flex-col items-center gap-1 text-center px-4 relative z-10">
-              <p className="text-[13px] font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-1.5">
-                <span>Opening {targetLabel}</span>
-                <span className="text-sm">{getSectionEmoji(targetLabel)}</span>
+              <p className="text-[13px] font-black text-slate-800 dark:text-slate-100 tracking-tight">
+                Opening {targetLabel}
               </p>
               <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
                 Retrieving documents...
