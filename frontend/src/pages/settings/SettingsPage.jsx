@@ -9,25 +9,7 @@ import {
   Lock, Info, Sparkles
 } from "lucide-react";
 import api from "../../api/axios";
-
-function ToggleSwitch({ enabled, onChange }) {
-  return (
-    <button
-      onClick={onChange}
-      className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
-        enabled
-          ? "bg-gradient-to-r from-primary-500 to-indigo-500"
-          : "bg-gray-200 dark:bg-gray-700"
-      }`}
-    >
-      <span
-        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-300 ${
-          enabled ? "translate-x-6" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
+import { Switch } from "../../components/ui/Switch";
 
 function SectionCard({ title, icon: Icon, accentColor = "text-primary-500", children }) {
   return (
@@ -194,16 +176,14 @@ export default function SettingsPage() {
           icon={theme === "dark" ? Moon : Sun}
           title={theme === "dark" ? "Dark Mode" : "Light Mode"}
           description="Switch between light and dark interface"
-          control={<ToggleSwitch enabled={theme === "dark"} onChange={toggleTheme} />}
+          control={<Switch checked={theme === "dark"} onChange={toggleTheme} />}
         />
 
-        <div className="w-full h-px bg-gray-50 dark:bg-gray-700/40" />
-
         <PreferenceRow
-          icon={Bell}
+          icon={Smartphone}
           title="Push Notifications"
-          description="Get notified about important updates and announcements"
-          control={<ToggleSwitch enabled={pushEnabled} onChange={togglePush} />}
+          description="Receive real-time alerts on your device"
+          control={<Switch checked={pushEnabled} onChange={togglePush} />}
         />
 
         <div className="w-full h-px bg-gray-50 dark:bg-gray-700/40" />

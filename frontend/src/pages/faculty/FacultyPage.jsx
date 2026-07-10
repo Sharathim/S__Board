@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { Button } from "../../components/ui/Button";
+import { Switch } from "../../components/ui/Switch";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
@@ -172,20 +173,11 @@ function InviteBanner({ invite, onToggle, isToggling }) {
               {copied ? "Copied!" : "Copy Link"}
             </button>
           )}
-          <button
-            onClick={onToggle}
-            disabled={isToggling}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
-              invite.is_active
-                ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50 dark:hover:bg-red-900/30"
-                : "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm"
-            } disabled:opacity-60`}
-          >
-            {invite.is_active
-              ? <><ToggleRight className="w-3.5 h-3.5" /> Disable</>
-              : <><ToggleLeft className="w-3.5 h-3.5" /> Enable</>
-            }
-          </button>
+          <Switch
+            checked={invite.is_active}
+            onChange={onToggle}
+            loading={isToggling}
+          />
         </div>
       </div>
     </div>
@@ -415,21 +407,16 @@ export default function FacultyPage() {
 
                 {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* HOD only: Invite toggle "+ New Faculty" */}
+          {/* HOD only: Invite toggle "Faculty Invite" */}
           {isHOD && invite && (
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
-                            <button
-                    onClick={() => toggleInviteMutation.mutate()}
-                disabled={toggleInviteMutation.isPending}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${
-                  invite.is_active
-                    ? "bg-emerald-500 text-white shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                }`}
-              >
-                <span>+ New Faculty</span>
-              </button>
-
+            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 px-1">Faculty Registration</span>
+              <Switch
+                checked={invite.is_active}
+                onChange={() => toggleInviteMutation.mutate()}
+                loading={toggleInviteMutation.isPending}
+                size="sm"
+              />
               {invite.is_active && invite.invite_link && (
                 <button
                   type="button"
@@ -473,6 +460,17 @@ export default function FacultyPage() {
           </div>
         </div>
       </div>
+
+      {/* HOD only: Invite Link Banner */}
+      {isHOD && invite && (
+        <div className="mb-4">
+          <InviteBanner
+            invite={invite}
+            onToggle={() => toggleInviteMutation.mutate()}
+            isToggling={toggleInviteMutation.isPending}
+          />
+        </div>
+      )}
 
       {/* ── Faculty Grid / List View ── */}
       {facultyList.length === 0 ? (

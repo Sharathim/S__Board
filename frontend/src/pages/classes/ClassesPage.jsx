@@ -6,6 +6,7 @@ import { listFaculty } from "../../api/faculty";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { Avatar } from "../../components/ui/Avatar";
+import { Switch } from "../../components/ui/Switch";
 import {
   GraduationCap, Users, ToggleLeft, ToggleRight, Crown,
   Lock, ChevronRight, X, ShieldCheck, BookOpen, UserCog,
@@ -24,6 +25,55 @@ const CLASS_META = {
   PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, gradient: "from-fuchsia-500 to-fuchsia-600", ring: "ring-fuchsia-200 dark:ring-fuchsia-900/60", bg: "bg-fuchsia-50 dark:bg-fuchsia-900/20", text: "text-fuchsia-700 dark:text-fuchsia-300", border: "border-fuchsia-200 dark:border-fuchsia-800/50" },
   PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, gradient: "from-indigo-500 to-indigo-600", ring: "ring-indigo-200 dark:ring-indigo-900/60", bg: "bg-indigo-50 dark:bg-indigo-900/20", text: "text-indigo-700 dark:text-indigo-300", border: "border-indigo-200 dark:border-indigo-800/50" },
 };
+
+function StudentRegistrationBanner({ regOpen, onToggle, isToggling }) {
+  return (
+    <div className={`rounded-2xl border p-4 transition-all duration-300 ${
+      regOpen
+        ? "bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 dark:from-emerald-900/20 dark:to-teal-900/20 dark:border-emerald-800/50"
+        : "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700"
+    }`}>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+            regOpen ? "bg-emerald-100 dark:bg-emerald-900/40" : "bg-gray-100 dark:bg-gray-700"
+          }`}>
+            <GraduationCap className={`w-4 h-4 ${regOpen ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400"}`} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-gray-900 dark:text-white">Student Registration Status</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                regOpen
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
+                  : "bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+              }`}>
+                {regOpen ? "ACTIVE" : "INACTIVE"}
+              </span>
+            </div>
+            {regOpen ? (
+              <p className="text-xs text-gray-550 dark:text-gray-400 mt-0.5">
+                Students can sign up using the student invite links.
+              </p>
+            ) : (
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                Toggle to allow new student self-registration.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center shrink-0">
+          <Switch
+            checked={regOpen}
+            onChange={onToggle}
+            loading={isToggling}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
   const hasIncharge = !!c.incharge;
@@ -278,24 +328,31 @@ export default function ClassesPage() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* HOD only: Student registration toggle "+ New Student" */}
+          {/* HOD only: Student registration toggle "Student Invite" */}
           {isHOD && (
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-1 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
-              <button
-                type="button"
-                onClick={() => toggleRegMutation.mutate()}
-                disabled={toggleRegMutation.isPending}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${regOpen
-                    ? "bg-emerald-500 text-white shadow-sm"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                  }`}
-              >
-                <span>+ New Student</span>
-              </button>
+            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
+              <span className="text-xs font-bold text-gray-550 dark:text-gray-400 px-1">Student Registration</span>
+              <Switch
+                checked={regOpen}
+                onChange={() => toggleRegMutation.mutate()}
+                loading={toggleRegMutation.isPending}
+                size="sm"
+              />
             </div>
           )}
         </div>
       </div>
+
+      {/* HOD only: Registration status banner */}
+      {isHOD && (
+        <div className="mb-4">
+          <StudentRegistrationBanner
+            regOpen={regOpen}
+            onToggle={() => toggleRegMutation.mutate()}
+            isToggling={toggleRegMutation.isPending}
+          />
+        </div>
+      )}
 
       {/* ── UG Classes ── */}
       {ugList.length > 0 && (

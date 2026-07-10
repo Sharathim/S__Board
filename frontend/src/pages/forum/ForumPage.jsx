@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { Switch } from "../../components/ui/Switch";
 import { createPortal } from "react-dom";
 
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
@@ -758,14 +759,14 @@ export default function ForumPage() {
 
                     {isHOD && (
                       <div className="flex items-center gap-0.5 shrink-0">
-                        <button
-                          onClick={() => coordMutation.mutate(m.id)}
-                          disabled={coordMutation.isPending}
-                          className={`p-1 rounded-lg transition-colors ${m.is_update_coordinator ? "text-amber-500 bg-amber-50 dark:bg-amber-900/20" : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"}`}
-                          title={m.is_update_coordinator ? "Revoke Coordinator" : "Make Coordinator"}
-                        >
-                          <Crown className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center gap-1 mr-1">
+                          <Switch
+                            checked={m.is_update_coordinator}
+                            onChange={() => coordMutation.mutate(m.id)}
+                            loading={coordMutation.isPending}
+                            size="sm"
+                          />
+                        </div>
                         <button
                           onClick={() => removeMutation.mutate(m.id)}
                           disabled={removeMutation.isPending}
@@ -913,14 +914,15 @@ export default function ForumPage() {
                   </div>
                   {isHOD && (
                     <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => coordMutation.mutate(m.id)}
-                        disabled={coordMutation.isPending}
-                        className={`p-1.5 rounded-lg transition-colors ${m.is_update_coordinator ? "text-amber-500 bg-amber-50 dark:bg-amber-900/20" : "text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"}`}
-                        title={m.is_update_coordinator ? "Revoke Coordinator" : "Make Coordinator"}
-                      >
-                        <Crown className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1.5 mr-2">
+                        <span className="text-[10px] text-gray-450 dark:text-gray-500 font-semibold">Coord</span>
+                        <Switch
+                          checked={m.is_update_coordinator}
+                          onChange={() => coordMutation.mutate(m.id)}
+                          loading={coordMutation.isPending}
+                          size="sm"
+                        />
+                      </div>
                       <button
                         onClick={() => removeMutation.mutate(m.id)}
                         disabled={removeMutation.isPending}
