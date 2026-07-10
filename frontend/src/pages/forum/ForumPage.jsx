@@ -22,7 +22,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   MessageSquare, Heart, Trash2, Crown, Image,
   X, Search, Edit2, Clock, AlertCircle,
-  CheckCircle2, Users, Plus, Calendar, Share2
+  CheckCircle2, Users, Plus, Calendar, Share2, Copy
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
