@@ -110,78 +110,8 @@ function ClassChip({ label, variant = "default" }) {
 
 
 // ─── Invite Banner ────────────────────────────────────────────────────────────
-function InviteBanner({ invite, onToggle, isToggling }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    if (!invite?.invite_link) return;
-    navigator.clipboard.writeText(invite.invite_link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
-  if (!invite) return null;
-
-  return (
-    <div className={`rounded-2xl border p-4 transition-all duration-300 ${
-      invite.is_active
-        ? "bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 dark:from-emerald-900/20 dark:to-teal-900/20 dark:border-emerald-800/50"
-        : "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700"
-    }`}>
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-            invite.is_active ? "bg-emerald-100 dark:bg-emerald-900/40" : "bg-gray-100 dark:bg-gray-700"
-          }`}>
-            <Link2 className={`w-4 h-4 ${invite.is_active ? "text-emerald-600 dark:text-emerald-400" : "text-gray-400"}`} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-900 dark:text-white">Faculty Invite Link</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                invite.is_active
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
-                  : "bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-              }`}>
-                {invite.is_active ? "ACTIVE" : "INACTIVE"}
-              </span>
-            </div>
-            {invite.is_active && invite.invite_link && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono truncate max-w-[280px] sm:max-w-md">
-                {invite.invite_link}
-              </p>
-            )}
-            {!invite.is_active && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                Enable to allow new faculty to self-register
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {invite.is_active && invite.invite_link && (
-            <button
-              onClick={handleCopy}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                copied
-                  ? "bg-emerald-500 text-white"
-                  : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
-              }`}
-            >
-              {copied ? <CheckCheck className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              {copied ? "Copied!" : "Copy Link"}
-            </button>
-          )}
-          <Switch
-            checked={invite.is_active}
-            onChange={onToggle}
-            loading={isToggling}
-          />
-        </div>
-      </div>
-    </div>
-  );
+function InviteBanner() {
+  return null;
 }
 
 // ─── Faculty Card ─────────────────────────────────────────────────────────────
@@ -341,7 +271,10 @@ export default function FacultyPage() {
 
   const { data: invite } = useQuery({
     queryKey: ["faculty-invite"],
-    queryFn: () => getFacultyInvite().then((r) => r.data),
+    queryFn: () => getFacultyInvite().then((r) => ({
+      ...r.data,
+      invite_link: `${window.location.origin}/invite/faculty/${r.data.token}`
+    })),
     enabled: isHOD,
   });
 

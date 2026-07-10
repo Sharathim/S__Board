@@ -92,7 +92,7 @@ def list_classes():
 @require_auth
 def get_student_registration():
     invite = _get_or_create_global_student_invite()
-    return jsonify({"is_active": invite.is_active})
+    return jsonify({"token": invite.token, "is_active": invite.is_active})
 
 
 @classes_bp.route("/student-registration/toggle", methods=["POST"])

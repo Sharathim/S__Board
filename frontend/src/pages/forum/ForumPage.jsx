@@ -9,7 +9,9 @@ import {
   createForumPost,
   editForumPost,
   deleteForumPost,
-  toggleForumPostLike
+  toggleForumPostLike,
+  getForumInvite,
+  toggleForumInvite
 } from "../../api/forum";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
@@ -256,6 +258,28 @@ export default function ForumPage() {
     );
   }, [memberList, memberSearchQuery]);
 
+  const { data: invite } = useQuery({
+    queryKey: ["forum-invite"],
+    queryFn: () => getForumInvite().then((r) => ({
+      ...r.data,
+      invite_link: `${window.location.origin}/invite/forum/${r.data.token}`
+    })),
+    enabled: isHOD,
+  });
+
+  const toggleInviteMutation = useMutation({
+    mutationFn: toggleForumInvite,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["forum-invite"] });
+      setSuccessMessage("Forum registration invite status updated!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    },
+    onError: (err) => {
+      setErrorMessage(err.response?.data?.error || "Failed to toggle forum invite status");
+      setTimeout(() => setErrorMessage(""), 3000);
+    }
+  });
+
   const postList = posts || [];
   
   // Real Search Filtering on Posts
@@ -383,7 +407,31 @@ export default function ForumPage() {
         </div>
 
         {/* Header End Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {isHOD && invite && (
+            <div className="flex items-center gap-3 bg-gray-50/50 dark:bg-gray-800 p-2 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm animate-fade-in">
+              <span className="text-xs font-black text-gray-600 dark:text-gray-350 px-1">Forum Registration</span>
+              <Switch
+                checked={invite.is_active}
+                onChange={() => toggleInviteMutation.mutate()}
+                loading={toggleInviteMutation.isPending}
+                size="md"
+              />
+              {invite.is_active && invite.invite_link && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(invite.invite_link);
+                    alert("Invite link copied to clipboard!");
+                  }}
+                  className="p-2 rounded-xl hover:bg-gray-150 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:text-gray-350 border border-transparent hover:border-gray-250/30 transition-colors animate-fade-in"
+                  title="Copy Invite Link"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
           {isHOD && (
             <button
               onClick={() => setPickerOpen(true)}

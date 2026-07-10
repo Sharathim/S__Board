@@ -307,3 +307,28 @@ def _serialize_post(p, current_user=None):
         "like_count": p.likes.count() if hasattr(p, 'likes') else 0,
         "liked": liked,
     }
+
+
+@forum_bp.route("/invite", methods=["GET"])
+@require_hod
+def get_forum_invite():
+    from ..models.invite import InviteLink
+    invite = InviteLink.query.filter_by(link_type="forum").first()
+    if not invite:
+        invite = InviteLink(link_type="forum")
+        db.session.add(invite)
+        db.session.commit()
+    return jsonify({"token": invite.token, "is_active": invite.is_active})
+
+
+@forum_bp.route("/invite/toggle", methods=["POST"])
+@require_hod
+def toggle_forum_invite():
+    from ..models.invite import InviteLink
+    invite = InviteLink.query.filter_by(link_type="forum").first()
+    if not invite:
+        invite = InviteLink(link_type="forum")
+        db.session.add(invite)
+    invite.is_active = not invite.is_active
+    db.session.commit()
+    return jsonify({"is_active": invite.is_active})

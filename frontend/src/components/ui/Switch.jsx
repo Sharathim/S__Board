@@ -12,20 +12,20 @@ export function Switch({ checked, onChange, disabled, loading, size = "md", clas
   const isBusy = disabled || loading;
 
   const trackSizes = {
-    sm: "w-10 h-5.5",
-    md: "w-12 h-6.5",
+    sm: "w-9 h-5",
+    md: "w-11 h-6",
     lg: "w-14 h-8",
   };
 
   const knobSizes = {
-    sm: "w-4.5 h-4.5",
-    md: "w-5.5 h-5.5",
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
     lg: "w-7 h-7",
   };
 
   const translateClasses = {
-    sm: checked ? "translate-x-4.5" : "translate-x-0.5",
-    md: checked ? "translate-x-5.5" : "translate-x-0.5",
+    sm: checked ? "translate-x-4" : "translate-x-0.5",
+    md: checked ? "translate-x-5" : "translate-x-0.5",
     lg: checked ? "translate-x-6" : "translate-x-0.5",
   };
 
