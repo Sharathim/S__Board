@@ -153,6 +153,25 @@ export function TopBar() {
 
   const roleColors = getRoleColor(user?.role);
 
+  const getBadgeDetails = () => {
+    if (!user) return { text: "", bg: "bg-gray-100", textClass: "text-gray-600" };
+    if (user.role === "HOD") {
+      return { text: "HOD", bg: "bg-violet-50 dark:bg-violet-950/40", textClass: "text-violet-600 dark:text-violet-400" };
+    }
+    if (user.role === "FACULTY") {
+      if (user.faculty?.class_incharge_of) {
+        return { text: "Incharge", bg: "bg-emerald-50 dark:bg-emerald-950/40", textClass: "text-emerald-600 dark:text-emerald-400" };
+      }
+      return { text: "Faculty", bg: "bg-blue-50 dark:bg-blue-950/40", textClass: "text-blue-600 dark:text-blue-400" };
+    }
+    if (user.role === "STUDENT") {
+      return { text: "Student", bg: "bg-amber-50 dark:bg-amber-950/40", textClass: "text-amber-600 dark:text-amber-400" };
+    }
+    return { text: user.role, bg: "bg-gray-50 dark:bg-gray-900/40", textClass: "text-gray-650 dark:text-gray-400" };
+  };
+
+  const badge = getBadgeDetails();
+
   // Filter nav items by role and deduplicate
   const filteredNavs = allNavItems.filter(item =>
     !item.roles || item.roles.includes(user?.role)
@@ -202,21 +221,40 @@ export function TopBar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 h-[72px] z-[99] bg-white/80 dark:bg-[#020617]/85 backdrop-blur-md border-b border-gray-150 dark:border-slate-900/60 flex items-center justify-between px-6 transition-all duration-300">
-        {/* ── Logo & Brand Name ── */}
-        <div 
-          onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-          className="flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-        >
-          <img
-            src="/logo-icon.png"
-            alt="Hive Logo"
-            className="w-11 h-11 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(139,92,246,0.25)] dark:drop-shadow-[0_4px_12px_rgba(167,139,250,0.35)] transition-transform duration-300 hover:rotate-6"
-          />
-          <span
-            className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-gray-900 via-purple-950 to-black dark:from-white dark:via-purple-100 dark:to-gray-200 bg-clip-text text-transparent"
+        {/* ── Left Side: Hamburger & Brand Logo ── */}
+        <div className="flex items-center gap-3">
+          {/* Hamburger Menu Button */}
+          <div className="hamburger-btn-wrapper mr-2">
+            <div className="hamburger-hover-dot" />
+            <button
+              id="navbar-hamburger-btn"
+              onClick={() => setDrawerOpen(true)}
+              className="neomorphic-glass-btn"
+              title="Open Menu"
+            >
+              <div className="flex flex-col gap-1.5 justify-center items-center w-5">
+                <span className="hamburger-line w-5" />
+                <span className="hamburger-line w-5" />
+              </div>
+            </button>
+          </div>
+
+          {/* Logo & Brand Name */}
+          <div 
+            onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
+            className="flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
           >
-            Hive
-          </span>
+            <img
+              src="/logo-icon.png"
+              alt="Hive Logo"
+              className="w-11 h-11 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(139,92,246,0.25)] dark:drop-shadow-[0_4px_12px_rgba(167,139,250,0.35)] transition-transform duration-300 hover:rotate-6"
+            />
+            <span
+              className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-gray-900 via-purple-950 to-black dark:from-white dark:via-purple-100 dark:to-gray-200 bg-clip-text text-transparent"
+            >
+              Hive
+            </span>
+          </div>
         </div>
 
         {/* ── Action controls ── */}
@@ -260,20 +298,35 @@ export function TopBar() {
             <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
           </div>
 
-          {/* Button 3: Hamburger Menu Button with Spacing */}
-          <div className="hamburger-btn-wrapper ml-5">
-            <div className="hamburger-hover-dot" />
-            <button
-              id="navbar-hamburger-btn"
-              onClick={() => setDrawerOpen(true)}
-              className="neomorphic-glass-btn"
-              title="Open Menu"
+          {/* User Profile Avatar & Badge */}
+          <div className="flex items-center gap-2.5 border-l border-gray-150 dark:border-slate-800/80 pl-3.5 ml-1 select-none">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black text-white shadow-md overflow-hidden flex-shrink-0 ring-1 ring-violet-500/10 dark:ring-violet-400/20"
+              style={{
+                background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
+              }}
             >
-              <div className="flex flex-col gap-1.5 justify-center items-center w-5">
-                <span className="hamburger-line w-5" />
-                <span className="hamburger-line w-5" />
-              </div>
-            </button>
+              {user?.profile_picture ? (
+                <img
+                  src={user.profile_picture}
+                  alt={user?.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getInitials(user?.name)
+              )}
+            </div>
+
+            <div className="hidden sm:flex flex-col text-left">
+              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 leading-none">
+                {user?.name}
+              </span>
+              <span
+                className={`inline-flex items-center text-[9px] font-black px-1.5 py-0.5 rounded-md mt-1 font-mono uppercase tracking-wider leading-none self-start ${badge.bg} ${badge.textClass}`}
+              >
+                {badge.text}
+              </span>
+            </div>
           </div>
 
         </div>
