@@ -52,7 +52,7 @@ export function TransitionProvider({ children, pageContentRef }) {
 
   /**
    * triggerUnfoldAnimation
-   * Unfolds the page content layout on internal navigations.
+   * Instantly resets and prepares page content layout on internal navigations.
    */
   const triggerUnfoldAnimation = useCallback((el) => {
     if (!el) return;
@@ -62,36 +62,18 @@ export function TransitionProvider({ children, pageContentRef }) {
     if (children) gsap.killTweensOf(children);
 
     gsap.set(el, {
-      transformOrigin: "center top",
-      rotationX: -10,
-      scaleY: 0.95,
-      y: -15,
-      opacity: 0,
-      filter: "blur(4px)",
-    });
-
-    const tl = gsap.timeline();
-
-    tl.to(el, {
       rotationX: 0,
       scaleY: 1,
       y: 0,
       opacity: 1,
-      filter: "blur(0px)",
-      duration: 0.45,
-      ease: "power3.out",
-      clearProps: "transform,filter",
+      filter: "none",
+      clearProps: "all",
     });
 
     // Header title
     const headerTitle = el.querySelector("h1, .page-header");
     if (headerTitle) {
-      tl.fromTo(
-        headerTitle,
-        { y: 25, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.3, ease: "power2.out" },
-        "-=0.25"
-      );
+      gsap.set(headerTitle, { y: 0, opacity: 1, clearProps: "all" });
     }
 
     // Cards / layout content blocks
@@ -104,180 +86,31 @@ export function TransitionProvider({ children, pageContentRef }) {
     }
 
     if (cards.length > 0) {
-      tl.fromTo(
-        cards,
-        { y: 20, opacity: 0, scale: 0.98 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          ease: "power2.out",
-          stagger: 0.04,
-          clearProps: "transform",
-        },
-        "-=0.2"
-      );
+      gsap.set(cards, {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        clearProps: "all",
+      });
     }
 
     // Search bar / input rows
     const searchFilter = el.querySelector(".search-filter, input[type='text'], .filter-bar");
     if (searchFilter) {
-      tl.fromTo(
-        searchFilter,
-        { y: -10, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.3, ease: "power2.out" },
-        "-=0.15"
-      );
+      gsap.set(searchFilter, { y: 0, opacity: 1, clearProps: "all" });
     }
   }, []);
 
   /**
    * navigateWithTransition (FOLDER Mode)
-   * Internal page-to-page folder transitions.
+   * Internal page-to-page transitions - simplified to instant navigation.
    */
   const navigateWithTransition = useCallback(
     (path, label, IconComponent) => {
-      if (isTransitioning.current) return;
       if (location.pathname === path) return;
-
-      isTransitioning.current = true;
-      setTransitionMode("FOLDER");
-      setTargetLabel(label || ROUTE_LABELS[path] || "");
-      setTargetIcon(() => IconComponent || null);
-      setOverlayVisible(true);
-
-      const tl = gsap.timeline({
-        onComplete: () => {
-          isTransitioning.current = false;
-        },
-      });
-
-      const pageEl = pageContentRef?.current;
-
-      /* ── Exit Current Page ── */
-      if (pageEl) {
-        const contentChildren = pageEl.querySelectorAll(".page-content-container > * > *:not(h1)");
-        if (contentChildren.length > 0) {
-          tl.to(contentChildren, {
-            scale: 0.96,
-            y: 12,
-            opacity: 0,
-            duration: 0.2,
-            ease: "power2.inOut",
-            stagger: 0.02,
-          });
-        }
-
-        const pageHeader = pageEl.querySelector("h1, .page-header");
-        if (pageHeader) {
-          tl.to(
-            pageHeader,
-            { y: -25, opacity: 0, duration: 0.16, ease: "power2.in" },
-            "-=0.18"
-          );
-        }
-
-        tl.to(pageEl, { opacity: 0, duration: 0.18 }, "-=0.08");
-      }
-
-      /* ── Folder Enters ── */
-      tl.call(() => {
-        requestAnimationFrame(() => {
-          const overlay = overlayRef.current;
-          const container = folderContainerRef.current;
-          const front = folderFrontRef.current;
-          const paper = folderPaperRef.current;
-
-          if (overlay) {
-            gsap.set(overlay, { opacity: 0 });
-            gsap.to(overlay, { opacity: 1, duration: 0.22, ease: "power2.out" });
-          }
-
-          if (container) {
-            gsap.set(container, { scale: 0.84, y: 25, opacity: 0 });
-            gsap.to(container, {
-              scale: 1,
-              y: 0,
-              opacity: 1,
-              duration: 0.32,
-              ease: "power2.out",
-            });
-          }
-
-          if (front) gsap.set(front, { rotationY: 0 });
-          if (paper) gsap.set(paper, { y: 0, opacity: 0, scale: 0.96 });
-        });
-      });
-
-      tl.to({}, { duration: 0.32 });
-
-      /* ── Folder Opens (Front cover swings, paper rises) ── */
-      tl.call(() => {
-        const front = folderFrontRef.current;
-        const paper = folderPaperRef.current;
-
-        if (front) {
-          gsap.to(front, {
-            rotationY: -110,
-            duration: 0.42,
-            ease: "power2.inOut",
-          });
-        }
-
-        if (paper) {
-          gsap.to(paper, {
-            y: -35,
-            opacity: 1,
-            scale: 1.02,
-            duration: 0.45,
-            ease: "power2.out",
-          });
-        }
-      });
-
-      tl.to({}, { duration: 0.6 });
-
-      /* ── Navigates ── */
-      tl.call(() => {
-        navigate(path);
-      });
-
-      tl.to({}, { duration: 0.1 });
-
-      /* ── Folder Closes / Dissolves ── */
-      tl.call(() => {
-        const container = folderContainerRef.current;
-        const overlay = overlayRef.current;
-
-        if (container) {
-          gsap.to(container, {
-            scale: 1.12,
-            y: -15,
-            opacity: 0,
-            duration: 0.22,
-            ease: "power2.in",
-          });
-        }
-
-        if (overlay) {
-          gsap.to(overlay, {
-            opacity: 0,
-            duration: 0.22,
-            ease: "power2.in",
-            onComplete: () => setOverlayVisible(false),
-          });
-        }
-      });
-
-      tl.to({}, { duration: 0.22 });
-
-      /* ── Unfold new page content ── */
-      tl.call(() => {
-        triggerUnfoldAnimation(pageContentRef?.current);
-      });
+      navigate(path);
     },
-    [navigate, location.pathname, pageContentRef, triggerUnfoldAnimation]
+    [navigate, location.pathname]
   );
 
   /**

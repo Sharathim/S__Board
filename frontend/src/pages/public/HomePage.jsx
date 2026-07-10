@@ -7,10 +7,9 @@ export default function HomePage() {
 
   useEffect(() => {
     if (pageRef.current) {
-      gsap.fromTo(
+      gsap.set(
         pageRef.current,
-        { opacity: 0, scale: 0.98, y: 15 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.65, ease: "power2.out", clearProps: "all" }
+        { opacity: 1, scale: 1, y: 0, clearProps: "all" }
       );
     }
   }, []);
