@@ -198,11 +198,8 @@ export default function ProjectsPage() {
   return (
     <div className="space-y-6">
       {/* ─── Premium Header ─── */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
-            <FolderKanban className="w-5 h-5 text-white" />
-          </div>
+      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
+        <div className="flex items-center">
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
         </div>
         {isHOD && (

@@ -201,81 +201,83 @@ export function TopBar() {
 
   return (
     <>
-      {/* ── Top-Left: Logo & Brand Name (Floating) ── */}
-      <div 
-        onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-        className="absolute top-4 left-6 z-[100] flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-      >
-        <img
-          src="/logo-icon.png"
-          alt="Hive Logo"
-          className="w-14 h-14 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(139,92,246,0.25)] dark:drop-shadow-[0_4px_12px_rgba(167,139,250,0.35)] transition-transform duration-300 hover:rotate-6"
-        />
-        <span
-          className="font-extrabold text-3xl tracking-tighter bg-gradient-to-r from-gray-900 via-purple-950 to-black dark:from-white dark:via-purple-100 dark:to-gray-200 bg-clip-text text-transparent"
+      <header className="fixed top-0 left-0 right-0 h-[72px] z-[99] bg-white/80 dark:bg-[#020617]/85 backdrop-blur-md border-b border-gray-150 dark:border-slate-900/60 flex items-center justify-between px-6 transition-all duration-300">
+        {/* ── Logo & Brand Name ── */}
+        <div 
+          onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
+          className="flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
         >
-          Hive
-        </span>
-      </div>
-
-      {/* ── Top-Right: Action controls (Three floating buttons) ── */}
-      <div className="absolute top-5 right-6 z-[100] flex items-center gap-3">
-        
-        {/* Button 1: Mode Switcher */}
-        <button
-          id="navbar-theme-btn"
-          onClick={toggleTheme}
-          className="neomorphic-glass-btn"
-          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
-            {theme === "dark"
-              ? <Sun className="w-[19px] h-[19px] text-amber-400" />
-              : <Moon className="w-[19px] h-[19px]" />
-            }
-          </div>
-        </button>
-
-        {/* Button 2: Notification Bell */}
-        <div className="relative flex items-center">
-          <button
-            id="navbar-notif-btn"
-            onClick={() => setNotifOpen(o => !o)}
-            className="neomorphic-glass-btn"
-            title="Notifications"
+          <img
+            src="/logo-icon.png"
+            alt="Hive Logo"
+            className="w-11 h-11 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(139,92,246,0.25)] dark:drop-shadow-[0_4px_12px_rgba(167,139,250,0.35)] transition-transform duration-300 hover:rotate-6"
+          />
+          <span
+            className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-gray-900 via-purple-950 to-black dark:from-white dark:via-purple-100 dark:to-gray-200 bg-clip-text text-transparent"
           >
-            <Bell
-              className={`w-[19px] h-[19px] ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`}
-            />
-            {unreadCount > 0 && (
-              <span
-                className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-white font-bold leading-none bg-rose-500 shadow-sm border border-white dark:border-slate-900"
-                style={{ fontSize: "9px", padding: "0 4px" }}
-              >
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </button>
-          <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+            Hive
+          </span>
         </div>
 
-        {/* Button 3: Hamburger Menu Button with Spacing */}
-        <div className="hamburger-btn-wrapper ml-5">
-          <div className="hamburger-hover-dot" />
+        {/* ── Action controls ── */}
+        <div className="flex items-center gap-3">
+          
+          {/* Button 1: Mode Switcher */}
           <button
-            id="navbar-hamburger-btn"
-            onClick={() => setDrawerOpen(true)}
+            id="navbar-theme-btn"
+            onClick={toggleTheme}
             className="neomorphic-glass-btn"
-            title="Open Menu"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
-            <div className="flex flex-col gap-1.5 justify-center items-center w-5">
-              <span className="hamburger-line w-5" />
-              <span className="hamburger-line w-5" />
+            <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
+              {theme === "dark"
+                ? <Sun className="w-[19px] h-[19px] text-amber-400" />
+                : <Moon className="w-[19px] h-[19px]" />
+              }
             </div>
           </button>
-        </div>
 
-      </div>
+          {/* Button 2: Notification Bell */}
+          <div className="relative flex items-center">
+            <button
+              id="navbar-notif-btn"
+              onClick={() => setNotifOpen(o => !o)}
+              className="neomorphic-glass-btn"
+              title="Notifications"
+            >
+              <Bell
+                className={`w-[19px] h-[19px] ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`}
+              />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-white font-bold leading-none bg-rose-500 shadow-sm border border-white dark:border-slate-900"
+                  style={{ fontSize: "9px", padding: "0 4px" }}
+                >
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+            <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+          </div>
+
+          {/* Button 3: Hamburger Menu Button with Spacing */}
+          <div className="hamburger-btn-wrapper ml-5">
+            <div className="hamburger-hover-dot" />
+            <button
+              id="navbar-hamburger-btn"
+              onClick={() => setDrawerOpen(true)}
+              className="neomorphic-glass-btn"
+              title="Open Menu"
+            >
+              <div className="flex flex-col gap-1.5 justify-center items-center w-5">
+                <span className="hamburger-line w-5" />
+                <span className="hamburger-line w-5" />
+              </div>
+            </button>
+          </div>
+
+        </div>
+      </header>
 
       {/* ── Side Menu Drawer (Right Panel) ── */}
       <div ref={drawerRef} className={`drawer-container ${drawerOpen ? "open" : ""}`}>

@@ -271,14 +271,9 @@ export default function ClassesPage() {
     <div className="space-y-6 animate-fade-in">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-row items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-            <Layers className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
-          </div>
+      <div className="flex flex-row items-center justify-between gap-2 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
+        <div className="flex items-center">
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
         </div>
 
         {/* Right side actions */}
