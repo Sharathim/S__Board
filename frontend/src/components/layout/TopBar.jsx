@@ -225,7 +225,6 @@ export function TopBar() {
         <div className="flex items-center gap-3">
           {/* Hamburger Menu Button */}
           <div className="hamburger-btn-wrapper mr-2">
-            <div className="hamburger-hover-dot" />
             <button
               id="navbar-hamburger-btn"
               onClick={() => setDrawerOpen(true)}
