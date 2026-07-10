@@ -22,7 +22,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   MessageSquare, Heart, Trash2, Crown, Image,
   X, Search, Edit2, Clock, AlertCircle,
-  CheckCircle2, Users, Plus, Calendar, Share2, Copy
+  CheckCircle2, Users, Plus, Calendar, Share2, Copy, UserPlus
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -258,27 +258,6 @@ export default function ForumPage() {
     );
   }, [memberList, memberSearchQuery]);
 
-  const { data: invite } = useQuery({
-    queryKey: ["forum-invite"],
-    queryFn: () => getForumInvite().then((r) => ({
-      ...r.data,
-      invite_link: `${window.location.origin}/invite/forum/${r.data.token}`
-    })),
-    enabled: isHOD,
-  });
-
-  const toggleInviteMutation = useMutation({
-    mutationFn: toggleForumInvite,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["forum-invite"] });
-      setSuccessMessage("Forum registration invite status updated!");
-      setTimeout(() => setSuccessMessage(""), 3000);
-    },
-    onError: (err) => {
-      setErrorMessage(err.response?.data?.error || "Failed to toggle forum invite status");
-      setTimeout(() => setErrorMessage(""), 3000);
-    }
-  });
 
   const postList = posts || [];
   
@@ -407,37 +386,13 @@ export default function ForumPage() {
         </div>
 
         {/* Header End Actions */}
-        <div className="flex items-center gap-3">
-          {isHOD && invite && (
-            <div className="flex items-center gap-3 bg-gray-50/50 dark:bg-gray-800 p-2 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm animate-fade-in">
-              <span className="text-xs font-black text-gray-600 dark:text-gray-350 px-1">Forum Registration</span>
-              <Switch
-                checked={invite.is_active}
-                onChange={() => toggleInviteMutation.mutate()}
-                loading={toggleInviteMutation.isPending}
-                size="md"
-              />
-              {invite.is_active && invite.invite_link && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(invite.invite_link);
-                    alert("Invite link copied to clipboard!");
-                  }}
-                  className="p-2 rounded-xl hover:bg-gray-150 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:text-gray-350 border border-transparent hover:border-gray-250/30 transition-colors animate-fade-in"
-                  title="Copy Invite Link"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          )}
+        <div className="flex items-center gap-2">
           {isHOD && (
             <button
               onClick={() => setPickerOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.8 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md active:scale-95 shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 hover:shadow-violet-500/20 hover:-translate-y-0.5 active:translate-y-0 border border-violet-500/20 active:scale-95 shrink-0"
             >
-              <Plus className="w-3.5 h-3.5" /> Add Member
+              <UserPlus className="w-4 h-4" /> Add Member
             </button>
           )}
           {canPost && (
@@ -757,9 +712,9 @@ export default function ForumPage() {
             {isHOD && (
               <button
                 onClick={() => setPickerOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-750 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 hover:shadow-lg active:scale-95 active:translate-y-[1px]"
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 hover:shadow-violet-500/20 hover:-translate-y-0.5 active:translate-y-0 border border-violet-500/20 active:scale-95"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Forum Member
+                <UserPlus className="w-4 h-4" /> Add Forum Member
               </button>
             )}
 
