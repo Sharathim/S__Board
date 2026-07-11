@@ -48,16 +48,10 @@ def upload_file(file, folder="dpms"):
     unique_suffix = uuid.uuid4().hex[:8]
     
     ext_lower = ext.lower().lstrip('.')
-    # Raw resources in Cloudinary need the extension in the public_id to be served with that extension in raw/upload
-    # Image resources (including PDFs and images) do NOT need the extension in the public_id (it causes .pdf.pdf)
-    is_raw = ext_lower in {"ppt", "pptx", "doc", "docx"}
+    is_doc = ext_lower in {"pdf", "ppt", "pptx", "doc", "docx"}
     
-    if is_raw:
-        public_id = f"{clean_name}_{unique_suffix}{ext.lower()}"
-        res_type = "raw"
-    else:
-        public_id = f"{clean_name}_{unique_suffix}"
-        res_type = "auto"
+    public_id = f"{clean_name}_{unique_suffix}{ext.lower()}"
+    res_type = "raw" if is_doc else "auto"
 
     try:
         result = cloudinary.uploader.upload(
