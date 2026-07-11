@@ -1,6 +1,4 @@
-
 import { useQuery } from "@tanstack/react-query";
-import gsap from "gsap";
 import { getProjectStats } from "../../api/projects";
 import { listClasses } from "../../api/classes";
 import { listFaculty } from "../../api/faculty";
@@ -9,25 +7,20 @@ import { listForumPosts } from "../../api/forum";
 import { Spinner } from "../../components/ui/Spinner";
 import { usePageTransition } from "../../context/TransitionContext";
 import { useAuth } from "../../context/AuthContext";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Avatar } from "../../components/ui/Avatar";
 import { parseUpdateContent } from "../../utils/updateContent";
 import MailComposerModal from "./MailComposerModal";
 import {
   FolderKanban, TrendingUp, Users, CheckCircle,
-  Clock, MessageSquare, Megaphone, Heart, ChevronRight, Eye, Mail
+  Clock, MessageSquare, Megaphone, Heart, ChevronRight, Eye, Mail,
+  BookOpen, ArrowRight, LayoutDashboard, Calendar, Sparkles
 } from "lucide-react";
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 function getFirstName(name) {
   if (!name) return "there";
   return name.trim().split(" ")[0];
-}
-
-/* ─── Premium GSAP Username Roll Component ─────────────────────────────── */
-function DashboardRollingName({ name }) {
-  if (!name) return null;
-  return <span className="font-black">{name}</span>;
 }
 
 function timeAgo(isoStr) {
@@ -58,7 +51,7 @@ function DashboardAttachmentPreview({ attachmentUrl }) {
   if (urls.length === 1) {
     const url = urls[0];
     return (
-      <div className="rounded-xl overflow-hidden mb-2.5 border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 h-28 w-full">
+      <div className="rounded-xl overflow-hidden mb-2 border border-slate-100 bg-slate-50/50 h-28 w-full max-w-md">
         {isVideo(url) ? (
           <video src={url} className="w-full h-full object-cover" />
         ) : (
@@ -69,18 +62,18 @@ function DashboardAttachmentPreview({ attachmentUrl }) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 mb-2.5 h-20 w-full">
+    <div className="grid grid-cols-3 gap-1.5 mb-2 h-16 w-full max-w-md">
       {urls.slice(0, 3).map((url, idx) => {
         const isLast = idx === 2 && urls.length > 3;
         return (
-          <div key={idx} className="relative rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950/20 h-full w-full">
+          <div key={idx} className="relative rounded-lg overflow-hidden border border-slate-100 bg-slate-50/50 h-full w-full">
             {isVideo(url) ? (
               <video src={url} className="w-full h-full object-cover" />
             ) : (
               <img src={url} alt="attachment preview" className="w-full h-full object-cover" />
             )}
             {isLast && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-black">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-[10px] font-black">
                 +{urls.length - 3}
               </div>
             )}
@@ -91,230 +84,129 @@ function DashboardAttachmentPreview({ attachmentUrl }) {
   );
 }
 
-/* ─── Live Date & Time Card ──────────────────────────────────────────────── */
-function LiveClockCard({ inline }) {
+/* ─── Live Date & Time Widget ────────────────────────────────────────────── */
+function LiveClockWidget() {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
+    const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   const timeString = time.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
     hour12: true,
   });
 
   const dateString = time.toLocaleDateString([], {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
+    weekday: "short",
+    month: "short",
     day: "numeric",
   });
 
-  if (inline) {
-    return (
-      <div className="flex items-center gap-3.5 bg-slate-50/50 dark:bg-slate-800/40 rounded-xl px-4 py-2.5 border border-slate-100/50 dark:border-slate-800/50 w-fit">
-        <Clock className="w-4.5 h-4.5 text-primary-600 dark:text-primary-400 animate-pulse shrink-0" />
-        <div className="flex items-baseline gap-2.5">
-          <span className="text-lg font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
+  return (
+    <div className="flex items-center justify-between p-4 bg-slate-50/60 rounded-2xl border border-slate-100">
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <Clock className="w-4.5 h-4.5" />
+        </div>
+        <div>
+          <span className="block text-sm font-extrabold text-slate-800 leading-none">
             {timeString}
           </span>
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <span className="block text-[11px] font-semibold text-slate-400 mt-1 leading-none">
             {dateString}
           </span>
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/20 dark:to-violet-950/20 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-4 flex items-center gap-4 shadow-sm h-full">
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-100/60 dark:bg-indigo-900/40 text-indigo-650 dark:text-indigo-400 shrink-0">
-        <Clock className="w-5 h-5 animate-pulse" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
-          {timeString}
-        </div>
-        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-          {dateString}
-        </div>
+      <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+        <Sparkles className="w-3 h-3 text-emerald-600 animate-spin-slow" /> Live
       </div>
     </div>
   );
 }
 
-/* ─── Latest Forum Post Card ─────────────────────────────────────────────── */
-function LatestForumPostCard({ posts, onNavigate }) {
-  const post = posts && posts.length > 0 ? posts[0] : null;
-
-  if (!post) {
-    return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full min-h-[160px]">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
-          <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-violet-500" />
-            Latest Forum Post
-          </span>
-          <div onClick={() => onNavigate("/forum", "Forum", MessageSquare)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:underline cursor-pointer">
-            View Forum
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center py-6 text-center">
-          <MessageSquare className="w-8 h-8 text-slate-350 dark:text-slate-600 mb-2" />
-          <p className="text-xs font-medium text-slate-400 dark:text-slate-500">No posts yet</p>
-        </div>
-      </div>
-    );
-  }
-
-  const relativeTime = timeAgo(post.created_at);
-  const { title, body } = parseForumPostContent(post.content);
-
-  return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-violet-500" />
-            Latest Forum Post
-          </span>
-          <div onClick={() => onNavigate("/forum", "Forum", MessageSquare)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-0.5 cursor-pointer">
-            Go to Forum <ChevronRight className="w-3.5 h-3.5" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mb-2.5">
-          <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="xs" />
-          <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-              {post.posted_by?.name}
-            </span>
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-105 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {post.posted_by?.role}
-            </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-0.5 ml-auto">
-              <Clock className="w-2.5 h-2.5" />
-              {relativeTime}
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-1 mb-2.5">
-          {title ? (
-            <>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 leading-snug">
-                {title}
-              </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                {body}
-              </p>
-            </>
-          ) : (
-            <p className="text-xs text-slate-700 dark:text-slate-350 line-clamp-2 leading-relaxed">
-              {body}
-            </p>
-          )}
-        </div>
-
-        <DashboardAttachmentPreview attachmentUrl={post.attachment_url} />
-      </div>
-
-      <div className="flex items-center gap-4 pt-2 text-slate-400 mt-auto">
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold">
-          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-          <span>{post.like_count || 0}</span>
-        </span>
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold">
-          <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
-          <span>0</span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Latest Update Card ─────────────────────────────────────────────────── */
-function LatestUpdateCard({ updates, onNavigate }) {
-  const update = updates && updates.length > 0 ? updates[0] : null;
-
-  if (!update) {
-    return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full min-h-[160px]">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
-          <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-            <Megaphone className="w-4 h-4 text-violet-500" />
-            Latest Update
-          </span>
-          <div onClick={() => onNavigate("/updates", "Updates", Megaphone)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:underline cursor-pointer">
-            View Updates
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center py-6 text-center">
-          <Megaphone className="w-8 h-8 text-slate-350 dark:text-slate-600 mb-2" />
-          <p className="text-xs font-medium text-slate-400 dark:text-slate-500">No updates yet</p>
-        </div>
-      </div>
-    );
-  }
-
+/* ─── Borderless Feed Items ────────────────────────────────────────────── */
+function UpdateFeedItem({ update }) {
   const parsed = parseUpdateContent(update.content);
   const relativeTime = timeAgo(update.created_at);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-            <Megaphone className="w-4 h-4 text-violet-500" />
-            Latest Update
-          </span>
-          <div onClick={() => onNavigate("/updates", "Updates", Megaphone)} className="text-xs font-bold text-indigo-650 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-0.5 cursor-pointer">
-            Go to Updates <ChevronRight className="w-3.5 h-3.5" />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mb-2.5">
-          <div className="w-6 h-6 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-[10px] shrink-0 shadow-sm">
-            {(parsed.department || "D").charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-              {parsed.department || "PG Department of CS"}
-            </span>
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-105 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {parsed.updateType || "Info"}
-            </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-0.5 ml-auto">
-              <Clock className="w-2.5 h-2.5" />
-              {relativeTime}
-            </span>
-          </div>
-        </div>
-
-        <div className="space-y-1 mb-2.5">
-          {parsed.title && parsed.title !== parsed.department && parsed.title !== "Update" && parsed.title !== "Announcement" && parsed.title !== "Event" && (
-            <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 leading-snug">
-              {parsed.title}
-            </h4>
-          )}
-          <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-            {parsed.description || "No updates yet"}
-          </p>
-        </div>
-
-        <DashboardAttachmentPreview attachmentUrl={update.attachment_url} />
+    <div className="py-4 border-b border-slate-100 flex gap-3.5 items-start hover:bg-slate-50/30 px-2.5 rounded-xl transition-colors duration-150">
+      <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0 shadow-sm border border-emerald-100">
+        {(parsed.department || "D").charAt(0).toUpperCase()}
       </div>
-      <div className="flex items-center gap-4 pt-2 text-slate-400 mt-auto">
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold">
-          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-          <span>{update.like_count || 0}</span>
-        </span>
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[13px] font-bold text-slate-800">
+            {parsed.department || "PG Department of CS"}
+          </span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 uppercase tracking-wider">
+            {parsed.updateType || "Info"}
+          </span>
+          <span className="text-[10px] text-slate-400 flex items-center gap-0.5 ml-auto">
+            <Clock className="w-2.5 h-2.5" />
+            {relativeTime}
+          </span>
+        </div>
+        {parsed.title && parsed.title !== parsed.department && parsed.title !== "Update" && parsed.title !== "Announcement" && (
+          <h4 className="text-xs font-bold text-slate-800 leading-snug">
+            {parsed.title}
+          </h4>
+        )}
+        <p className="text-xs text-slate-500 leading-relaxed max-w-2xl">
+          {parsed.description || "No description provided"}
+        </p>
+        <DashboardAttachmentPreview attachmentUrl={update.attachment_url} />
+        <div className="flex items-center gap-1 pt-1 text-[11px] font-bold text-slate-400">
+          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
+          <span>{update.like_count || 0} Likes</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ForumFeedItem({ post }) {
+  const relativeTime = timeAgo(post.created_at);
+  const { title, body } = parseForumPostContent(post.content);
+
+  return (
+    <div className="py-4 border-b border-slate-100 flex gap-3.5 items-start hover:bg-slate-50/30 px-2.5 rounded-xl transition-colors duration-150">
+      <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-9 h-9 ring-1 ring-slate-100 shrink-0" />
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[13px] font-bold text-slate-800">
+            {post.posted_by?.name}
+          </span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 uppercase tracking-wider">
+            {post.posted_by?.role}
+          </span>
+          <span className="text-[10px] text-slate-400 flex items-center gap-0.5 ml-auto">
+            <Clock className="w-2.5 h-2.5" />
+            {relativeTime}
+          </span>
+        </div>
+        {title && (
+          <h4 className="text-xs font-bold text-slate-800 leading-snug">
+            {title}
+          </h4>
+        )}
+        <p className="text-xs text-slate-500 leading-relaxed max-w-2xl">
+          {body}
+        </p>
+        <DashboardAttachmentPreview attachmentUrl={post.attachment_url} />
+        <div className="flex items-center gap-3 pt-1 text-[11px] font-bold text-slate-400">
+          <span className="flex items-center gap-1">
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
+            <span>{post.like_count || 0}</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span>Discussion</span>
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -323,6 +215,7 @@ function LatestUpdateCard({ updates, onNavigate }) {
 export default function DashboardPage() {
   const { user } = useAuth();
   const [isMailModalOpen, setIsMailModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("updates");
   const { navigateWithTransition } = usePageTransition();
 
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -359,10 +252,8 @@ export default function DashboardPage() {
   }
 
   const total = stats?.total ?? 0;
-
   const classesList = classesData?.classes || [];
   const totalStudentsCount = classesList.reduce((s, c) => s + (c.student_count ?? 0), 0);
-
   const facultyList = facultyData || [];
   const facultyCount = facultyList.length;
 
@@ -372,170 +263,250 @@ export default function DashboardPage() {
   const totalViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
   const totalUsers = 1 + facultyCount + totalStudentsCount;
 
-  const allStats = [
-    {
-      key: "total",
-      label: "Total Projects",
-      value: total,
-      icon: FolderKanban,
-      iconBg: "rgba(139, 92, 246, 0.1)",
-      iconColor: "#8B5CF6",
-      to: "/projects",
-    },
-    {
-      key: "in_progress",
-      label: "In Progress",
-      value: stats?.in_progress ?? 0,
-      icon: TrendingUp,
-      iconBg: "rgba(16, 185, 129, 0.1)",
-      iconColor: "#10B981",
-      to: "/projects",
-    },
-    {
-      key: "student_count",
-      label: "Students in Projects",
-      value: stats?.student_count ?? 0,
-      icon: Users,
-      iconBg: "rgba(34, 197, 94, 0.1)",
-      iconColor: "#22C55E",
-      to: "/projects",
-    },
-    {
-      key: "completed",
-      label: "Completed",
-      value: stats?.completed ?? 0,
-      icon: CheckCircle,
-      iconBg: "rgba(16, 185, 129, 0.1)",
-      iconColor: "#10B981",
-      to: "/projects",
-    },
-    {
-      key: "total_students",
-      label: "Total Students",
-      value: totalStudentsCount,
-      icon: Users,
-      iconBg: "rgba(59, 130, 246, 0.1)",
-      iconColor: "#3B82F6",
-      to: "/classes",
-    },
-    {
-      key: "total_faculty",
-      label: "Total Faculty",
-      value: facultyCount,
-      icon: Users,
-      iconBg: "rgba(245, 158, 11, 0.1)",
-      iconColor: "#F59E0B",
-      to: "/faculty",
-    },
+  // Modern integrated stats row data
+  const metrics = [
+    { label: "Active Projects", val: stats?.in_progress ?? 0, desc: `of ${total} total`, icon: FolderKanban, color: "text-emerald-500", to: "/projects", iconRef: FolderKanban },
+    { label: "Completed", val: stats?.completed ?? 0, desc: "archived", icon: CheckCircle, color: "text-emerald-600", to: "/projects", iconRef: CheckCircle },
+    { label: "Students Portal", val: totalStudentsCount, desc: "enrolled", icon: Users, color: "text-emerald-500", to: "/classes", iconRef: Users },
+    { label: "Faculty Board", val: facultyCount, desc: "active staff", icon: Users, color: "text-emerald-600", to: "/faculty", iconRef: Users },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* ── Welcome Header Banner ── */}
-      <div data-animate className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
-        <div className="space-y-2 z-10 max-w-xl">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-            <span className="text-primary-600 dark:text-primary-400 block mb-1.5">Welcome back,</span>
-            <span className="block text-3xl sm:text-4xl">
-              <DashboardRollingName name={getFirstName(user?.name)} />
-            </span>
+    <div className="space-y-8 pb-10">
+      
+      {/* ── Welcome Header (Premium Typographic) ── */}
+      <div 
+        className="relative overflow-hidden py-8 px-2 flex flex-col md:flex-row md:items-center justify-between gap-6"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(5, 150, 105, 0.05) 1px, transparent 1px)",
+          backgroundSize: "20px 20px"
+        }}
+      >
+        <div className="space-y-1.5">
+          <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider w-fit block">
+            Workspace Hub
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-tight">
+            Welcome back, <span className="text-emerald-600">{getFirstName(user?.name)}</span>
           </h1>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium">
+          <p className="text-sm sm:text-base text-slate-500 font-medium">
             Here's what's happening in your department today.
           </p>
-          {/* Live Clock inside the Banner */}
-          <div className="pt-3 flex flex-col sm:flex-row sm:items-center gap-3">
-            <LiveClockCard inline={true} />
-            {(user?.role === "HOD" || user?.role === "FACULTY") && (
+        </div>
+
+        {(user?.role === "HOD" || user?.role === "FACULTY") && (
+          <button
+            onClick={() => setIsMailModalOpen(true)}
+            className="flex items-center gap-2 px-4.5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md shadow-emerald-500/10 hover:-translate-y-0.5 active:translate-y-0 w-fit shrink-0 mt-2 md:mt-0"
+          >
+            <Mail className="w-4 h-4 shrink-0" />
+            Send Mail to Hive
+          </button>
+        )}
+      </div>
+
+      {/* ── Metrics Strip (Deprecates card grid) ── */}
+      <div className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+          {metrics.map((m, idx) => (
+            <div 
+              key={idx} 
+              onClick={() => navigateWithTransition(m.to, m.label, m.iconRef)}
+              className={`flex flex-col justify-center cursor-pointer group transition-all duration-150 p-2 rounded-xl hover:bg-slate-50/50 ${
+                idx > 1 ? "pt-4 md:pt-2 md:pl-6" : "pt-2"
+              } ${idx === 1 ? "md:pl-6" : ""} ${idx === 3 ? "pt-4 md:pt-2" : ""}`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                  {m.label}
+                </span>
+                <m.icon className={`w-4 h-4 ${m.color} opacity-80 group-hover:scale-110 transition-transform`} />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-slate-800 leading-none">
+                  {m.val}
+                </span>
+                <span className="text-[10px] font-semibold text-slate-400">
+                  {m.desc}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Main Activity Feed vs Sidebar Layout ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Column 1: Unified Activity Feed (65%) */}
+        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col min-h-[400px]">
+          
+          {/* Workspace Tabs Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-3">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-1.5">
+              <Megaphone className="w-4 h-4 text-emerald-600" />
+              Activity Feed
+            </h3>
+            
+            {/* Sliding Tab Switcher */}
+            <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
               <button
-                onClick={() => setIsMailModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-indigo-650 bg-indigo-50/50 hover:bg-indigo-100/60 dark:text-indigo-400 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/40 rounded-xl border border-indigo-100/40 dark:border-slate-700 transition-colors w-fit"
+                onClick={() => setActiveTab("updates")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "updates"
+                    ? "bg-white text-emerald-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
               >
-                <Mail className="w-4 h-4 shrink-0" />
-                Send Mail to Hive
+                Announcements
               </button>
+              <button
+                onClick={() => setActiveTab("forum")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "forum"
+                    ? "bg-white text-emerald-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                Discussions
+              </button>
+            </div>
+          </div>
+
+          {/* Feed Content Area */}
+          <div className="flex-1 mt-2">
+            {activeTab === "updates" ? (
+              updatesList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <Megaphone className="w-8 h-8 text-slate-300 mb-2.5" />
+                  <p className="text-xs font-semibold text-slate-400">No updates or announcements yet</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-50">
+                  {updatesList.slice(0, 4).map((up) => (
+                    <UpdateFeedItem key={up.id} update={up} />
+                  ))}
+                </div>
+              )
+            ) : (
+              forumPostsList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <MessageSquare className="w-8 h-8 text-slate-300 mb-2.5" />
+                  <p className="text-xs font-semibold text-slate-400">No discussion posts yet</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-50">
+                  {forumPostsList.slice(0, 4).map((fp) => (
+                    <ForumFeedItem key={fp.id} post={fp} />
+                  ))}
+                </div>
+              )
             )}
           </div>
-        </div>
-        <div className="shrink-0 z-10 hidden md:block">
-          <img src="/dashboard-light.png" alt="Dashboard Overview" className="block dark:hidden h-48 lg:h-56 w-auto object-contain" />
-          <img src="/dashboard-dark.png" alt="Dashboard Overview" className="hidden dark:block h-48 lg:h-56 w-auto object-contain" />
-        </div>
-      </div>
 
-      {/* Row 1: Unified Metrics Grid */}
-      <div data-animate className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 lg:gap-3">
-        {allStats.map(card => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={card.key}
-              onClick={() => navigateWithTransition(card.to, card.label, card.icon)}
-              id={`stat-card-${card.key}`}
-              className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-xl p-2.5 sm:p-3.5 flex flex-row items-center md:flex-col md:items-start gap-2.5 sm:gap-3 transition-all duration-205 hover:shadow-md group block cursor-pointer"
+          {/* Footer View More Action */}
+          <div className="pt-3 border-t border-slate-50 mt-4 flex justify-end">
+            <button
+              onClick={() => {
+                if (activeTab === "updates") {
+                  navigateWithTransition("/updates", "Updates", Megaphone);
+                } else {
+                  navigateWithTransition("/forum", "Forum", MessageSquare);
+                }
+              }}
+              className="flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
             >
-              {/* Desktop layout: Icon and count on the same line */}
-              <div className="flex items-center justify-between w-auto md:w-full md:flex-row md:items-center">
-                <div
-                  className="w-8 h-8 sm:w-9 sm:h-9 md:w-7 md:h-7 rounded-lg sm:rounded-xl md:rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: card.iconBg, color: card.iconColor }}
-                >
-                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-3.5 md:h-3.5" />
-                </div>
-                {/* Count (Desktop-only) */}
-                <span className="hidden md:block text-lg lg:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
-                  {card.value}
-                </span>
-              </div>
-
-              {/* Content block: Count on top for Mobile, title below */}
-              <div className="min-w-0 flex-1 flex flex-col md:w-full">
-                {/* Count (Mobile-only) */}
-                <span className="block md:hidden text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
-                  {card.value}
-                </span>
-                {/* Title */}
-                <span className="text-[9px] sm:text-[10px] md:text-[10.5px] font-bold uppercase text-slate-400 dark:text-slate-500 mt-1 md:mt-1 truncate block">
-                  {card.label}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Latest Forum Post, Latest Update, and Views/Users Row ── */}
-      <div data-animate className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <LatestForumPostCard posts={forumPostsList} onNavigate={navigateWithTransition} />
-        <LatestUpdateCard updates={updatesList} onNavigate={navigateWithTransition} />
-
-        {/* Two vertical cards: Total Views and Total Users */}
-        <div className="flex flex-col gap-4 justify-between h-full">
-          {/* Total Views Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm flex-1 min-h-[120px]">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Total Views</span>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">{totalViews}</h3>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">Logged-in & public sections</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-100/60 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 shrink-0">
-              <Eye className="w-5 h-5 animate-pulse" />
-            </div>
-          </div>
-
-          {/* Total Users Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm flex-1 min-h-[120px]">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Total Users</span>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">{totalUsers}</h3>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">HOD, Faculty & Students</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-100/60 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 shrink-0">
-              <Users className="w-5 h-5" />
-            </div>
+              See all {activeTab === "updates" ? "Announcements" : "Discussions"}{" "}
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
+
+        {/* Column 2: Insights & Action Sidebar (35%) */}
+        <div className="space-y-6">
+          
+          {/* Live Date/Time widget */}
+          <LiveClockWidget />
+
+          {/* Engagement Metrics Card */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
+            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
+              Department Insights
+            </h3>
+            
+            <div className="space-y-3.5">
+              {/* Total Views */}
+              <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+                <div className="min-w-0">
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                    Department Views
+                  </span>
+                  <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
+                    {totalViews}
+                  </span>
+                  <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
+                    Logged-in & public sections
+                  </span>
+                </div>
+                <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Eye className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Total Users */}
+              <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+                <div className="min-w-0">
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                    Total Members
+                  </span>
+                  <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
+                    {totalUsers}
+                  </span>
+                  <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
+                    HOD, Faculty & Students
+                  </span>
+                </div>
+                <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Action Directories */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3">
+            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-1">
+              Shortcuts
+            </h3>
+            <div className="space-y-2">
+              {[
+                { label: "Classrooms Directory", desc: "Manage classes & view incharge info", to: "/classes", icon: BookOpen },
+                { label: "Projects Registry", desc: "Browse, filter & search projects", to: "/projects", icon: FolderKanban },
+                { label: "Faculty Directory", desc: "View department active faculty list", to: "/faculty", icon: Users }
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => navigateWithTransition(item.to, item.label, item.icon)}
+                  className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 cursor-pointer group transition-all"
+                >
+                  <div className="min-w-0">
+                    <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition-colors leading-tight">
+                      {item.label}
+                    </span>
+                    <span className="block text-[10px] text-slate-400 mt-0.5 truncate leading-none">
+                      {item.desc}
+                    </span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
       </div>
+
       <MailComposerModal isOpen={isMailModalOpen} onClose={() => setIsMailModalOpen(false)} />
     </div>
   );
