@@ -17,7 +17,7 @@ export default function HomePage() {
   return (
     <div
       ref={pageRef}
-      className="h-screen overflow-hidden bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300"
+      className="h-screen overflow-hidden bg-background transition-colors duration-300"
       style={{ opacity: 0 }}
     >
       <HeroSection />

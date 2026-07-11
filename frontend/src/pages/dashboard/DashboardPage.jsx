@@ -378,8 +378,8 @@ export default function DashboardPage() {
       label: "Total Projects",
       value: total,
       icon: FolderKanban,
-      iconBg: "rgba(139, 92, 246, 0.1)",
-      iconColor: "#8B5CF6",
+      iconBg: "var(--primary-light)",
+      iconColor: "var(--primary)",
       to: "/projects",
     },
     {

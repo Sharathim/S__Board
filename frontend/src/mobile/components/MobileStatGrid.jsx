@@ -22,9 +22,9 @@ export function MobileStatCell({ icon: Icon, label, value, iconBg, iconColor, on
     >
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: iconBg || "#EDE9FE" }}
+        style={{ background: iconBg || "var(--primary-light)" }}
       >
-        <Icon className="w-4.5 h-4.5" style={{ color: iconColor || "#8B5CF6" }} />
+        <Icon className="w-4.5 h-4.5" style={{ color: iconColor || "var(--primary)" }} />
       </div>
       <div className="min-w-0">
         <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight block">{value}</span>

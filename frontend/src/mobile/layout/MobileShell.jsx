@@ -20,7 +20,7 @@ export default function MobileShell() {
 
   return (
     <TransitionProvider pageContentRef={pageContentRef}>
-      <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300 relative overflow-hidden">
+      <div className="min-h-screen bg-background transition-colors duration-300 relative overflow-hidden">
         <MobileTopBar />
 
         {/* Page content — padded to clear fixed bars */}

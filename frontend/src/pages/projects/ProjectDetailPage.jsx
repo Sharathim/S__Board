@@ -60,7 +60,7 @@ function CircularProgressBar({ percentage }) {
     <div className="relative flex items-center justify-center">
       <svg height={radius * 2} width={radius * 2} className="transform -rotate-90">
         <circle
-          stroke="rgba(139, 92, 246, 0.08)"
+          stroke="var(--primary-light)"
           fill="transparent"
           strokeWidth={stroke}
           r={normalizedRadius}
@@ -80,8 +80,8 @@ function CircularProgressBar({ percentage }) {
         />
         <defs>
           <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#a855f7" />
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="100%" stopColor="var(--primary-hover)" />
           </linearGradient>
         </defs>
       </svg>

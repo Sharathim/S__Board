@@ -36,7 +36,7 @@ export default function PageTransitionOverlay() {
       ref={overlayRef}
       className={`fixed inset-0 z-[9999] flex items-center justify-center transition-colors duration-300 ${
         transitionMode === "PORTAL"
-          ? "bg-[#fbfbff] dark:bg-[#020617]"
+          ? "bg-background"
           : "pointer-events-none"
       }`}
       style={{ opacity: 0 }}
@@ -66,8 +66,8 @@ export default function PageTransitionOverlay() {
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center relative z-10"
               style={{
-                background: "rgba(139, 92, 246, 0.08)",
-                color: "#8B5CF6",
+                background: "var(--primary-light)",
+                color: "var(--primary)",
               }}
             >
               <ActiveIcon className="w-5.5 h-5.5" />
@@ -87,10 +87,10 @@ export default function PageTransitionOverlay() {
           {/* Front Cover */}
           <div ref={folderFrontRef} className="folder-front-cover">
             <div className="folder-front-grid">
-              <div className="folder-front-dot" />
-              <div className="folder-front-dot" style={{ background: "#C084FC" }} />
-              <div className="folder-front-dot" style={{ background: "#A78BFA" }} />
-              <div className="folder-front-dot" />
+              <div className="folder-front-dot" style={{ background: "var(--primary)" }} />
+              <div className="folder-front-dot" style={{ background: "var(--primary-hover)" }} />
+              <div className="folder-front-dot" style={{ background: "var(--primary-light)" }} />
+              <div className="folder-front-dot" style={{ background: "var(--accent)" }} />
             </div>
           </div>
         </div>

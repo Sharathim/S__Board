@@ -858,7 +858,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a855f7] text-white hover:opacity-90 shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-primary text-btn-text hover:bg-primary-hover shadow-md hover:shadow-primary/20 transition-all flex items-center justify-center gap-1.5"
           >
             {loading ? (
               <Spinner className="w-4.5 h-4.5 border-white" />
