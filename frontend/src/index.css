@@ -213,8 +213,8 @@
   --sidebar-active-fg: #10b981; /* Glowing green */
 
   --text-primary: #FFFFFF;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  --text-secondary: #cbd5e1; /* Silver-gray secondary text - highly readable! */
+  --text-muted: #94a3b8; /* Muted gray text - highly readable! */
 
   --border-light: rgba(16, 185, 129, 0.15); /* Green effect on borders/fields */
   --border-medium: rgba(16, 185, 129, 0.25);
@@ -265,29 +265,31 @@
   --violet-955: #011711;
   --violet-950: #011711;
 
-  /* Slate & Gray backgrounds and borders mapped to complete black/charcoal */
+  /* Slate & Gray backgrounds and borders mapped to complete black/charcoal/silver */
   --slate-50: #000000;
   --slate-100: #080808;
   --slate-200: #0c0c0c;
-  --slate-300: rgba(16, 185, 129, 0.2);
-  --slate-400: rgba(16, 185, 129, 0.3);
-  --slate-500: #10b981;
-  --slate-600: #6b7280;
-  --slate-700: #4b5563;
-  --slate-800: #0c0c0c;
-  --slate-900: #050505;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8; /* silver grey */
+  --slate-505: #10b981; /* neon highlight */
+  --slate-500: #64748b; /* readable muted grey */
+  --slate-600: #475569;
+  --slate-700: rgba(16, 185, 129, 0.18); /* green-tinted border */
+  --slate-800: #121212; /* lighter charcoal card background */
+  --slate-900: #0a0a0a; /* dark charcoal card background */
   --slate-950: #000000;
 
   --gray-50: #000000;
   --gray-100: #080808;
   --gray-200: #0c0c0c;
-  --gray-300: rgba(16, 185, 129, 0.2);
-  --gray-400: rgba(16, 185, 129, 0.3);
-  --gray-500: #10b981;
-  --gray-600: #6b7280;
-  --gray-700: #4b5563;
-  --gray-800: #0c0c0c;
-  --gray-900: #050505;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-505: #10b981;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: rgba(16, 185, 129, 0.18);
+  --gray-800: #121212;
+  --gray-900: #0a0a0a;
   --gray-950: #000000;
 
   /* Glow & Outline styling variables for Neon Green */
@@ -304,6 +306,41 @@
   --navbar-icon-btn-hover-glow: rgba(16, 185, 129, 0.12);
   --navbar-icon-btn-hover-glow-sm: rgba(16, 185, 129, 0.08);
   --navbar-outline: rgba(16, 185, 129, 0.15);
+}
+
+/* ─── Dark Mode Global Input & Card Polishes ─── */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark input[type="search"],
+.dark select,
+.dark textarea {
+  border-color: rgba(16, 185, 129, 0.22) !important;
+  background-color: #050505 !important;
+  color: #FFFFFF !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="tel"]:focus,
+.dark input[type="search"]:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+}
+
+.dark .bg-white {
+  background-color: var(--surface) !important;
+}
+
+.dark .border-gray-100,
+.dark .border-slate-100 {
+  border-color: rgba(16, 185, 129, 0.18) !important;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */

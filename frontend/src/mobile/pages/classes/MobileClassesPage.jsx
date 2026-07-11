@@ -131,7 +131,7 @@ function ClassCardMobile({ c, meta }) {
 
       {/* Class Incharge Info Block */}
       <div
-        className="flex items-center gap-3 h-[48px] bg-[#fafafa] dark:bg-slate-900/60 rounded-[10px] p-[10px_14px] border border-slate-100/50 dark:border-slate-800/40"
+        className="flex items-center gap-3 h-[48px] bg-[#fafafa] dark:bg-slate-950 rounded-[10px] p-[10px_14px] border border-slate-100/50 dark:border-slate-700"
       >
         {hasIncharge ? (
           <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-[34px] h-[34px] ring-2 ring-primary/20 shrink-0" />
@@ -147,20 +147,20 @@ function ClassCardMobile({ c, meta }) {
           </span>
         </div>
       </div>
-
+ 
       {/* Statistics Block */}
       <div className="grid grid-cols-[1.15fr_0.85fr] gap-2.5">
         {/* Students */}
-        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[10px] p-2.5 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-950 border border-slate-100/50 dark:border-slate-700 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <Users className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
             <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
             <span className="text-[10px] font-[600] tracking-[0.5px] text-[var(--text-muted)] uppercase mt-[2px] leading-none">Students</span>
           </div>
         </div>
-
+ 
         {/* Year / Forum Members */}
-        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-900/60 border border-slate-100/50 dark:border-slate-800/40 rounded-[10px] p-2.5 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-950 border border-slate-100/50 dark:border-slate-700 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
             <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">

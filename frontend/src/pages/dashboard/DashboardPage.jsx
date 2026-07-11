@@ -155,8 +155,8 @@ function LatestForumPostCard({ posts, onNavigate }) {
 
   if (!post) {
     return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full min-h-[160px]">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-805/40">
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full min-h-[160px]">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
             <MessageSquare className="w-4 h-4 text-violet-500" />
             Latest Forum Post
@@ -177,7 +177,7 @@ function LatestForumPostCard({ posts, onNavigate }) {
   const { title, body } = parseForumPostContent(post.content);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
+    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -245,8 +245,8 @@ function LatestUpdateCard({ updates, onNavigate }) {
 
   if (!update) {
     return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full min-h-[160px]">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-805/40">
+      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full min-h-[160px]">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
             <Megaphone className="w-4 h-4 text-violet-500" />
             Latest Update
@@ -267,7 +267,7 @@ function LatestUpdateCard({ updates, onNavigate }) {
   const relativeTime = timeAgo(update.created_at);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850/65 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
+    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-sm h-full hover:border-violet-200 dark:hover:border-violet-800/30 transition-colors">
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -432,7 +432,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* ── Welcome Header Banner ── */}
-      <div data-animate className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+      <div data-animate className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
         <div className="space-y-2 z-10 max-w-xl">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             <span className="text-primary-600 dark:text-primary-400 block mb-1.5">Welcome back,</span>
@@ -449,7 +449,7 @@ export default function DashboardPage() {
             {(user?.role === "HOD" || user?.role === "FACULTY") && (
               <button
                 onClick={() => setIsMailModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-indigo-650 bg-indigo-50/50 hover:bg-indigo-100/60 dark:text-indigo-400 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/40 rounded-xl border border-indigo-100/40 dark:border-indigo-850/40 transition-colors w-fit"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-indigo-650 bg-indigo-50/50 hover:bg-indigo-100/60 dark:text-indigo-400 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/40 rounded-xl border border-indigo-100/40 dark:border-slate-700 transition-colors w-fit"
               >
                 <Mail className="w-4 h-4 shrink-0" />
                 Send Mail to Hive
@@ -472,7 +472,7 @@ export default function DashboardPage() {
               key={card.key}
               onClick={() => navigateWithTransition(card.to, card.label, card.icon)}
               id={`stat-card-${card.key}`}
-              className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-2.5 sm:p-3.5 flex flex-row items-center md:flex-col md:items-start gap-2.5 sm:gap-3 transition-all duration-205 hover:shadow-md group block cursor-pointer"
+              className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-xl p-2.5 sm:p-3.5 flex flex-row items-center md:flex-col md:items-start gap-2.5 sm:gap-3 transition-all duration-205 hover:shadow-md group block cursor-pointer"
             >
               {/* Desktop layout: Icon and count on the same line */}
               <div className="flex items-center justify-between w-auto md:w-full md:flex-row md:items-center">
@@ -512,7 +512,7 @@ export default function DashboardPage() {
         {/* Two vertical cards: Total Views and Total Users */}
         <div className="flex flex-col gap-4 justify-between h-full">
           {/* Total Views Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-5 flex items-center justify-between shadow-sm flex-1 min-h-[120px]">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm flex-1 min-h-[120px]">
             <div className="space-y-1">
               <span className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Total Views</span>
               <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">{totalViews}</h3>
@@ -524,7 +524,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Total Users Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-5 flex items-center justify-between shadow-sm flex-1 min-h-[120px]">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm flex-1 min-h-[120px]">
             <div className="space-y-1">
               <span className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Total Users</span>
               <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">{totalUsers}</h3>
