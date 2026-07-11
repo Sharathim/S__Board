@@ -15,6 +15,7 @@ def create_app():
     db.init_app(app)
     with app.app_context():
         try:
+            from . import models
             db.create_all()
             print("Database tables initialized successfully via create_all() at startup.")
         except Exception as e:

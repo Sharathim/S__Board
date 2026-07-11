@@ -1,6 +1,6 @@
 from .user import User, UserRole
 from .faculty import Faculty
-from .student import Student
+from .student import Student, StudentDetail, CustomForm, FormResponse
 from .forum_member import ForumMember
 from .project import Project, ProjectStatus, project_members
 from .message import ProjectMessage
