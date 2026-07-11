@@ -247,7 +247,7 @@ def delete_subject(class_name, subject_id):
             if f.cloudinary_public_id:
                 try:
                     # Cloudinary deletion type logic
-                    res_type = "raw" if f.file_type in ["pdf", "ppt", "pptx", "doc", "docx"] else "image"
+                    res_type = "raw" if f.file_type in ["ppt", "pptx", "doc", "docx"] else "image"
                     delete_file(f.cloudinary_public_id, resource_type=res_type)
                 except Exception as e:
                     print(f"Failed to delete file from Cloudinary: {e}")
@@ -428,7 +428,7 @@ def delete_unit(class_name, subject_id, unit_id):
     for f in unit.files.all():
         if f.cloudinary_public_id:
             try:
-                res_type = "raw" if f.file_type in ["pdf", "ppt", "pptx", "doc", "docx"] else "image"
+                res_type = "raw" if f.file_type in ["ppt", "pptx", "doc", "docx"] else "image"
                 delete_file(f.cloudinary_public_id, resource_type=res_type)
             except Exception as e:
                 print(f"Failed to delete file from Cloudinary: {e}")
@@ -528,7 +528,7 @@ def delete_unit_file(class_name, subject_id, unit_id, file_id):
     # Delete from Cloudinary
     if unit_file.cloudinary_public_id:
         try:
-            res_type = "raw" if unit_file.file_type in ["pdf", "ppt", "pptx", "doc", "docx"] else "image"
+            res_type = "raw" if unit_file.file_type in ["ppt", "pptx", "doc", "docx"] else "image"
             delete_file(unit_file.cloudinary_public_id, resource_type=res_type)
         except Exception as e:
             print(f"Failed to delete file from Cloudinary: {e}")

@@ -50,7 +50,6 @@ export default function NotesDocsTab({ className }) {
   const [previewModal, setPreviewModal] = useState({ open: false, unit: null, initialFileId: null });
 
   const handleDownload = async (e, url, fileName) => {
-    if (e) e.preventDefault();
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Network response was not ok");
@@ -63,9 +62,10 @@ export default function NotesDocsTab({ className }) {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
+      if (e) e.preventDefault();
     } catch (error) {
-      console.error("Failed to download file using blob, falling back to direct open:", error);
-      window.open(url, "_blank");
+      console.warn("Failed to download file using blob, letting browser handle download directly:", error);
+      // We do NOT call e.preventDefault() here, which allows the browser to open the link in a new tab natively
     }
   };
 
@@ -426,13 +426,17 @@ export default function NotesDocsTab({ className }) {
                                   >
                                     <Eye className="w-3.5 h-3.5" />
                                   </button>
-                                  <button
+                                  <a
+                                    href={file.file_url}
+                                    download={file.file_name}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     onClick={(e) => handleDownload(e, file.file_url, file.file_name)}
                                     className="p-1.5 rounded-lg text-gray-400 hover:text-green-500 hover:bg-slate-50 dark:hover:bg-gray-750 border border-gray-100 dark:border-gray-700/60 shadow-sm transition-all"
                                     title="Download File"
                                   >
                                     <Download className="w-3.5 h-3.5" />
-                                  </button>
+                                  </a>
                                   {canModify(user, className, file.uploaded_by.id) && (
                                     <button
                                       onClick={() => setDeleteFileTarget({ file, unitId: unit.id })}
@@ -935,8 +939,12 @@ function PdfPreviewer({ fileUrl }) {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] border border-gray-100 dark:border-gray-800/80">
-        <div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>
+      <div className="w-full space-y-4">
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 text-xs font-semibold rounded-xl border border-amber-100 dark:border-amber-900/60 flex flex-col gap-1">
+          <span>Direct PDF render failed (CORS restriction on legacy files).</span>
+          <span>Switching to Web Viewer preview mode...</span>
+        </div>
+        <DocxPptPreviewer fileUrl={fileUrl} fileName="PDF Document" fileType="pdf" />
       </div>
     );
   }
@@ -1053,15 +1061,18 @@ function PreviewModal({ open, onClose, unit, initialFileId, handleDownload }) {
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
+                <a
+                  href={file.file_url}
+                  download={file.file_name}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={(e) => handleDownload(e, file.file_url, file.file_name)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-slate-100 dark:hover:bg-gray-750 text-[10px] font-bold text-gray-600 dark:text-gray-300 transition-all shadow-sm"
                   title="Download File"
                 >
                   <Download className="w-3.5 h-3.5" />
                   Download
-                </button>
+                </a>
               </div>
 
               {/* Render Preview */}
