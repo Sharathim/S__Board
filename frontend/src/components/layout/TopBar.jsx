@@ -248,11 +248,11 @@ export function TopBar() {
               alt="Hive Logo"
               className="w-11 h-11 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(5,150,105,0.25)] transition-transform duration-300 hover:rotate-6"
             />
-            <span
-              className="font-black text-2.5xl tracking-tight bg-gradient-to-r from-slate-850 via-emerald-750 to-slate-800 bg-clip-text text-transparent font-sans"
-            >
-              HIVE
-            </span>
+            <img
+              src="/website-name.png"
+              alt="Hive"
+              className="h-9 w-auto object-contain flex-shrink-0"
+            />
           </div>
         </div>
 

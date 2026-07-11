@@ -34,19 +34,26 @@ export function PublicNavbar() {
 
           {/* ── Logo ──
               Mobile: icon only  |  sm+: full horizontal logo with name  */}
-          <Link to="/" className="flex items-center group shrink-0">
+          <Link to="/" className="flex items-center group shrink-0 gap-3">
             {/* Icon-only on xs screens */}
             <img
               src="/logo-icon.png"
-              alt="DPMS"
-              className="h-14 w-14 object-contain sm:hidden transition-transform duration-200 group-hover:scale-105"
+              alt="Hive Logo"
+              className="h-12 w-12 object-contain sm:hidden transition-transform duration-200 group-hover:scale-105"
             />
             {/* Full logo with name on sm+ */}
-            <img
-              src="/logo-full.png"
-              alt="DPMS — Department Project Management System"
-              className="hidden sm:block h-[72px] w-auto min-w-[180px] object-contain object-left transition-transform duration-200 group-hover:scale-[1.02]"
-            />
+            <div className="hidden sm:flex items-center gap-3 transition-transform duration-200 group-hover:scale-[1.02]">
+              <img
+                src="/logo-icon.png"
+                alt="Hive Logo"
+                className="h-12 w-12 object-contain"
+              />
+              <img
+                src="/website-name.png"
+                alt="Hive"
+                className="h-9 w-auto object-contain"
+              />
+            </div>
           </Link>
 
           {/* ── Desktop Nav Links ── */}
