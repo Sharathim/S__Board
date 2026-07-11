@@ -363,6 +363,9 @@ export default function MailComposerModal({ isOpen, onClose }) {
       {/* ========================================== */}
       <div className="hidden lg:flex relative w-full max-w-[1100px] h-[800px] max-h-[92vh] bg-white border border-[var(--border-light)] rounded-[28px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
         
+        {/* Extraordinary Top Accent Gradient Line */}
+        <div className="h-1.5 bg-gradient-to-r from-[#4F46E5] via-[#3B82F6] to-[#06B6D4] shrink-0" />
+
         {/* Top Header */}
         <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white border-b border-[var(--border-light)]">
           <div className="flex items-center gap-3">
@@ -390,7 +393,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
             <button
               onClick={handleSend}
               disabled={isSending}
-              className="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-2.5 text-xs font-black text-white bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] hover:from-[#4338CA] hover:to-[#0891B2] rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Send Mail
@@ -948,7 +951,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
                 <button
                   onClick={handleSend}
                   disabled={isSending}
-                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                  className="px-5 py-2 text-xs font-black text-white bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] hover:from-[#4338CA] hover:to-[#0891B2] rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   Send Announcement
@@ -1043,7 +1046,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
             <button
               onClick={handleSend}
               disabled={isSending}
-              className="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-2.5 text-xs font-black text-white bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] hover:from-[#4338CA] hover:to-[#0891B2] rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Send Announcement

@@ -330,8 +330,8 @@ export function TopBar() {
           <X className="w-4.5 h-4.5" />
         </button>
 
-        {/* Scrollable Content wrapper (prevent bottom profile card cutoff) */}
-        <div className="flex-1 overflow-y-auto pr-1 my-4 flex flex-col justify-between min-h-0 gap-6 mt-12 scrollbar-thin">
+        {/* Content wrapper (non-scrollable layout) */}
+        <div className="flex-1 overflow-hidden pr-1 my-4 flex flex-col justify-between min-h-0 gap-6 mt-12">
           
           {/* Navigation Items list (Staggered load) */}
           <div className="flex flex-col gap-1.5">
