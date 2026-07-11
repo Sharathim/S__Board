@@ -23,11 +23,11 @@ export default function MobileFacultyOnboarding() {
     }
   }, [user, onboardingData, authLoading, navigate]);
 
-  const [name,        setName]        = useState(onboardingData?.prefill?.name || "");
+  const [name, setName] = useState(onboardingData?.prefill?.name || "");
   const [designation, setDesignation] = useState("Professor");
-  const [classes,     setClasses]     = useState([]);
-  const [loading,     setLoading]     = useState(false);
-  const [error,       setError]       = useState(null);
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   if (!onboardingData || onboardingData.invite_type !== "faculty") {
     return <Spinner fullScreen />;
@@ -44,12 +44,12 @@ export default function MobileFacultyOnboarding() {
     setError(null);
     try {
       const res = await onboardFaculty({
-        uid:               onboardingData.prefill.uid,
-        email:             onboardingData.prefill.email,
-        name:              name.trim(),
-        profile_picture:   onboardingData.prefill.profile_picture,
+        uid: onboardingData.prefill.uid,
+        email: onboardingData.prefill.email,
+        name: name.trim(),
+        profile_picture: onboardingData.prefill.profile_picture,
         designation,
-        classes_handling:  classes,
+        classes_handling: classes,
       });
       setOnboardingData(null);
       setUser(res.data.user);
@@ -63,9 +63,9 @@ export default function MobileFacultyOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-background mobile-fade-in transition-colors duration-300">
+    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#fbfbff] dark:bg-[#020617] mobile-fade-in transition-colors duration-300">
       <div className="w-full max-w-md mx-auto space-y-6">
-        
+
         {/* Brand header */}
         <div className="text-center">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center shadow-lg mx-auto mb-4">
@@ -82,7 +82,7 @@ export default function MobileFacultyOnboarding() {
         <MobileCard>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" />
-            
+
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Email</label>
               <input
@@ -106,11 +106,10 @@ export default function MobileFacultyOnboarding() {
                     key={cls}
                     type="button"
                     onClick={() => toggleClass(cls)}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 ${
-                      classes.includes(cls)
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 ${classes.includes(cls)
                         ? "bg-primary-650 text-white border-primary-650 shadow-sm"
                         : "bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-primary-400"
-                    }`}
+                      }`}
                   >
                     {cls.replace("_", " ")}
                   </button>

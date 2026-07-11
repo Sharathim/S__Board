@@ -124,10 +124,10 @@ const getStatusTheme = (status) => {
   const map = {
     NOT_STARTED: { bg: "bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/50", dot: "bg-slate-400" },
     IN_PROGRESS: { bg: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-indigo-100/50 dark:border-indigo-900/30", dot: "bg-indigo-500" },
-    REVIEW:      { bg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-100/50 dark:border-amber-900/30", dot: "bg-amber-500" },
-    COMPLETED:   { bg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-100/50 dark:border-emerald-900/30", dot: "bg-emerald-500" },
-    ON_HOLD:     { bg: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-600 dark:text-yellow-400 border-yellow-100/50 dark:border-yellow-900/30", dot: "bg-yellow-500" },
-    CANCELLED:   { bg: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100/50 dark:border-red-900/30", dot: "bg-red-500" },
+    REVIEW: { bg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-100/50 dark:border-amber-900/30", dot: "bg-amber-500" },
+    COMPLETED: { bg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-100/50 dark:border-emerald-900/30", dot: "bg-emerald-500" },
+    ON_HOLD: { bg: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-600 dark:text-yellow-400 border-yellow-100/50 dark:border-yellow-900/30", dot: "bg-yellow-500" },
+    CANCELLED: { bg: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100/50 dark:border-red-900/30", dot: "bg-red-500" },
   };
   return map[status] || { bg: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" };
 };
@@ -190,7 +190,7 @@ export default function ProjectsPage() {
   });
 
   const openCreate = () => { setEditProject(null); setModalOpen(true); };
-  const openEdit   = (p)  => { setEditProject(p);  setModalOpen(true); };
+  const openEdit = (p) => { setEditProject(p); setModalOpen(true); };
 
   if (isLoading) return <Spinner />;
   const projects = data?.projects || [];
@@ -211,7 +211,7 @@ export default function ProjectsPage() {
         )}
       </div>
 
-            {/* ─── Filters & Actions Dock ─── */}
+      {/* ─── Filters & Actions Dock ─── */}
       <div className="flex flex-row items-center justify-between gap-2 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30 overflow-x-auto no-scrollbar w-full">
         <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
           <div className="w-28 xs:w-40 sm:w-64 flex-1">
@@ -220,27 +220,25 @@ export default function ProjectsPage() {
           <div className="shrink-0">
             <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
           </div>
-          
+
           {/* Grid / List Switcher */}
           <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-200/50 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40 shrink-0">
             <button
               onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
-              className={`p-1.5 rounded-lg transition-all ${
-                viewMode === "grid"
+              className={`p-1.5 rounded-lg transition-all ${viewMode === "grid"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
                   : "text-gray-400 dark:text-gray-555 hover:text-gray-650 dark:hover:text-gray-400"
-              }`}
+                }`}
               title="Grid View"
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
-              className={`p-1.5 rounded-lg transition-all ${
-                viewMode === "list"
+              className={`p-1.5 rounded-lg transition-all ${viewMode === "list"
                   ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
                   : "text-gray-400 dark:text-gray-555 hover:text-gray-655 dark:hover:text-gray-400"
-              }`}
+                }`}
               title="List View"
             >
               <List className="w-4 h-4" />
@@ -258,10 +256,10 @@ export default function ProjectsPage() {
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => {
-            const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
-            const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-            const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
-            
+            const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
+            const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+            const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
+
             // Combine and sort members with role ring classes
             const allMembers = [
               ...facultyMembers.map(m => ({ ...m, ringClass: "ring-violet-500" })),
@@ -270,10 +268,10 @@ export default function ProjectsPage() {
             ];
             const visibleMembers = allMembers.slice(0, 4);
             const restCount = allMembers.length - 4;
-            
+
             const isCompleted = project.status === "COMPLETED";
-            const borderAccent = isCompleted 
-              ? "hover:border-emerald-500/40 hover:shadow-emerald-500/5" 
+            const borderAccent = isCompleted
+              ? "hover:border-emerald-500/40 hover:shadow-emerald-500/5"
               : "hover:border-indigo-500/40 hover:shadow-indigo-500/5";
 
             // Extract primary faculty mentor/advisor
@@ -293,7 +291,7 @@ export default function ProjectsPage() {
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/10">
                         <FolderKanban className="w-5.5 h-5.5" />
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${getStatusTheme(project.status).dot}`} />
@@ -398,9 +396,9 @@ export default function ProjectsPage() {
 
           <div className="space-y-3">
             {projects.map((project) => {
-              const facultyMembers  = project.members?.filter(m => m.role_in_project === "faculty")  || [];
-              const forumMembers    = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-              const studentMembers  = project.members?.filter(m => m.role_in_project === "student")  || [];
+              const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
+              const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+              const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
 
               return (
                 <div
@@ -487,7 +485,7 @@ export default function ProjectsPage() {
               );
             })}
           </div>
-          
+
           <div className="pt-2">
             <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
           </div>
@@ -544,7 +542,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
     enabled: open,
   });
 
-    const [name, setName] = useState("");
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("IN_PROGRESS");
   const [selectedMembers, setSelectedMembers] = useState([]);
@@ -599,9 +597,9 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
     });
   };
 
-  const facultyPeople  = (facultyData  || []).map(f => ({ user_id: f.user_id, name: f.name, profile_picture: f.profile_picture, subtitle: f.designation, role: "faculty" }));
-  const forumPeople    = (forumData    || []).map(m => ({ user_id: m.user_id, name: m.name, profile_picture: m.profile_picture, subtitle: m.role, role: "forum_member" }));
-  const studentPeople  = (studentsData || []).map(s => ({ user_id: s.user_id, name: s.name, profile_picture: s.profile_picture, subtitle: s.class_name?.replace("_", " "), role: "student" }));
+  const facultyPeople = (facultyData || []).map(f => ({ user_id: f.user_id, name: f.name, profile_picture: f.profile_picture, subtitle: f.designation, role: "faculty" }));
+  const forumPeople = (forumData || []).map(m => ({ user_id: m.user_id, name: m.name, profile_picture: m.profile_picture, subtitle: m.role, role: "forum_member" }));
+  const studentPeople = (studentsData || []).map(s => ({ user_id: s.user_id, name: s.name, profile_picture: s.profile_picture, subtitle: s.class_name?.replace("_", " "), role: "student" }));
 
   let currentPeople = [];
   let roleKey = "faculty";
@@ -636,12 +634,12 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
   // Find label & color details of current status option
   const activeStatusOption = statusOptions.find(opt => opt.value === status) || statusOptions[0];
 
-  
+
 
   return (
     <Modal open={open} onClose={onClose} size="xl" hideHeader={true}>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
+
         {/* ─── Redesigned Custom Header ─── */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800/80">
           <div className="flex items-center gap-3.5">
@@ -667,10 +665,10 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* ─── Left Pane: Details ─── */}
           <div className="lg:col-span-5 space-y-5">
-            
+
             {/* Project Title Input */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Title</label>
@@ -730,9 +728,8 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                           key={opt.value}
                           type="button"
                           onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
-                          className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                            opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
-                          }`}
+                          className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
+                            }`}
                         >
                           <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
                           <span className="text-gray-800 dark:text-gray-200">{opt.label}</span>
@@ -747,7 +744,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
           {/* ─── Right Pane: Member Assignment ─── */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
-            
+
             {/* Header Title block */}
             <div className="flex flex-col">
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 tracking-tight">Assign Members</h3>
@@ -768,11 +765,10 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     key={tab.id}
                     type="button"
                     onClick={() => { setActiveTab(tab.id); setMemberSearch(""); }}
-                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                      isActive 
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${isActive
                         ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
                         : "text-gray-450 dark:text-gray-500 hover:text-gray-655 dark:hover:text-gray-400"
-                    }`}
+                      }`}
                   >
                     <TabIcon className="w-3.5 h-3.5" />
                     <span>{tab.label}</span>
@@ -807,11 +803,10 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     <div
                       key={p.user_id}
                       onClick={() => toggleMember(p.user_id, roleKey, p.name, p.profile_picture)}
-                      className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer rounded-xl border transition-all duration-200 ${
-                        isSelected
+                      className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer rounded-xl border transition-all duration-200 ${isSelected
                           ? "border-primary-500/60 bg-primary-50/20 dark:bg-primary-950/10 shadow-sm"
                           : "border-gray-100 dark:border-gray-800/40 hover:border-gray-200/60 dark:hover:border-gray-700 hover:bg-gray-50/30 dark:hover:bg-gray-800/20"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <Avatar src={p.profile_picture} name={p.name} size="sm" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-755" />
@@ -820,14 +815,13 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                           {p.subtitle && <p className="text-[11px] text-gray-450 dark:text-gray-500 truncate mt-0.5">{p.subtitle}</p>}
                         </div>
                       </div>
-                      
+
                       <button
                         type="button"
-                        className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-200 ${
-                          isSelected
+                        className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-200 ${isSelected
                             ? "bg-violet-600 border-violet-600 dark:bg-violet-500 dark:border-violet-500 text-white shadow-sm"
                             : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-655 hover:border-gray-350 dark:hover:text-gray-300"
-                        }`}
+                          }`}
                       >
                         {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
                       </button>
@@ -854,11 +848,11 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
           >
             Cancel
           </button>
-          
+
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-primary text-btn-text hover:bg-primary-hover shadow-md hover:shadow-primary/20 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a855f7] text-white hover:opacity-90 shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5"
           >
             {loading ? (
               <Spinner className="w-4.5 h-4.5 border-white" />

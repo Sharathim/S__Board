@@ -60,7 +60,7 @@ function CircularProgressBar({ percentage }) {
     <div className="relative flex items-center justify-center">
       <svg height={radius * 2} width={radius * 2} className="transform -rotate-90">
         <circle
-          stroke="var(--primary-light)"
+          stroke="rgba(139, 92, 246, 0.08)"
           fill="transparent"
           strokeWidth={stroke}
           r={normalizedRadius}
@@ -80,8 +80,8 @@ function CircularProgressBar({ percentage }) {
         />
         <defs>
           <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--primary)" />
-            <stop offset="100%" stopColor="var(--primary-hover)" />
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#a855f7" />
           </linearGradient>
         </defs>
       </svg>
@@ -532,7 +532,7 @@ export default function ProjectDetailPage() {
 
       {/* Main Responsive Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* Left Side: Progress Monitor Timeline Feed (lg:col-span-8) */}
         <div className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between gap-4 flex-wrap pb-2">
@@ -558,233 +558,233 @@ export default function ProjectDetailPage() {
           {/* Timeline Feed Scrollable Container */}
           <div className="overflow-y-auto max-h-[calc(100vh-240px)] lg:max-h-[720px] pr-3 scrollbar-premium">
             <div ref={feedRef} className="relative pl-6 sm:pl-8 border-l-2 border-slate-200/60 dark:border-slate-850/60 ml-3 sm:ml-4 py-2 space-y-8">
-            {reversedMessages.length === 0 ? (
-              <div className="bg-white/50 dark:bg-gray-800/30 backdrop-blur-md border border-gray-150 dark:border-gray-800/60 rounded-3xl p-10 text-center text-gray-400 dark:text-gray-500 relative">
-                {/* Visual node alignment for empty feed */}
-                <div className="absolute left-[-32px] sm:left-[-41px] top-12 w-4.5 h-4.5 rounded-full bg-slate-350 dark:bg-slate-700 ring-4 ring-slate-100 dark:ring-slate-900 flex items-center justify-center shadow-sm">
-                  <Clock className="w-2.5 h-2.5 text-white" />
+              {reversedMessages.length === 0 ? (
+                <div className="bg-white/50 dark:bg-gray-800/30 backdrop-blur-md border border-gray-150 dark:border-gray-800/60 rounded-3xl p-10 text-center text-gray-400 dark:text-gray-500 relative">
+                  {/* Visual node alignment for empty feed */}
+                  <div className="absolute left-[-32px] sm:left-[-41px] top-12 w-4.5 h-4.5 rounded-full bg-slate-350 dark:bg-slate-700 ring-4 ring-slate-100 dark:ring-slate-900 flex items-center justify-center shadow-sm">
+                    <Clock className="w-2.5 h-2.5 text-white" />
+                  </div>
+                  <Clock className="w-10 h-10 mx-auto mb-3 text-gray-300 dark:text-gray-700" />
+                  <p className="text-sm font-bold text-gray-600 dark:text-gray-400">No progress updates posted yet</p>
+                  <p className="text-xs text-gray-405 mt-1">Publish the first milestone using the "+ Add Progress" button above.</p>
                 </div>
-                <Clock className="w-10 h-10 mx-auto mb-3 text-gray-300 dark:text-gray-700" />
-                <p className="text-sm font-bold text-gray-600 dark:text-gray-400">No progress updates posted yet</p>
-                <p className="text-xs text-gray-405 mt-1">Publish the first milestone using the "+ Add Progress" button above.</p>
-              </div>
-            ) : (
-              reversedMessages.map(msg => {
-                let updateData = {
-                  title: "",
-                  summary: "",
-                  completion: 0,
-                  status: "In Progress",
-                  completed_this_week: "",
-                  next_milestone: "",
-                  challenges: "",
-                  support: ""
-                };
-                if (msg.is_deleted) return null;
-
-                try {
-                  const parsed = JSON.parse(msg.content);
-                  updateData = {
-                    title: parsed.title || "Progress Update",
-                    summary: parsed.summary || parsed.accomplishment || "",
-                    completion: typeof parsed.completion === "number" ? parsed.completion : 0,
-                    status: parsed.status || "In Progress",
-                    completed_this_week: parsed.completed_this_week || parsed.accomplishment || "",
-                    next_milestone: parsed.next_milestone || parsed.next || "",
-                    challenges: parsed.challenges || "",
-                    support: parsed.support || (parsed.guidelines && parsed.guidelines !== "No guidance required." ? parsed.guidelines : "") || ""
-                  };
-                } catch (e) {
-                  updateData = {
-                    title: "Progress Update",
-                    summary: msg.content || "",
+              ) : (
+                reversedMessages.map(msg => {
+                  let updateData = {
+                    title: "",
+                    summary: "",
                     completion: 0,
                     status: "In Progress",
-                    completed_this_week: msg.content || "",
-                    next_milestone: "Continue working on tasks.",
+                    completed_this_week: "",
+                    next_milestone: "",
                     challenges: "",
                     support: ""
                   };
-                }
+                  if (msg.is_deleted) return null;
 
-                const msgSender = msg.sender || {};
-                const isMsgEditable = isEditable(msg);
+                  try {
+                    const parsed = JSON.parse(msg.content);
+                    updateData = {
+                      title: parsed.title || "Progress Update",
+                      summary: parsed.summary || parsed.accomplishment || "",
+                      completion: typeof parsed.completion === "number" ? parsed.completion : 0,
+                      status: parsed.status || "In Progress",
+                      completed_this_week: parsed.completed_this_week || parsed.accomplishment || "",
+                      next_milestone: parsed.next_milestone || parsed.next || "",
+                      challenges: parsed.challenges || "",
+                      support: parsed.support || (parsed.guidelines && parsed.guidelines !== "No guidance required." ? parsed.guidelines : "") || ""
+                    };
+                  } catch (e) {
+                    updateData = {
+                      title: "Progress Update",
+                      summary: msg.content || "",
+                      completion: 0,
+                      status: "In Progress",
+                      completed_this_week: msg.content || "",
+                      next_milestone: "Continue working on tasks.",
+                      challenges: "",
+                      support: ""
+                    };
+                  }
 
-                // Nodes mapping
-                const nodeColors = {
-                  "Not Started": "bg-slate-400 ring-slate-150 dark:ring-slate-900",
-                  "In Progress": "bg-indigo-500 ring-indigo-100 dark:ring-indigo-950/40",
-                  "Review": "bg-blue-500 ring-blue-100 dark:ring-blue-950/40",
-                  "Completed": "bg-emerald-500 ring-emerald-100 dark:ring-emerald-950/40",
-                  "On Hold": "bg-amber-500 ring-amber-100 dark:ring-amber-955/20"
-                };
-                const activeColor = nodeColors[updateData.status] || nodeColors["In Progress"];
+                  const msgSender = msg.sender || {};
+                  const isMsgEditable = isEditable(msg);
 
-                return (
-                  <div key={msg.id} className="progress-monitor-card relative bg-white/80 dark:bg-gray-800/65 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-305 group">
-                    
-                    {/* Timeline Node Icon aligned to vertical line */}
-                    <div className={`absolute left-[-32px] sm:left-[-41px] top-7 w-4.5 h-4.5 rounded-full ${activeColor} ring-4 flex items-center justify-center z-10 shadow-sm transition-all duration-300`}>
-                      <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                    </div>
+                  // Nodes mapping
+                  const nodeColors = {
+                    "Not Started": "bg-slate-400 ring-slate-150 dark:ring-slate-900",
+                    "In Progress": "bg-indigo-500 ring-indigo-100 dark:ring-indigo-950/40",
+                    "Review": "bg-blue-500 ring-blue-100 dark:ring-blue-950/40",
+                    "Completed": "bg-emerald-500 ring-emerald-100 dark:ring-emerald-950/40",
+                    "On Hold": "bg-amber-500 ring-amber-100 dark:ring-amber-955/20"
+                  };
+                  const activeColor = nodeColors[updateData.status] || nodeColors["In Progress"];
 
-                    {/* Top Row: User details and kebab menu */}
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar src={msgSender.profile_picture} name={msgSender.name} size="md" className="rounded-2xl shrink-0 ring-2 ring-white dark:ring-gray-800 shadow-sm" />
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-extrabold text-gray-905 dark:text-white leading-tight">{msgSender.name}</span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-750 text-slate-500 dark:text-slate-405 border border-slate-200/30 dark:border-slate-700/30 leading-none">
-                              {msgSender.role}
-                            </span>
-                            {getStatusBadge(updateData.status)}
+                  return (
+                    <div key={msg.id} className="progress-monitor-card relative bg-white/80 dark:bg-gray-800/65 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-md transition-all duration-305 group">
+
+                      {/* Timeline Node Icon aligned to vertical line */}
+                      <div className={`absolute left-[-32px] sm:left-[-41px] top-7 w-4.5 h-4.5 rounded-full ${activeColor} ring-4 flex items-center justify-center z-10 shadow-sm transition-all duration-300`}>
+                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                      </div>
+
+                      {/* Top Row: User details and kebab menu */}
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar src={msgSender.profile_picture} name={msgSender.name} size="md" className="rounded-2xl shrink-0 ring-2 ring-white dark:ring-gray-800 shadow-sm" />
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-extrabold text-gray-905 dark:text-white leading-tight">{msgSender.name}</span>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-750 text-slate-500 dark:text-slate-405 border border-slate-200/30 dark:border-slate-700/30 leading-none">
+                                {msgSender.role}
+                              </span>
+                              {getStatusBadge(updateData.status)}
+                            </div>
+                            <div className="text-[11px] font-medium text-gray-400 dark:text-gray-500 mt-1.5 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
+                              {msg.is_edited && <span className="text-[10px] opacity-60 ml-0.5 font-bold uppercase">(edited)</span>}
+                            </div>
                           </div>
-                          <div className="text-[11px] font-medium text-gray-400 dark:text-gray-500 mt-1.5 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {format(new Date(msg.created_at), "MMM d, yyyy · h:mm a")}
-                            {msg.is_edited && <span className="text-[10px] opacity-60 ml-0.5 font-bold uppercase">(edited)</span>}
-                          </div>
+                        </div>
+
+                        {/* Dropdown Options */}
+                        <div className="relative update-kebab-container">
+                          <button
+                            onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
+                            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-755/70 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors border border-transparent hover:border-gray-205 dark:hover:border-gray-700/50"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                          {openKebabId === msg.id && (
+                            <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                              {isMsgEditable ? (
+                                <button
+                                  onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
+                                  className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-205 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors text-left"
+                                >
+                                  <Pencil className="w-3.5 h-3.5 text-indigo-500" />
+                                  Edit Update
+                                </button>
+                              ) : (
+                                <div className="px-3.5 py-2.5 text-[10px] text-gray-400 dark:text-gray-505 italic border-b border-gray-100 dark:border-gray-800">
+                                  {"Edit expired (>30m)"}
+                                </div>
+                              )}
+                              <button
+                                onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
+                                className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-455 hover:bg-rose-50/50 dark:hover:bg-rose-955/20 transition-colors text-left"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                Delete Update
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      {/* Dropdown Options */}
-                      <div className="relative update-kebab-container">
-                        <button
-                          onClick={() => setOpenKebabId(openKebabId === msg.id ? null : msg.id)}
-                          className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-755/70 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors border border-transparent hover:border-gray-205 dark:hover:border-gray-700/50"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                        {openKebabId === msg.id && (
-                          <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-850 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                            {isMsgEditable ? (
-                              <button
-                                onClick={() => { setOpenKebabId(null); setEditingMsg(msg); setAddModalOpen(true); }}
-                                className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-205 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors text-left"
-                              >
-                                <Pencil className="w-3.5 h-3.5 text-indigo-500" />
-                                Edit Update
-                              </button>
-                            ) : (
-                              <div className="px-3.5 py-2.5 text-[10px] text-gray-400 dark:text-gray-505 italic border-b border-gray-100 dark:border-gray-800">
-                                {"Edit expired (>30m)"}
+                      {/* Progress Card Body */}
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-base sm:text-lg font-black text-gray-905 dark:text-white leading-tight tracking-tight">
+                            {updateData.title}
+                          </h3>
+                          {updateData.summary && (
+                            <p className="text-sm font-semibold text-indigo-650 dark:text-indigo-400 mt-1.5 leading-relaxed pl-2.5 border-l-2 border-indigo-500/40">
+                              {updateData.summary}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* 2x2 Details Layout */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {updateData.completed_this_week && (
+                            <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                              <div className="flex gap-2 items-center">
+                                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                  <CheckCircle className="w-4 h-4" />
+                                </div>
+                                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Completed This Week</span>
                               </div>
-                            )}
-                            <button
-                              onClick={() => { setOpenKebabId(null); setDeleteTarget(msg.id); }}
-                              className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-455 hover:bg-rose-50/50 dark:hover:bg-rose-955/20 transition-colors text-left"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-                              Delete Update
-                            </button>
-                          </div>
-                        )}
+                              <p className="text-xs font-bold text-gray-700 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.completed_this_week}</p>
+                            </div>
+                          )}
+
+                          {updateData.next_milestone && (
+                            <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                              <div className="flex gap-2 items-center">
+                                <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                  <TrendingUp className="w-4 h-4" />
+                                </div>
+                                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Next Milestone</span>
+                              </div>
+                              <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.next_milestone}</p>
+                            </div>
+                          )}
+
+                          {updateData.challenges && (
+                            <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                              <div className="flex gap-2 items-center">
+                                <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                                  <ShieldAlert className="w-4 h-4" />
+                                </div>
+                                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Challenges / Blockers</span>
+                              </div>
+                              <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.challenges}</p>
+                            </div>
+                          )}
+
+                          {updateData.support && (
+                            <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
+                              <div className="flex gap-2 items-center">
+                                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                  <AlertCircle className="w-4 h-4" />
+                                </div>
+                                <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Support Needed</span>
+                              </div>
+                              <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.support}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Attachments rendering */}
+                        <ProgressAttachmentRenderer
+                          attachmentUrl={msg.attachment_url}
+                          attachmentType={msg.attachment_type}
+                          attachmentName={msg.attachment_name}
+                          onImageClick={setEnlargedImage}
+                        />
                       </div>
+
+                      {/* Compact Card Footer */}
+                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-850 border border-slate-200/30 dark:border-slate-700/30 text-[10px] font-extrabold">
+                            {updateData.completion}% Complete
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span>By <strong className="text-slate-655 dark:text-slate-300 font-bold">{msgSender.name}</strong></span>
+                          <span>•</span>
+                          <span>{format(new Date(msg.created_at), "d MMM yyyy")}</span>
+                        </div>
+                      </div>
+
                     </div>
-
-                    {/* Progress Card Body */}
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-base sm:text-lg font-black text-gray-905 dark:text-white leading-tight tracking-tight">
-                          {updateData.title}
-                        </h3>
-                        {updateData.summary && (
-                          <p className="text-sm font-semibold text-indigo-650 dark:text-indigo-400 mt-1.5 leading-relaxed pl-2.5 border-l-2 border-indigo-500/40">
-                            {updateData.summary}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* 2x2 Details Layout */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {updateData.completed_this_week && (
-                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
-                            <div className="flex gap-2 items-center">
-                              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                <CheckCircle className="w-4 h-4" />
-                              </div>
-                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Completed This Week</span>
-                            </div>
-                            <p className="text-xs font-bold text-gray-700 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.completed_this_week}</p>
-                          </div>
-                        )}
-
-                        {updateData.next_milestone && (
-                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
-                            <div className="flex gap-2 items-center">
-                              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                                <TrendingUp className="w-4 h-4" />
-                              </div>
-                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Next Milestone</span>
-                            </div>
-                            <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.next_milestone}</p>
-                          </div>
-                        )}
-
-                        {updateData.challenges && (
-                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
-                            <div className="flex gap-2 items-center">
-                              <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                                <ShieldAlert className="w-4 h-4" />
-                              </div>
-                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Challenges / Blockers</span>
-                            </div>
-                            <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.challenges}</p>
-                          </div>
-                        )}
-
-                        {updateData.support && (
-                          <div className="bg-slate-50/45 dark:bg-slate-900/35 border border-slate-200/50 dark:border-slate-850 p-4 rounded-2xl flex flex-col justify-between transition-all group-hover:border-slate-250 dark:group-hover:border-slate-800 shadow-sm/5">
-                            <div className="flex gap-2 items-center">
-                              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                                <AlertCircle className="w-4 h-4" />
-                              </div>
-                              <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Support Needed</span>
-                            </div>
-                            <p className="text-xs font-bold text-gray-750 dark:text-gray-300 leading-relaxed mt-2.5 whitespace-pre-line break-words flex-1">{updateData.support}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Attachments rendering */}
-                      <ProgressAttachmentRenderer
-                        attachmentUrl={msg.attachment_url}
-                        attachmentType={msg.attachment_type}
-                        attachmentName={msg.attachment_name}
-                        onImageClick={setEnlargedImage}
-                      />
-                    </div>
-
-                    {/* Compact Card Footer */}
-                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 dark:text-slate-500 mt-4">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-850 border border-slate-200/30 dark:border-slate-700/30 text-[10px] font-extrabold">
-                          {updateData.completion}% Complete
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span>By <strong className="text-slate-655 dark:text-slate-300 font-bold">{msgSender.name}</strong></span>
-                        <span>•</span>
-                        <span>{format(new Date(msg.created_at), "d MMM yyyy")}</span>
-                      </div>
-                    </div>
-
-                  </div>
-                );
-              })
-            )}
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
 
         {/* Right Side: Sticky Overview Panel (lg:col-span-4) */}
         <div ref={sidebarRef} className="lg:col-span-4 lg:sticky lg:top-[100px] space-y-6">
-          
+
           {/* Main Info Card */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-3xl shadow-sm p-6 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            
+
             {/* Project Branding Header */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-2">
@@ -850,7 +850,7 @@ export default function ProjectDetailPage() {
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-3xl shadow-sm p-6 space-y-4">
             <h3 className="text-xs font-black text-gray-450 dark:text-gray-400 uppercase tracking-widest">Workspace Members</h3>
             <div className="space-y-3">
-              
+
               {facultyMembers.map(m => (
                 <div key={m.id} className="flex items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2 min-w-0">

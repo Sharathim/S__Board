@@ -16,15 +16,14 @@ export function MobileStatCell({ icon: Icon, label, value, iconBg, iconColor, on
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800/80 rounded-2xl p-3.5 flex items-center gap-3 ${
-        onClick ? "mobile-tappable cursor-pointer active:scale-[0.98]" : ""
-      }`}
+      className={`bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800/80 rounded-2xl p-3.5 flex items-center gap-3 ${onClick ? "mobile-tappable cursor-pointer active:scale-[0.98]" : ""
+        }`}
     >
       <div
         className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: iconBg || "var(--primary-light)" }}
+        style={{ background: iconBg || "#EDE9FE" }}
       >
-        <Icon className="w-4.5 h-4.5" style={{ color: iconColor || "var(--primary)" }} />
+        <Icon className="w-4.5 h-4.5" style={{ color: iconColor || "#8B5CF6" }} />
       </div>
       <div className="min-w-0">
         <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight block">{value}</span>

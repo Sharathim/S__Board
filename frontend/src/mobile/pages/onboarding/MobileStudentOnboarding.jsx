@@ -21,12 +21,12 @@ export default function MobileStudentOnboarding() {
     }
   }, [user, onboardingData, authLoading, navigate]);
 
-  const [name,           setName]           = useState(onboardingData?.prefill?.name || "");
-  const [rollNumber,     setRollNumber]     = useState("");
+  const [name, setName] = useState(onboardingData?.prefill?.name || "");
+  const [rollNumber, setRollNumber] = useState("");
   const [registerNumber, setRegisterNumber] = useState("");
-  const [selectedClass,  setSelectedClass]  = useState("");
-  const [loading,        setLoading]        = useState(false);
-  const [error,          setError]          = useState(null);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   if (!onboardingData || onboardingData.invite_type !== "student") {
     return <Spinner fullScreen />;
@@ -36,21 +36,21 @@ export default function MobileStudentOnboarding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim())           { setError("Name is required");            return; }
-    if (!rollNumber.trim())     { setError("Roll number is required");     return; }
+    if (!name.trim()) { setError("Name is required"); return; }
+    if (!rollNumber.trim()) { setError("Roll number is required"); return; }
     if (!registerNumber.trim()) { setError("Register number is required"); return; }
-    if (!selectedClass)         { setError("Please select your class");    return; }
+    if (!selectedClass) { setError("Please select your class"); return; }
     setLoading(true);
     setError(null);
     try {
       const res = await onboardStudent({
-        uid:             onboardingData.prefill.uid,
-        email:           onboardingData.prefill.email,
-        name:            name.trim(),
+        uid: onboardingData.prefill.uid,
+        email: onboardingData.prefill.email,
+        name: name.trim(),
         profile_picture: onboardingData.prefill.profile_picture,
-        roll_number:     rollNumber.trim(),
+        roll_number: rollNumber.trim(),
         register_number: registerNumber.trim(),
-        class_name:      selectedClass,
+        class_name: selectedClass,
       });
       setOnboardingData(null);
       setUser(res.data.user);
@@ -64,9 +64,9 @@ export default function MobileStudentOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-background mobile-fade-in transition-colors duration-300">
+    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#fbfbff] dark:bg-[#020617] mobile-fade-in transition-colors duration-300">
       <div className="w-full max-w-md mx-auto space-y-6">
-        
+
         {/* Brand header */}
         <div className="text-center">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center shadow-lg mx-auto mb-4">
@@ -83,7 +83,7 @@ export default function MobileStudentOnboarding() {
         <MobileCard>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" />
-            
+
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Email</label>
               <input
@@ -108,11 +108,10 @@ export default function MobileStudentOnboarding() {
                     key={cls}
                     type="button"
                     onClick={() => setSelectedClass(cls)}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 ${
-                      selectedClass === cls
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 ${selectedClass === cls
                         ? "bg-primary-650 text-white border-primary-650 shadow-sm"
                         : "bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-primary-400"
-                    }`}
+                      }`}
                   >
                     {cls.replace("_", " ")}
                   </button>

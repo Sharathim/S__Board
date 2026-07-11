@@ -8,67 +8,67 @@ import {
 } from "lucide-react";
 
 const STATS = [
-  { value: "500+", label: "Students Enrolled",   icon: GraduationCap, bg: "bg-violet-50",  color: "text-violet-600"  },
-  { value: "30+",  label: "Expert Faculty",       icon: Users,         bg: "bg-blue-50",    color: "text-blue-600"    },
-  { value: "200+", label: "Projects Completed",   icon: ClipboardList, bg: "bg-emerald-50", color: "text-emerald-600" },
-  { value: "15+",  label: "Years of Excellence",  icon: Award,         bg: "bg-amber-50",   color: "text-amber-600"   },
+  { value: "500+", label: "Students Enrolled", icon: GraduationCap, bg: "bg-violet-50", color: "text-violet-600" },
+  { value: "30+", label: "Expert Faculty", icon: Users, bg: "bg-blue-50", color: "text-blue-600" },
+  { value: "200+", label: "Projects Completed", icon: ClipboardList, bg: "bg-emerald-50", color: "text-emerald-600" },
+  { value: "15+", label: "Years of Excellence", icon: Award, bg: "bg-amber-50", color: "text-amber-600" },
 ];
 
 const PROGRAMS = [
   {
-    title:    "B.E. Computer Science & Engineering",
+    title: "B.E. Computer Science & Engineering",
     duration: "4 Years",
-    intake:   "120 Students",
-    desc:     "A comprehensive undergraduate program covering algorithms, software engineering, AI/ML, and systems programming with strong industry internship exposure.",
-    tags:     ["Algorithms", "AI / ML", "Software Eng"],
-    bg:       "from-violet-50 to-indigo-50",
-    border:   "border-violet-100",
-    badge:    "bg-violet-100 text-violet-700",
-    dot:      "bg-violet-500",
+    intake: "120 Students",
+    desc: "A comprehensive undergraduate program covering algorithms, software engineering, AI/ML, and systems programming with strong industry internship exposure.",
+    tags: ["Algorithms", "AI / ML", "Software Eng"],
+    bg: "from-violet-50 to-indigo-50",
+    border: "border-violet-100",
+    badge: "bg-violet-100 text-violet-700",
+    dot: "bg-violet-500",
   },
   {
-    title:    "M.E. Computer Science & Engineering",
+    title: "M.E. Computer Science & Engineering",
     duration: "2 Years",
-    intake:   "30 Students",
-    desc:     "Advanced postgraduate program focused on research, specialized electives, and cutting-edge domains like cloud computing, cybersecurity, and data science.",
-    tags:     ["Research", "Cloud", "Cybersecurity"],
-    bg:       "from-blue-50 to-cyan-50",
-    border:   "border-blue-100",
-    badge:    "bg-blue-100 text-blue-700",
-    dot:      "bg-blue-500",
+    intake: "30 Students",
+    desc: "Advanced postgraduate program focused on research, specialized electives, and cutting-edge domains like cloud computing, cybersecurity, and data science.",
+    tags: ["Research", "Cloud", "Cybersecurity"],
+    bg: "from-blue-50 to-cyan-50",
+    border: "border-blue-100",
+    badge: "bg-blue-100 text-blue-700",
+    dot: "bg-blue-500",
   },
   {
-    title:    "MCA — Master of Computer Applications",
+    title: "MCA — Master of Computer Applications",
     duration: "2 Years",
-    intake:   "60 Students",
-    desc:     "Bridges computer science theory with industry-ready full-stack application development, database systems, and enterprise software engineering.",
-    tags:     ["Full Stack", "Database", "Mobile Dev"],
-    bg:       "from-emerald-50 to-teal-50",
-    border:   "border-emerald-100",
-    badge:    "bg-emerald-100 text-emerald-700",
-    dot:      "bg-emerald-500",
+    intake: "60 Students",
+    desc: "Bridges computer science theory with industry-ready full-stack application development, database systems, and enterprise software engineering.",
+    tags: ["Full Stack", "Database", "Mobile Dev"],
+    bg: "from-emerald-50 to-teal-50",
+    border: "border-emerald-100",
+    badge: "bg-emerald-100 text-emerald-700",
+    dot: "bg-emerald-500",
   },
 ];
 
 const FEATURES = [
-  { icon: Code2,        title: "Industry-Aligned Curriculum", desc: "Syllabi co-designed with industry partners and updated yearly to reflect current tech trends and employer expectations.", bg: "bg-violet-50",  color: "text-violet-600"  },
-  { icon: Cpu,          title: "State-of-the-Art Labs",       desc: "Modern computing infrastructure, dedicated research labs, and high-performance workstations for every student.",          bg: "bg-blue-50",    color: "text-blue-600"    },
-  { icon: TrendingUp,   title: "Placement Excellence",        desc: "Consistently strong placement record with top national and global companies across software, research, and product domains.", bg: "bg-emerald-50", color: "text-emerald-600" },
-  { icon: Globe2,       title: "Industry Partnerships",       desc: "Active MoUs with leading tech companies enabling internships, live projects, and campus recruitment drives.",              bg: "bg-cyan-50",    color: "text-cyan-600"    },
-  { icon: FlaskConical, title: "Research & Innovation",       desc: "Active research groups publishing in national and international conferences with strong funding and faculty mentorship.",    bg: "bg-amber-50",   color: "text-amber-600"   },
-  { icon: BarChart2,    title: "Data-Driven Project Tracking",desc: "DPMS gives students and faculty real-time visibility into project progress, milestones, and collaborative outcomes.",       bg: "bg-rose-50",    color: "text-rose-500"    },
+  { icon: Code2, title: "Industry-Aligned Curriculum", desc: "Syllabi co-designed with industry partners and updated yearly to reflect current tech trends and employer expectations.", bg: "bg-violet-50", color: "text-violet-600" },
+  { icon: Cpu, title: "State-of-the-Art Labs", desc: "Modern computing infrastructure, dedicated research labs, and high-performance workstations for every student.", bg: "bg-blue-50", color: "text-blue-600" },
+  { icon: TrendingUp, title: "Placement Excellence", desc: "Consistently strong placement record with top national and global companies across software, research, and product domains.", bg: "bg-emerald-50", color: "text-emerald-600" },
+  { icon: Globe2, title: "Industry Partnerships", desc: "Active MoUs with leading tech companies enabling internships, live projects, and campus recruitment drives.", bg: "bg-cyan-50", color: "text-cyan-600" },
+  { icon: FlaskConical, title: "Research & Innovation", desc: "Active research groups publishing in national and international conferences with strong funding and faculty mentorship.", bg: "bg-amber-50", color: "text-amber-600" },
+  { icon: BarChart2, title: "Data-Driven Project Tracking", desc: "DPMS gives students and faculty real-time visibility into project progress, milestones, and collaborative outcomes.", bg: "bg-rose-50", color: "text-rose-500" },
 ];
 
 const VALUES = [
-  { icon: Lightbulb, title: "Innovation",    desc: "Encouraging creative problem-solving and a culture of continuous research and exploration.",          bg: "bg-amber-50",   color: "text-amber-600"   },
-  { icon: Users,     title: "Collaboration", desc: "Building strong teamwork through collaborative projects, peer learning, and cross-disciplinary work.", bg: "bg-blue-50",    color: "text-blue-600"    },
-  { icon: Award,     title: "Excellence",    desc: "Upholding the highest academic and industry standards in every program, project, and interaction.",    bg: "bg-violet-50",  color: "text-violet-600"  },
-  { icon: Heart,     title: "Integrity",     desc: "Fostering academic honesty, ethical responsibility, and a culture of trust across the department.",    bg: "bg-rose-50",    color: "text-rose-500"    },
+  { icon: Lightbulb, title: "Innovation", desc: "Encouraging creative problem-solving and a culture of continuous research and exploration.", bg: "bg-amber-50", color: "text-amber-600" },
+  { icon: Users, title: "Collaboration", desc: "Building strong teamwork through collaborative projects, peer learning, and cross-disciplinary work.", bg: "bg-blue-50", color: "text-blue-600" },
+  { icon: Award, title: "Excellence", desc: "Upholding the highest academic and industry standards in every program, project, and interaction.", bg: "bg-violet-50", color: "text-violet-600" },
+  { icon: Heart, title: "Integrity", desc: "Fostering academic honesty, ethical responsibility, and a culture of trust across the department.", bg: "bg-rose-50", color: "text-rose-500" },
 ];
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
+    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
 
       {/* ── HERO BANNER ── */}
       <section className="relative overflow-hidden pt-[72px]">

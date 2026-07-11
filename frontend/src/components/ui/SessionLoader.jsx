@@ -94,13 +94,13 @@ export function SessionLoader() {
           duration: duration * 0.4,
           ease: "power1.out",
         })
-        .to(part, {
-          x: dx + (Math.random() - 0.5) * 50,
-          y: dy + (Math.random() - 0.5) * 50,
-          opacity: 0,
-          duration: duration * 0.6,
-          ease: "power1.in",
-        });
+          .to(part, {
+            x: dx + (Math.random() - 0.5) * 50,
+            y: dy + (Math.random() - 0.5) * 50,
+            opacity: 0,
+            duration: duration * 0.6,
+            ease: "power1.in",
+          });
       });
     }
 
@@ -116,7 +116,7 @@ export function SessionLoader() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background overflow-hidden transition-colors duration-300"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#fbfbff] dark:bg-[#020617] overflow-hidden transition-colors duration-300"
       style={{ opacity: 0 }}
     >
       {/* Background Particles */}

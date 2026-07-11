@@ -7,55 +7,97 @@
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border-color: var(--border);
+  border-color: rgba(0, 0, 0, 0.06);
 }
+
 .dark .mobile-glass {
-  background: rgba(7, 36, 69, 0.78);
-  border-color: var(--border);
+  background: rgba(15, 23, 42, 0.78);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 /* ─── Bottom Sheet Animations ─── */
 @keyframes mobile-sheet-up {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0);    }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
+
 @keyframes mobile-sheet-down {
-  from { transform: translateY(0);    }
-  to   { transform: translateY(100%); }
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
 }
+
 @keyframes mobile-backdrop-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
+
 @keyframes mobile-backdrop-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 .mobile-sheet-enter {
   animation: mobile-sheet-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
+
 .mobile-sheet-exit {
   animation: mobile-sheet-down 0.28s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
+
 .mobile-backdrop-enter {
   animation: mobile-backdrop-in 0.2s ease-out forwards;
 }
 
 /* ─── Page Transitions ─── */
 @keyframes mobile-page-in {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0);    }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 .mobile-page-enter {
   animation: mobile-page-in 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 /* ─── Fade In ─── */
 @keyframes mobile-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0);   }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .mobile-fade-in {
   animation: mobile-fade-in 0.3s ease-out forwards;
 }
@@ -64,6 +106,7 @@
 .mobile-tab-active {
   position: relative;
 }
+
 .mobile-tab-active::before {
   content: "";
   position: absolute;
@@ -73,7 +116,7 @@
   width: 24px;
   height: 3px;
   border-radius: 999px;
-  background: var(--primary);
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
 }
 
 /* ─── Safe Area Bottom Padding ─── */
@@ -86,6 +129,7 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .mobile-hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -95,6 +139,7 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+
 .mobile-tappable:active {
   transform: scale(0.97);
   transition: transform 0.1s ease-out;
@@ -108,12 +153,15 @@
   background: rgba(0, 0, 0, 0.15);
   margin: 8px auto 4px;
 }
+
 .dark .mobile-drag-handle {
   background: rgba(255, 255, 255, 0.2);
 }
 
 /* ─── PWA Screen Fit, Zoom Lock, & Text Selection Lock ─── */
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -128,10 +176,12 @@ html, body, #root {
 }
 
 /* Permit text selection for input elements to preserve copy-paste/cursor operations */
-input, textarea, select, [contenteditable="true"] {
+input,
+textarea,
+select,
+[contenteditable="true"] {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
 }
-

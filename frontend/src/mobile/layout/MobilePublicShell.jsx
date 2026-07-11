@@ -20,7 +20,7 @@ export default function MobilePublicShell() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // If close to top (scrollY < 10), always show
       if (currentScrollY < 10) {
         setVisible(true);
@@ -31,7 +31,7 @@ export default function MobilePublicShell() {
         // Scrolling up
         setVisible(true);
       }
-      
+
       lastScrollY.current = currentScrollY;
     };
 
@@ -61,10 +61,10 @@ export default function MobilePublicShell() {
   ];
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
+    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
       {/* Top Bar */}
       <header
-        className="fixed top-0 left-0 right-0 z-[100] bg-background/95 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-4"
+        className="fixed top-0 left-0 right-0 z-[100] bg-[#fbfbff]/95 dark:bg-[#020617]/95 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-4"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
@@ -114,23 +114,20 @@ export default function MobilePublicShell() {
             <button
               key={item.to}
               onClick={() => navigate(item.to)}
-              className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
-                active ? "mobile-tab-active" : ""
-              }`}
+              className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${active ? "mobile-tab-active" : ""
+                }`}
             >
               <Icon
-                className={`w-5 h-5 transition-colors ${
-                  active
+                className={`w-5 h-5 transition-colors ${active
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-gray-400 dark:text-gray-500"
-                }`}
+                  }`}
               />
               <span
-                className={`text-[10px] font-semibold transition-colors ${
-                  active
+                className={`text-[10px] font-semibold transition-colors ${active
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-gray-400 dark:text-gray-500"
-                }`}
+                  }`}
               >
                 {item.label}
               </span>

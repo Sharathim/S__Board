@@ -22,11 +22,11 @@ export default function FacultyOnboarding() {
     }
   }, [user, onboardingData, authLoading, navigate]);
 
-  const [name,        setName]        = useState(onboardingData?.prefill?.name || "");
+  const [name, setName] = useState(onboardingData?.prefill?.name || "");
   const [designation, setDesignation] = useState("Professor");
-  const [classes,     setClasses]     = useState([]);
-  const [loading,     setLoading]     = useState(false);
-  const [error,       setError]       = useState(null);
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   if (!onboardingData || onboardingData.invite_type !== "faculty") {
     return <Spinner fullScreen />;
@@ -43,12 +43,12 @@ export default function FacultyOnboarding() {
     setError(null);
     try {
       const res = await onboardFaculty({
-        uid:               onboardingData.prefill.uid,
-        email:             onboardingData.prefill.email,
-        name:              name.trim(),
-        profile_picture:   onboardingData.prefill.profile_picture,
+        uid: onboardingData.prefill.uid,
+        email: onboardingData.prefill.email,
+        name: name.trim(),
+        profile_picture: onboardingData.prefill.profile_picture,
         designation,
-        classes_handling:  classes,
+        classes_handling: classes,
       });
       setOnboardingData(null);
       setUser(res.data.user);
@@ -62,7 +62,7 @@ export default function FacultyOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-background transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
       <div className="w-full max-w-lg">
 
         {/* ── Brand header ── */}
@@ -98,11 +98,10 @@ export default function FacultyOnboarding() {
                   key={cls}
                   type="button"
                   onClick={() => toggleClass(cls)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${
-                    classes.includes(cls)
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${classes.includes(cls)
                       ? "bg-primary-600 text-white border-primary-600 shadow-sm"
                       : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
-                  }`}
+                    }`}
                 >
                   {cls.replace("_", " ")}
                 </button>

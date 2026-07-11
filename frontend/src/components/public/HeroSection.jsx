@@ -2,15 +2,15 @@ import { ClipboardList, Users, BarChart2, Bell } from "lucide-react";
 import { LoginCard } from "./LoginCard";
 
 const FEATURES = [
-  { icon: ClipboardList, title: "Project Tracking",    desc: "Real-time progress",   bg: "bg-violet-50",  color: "text-violet-600"  },
-  { icon: Users,         title: "Collaboration",       desc: "Work seamlessly",       bg: "bg-blue-50",    color: "text-blue-600"    },
-  { icon: BarChart2,     title: "Smart Analytics",     desc: "Data-driven insights",  bg: "bg-emerald-50", color: "text-emerald-600" },
-  { icon: Bell,          title: "Instant Updates",     desc: "Stay informed",         bg: "bg-orange-50",  color: "text-orange-500"  },
+  { icon: ClipboardList, title: "Project Tracking", desc: "Real-time progress", bg: "bg-violet-50", color: "text-violet-600" },
+  { icon: Users, title: "Collaboration", desc: "Work seamlessly", bg: "bg-blue-50", color: "text-blue-600" },
+  { icon: BarChart2, title: "Smart Analytics", desc: "Data-driven insights", bg: "bg-emerald-50", color: "text-emerald-600" },
+  { icon: Bell, title: "Instant Updates", desc: "Stay informed", bg: "bg-orange-50", color: "text-orange-500" },
 ];
 
 export function HeroSection() {
   return (
-    <section className="relative h-screen bg-background overflow-hidden pt-[72px] flex items-center transition-colors duration-300">
+    <section className="relative h-screen bg-[#fbfbff] dark:bg-[#020617] overflow-hidden pt-[72px] flex items-center transition-colors duration-300">
 
       {/* ── Ambient blobs ── */}
       <div className="absolute top-16 right-0 w-[400px] h-[400px] rounded-full bg-primary-50/50 blur-3xl pointer-events-none" aria-hidden="true" />

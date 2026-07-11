@@ -98,14 +98,14 @@ function FaqItem({ q, a }) {
 
 export default function ContactPage() {
   // Form state
-  const [name,      setName]      = useState("");
-  const [email,     setEmail]     = useState("");
-  const [role,      setRole]      = useState("student");
-  const [subject,   setSubject]   = useState("");
-  const [message,   setMessage]   = useState("");
-  const [submitting,setSubmitting]= useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("student");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [errorMsg,  setErrorMsg]  = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -127,7 +127,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-slate-800 font-sans pt-[72px] selection:bg-primary selection:text-btn-text transition-colors duration-300">
+    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] text-slate-800 font-sans pt-[72px] selection:bg-indigo-500 selection:text-white transition-colors duration-300">
 
       {/* ── Ambient backgrounds ── */}
       <div className="absolute top-0 inset-x-0 h-[480px] bg-gradient-to-b from-indigo-50/50 via-transparent to-transparent pointer-events-none" />
@@ -393,10 +393,10 @@ export default function ContactPage() {
               </h3>
               <div className="space-y-2">
                 {[
-                  { label: "Student Portal Login",        href: "/",        icon: BookOpen,      color: "text-indigo-600", bg: "bg-indigo-50" },
-                  { label: "Features & Capabilities",     href: "/features",icon: Sparkles,      color: "text-violet-600", bg: "bg-violet-50" },
-                  { label: "About the Department",        href: "/about",   icon: Users,         color: "text-blue-600",   bg: "bg-blue-50"   },
-                  { label: "Email: support@sharathi-board",href: "mailto:support.dpms@sharathi-board.edu.in", icon: Mail, color: "text-emerald-600", bg: "bg-emerald-50" },
+                  { label: "Student Portal Login", href: "/", icon: BookOpen, color: "text-indigo-600", bg: "bg-indigo-50" },
+                  { label: "Features & Capabilities", href: "/features", icon: Sparkles, color: "text-violet-600", bg: "bg-violet-50" },
+                  { label: "About the Department", href: "/about", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+                  { label: "Email: support@sharathi-board", href: "mailto:support.dpms@sharathi-board.edu.in", icon: Mail, color: "text-emerald-600", bg: "bg-emerald-50" },
                 ].map(({ label, href, icon: Icon, color, bg }) => (
                   href.startsWith("mailto") ? (
                     <a
