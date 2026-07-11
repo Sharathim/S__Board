@@ -61,10 +61,10 @@ export default function MobilePublicShell() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#020617] transition-colors duration-300">
+    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#001229] transition-colors duration-300">
       {/* Top Bar */}
       <header
-        className="fixed top-0 left-0 right-0 z-[100] bg-[#fbfbff]/95 dark:bg-[#020617]/95 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-4"
+        className="fixed top-0 left-0 right-0 z-[100] bg-[#fbfbff]/95 dark:bg-[#001229]/95 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-4"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
