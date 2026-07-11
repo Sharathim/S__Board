@@ -244,13 +244,8 @@ export function TopBar() {
             className="flex items-center gap-3.5 select-none hover:scale-[1.02] transition-all duration-300 cursor-pointer"
           >
             <img
-              src="/logo-icon.png"
+              src="/website-name-logo.png"
               alt="Hive Logo"
-              className="w-12 h-12 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(5,150,105,0.25)] transition-transform duration-300 hover:rotate-6"
-            />
-            <img
-              src="/website-name.png"
-              alt="Hive"
               className="h-[54px] w-auto object-contain flex-shrink-0"
             />
           </div>

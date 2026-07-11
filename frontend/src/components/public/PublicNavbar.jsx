@@ -32,28 +32,12 @@ export function PublicNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
 
-          {/* ── Logo ──
-              Mobile: icon only  |  sm+: full horizontal logo with name  */}
-          <Link to="/" className="flex items-center group shrink-0 gap-3">
-            {/* Icon-only on xs screens */}
+          <Link to="/" className="flex items-center group shrink-0">
             <img
-              src="/logo-icon.png"
+              src="/website-name-logo.png"
               alt="Hive Logo"
-              className="h-12 w-12 object-contain sm:hidden transition-transform duration-200 group-hover:scale-105"
+              className="h-[54px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
             />
-            {/* Full logo with name on sm+ */}
-            <div className="hidden sm:flex items-center gap-3 transition-transform duration-200 group-hover:scale-[1.02]">
-              <img
-                src="/logo-icon.png"
-                alt="Hive Logo"
-                className="h-13 w-13 object-contain"
-              />
-              <img
-                src="/website-name.png"
-                alt="Hive"
-                className="h-[54px] w-auto object-contain"
-              />
-            </div>
           </Link>
 
           {/* ── Desktop Nav Links ── */}
