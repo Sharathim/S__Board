@@ -39,19 +39,7 @@ export default function MobilePublicShell() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    const hasDark = root.classList.contains("dark");
-    if (hasDark) {
-      root.classList.remove("dark");
-    }
-    return () => {
-      const savedTheme = localStorage.getItem("dpms_theme");
-      if (savedTheme === "dark") {
-        root.classList.add("dark");
-      }
-    };
-  }, []);
+
 
   const NAV_ITEMS = [
     { label: "Home", to: "/", icon: Home },

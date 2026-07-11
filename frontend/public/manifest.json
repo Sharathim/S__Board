@@ -4,10 +4,7 @@
   "description": "Department Management System",
   "theme_color": "#FFFFFF",
   "background_color": "#FFFFFF",
-  "color_scheme_dark": {
-    "theme_color": "#000000",
-    "background_color": "#000000"
-  },
+
   "display": "standalone",
   "scope": "/",
   "start_url": "/",

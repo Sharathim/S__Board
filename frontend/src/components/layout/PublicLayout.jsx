@@ -8,18 +8,6 @@ export default function PublicLayout() {
     // Increment total views
     const currentViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
     localStorage.setItem("dpms_total_views", (currentViews + 1).toString());
-
-    const root = document.documentElement;
-    const hasDark = root.classList.contains("dark");
-    if (hasDark) {
-      root.classList.remove("dark");
-    }
-    return () => {
-      const savedTheme = localStorage.getItem("dpms_theme");
-      if (savedTheme === "dark") {
-        root.classList.add("dark");
-      }
-    };
   }, []);
 
   return (

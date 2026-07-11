@@ -123,17 +123,7 @@ export default function MobileSettingsPage() {
           <Settings className="w-3.5 h-3.5 text-violet-500" /> Preferences
         </h3>
         <div className="space-y-1">
-          <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-2.5">
-              {theme === "dark" ? <Moon className="w-4 h-4 text-indigo-500" /> : <Sun className="w-4 h-4 text-amber-500" />}
-              <div>
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{theme === "dark" ? "Dark Mode" : "Light Mode"}</p>
-                <p className="text-[10px] text-gray-400">Switch theme appearance</p>
-              </div>
-            </div>
-            <ToggleSwitch enabled={theme === "dark"} onChange={toggleTheme} />
-          </div>
-          <div className="h-px bg-gray-50 dark:bg-slate-800" />
+
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-2.5">
               <Bell className="w-4 h-4 text-blue-500" />

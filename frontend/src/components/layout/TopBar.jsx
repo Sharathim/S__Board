@@ -259,20 +259,7 @@ export function TopBar() {
         {/* ── Action controls ── */}
         <div className="flex items-center gap-3">
           
-          {/* Button 1: Mode Switcher */}
-          <button
-            id="navbar-theme-btn"
-            onClick={toggleTheme}
-            className="neomorphic-glass-btn"
-            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            <div className={`transition-all duration-300 ${theme === "dark" ? "rotate-0" : "rotate-180"}`}>
-              {theme === "dark"
-                ? <Sun className="w-[19px] h-[19px] text-amber-400" />
-                : <Moon className="w-[19px] h-[19px]" />
-              }
-            </div>
-          </button>
+
 
           {/* Button 2: Notification Bell */}
           <div className="relative flex items-center">

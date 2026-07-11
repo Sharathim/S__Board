@@ -173,35 +173,10 @@ export default function SettingsPage() {
       {/* Preferences Section */}
       <SectionCard title="Preferences" icon={Palette} accentColor="text-violet-500">
         <PreferenceRow
-          icon={theme === "dark" ? Moon : Sun}
-          title={theme === "dark" ? "Dark Mode" : "Light Mode"}
-          description="Switch between light and dark interface"
-          control={<Switch checked={theme === "dark"} onChange={toggleTheme} />}
-        />
-
-        <PreferenceRow
           icon={Smartphone}
           title="Push Notifications"
           description="Receive real-time alerts on your device"
           control={<Switch checked={pushEnabled} onChange={togglePush} />}
-        />
-
-        <div className="w-full h-px bg-gray-50 dark:bg-gray-700/40" />
-
-        <PreferenceRow
-          icon={Smartphone}
-          title="Theme Preview"
-          description={`Currently using ${theme === "dark" ? "dark" : "light"} mode`}
-          control={
-            <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold ${
-              theme === "dark"
-                ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
-                : "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
-            }`}>
-              {theme === "dark" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
-              {theme === "dark" ? "Dark" : "Light"}
-            </div>
-          }
         />
       </SectionCard>
 

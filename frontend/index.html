@@ -13,15 +13,10 @@
     <title>Hive - Department Management System</title>
     <script>
       (function() {
-        var savedTheme = localStorage.getItem("dpms_theme");
-        var isDark = savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
-        if (isDark) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("dpms_theme", "light");
         
-        var themeColor = isDark ? "#000000" : "#FFFFFF";
+        var themeColor = "#FFFFFF";
         
         var meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');
@@ -30,13 +25,8 @@
         
         var observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-              var currentDark = document.documentElement.classList.contains('dark');
-              var color = currentDark ? "#000000" : "#FFFFFF";
-              var m = document.querySelector('meta[name="theme-color"]');
-              if (m) {
-                m.setAttribute("content", color);
-              }
+            if (document.documentElement.classList.contains('dark')) {
+              document.documentElement.classList.remove('dark');
             }
           });
         });

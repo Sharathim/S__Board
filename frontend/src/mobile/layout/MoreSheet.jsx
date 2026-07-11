@@ -99,18 +99,7 @@ export default function MoreSheet({ open, onClose }) {
         {/* Divider */}
         <div className="h-px bg-gray-100 dark:bg-slate-800 my-2" />
 
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
-        >
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 shrink-0">
-            {theme === "dark" ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
-          </div>
-          <span className="flex-1 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
-          </span>
-        </button>
+
 
 
 
