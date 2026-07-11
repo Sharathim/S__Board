@@ -356,12 +356,12 @@ export default function MailComposerModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-[#0F172A]/50 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-[1000] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex justify-center items-start lg:items-center p-4 md:p-6 lg:p-10 animate-fade-in">
       
       {/* ========================================== */}
       {/*          DESKTOP CONTAINER LAYOUT          */}
       {/* ========================================== */}
-      <div className="hidden lg:flex relative w-full max-w-[1100px] h-[800px] max-h-[92vh] bg-white border border-[var(--border-light)] rounded-[28px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
+      <div className="hidden lg:flex relative w-full max-w-[1100px] my-auto bg-white border border-[var(--border-light)] rounded-[24px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
         
         {/* Extraordinary Top Accent Gradient Line */}
         <div className="h-1.5 bg-gradient-to-r from-[#4F46E5] via-[#3B82F6] to-[#06B6D4] shrink-0" />
@@ -378,7 +378,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
                 In-App Mail
               </h1>
               <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-1.5">
-                Send emails to faculty and students directly from HIVE.
+                Send announcements and updates to your community.
               </p>
             </div>
           </div>

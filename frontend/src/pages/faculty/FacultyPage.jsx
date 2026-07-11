@@ -350,19 +350,6 @@ export default function FacultyPage() {
                 loading={toggleInviteMutation.isPending}
                 size="sm"
               />
-              {invite.is_active && invite.invite_link && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(invite.invite_link);
-                    alert("Invite link copied to clipboard!");
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-gray-150 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                  title="Copy Invite Link"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                </button>
-              )}
             </div>
           )}
 
