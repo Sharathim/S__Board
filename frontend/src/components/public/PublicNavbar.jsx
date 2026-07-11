@@ -46,12 +46,12 @@ export function PublicNavbar() {
               <img
                 src="/logo-icon.png"
                 alt="Hive Logo"
-                className="h-12 w-12 object-contain"
+                className="h-13 w-13 object-contain"
               />
               <img
                 src="/website-name.png"
                 alt="Hive"
-                className="h-9 w-auto object-contain"
+                className="h-[54px] w-auto object-contain"
               />
             </div>
           </Link>
