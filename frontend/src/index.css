@@ -162,7 +162,7 @@
   --violet-950: #451A03;
 
   /* Slate & Gray backgrounds and borders mapped to standard light mode greys */
-  --slate-50: #FAF7F0;
+  --slate-50: #FFFFFF;
   --slate-100: #F5F1E9;
   --slate-200: #EAE3D2;
   --slate-300: #cbd5e1;
@@ -175,7 +175,7 @@
   --slate-900: #0f172a;
   --slate-950: #020817;
 
-  --gray-50: #FAF7F0;
+  --gray-50: #FFFFFF;
   --gray-100: #F5F1E9;
   --gray-200: #EAE3D2;
   --gray-300: #cbd5e1;
@@ -1305,12 +1305,12 @@ button {
 /* Floating Drawer Card Container */
 .drawer-container {
   position: fixed;
-  top: 16px;
+  top: 72px;
   bottom: 16px;
   left: 16px;
   width: calc(100% - 32px);
   max-width: 380px;
-  z-index: 1010;
+  z-index: 90;
   border-radius: 28px;
   padding: 24px 24px 20px 24px;
   display: flex;

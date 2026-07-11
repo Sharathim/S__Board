@@ -356,18 +356,18 @@ export default function MailComposerModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-[#0F172A]/50 backdrop-blur-md animate-fade-in">
       
       {/* ========================================== */}
       {/*          DESKTOP CONTAINER LAYOUT          */}
       {/* ========================================== */}
-      <div className="hidden lg:flex relative w-full max-w-[1100px] h-[800px] max-h-[92vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[20px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
+      <div className="hidden lg:flex relative w-full max-w-[1100px] h-[800px] max-h-[92vh] bg-white border border-[var(--border-light)] rounded-[28px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
         
         {/* Top Header */}
-        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900 mt-2">
+        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white border-b border-[var(--border-light)]">
           <div className="flex items-center gap-3">
-            {/* Purple Megaphone Box */}
-            <div className="w-12 h-12 rounded-[14px] flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 shrink-0">
+            {/* Terracotta Megaphone Box */}
+            <div className="w-12 h-12 rounded-[14px] flex items-center justify-center bg-indigo-50 text-indigo-600 shrink-0 border border-indigo-100/45">
               <Mail className="w-5 h-5" />
             </div>
             <div>
@@ -383,21 +383,21 @@ export default function MailComposerModal({ isOpen, onClose }) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsPreviewing(true)}
-              className="px-5 py-2.5 text-xs font-bold text-indigo-650 dark:text-indigo-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-indigo-700 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 text-xs font-bold text-indigo-600 bg-white border border-indigo-150 rounded-xl hover:bg-indigo-50/40 hover:text-indigo-700 transition-all flex items-center gap-2"
             >
               <Eye className="w-4 h-4" /> Preview
             </button>
             <button
               onClick={handleSend}
               disabled={isSending}
-              className="px-6 py-2.5 text-xs font-bold text-white bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Send Mail
             </button>
             <button 
               onClick={onClose}
-              className="p-2.5 rounded-xl text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors"
+              className="p-2.5 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -407,7 +407,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
         {/* Content Body Container */}
         <div className="flex-1 min-h-0 overflow-hidden relative">
           
-          <div className="grid grid-cols-10 h-full px-8 pb-4 overflow-y-auto">
+          <div className="grid grid-cols-10 h-full px-8 pb-4">
             
             {/* LEFT COLUMN: Compose Form (72%) */}
             <div className="col-span-7 flex flex-col space-y-6 min-h-0 pr-8 overflow-y-auto">
@@ -441,7 +441,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
                     placeholder="Enter announcement title..."
                     value={subject}
                     onChange={(e) => setSubject(e.target.value.slice(0, 120))}
-                    className="w-full bg-slate-50/30 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-4 pr-16 text-sm font-semibold text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500/80 transition-colors"
+                    className="w-full bg-slate-50/60 border border-[var(--border-light)] hover:border-slate-300 rounded-xl py-3 pl-4 pr-16 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500/80 transition-colors shadow-inner-sm"
                   />
                   <span className="absolute right-4 top-3.5 text-xs text-slate-400 dark:text-slate-500 font-bold">
                     {subject.length} / 120
@@ -453,10 +453,10 @@ export default function MailComposerModal({ isOpen, onClose }) {
               <div className="flex flex-col space-y-1.5 flex-1 min-h-[300px]">
                 <label className="text-xs font-bold text-slate-800 dark:text-slate-200">Message</label>
                 
-                <div className="flex-1 flex flex-col border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 focus-within:border-indigo-500/80 focus-within:ring-1 focus-within:ring-indigo-500/10 transition-all min-h-0">
+                <div className="flex-1 flex flex-col border border-[var(--border-light)] hover:border-slate-350 rounded-xl bg-white focus-within:border-indigo-500/85 focus-within:ring-1 focus-within:ring-indigo-500/10 transition-all min-h-0">
                   
                   {/* Toolbar */}
-                  <div className="flex items-center justify-between p-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/20 rounded-t-xl shrink-0 select-none">
+                  <div className="flex items-center justify-between p-3 border-b border-[var(--border-light)] bg-slate-50/60 rounded-t-xl shrink-0 select-none">
                     <div className="flex items-center gap-1">
                       {/* Font Dropdown Mockup */}
                       <button
@@ -611,8 +611,8 @@ export default function MailComposerModal({ isOpen, onClose }) {
                     onDragLeave={() => setImageDrag(false)}
                     onDrop={(e) => { setImageDrag(false); handleFileDrop(e, "image"); }}
                     className={clsx(
-                      "flex items-center gap-3.5 p-4 border border-dashed rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-850/5",
-                      imageDrag ? "border-indigo-500 bg-indigo-50/5" : "border-slate-250 dark:border-slate-800"
+                      "flex items-center gap-3.5 p-4 border border-dashed rounded-xl cursor-pointer transition-all hover:bg-slate-50/40",
+                      imageDrag ? "border-indigo-500 bg-indigo-50/5" : "border-[var(--border-light)]"
                     )}
                   >
                     <input
@@ -623,12 +623,12 @@ export default function MailComposerModal({ isOpen, onClose }) {
                       className="hidden"
                       onChange={(e) => addFiles(Array.from(e.target.files), "image")}
                     />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 shrink-0">
-                      <ImageIcon className="w-5 h-5 text-slate-450 dark:text-slate-400" />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 text-slate-500 shrink-0">
+                      <ImageIcon className="w-5 h-5 text-slate-450" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-250 leading-tight">Upload Images</div>
-                      <div className="text-[9px] text-slate-450 dark:text-slate-500 font-semibold mt-0.5">JPG, PNG, GIF</div>
+                      <div className="text-[11px] font-bold text-slate-800 leading-tight">Upload Images</div>
+                      <div className="text-[9px] text-slate-450 font-semibold mt-0.5">JPG, PNG, GIF</div>
                     </div>
                   </div>
 
@@ -639,8 +639,8 @@ export default function MailComposerModal({ isOpen, onClose }) {
                     onDragLeave={() => setPdfDrag(false)}
                     onDrop={(e) => { setPdfDrag(false); handleFileDrop(e, "pdf"); }}
                     className={clsx(
-                      "flex items-center gap-3.5 p-4 border border-dashed rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-850/5",
-                      pdfDrag ? "border-indigo-500 bg-indigo-50/5" : "border-slate-250 dark:border-slate-800"
+                      "flex items-center gap-3.5 p-4 border border-dashed rounded-xl cursor-pointer transition-all hover:bg-slate-50/40",
+                      pdfDrag ? "border-indigo-500 bg-indigo-50/5" : "border-[var(--border-light)]"
                     )}
                   >
                     <input
@@ -651,12 +651,12 @@ export default function MailComposerModal({ isOpen, onClose }) {
                       className="hidden"
                       onChange={(e) => addFiles(Array.from(e.target.files), "pdf")}
                     />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 shrink-0">
-                      <FileText className="w-5 h-5 text-slate-450 dark:text-slate-400" />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 text-slate-500 shrink-0">
+                      <FileText className="w-5 h-5 text-slate-450" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-250 leading-tight">Upload PDF</div>
-                      <div className="text-[9px] text-slate-450 dark:text-slate-500 font-semibold mt-0.5">PDF up to 10MB</div>
+                      <div className="text-[11px] font-bold text-slate-800 leading-tight">Upload PDF</div>
+                      <div className="text-[9px] text-slate-450 font-semibold mt-0.5">PDF up to 10MB</div>
                     </div>
                   </div>
 
@@ -667,8 +667,8 @@ export default function MailComposerModal({ isOpen, onClose }) {
                     onDragLeave={() => setDocDrag(false)}
                     onDrop={(e) => { setDocDrag(false); handleFileDrop(e, "document"); }}
                     className={clsx(
-                      "flex items-center gap-3.5 p-4 border border-dashed rounded-xl cursor-pointer transition-all hover:bg-slate-50/50 dark:hover:bg-slate-850/5",
-                      docDrag ? "border-indigo-500 bg-indigo-50/5" : "border-slate-250 dark:border-slate-800"
+                      "flex items-center gap-3.5 p-4 border border-dashed rounded-xl cursor-pointer transition-all hover:bg-slate-50/40",
+                      docDrag ? "border-indigo-500 bg-indigo-50/5" : "border-[var(--border-light)]"
                     )}
                   >
                     <input
@@ -679,12 +679,12 @@ export default function MailComposerModal({ isOpen, onClose }) {
                       className="hidden"
                       onChange={(e) => addFiles(Array.from(e.target.files), "document")}
                     />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 shrink-0">
-                      <Paperclip className="w-5 h-5 text-slate-450 dark:text-slate-400" />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-slate-50 text-slate-500 shrink-0">
+                      <Paperclip className="w-5 h-5 text-slate-450" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-250 leading-tight">Add Documents</div>
-                      <div className="text-[9px] text-slate-450 dark:text-slate-500 font-semibold mt-0.5">DOC, DOCX, PPT, ZIP</div>
+                      <div className="text-[11px] font-bold text-slate-800 leading-tight">Add Documents</div>
+                      <div className="text-[9px] text-slate-450 font-semibold mt-0.5">DOC, DOCX, PPT, ZIP</div>
                     </div>
                   </div>
 
@@ -760,31 +760,31 @@ export default function MailComposerModal({ isOpen, onClose }) {
                         key={opt.id}
                         onClick={() => setRecipientType(opt.id)}
                         className={clsx(
-                          "p-4 border rounded-xl cursor-pointer flex items-center justify-between transition-all select-none bg-white dark:bg-slate-900",
+                          "p-4 border rounded-[16px] cursor-pointer flex items-center justify-between transition-all select-none bg-white",
                           isActive 
-                            ? "border-indigo-650 bg-indigo-50/5 dark:border-indigo-500 dark:bg-indigo-950/5" 
-                            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                            ? "border-indigo-600 bg-indigo-50/25" 
+                            : "border-[var(--border-light)] hover:bg-slate-50/40"
                         )}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           {/* Circle Icon Container */}
                           <div className={clsx(
                             "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all",
-                            isActive ? "bg-indigo-100 dark:bg-indigo-950 text-indigo-650 dark:text-indigo-400" : "bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400"
+                            isActive ? "bg-indigo-100 text-indigo-600" : "bg-slate-50 text-slate-500"
                           )}>
                             {getRecipientIcon(opt.icon)}
                           </div>
                           
                           <div className="min-w-0">
-                            <div className="text-xs font-bold text-slate-805 dark:text-slate-200 leading-tight">{opt.label}</div>
-                            <div className="text-[9px] text-slate-450 dark:text-slate-500 font-semibold mt-0.5">{opt.desc}</div>
+                            <div className="text-xs font-bold text-slate-800 leading-tight">{opt.label}</div>
+                            <div className="text-[9px] text-slate-450 font-semibold mt-0.5">{opt.desc}</div>
                           </div>
                         </div>
                         
-                        {/* Custom radio button to match reference image */}
+                        {/* Custom radio button */}
                         <div className={clsx(
                           "w-4.5 h-4.5 rounded-full border flex items-center justify-center shrink-0 transition-all",
-                          isActive ? "border-indigo-650 bg-indigo-650" : "border-slate-300 dark:border-slate-700"
+                          isActive ? "border-indigo-600 bg-indigo-600" : "border-slate-300"
                         )}>
                           {isActive && (
                             <div className="w-1.5 h-1.5 rounded-full bg-white" />
@@ -798,7 +798,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
 
               {/* Searchable checklist details (if Selected Individuals chosen) */}
               {recipientType === "custom" && (
-                <div className="flex flex-col space-y-2.5 flex-1 min-h-[160px] bg-slate-50/20 dark:bg-slate-950/10 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl animate-fade-in shrink-0">
+                <div className="flex flex-col space-y-2.5 flex-1 min-h-[160px] bg-slate-50/60 border border-[var(--border-light)] p-3 rounded-2xl animate-fade-in shrink-0">
                   
                   {/* Search box */}
                   <div className="relative shrink-0">
@@ -808,7 +808,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
                       placeholder="Filter contacts..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-xl py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white placeholder-slate-400 transition-colors"
+                      className="w-full bg-white border border-[var(--border-light)] hover:border-slate-355 rounded-xl py-1.5 pl-8 pr-3 text-xs focus:outline-none focus:border-indigo-600 text-slate-900 placeholder-slate-400 transition-colors shadow-inner-sm"
                     />
                   </div>
 
@@ -933,72 +933,70 @@ export default function MailComposerModal({ isOpen, onClose }) {
             isPreviewing ? "translate-x-0" : "translate-x-full"
           )}>
             {/* Preview Header */}
-            <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/20 shrink-0">
+            <div className="px-8 py-5 border-b border-[var(--border-light)] flex items-center justify-between bg-slate-50/60 shrink-0">
               <div>
-                <h2 className="text-base font-black text-slate-900 dark:text-white">Email Preview</h2>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">This is how the email announcement will appear in inbox messages.</p>
+                <h2 className="text-base font-black text-slate-900">Email Preview</h2>
+                <p className="text-[10px] text-slate-400 mt-1 font-semibold">This is how the email announcement will appear in inbox messages.</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setIsPreviewing(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-650 dark:text-slate-355 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-750 rounded-xl transition-all"
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 border border-[var(--border-light)] rounded-xl transition-all"
                 >
                   Back to Edit
                 </button>
                 <button
                   onClick={handleSend}
                   disabled={isSending}
-                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all flex items-center gap-1.5"
                 >
                   {isSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   Send Announcement
                 </button>
               </div>
             </div>
-            
-            {/* Preview Body */}
-            <div className="flex-1 overflow-y-auto p-8 bg-slate-50 dark:bg-slate-950/40">
-              <div className="max-w-[620px] mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-855 overflow-hidden">
+               <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+              <div className="max-w-[620px] mx-auto bg-white rounded-3xl shadow-lg border border-[var(--border-light)] overflow-hidden">
                 
                 {/* HIVE Announcement header */}
-                <div className="bg-gradient-to-r from-indigo-650 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 p-6 text-center text-white">
-                  <h1 className="text-lg font-black tracking-tight">HIVE Department Announcement</h1>
-                  <div className="inline-block mt-2.5 px-3 py-1 bg-white/20 rounded-full text-[9px] font-black tracking-wider uppercase">
+                <div className="bg-gradient-to-r from-indigo-600 to-indigo-500 p-6 text-center text-white">
+                  <h1 className="text-lg font-black tracking-tight font-sans">HIVE Department Announcement</h1>
+                  <div className="inline-block mt-2.5 px-3 py-1 bg-white/20 rounded-full text-[9px] font-black tracking-wider uppercase font-sans">
                     Sent by {user?.name || "Administrator"} ({user?.role || "HOD"})
                   </div>
                 </div>
                 
                 <div className="p-6 space-y-4">
                   {/* Subject */}
-                  <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Subject</span>
-                    <h2 className="text-base font-black text-slate-850 dark:text-slate-150 mt-0.5">{subject || "(No Subject)"}</h2>
+                  <div className="border-b border-[var(--border-light)] pb-3">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Subject</span>
+                    <h2 className="text-base font-black text-slate-800 mt-0.5">{subject || "(No Subject)"}</h2>
                   </div>
                   
                   {/* HTML body content rendering */}
                   <div 
-                    className="text-xs leading-relaxed text-slate-705 dark:text-slate-355 min-h-[160px] whitespace-pre-wrap font-sans prose dark:prose-invert max-w-none"
+                    className="text-xs leading-relaxed text-slate-700 min-h-[160px] whitespace-pre-wrap font-sans prose max-w-none"
                     dangerouslySetInnerHTML={{ __html: body || "<p class='text-slate-400 italic font-semibold'>No message content provided.</p>" }}
                   />
 
                   {/* Recipients */}
-                  <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
-                    <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Recipients</span>
-                    <div className="text-[10px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                  <div className="border-t border-[var(--border-light)] pt-3">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Recipients</span>
+                    <div className="text-[10px] font-bold text-slate-800 mt-0.5">
                       {getRecipientSummaryText()}
                     </div>
                   </div>
 
                   {/* Attachments preview list */}
                   {attachments.length > 0 && (
-                    <div className="border-t border-slate-100 dark:border-slate-800 pt-3.5">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-2">Attachments ({attachments.length})</span>
+                    <div className="border-t border-[var(--border-light)] pt-3.5">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Attachments ({attachments.length})</span>
                       <div className="grid grid-cols-2 gap-2.5">
                         {attachments.map((file) => (
-                          <div key={file.id} className="flex items-center gap-2 p-2 bg-slate-50/50 dark:bg-slate-805/20 border border-slate-155 dark:border-slate-850 rounded-xl text-[10px] font-semibold text-slate-700 dark:text-slate-300">
+                          <div key={file.id} className="flex items-center gap-2 p-2 bg-slate-50/70 border border-[var(--border-light)] rounded-xl text-[10px] font-semibold text-slate-700">
                             {getFileIcon(file.name)}
-                            <span className="truncate flex-1">{file.name}</span>
-                            <span className="text-slate-455 dark:text-slate-500 shrink-0">({formatFileSize(file.size)})</span>
+                            <span className="truncate flex-1 font-bold">{file.name}</span>
+                            <span className="text-slate-400 shrink-0 font-bold">({formatFileSize(file.size)})</span>
                           </div>
                         ))}
                       </div>
@@ -1007,11 +1005,10 @@ export default function MailComposerModal({ isOpen, onClose }) {
                 </div>
                 
                 {/* Footer details */}
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-5 border-t border-slate-150 dark:border-slate-800/80 text-center text-[10px] text-slate-450 dark:text-slate-500">
+                <div className="bg-slate-50/70 p-5 border-t border-[var(--border-light)] text-center text-[10px] text-slate-400 font-bold">
                   <p>This message was sent to you from the HIVE Academic Management Board.</p>
-                  <p className="mt-1 font-bold text-slate-500 dark:text-slate-400">Do not reply directly to this email.</p>
+                  <p className="mt-1 font-black text-slate-500">Do not reply directly to this email.</p>
                 </div>
-
               </div>
             </div>
 
@@ -1020,17 +1017,17 @@ export default function MailComposerModal({ isOpen, onClose }) {
         </div>
 
         {/* Desktop Bottom Action Bar */}
-        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900 select-none">
+        <div className="px-8 py-5 flex items-center justify-between shrink-0 bg-white border-t border-[var(--border-light)] select-none">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-6 py-2.5 text-xs font-bold text-slate-655 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-850 rounded-xl transition-all"
+              className="px-6 py-2.5 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-all"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveDraft}
-              className="px-5 py-2.5 text-xs font-bold text-indigo-650 hover:bg-slate-50 dark:text-indigo-400 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl transition-all bg-white dark:bg-slate-900"
+              className="px-5 py-2.5 text-xs font-bold text-indigo-600 hover:bg-indigo-50/50 border border-[var(--border-light)] rounded-xl transition-all bg-white"
             >
               Save Draft
             </button>
@@ -1039,14 +1036,14 @@ export default function MailComposerModal({ isOpen, onClose }) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsPreviewing(true)}
-              className="px-5 py-2.5 text-xs font-bold text-indigo-650 hover:bg-slate-50 dark:text-indigo-400 dark:hover:bg-slate-850 rounded-xl transition-all bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              className="px-5 py-2.5 text-xs font-bold text-indigo-600 hover:bg-indigo-50/50 border border-[var(--border-light)] rounded-xl transition-all bg-white"
             >
               Preview
             </button>
             <button
               onClick={handleSend}
               disabled={isSending}
-              className="px-6 py-2.5 text-xs font-bold text-white bg-indigo-650 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 rounded-xl shadow-md transition-all flex items-center gap-2"
+              className="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Send Announcement

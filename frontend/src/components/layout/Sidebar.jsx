@@ -111,17 +111,17 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
       {/* Mobile overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-md"
+          className="fixed top-[72px] inset-x-0 bottom-0 bg-black/30 z-30 lg:hidden backdrop-blur-xs animate-fade-in"
           onClick={onClose}
         />
       )}
 
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 p-4 transition-[width,transform] duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0",
+          "fixed top-[72px] bottom-0 left-0 z-40 flex flex-col bg-white p-4 transition-[width,transform] duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0 border-r border-[var(--border-light)]",
           open ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-[72px] lg:w-[72px]" : "w-[260px] lg:w-[260px]",
-          "h-screen lg:h-[calc(100vh-72px)] flex flex-col justify-between"
+          "h-[calc(100vh-72px)] lg:h-[calc(100vh-72px)] flex flex-col justify-between"
         )}
       >
         {/* ── Logo / Brand (Mobile Only) ── */}

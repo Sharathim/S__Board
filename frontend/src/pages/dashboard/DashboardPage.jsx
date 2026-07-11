@@ -297,10 +297,11 @@ export default function DashboardPage() {
         {(user?.role === "HOD" || user?.role === "FACULTY") && (
           <button
             onClick={() => setIsMailModalOpen(true)}
-            className="flex items-center gap-2 px-4.5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-md shadow-indigo-500/10 hover:-translate-y-0.5 active:translate-y-0 w-fit shrink-0 mt-2 md:mt-0"
+            className="group relative flex items-center gap-2.5 px-5 py-3 text-xs font-black text-white bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-700 hover:to-indigo-700 rounded-xl transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0 w-fit shrink-0 overflow-hidden mt-2 md:mt-0"
           >
-            <Mail className="w-4 h-4 shrink-0" />
-            Send Mail to Hive
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            <Mail className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
+            <span>Send Mail to Hive</span>
           </button>
         )}
       </div>

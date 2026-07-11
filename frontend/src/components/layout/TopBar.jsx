@@ -246,12 +246,12 @@ export function TopBar() {
             <img
               src="/logo-icon.png"
               alt="Hive Logo"
-              className="w-11 h-11 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(139,92,246,0.25)] dark:drop-shadow-[0_4px_12px_rgba(167,139,250,0.35)] transition-transform duration-300 hover:rotate-6"
+              className="w-11 h-11 object-contain flex-shrink-0 filter drop-shadow-[0_4px_12px_rgba(5,150,105,0.25)] transition-transform duration-300 hover:rotate-6"
             />
             <span
-              className="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-gray-900 via-purple-950 to-black dark:from-white dark:via-purple-100 dark:to-gray-200 bg-clip-text text-transparent"
+              className="font-black text-2.5xl tracking-tight bg-gradient-to-r from-slate-850 via-emerald-750 to-slate-800 bg-clip-text text-transparent font-sans"
             >
-              Hive
+              HIVE
             </span>
           </div>
         </div>
