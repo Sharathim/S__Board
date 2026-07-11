@@ -223,50 +223,23 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
         {/* ── User Profile & Sign Out Module ── */}
         <div className="flex-shrink-0 pt-4 border-t border-slate-100 dark:border-slate-800/80">
-          {isCollapsed ? (
-            <button
-              onClick={logout}
-              className="w-full flex items-center justify-center p-2.5 rounded-xl text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95 group relative"
-              title="Log Out"
-            >
-              <LogOut className="w-5 h-5" />
+          <button
+            onClick={logout}
+            className={clsx(
+              "w-full flex items-center rounded-xl text-[14px] font-semibold text-slate-500 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95 group relative",
+              isCollapsed ? "justify-center p-2.5" : "gap-3 px-4 py-3"
+            )}
+            title={isCollapsed ? "Log Out" : undefined}
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-rose-500 transition-colors" />
+            {!isCollapsed && <span className="flex-1 text-left">Sign Out</span>}
+            {isCollapsed && (
               <div className="absolute left-full ml-3 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-150 whitespace-nowrap z-50 shadow-xl border border-slate-100 dark:border-slate-700">
                 Log Out
                 <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-white dark:bg-slate-800 border-l border-b border-slate-100 dark:border-slate-700" />
               </div>
-            </button>
-          ) : (
-            <div className="flex flex-col gap-4 p-2 cursor-default">
-              {/* User info row */}
-              <div className="flex items-center gap-3">
-                {/* Avatar (circular, borderless, bg-gradient as fallback) */}
-                <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600">
-                    {user?.profile_picture ? (
-                      <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
-                    ) : (
-                      getInitials(user?.name)
-                    )}
-                  </div>
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-slate-900" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold truncate text-slate-800 dark:text-slate-200">{user?.name || "User"}</p>
-                  <p className="text-xs font-medium truncate text-slate-400 dark:text-slate-500 mt-0.5">{getRoleLabel(user?.role)}</p>
-                </div>
-              </div>
-
-              {/* Sign Out row / button */}
-              <button
-                onClick={logout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all duration-150 active:scale-95"
-              >
-                <LogOut className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                Sign Out
-              </button>
-            </div>
-          )}
+            )}
+          </button>
         </div>
       </aside>
     </>

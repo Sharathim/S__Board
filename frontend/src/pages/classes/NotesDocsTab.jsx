@@ -14,6 +14,12 @@ import {
   archiveSubject, unarchiveSubject, listUnits, createUnit,
   editUnit, deleteUnit, uploadFiles, deleteFile, getNotesLogs
 } from "../../api/classes";
+import { useEffect, useRef } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // Helper to check permissions
 function canModify(user, className, creatorId) {
@@ -41,6 +47,27 @@ export default function NotesDocsTab({ className }) {
   const [unitModal, setUnitModal] = useState({ open: false, mode: "create", unit: null });
   const [uploadModal, setUploadModal] = useState({ open: false, unit: null });
   const [logsModal, setLogsModal] = useState(false);
+  const [previewModal, setPreviewModal] = useState({ open: false, unit: null, initialFileId: null });
+
+  const handleDownload = async (e, url, fileName) => {
+    if (e) e.preventDefault();
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Failed to download file using blob, falling back to direct open:", error);
+      window.open(url, "_blank");
+    }
+  };
 
   // Confirm dialogs state
   const [deleteSubjectTarget, setDeleteSubjectTarget] = useState(null);
@@ -392,25 +419,20 @@ export default function NotesDocsTab({ className }) {
                                 </div>
 
                                 <div className="flex items-center gap-1.5 shrink-0">
-                                  {file.file_type.toLowerCase() === "pdf" && (
-                                    <button
-                                      onClick={() => window.open(file.file_url, "_blank")}
-                                      className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-gray-750 border border-gray-100 dark:border-gray-700/60 shadow-sm transition-all"
-                                      title="Preview PDF"
-                                    >
-                                      <Eye className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                  <a
-                                    href={file.file_url}
-                                    download={file.file_name}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                  <button
+                                    onClick={() => setPreviewModal({ open: true, unit, initialFileId: file.id })}
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-gray-750 border border-gray-100 dark:border-gray-700/60 shadow-sm transition-all"
+                                    title="Preview File"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleDownload(e, file.file_url, file.file_name)}
                                     className="p-1.5 rounded-lg text-gray-400 hover:text-green-500 hover:bg-slate-50 dark:hover:bg-gray-750 border border-gray-100 dark:border-gray-700/60 shadow-sm transition-all"
                                     title="Download File"
                                   >
                                     <Download className="w-3.5 h-3.5" />
-                                  </a>
+                                  </button>
                                   {canModify(user, className, file.uploaded_by.id) && (
                                     <button
                                       onClick={() => setDeleteFileTarget({ file, unitId: unit.id })}
@@ -852,6 +874,164 @@ export default function NotesDocsTab({ className }) {
         message={archiveTarget ? `Move the subject "${archiveTarget.name}" to archives? It can be unarchived later.` : ""}
         confirmText={archiveSubjectMutation.isPending ? "Archiving…" : "Archive"}
       />
+
+      <PreviewModal
+        open={previewModal.open}
+        onClose={() => setPreviewModal({ open: false, unit: null, initialFileId: null })}
+        unit={previewModal.unit}
+        initialFileId={previewModal.initialFileId}
+        handleDownload={handleDownload}
+      />
     </div>
+  );
+}
+
+// ─── Preview Helper Components ──────────────────────────────────────────
+
+function PdfPreviewer({ fileUrl }) {
+  const [numPages, setNumPages] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  return (
+    <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] overflow-y-auto border border-gray-100 dark:border-gray-800/80">
+      <Document
+        file={fileUrl}
+        onLoadSuccess={({ numPages }) => {
+          setNumPages(numPages);
+          setLoading(false);
+        }}
+        onLoadError={(err) => {
+          console.error("PDF load error:", err);
+          setError(err.message || "Failed to load PDF");
+          setLoading(false);
+        }}
+        loading={<div className="py-8 text-xs font-bold text-gray-400 animate-pulse">Loading document pages...</div>}
+        error={<div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>}
+      >
+        {Array.from(new Array(numPages), (el, index) => (
+          <Page
+            key={`page_${index + 1}`}
+            pageNumber={index + 1}
+            renderTextLayer={false}
+            renderAnnotationLayer={false}
+            width={Math.min(window.innerWidth * 0.7, 680)}
+            className="shadow-md rounded-xl overflow-hidden mb-4 bg-white"
+          />
+        ))}
+      </Document>
+    </div>
+  );
+}
+
+function DocxPptPreviewer({ fileUrl, fileName, fileType }) {
+  const [viewerType, setViewerType] = useState("microsoft");
+
+  const microsoftUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+  const googleUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+
+  return (
+    <div className="w-full space-y-2">
+      <div className="flex items-center justify-between px-2">
+        <span className="text-[10px] font-extrabold text-gray-450 dark:text-gray-500 uppercase tracking-wider">
+          Viewer Service: {viewerType === "microsoft" ? "Office Online" : "Google Docs Viewer"}
+        </span>
+        <button
+          type="button"
+          onClick={() => setViewerType(prev => prev === "microsoft" ? "google" : "microsoft")}
+          className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline transition-all"
+        >
+          Switch to {viewerType === "microsoft" ? "Google Viewer" : "Office Viewer"}
+        </button>
+      </div>
+      <div className="w-full h-[600px] border border-gray-150 dark:border-gray-700/60 rounded-2xl overflow-hidden bg-slate-50/50 dark:bg-gray-900/40 shadow-inner">
+        <iframe
+          src={viewerType === "microsoft" ? microsoftUrl : googleUrl}
+          width="100%"
+          height="100%"
+          frameBorder="0"
+          title={`${fileName} Preview`}
+          className="w-full h-full"
+        />
+      </div>
+    </div>
+  );
+}
+
+function PreviewModal({ open, onClose, unit, initialFileId, handleDownload }) {
+  const fileRefs = useRef({});
+
+  useEffect(() => {
+    if (open && initialFileId && fileRefs.current[initialFileId]) {
+      const timer = setTimeout(() => {
+        if (fileRefs.current[initialFileId]) {
+          fileRefs.current[initialFileId].scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [open, initialFileId]);
+
+  if (!open || !unit) return null;
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={`Unit Preview — ${unit.name}`}
+      size="xl"
+    >
+      <div className="space-y-8 max-h-[75vh] overflow-y-auto pr-2 divide-y divide-gray-150 dark:divide-gray-800">
+        {unit.files.map((file, idx) => {
+          const isPdf = file.file_type.toLowerCase() === "pdf";
+          return (
+            <div
+              key={file.id}
+              ref={el => fileRefs.current[file.id] = el}
+              className="pt-6 first:pt-0 space-y-4"
+            >
+              {/* File Info Bar */}
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-gray-800/60 p-3 rounded-2xl border border-gray-100 dark:border-gray-705">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs uppercase text-red-500 bg-red-50 dark:bg-red-955`}>
+                    {file.file_type}
+                  </div>
+                  <div className="min-w-0">
+                    <h5 className="text-xs font-bold text-gray-805 dark:text-gray-200 truncate pr-4">
+                      {file.file_name}
+                    </h5>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold mt-0.5">
+                      Uploaded by {file.uploaded_by.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => handleDownload(e, file.file_url, file.file_name)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-slate-100 dark:hover:bg-gray-750 text-[10px] font-bold text-gray-600 dark:text-gray-300 transition-all shadow-sm"
+                  title="Download File"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Download
+                </button>
+              </div>
+
+              {/* Render Preview */}
+              <div className="w-full flex justify-center pb-4">
+                {isPdf ? (
+                  <PdfPreviewer fileUrl={file.file_url} />
+                ) : (
+                  <DocxPptPreviewer
+                    fileUrl={file.file_url}
+                    fileName={file.file_name}
+                    fileType={file.file_type}
+                  />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Modal>
   );
 }

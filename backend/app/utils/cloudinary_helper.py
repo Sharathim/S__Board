@@ -38,11 +38,27 @@ def upload_file(file, folder="dpms"):
     logger.info("Uploading to Cloudinary: name=%s, size=%d, type=%s, folder=%s",
                 file.filename, size, content_type, folder)
 
+    # Preserve file extension for documents in public_id
+    import os
+    import uuid
+    import re
+    
+    base_name, ext = os.path.splitext(file.filename)
+    clean_name = re.sub(r'[^a-zA-Z0-9_\-]', '_', base_name)[:100]
+    unique_suffix = uuid.uuid4().hex[:8]
+    
+    ext_lower = ext.lower().lstrip('.')
+    is_doc = ext_lower in {"pdf", "ppt", "pptx", "doc", "docx"}
+    
+    public_id = f"{clean_name}_{unique_suffix}{ext.lower()}"
+    res_type = "raw" if is_doc else "auto"
+
     try:
         result = cloudinary.uploader.upload(
             file_obj,
             folder=folder,
-            resource_type="auto",
+            public_id=public_id,
+            resource_type=res_type,
         )
     except Exception as e:
         logger.error("Cloudinary upload failed: %s", str(e))
