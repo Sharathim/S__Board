@@ -165,8 +165,8 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                       ? "justify-center p-2.5 mx-0"
                       : "gap-3 px-4 py-3",
                     isActive
-                      ? "bg-indigo-600 text-white"
-                      : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-slate-50/50 dark:hover:bg-slate-800/40"
+                      ? "bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-fg)] font-bold shadow-sm"
+                      : "bg-transparent text-slate-500 hover:text-[var(--primary)] hover:bg-[var(--sidebar-hover)]"
                   )
                 }
                 title={isCollapsed ? item.label : undefined}
@@ -179,8 +179,8 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
                         "flex-shrink-0 transition-colors duration-150",
                         isCollapsed ? "w-5 h-5" : "w-5 h-5",
                         isActive
-                          ? "text-white"
-                          : "text-slate-500 dark:text-slate-400 group-hover:text-indigo-600"
+                          ? "text-[var(--sidebar-active-fg)]"
+                          : "text-slate-500 group-hover:text-[var(--primary)]"
                       )}
                     />
 
@@ -241,7 +241,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
               <div className="flex items-center gap-3">
                 {/* Avatar (circular, borderless, bg-gradient as fallback) */}
                 <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600">
                     {user?.profile_picture ? (
                       <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />
                     ) : (

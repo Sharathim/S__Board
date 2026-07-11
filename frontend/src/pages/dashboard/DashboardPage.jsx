@@ -108,7 +108,7 @@ function LiveClockWidget() {
   return (
     <div className="flex items-center justify-between p-4 bg-slate-50/60 rounded-2xl border border-slate-100">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-650 flex items-center justify-center shrink-0">
           <Clock className="w-4.5 h-4.5" />
         </div>
         <div>
@@ -120,8 +120,8 @@ function LiveClockWidget() {
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-        <Sparkles className="w-3 h-3 text-emerald-600 animate-spin-slow" /> Live
+      <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+        <Sparkles className="w-3 h-3 text-indigo-600 animate-spin-slow" /> Live
       </div>
     </div>
   );
@@ -267,8 +267,8 @@ export default function DashboardPage() {
   const metrics = [
     { label: "Active Projects", val: stats?.in_progress ?? 0, desc: `of ${total} total`, icon: FolderKanban, color: "text-emerald-500", to: "/projects", iconRef: FolderKanban },
     { label: "Completed", val: stats?.completed ?? 0, desc: "archived", icon: CheckCircle, color: "text-emerald-600", to: "/projects", iconRef: CheckCircle },
-    { label: "Students Portal", val: totalStudentsCount, desc: "enrolled", icon: Users, color: "text-emerald-500", to: "/classes", iconRef: Users },
-    { label: "Faculty Board", val: facultyCount, desc: "active staff", icon: Users, color: "text-emerald-600", to: "/faculty", iconRef: Users },
+    { label: "Students Portal", val: totalStudentsCount, desc: "enrolled", icon: Users, color: "text-indigo-605", to: "/classes", iconRef: Users },
+    { label: "Faculty Board", val: facultyCount, desc: "active staff", icon: Users, color: "text-indigo-600", to: "/faculty", iconRef: Users },
   ];
 
   return (
@@ -283,7 +283,7 @@ export default function DashboardPage() {
         }}
       >
         <div className="space-y-1.5">
-          <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider w-fit block">
+          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider w-fit block">
             Workspace Hub
           </span>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-tight">
@@ -297,7 +297,7 @@ export default function DashboardPage() {
         {(user?.role === "HOD" || user?.role === "FACULTY") && (
           <button
             onClick={() => setIsMailModalOpen(true)}
-            className="flex items-center gap-2 px-4.5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md shadow-emerald-500/10 hover:-translate-y-0.5 active:translate-y-0 w-fit shrink-0 mt-2 md:mt-0"
+            className="flex items-center gap-2 px-4.5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-md shadow-indigo-500/10 hover:-translate-y-0.5 active:translate-y-0 w-fit shrink-0 mt-2 md:mt-0"
           >
             <Mail className="w-4 h-4 shrink-0" />
             Send Mail to Hive
@@ -364,7 +364,7 @@ export default function DashboardPage() {
                 onClick={() => setActiveTab("forum")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeTab === "forum"
-                    ? "bg-white text-emerald-600 shadow-sm"
+                    ? "bg-white text-indigo-600 shadow-sm"
                     : "text-slate-500 hover:text-slate-800"
                 }`}
               >
@@ -414,7 +414,11 @@ export default function DashboardPage() {
                   navigateWithTransition("/forum", "Forum", MessageSquare);
                 }
               }}
-              className="flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "updates"
+                  ? "text-emerald-600 hover:bg-emerald-50/50"
+                  : "text-indigo-600 hover:bg-indigo-50/50"
+              }`}
             >
               See all {activeTab === "updates" ? "Announcements" : "Discussions"}{" "}
               <ArrowRight className="w-3.5 h-3.5" />
@@ -448,7 +452,7 @@ export default function DashboardPage() {
                     Logged-in & public sections
                   </span>
                 </div>
-                <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-8.5 h-8.5 rounded-lg bg-indigo-50 text-indigo-605 flex items-center justify-center shrink-0">
                   <Eye className="w-4 h-4" />
                 </div>
               </div>

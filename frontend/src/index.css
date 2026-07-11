@@ -78,89 +78,93 @@
   --shadow-2: rgba(5, 150, 105, 0.25) 0px 8px 18px 0px;
   --shadow-3: rgba(15, 23, 42, 0.04) 0px 1px 2px 0px;
 
-  /* Theme Tokens mapping to Cyprus & Cloud White Palette */
+  /* Theme Tokens mapping to Warm Sandal & Emerald/Terracotta Dual Primary Palette */
   /* Backgrounds */
-  --background: #FFFFFF; /* Pure White */
+  --background: #FAF7F0; /* Soft warm sandal cream */
   --surface: #FFFFFF;
-  --surface-hover: #f8fafc;
-  --surface-secondary: #f1f5f9;
+  --surface-hover: #FAF9F5;
+  --surface-secondary: #F5F1E9; /* Warm light grey/sandal */
 
   /* Sidebar */
   --sidebar-bg: #FFFFFF;
-  --sidebar-border: #e2e8f0;
-  --sidebar-hover: #f8fafc;
-  --sidebar-active-bg: rgba(5, 150, 105, 0.08);
-  --sidebar-active-fg: #059669; /* Emerald Green */
+  --sidebar-border: #EAE3D2; /* Warm delicate border */
+  --sidebar-hover: #FAF7F0;
+  --sidebar-active-bg: rgba(5, 150, 105, 0.06);
+  --sidebar-active-fg: #059669;
 
   /* Text */
-  --text-primary: #0F172A; /* Deep Slate/Navy text */
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-primary: #1E252B; /* Dark slate charcoal */
+  --text-secondary: #5C6773;
+  --text-muted: #8A97A6;
 
   /* Borders */
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
+  --border-light: #EAE3D2; /* Warm sandal border */
+  --border-medium: #D5CBB5;
 
-  /* Brand */
+  /* Brand Dual Primary */
   --primary: #059669; /* Emerald Green */
   --primary-hover: #047857;
-  --primary-light: #ecfdf5;
+  --primary-light: #F0FDF4;
+
+  --secondary: #B45309; /* Warm Terracotta / Sandal Bronze */
+  --secondary-hover: #92400E;
+  --secondary-light: #FEF3C7;
 
   /* Status colors */
   --status-not-started: #64748b;
   --status-in-progress: #059669;
-  --status-review: #d97706;
+  --status-review: #B45309;
   --status-completed: #10b981;
-  --status-on-hold: #d97706;
+  --status-on-hold: #B45309;
   --status-cancelled: #ef4444;
-  --status-low-activity: #d97706;
+  --status-low-activity: #B45309;
 
   /* Shadows */
-  --shadow-sm: rgba(15, 23, 42, 0.04) 0px 1px 2px 0px;
-  --shadow-card: rgba(15, 23, 42, 0.05) 0px 4px 12px 0px;
-  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.08);
+  --shadow-sm: rgba(30, 45, 65, 0.03) 0px 1px 2px 0px;
+  --shadow-card: rgba(30, 45, 65, 0.04) 0px 4px 12px 0px;
+  --shadow-md: 0 4px 6px rgba(30, 45, 65, 0.05);
+  --shadow-lg: 0 10px 15px rgba(30, 45, 65, 0.06);
   --border-color: var(--border-light);
 
-  /* Primary/Indigo/Violet Accents mapped to Cyprus Palette */
-  --primary-50: #ecfdf5;
-  --primary-100: #d1fae5;
-  --primary-200: #a7f3d0;
-  --primary-300: #6ee7b7;
-  --primary-400: #34d399;
-  --primary-500: #059669;
-  --primary-600: #047857;
-  --primary-700: #065f46;
-  --primary-800: #064e3b;
-  --primary-900: #022c22;
+  /* Primary/Indigo/Violet Accents mapped to Cyprus & Terracotta Palette */
+  --primary-50: #F0FDF4;
+  --primary-100: #DCFCE7;
+  --primary-200: #BBF7D0;
+  --primary-300: #86EFAC;
+  --primary-400: #4ADE80;
+  --primary-500: #22C55E;
+  --primary-600: #16A34A;
+  --primary-700: #15803D;
+  --primary-800: #166534;
+  --primary-900: #14532D;
 
-  --indigo-50: #ecfdf5;
-  --indigo-100: #d1fae5;
-  --indigo-200: #a7f3d0;
-  --indigo-300: #6ee7b7;
-  --indigo-400: #34d399;
-  --indigo-500: #059669;
-  --indigo-600: #047857;
-  --indigo-700: #065f46;
-  --indigo-800: #064e3b;
-  --indigo-900: #022c22;
+  --indigo-50: #FEF3C7;
+  --indigo-100: #FDE68A;
+  --indigo-200: #FCD34D;
+  --indigo-300: #F59E0B;
+  --indigo-400: #D97706;
+  --indigo-500: #B45309; /* Terracotta Amber */
+  --indigo-600: #92400E;
+  --indigo-700: #78350F;
+  --indigo-800: #451A03;
+  --indigo-900: #451A03;
 
-  --violet-50: #ecfdf5;
-  --violet-100: #d1fae5;
-  --violet-200: #a7f3d0;
-  --violet-300: #6ee7b7;
-  --violet-400: #34d399;
-  --violet-500: #059669;
-  --violet-600: #047857;
-  --violet-700: #065f46;
-  --violet-800: #064e3b;
-  --violet-900: #022c22;
-  --violet-950: #022c22;
+  --violet-50: #FEF3C7;
+  --violet-100: #FDE68A;
+  --violet-200: #FCD34D;
+  --violet-300: #F59E0B;
+  --violet-400: #D97706;
+  --violet-500: #B45309; /* Terracotta Amber */
+  --violet-600: #92400E;
+  --violet-700: #78350F;
+  --violet-800: #451A03;
+  --violet-900: #451A03;
+  --violet-950: #451A03;
 
   /* Slate & Gray backgrounds and borders mapped to standard light mode greys */
-  --slate-50: #FFFFFF;
-  --slate-100: #f1f5f9;
-  --slate-200: #e2e8f0;
+  --slate-50: #FAF7F0;
+  --slate-100: #F5F1E9;
+  --slate-200: #EAE3D2;
   --slate-300: #cbd5e1;
   --slate-400: #94a3b8;
   --slate-500: #64748b;
@@ -171,9 +175,9 @@
   --slate-900: #0f172a;
   --slate-950: #020817;
 
-  --gray-50: #FFFFFF;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
+  --gray-50: #FAF7F0;
+  --gray-100: #F5F1E9;
+  --gray-200: #EAE3D2;
   --gray-300: #cbd5e1;
   --gray-400: #94a3b8;
   --gray-500: #64748b;
