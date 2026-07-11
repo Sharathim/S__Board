@@ -228,7 +228,7 @@ export default function ClassDetailPage() {
   });
 
   const [studentDetailsForm, setStudentDetailsForm] = useState({});
-  const ownStudentId = user?.student_profile?.id;
+  const ownStudentId = user?.student?.id;
 
   const { data: ownDetails, refetch: refetchOwnDetails } = useQuery({
     queryKey: ["own-details", className, ownStudentId],
@@ -876,7 +876,7 @@ function ActiveFormsList({ className, forms, studentId, user, refetch }) {
           form={activeFormSub}
           className={className}
           studentName={user?.name}
-          studentRoll={user?.student_profile?.roll_number}
+          studentRoll={user?.student?.roll_number}
           onSuccess={() => { setActiveFormSub(null); refetch(); }}
         />
       )}

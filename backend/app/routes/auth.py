@@ -203,6 +203,7 @@ def _serialize_user(user):
         }
     if user.role == UserRole.STUDENT and user.student_profile:
         out["student"] = {
+            "id": user.student_profile.id,
             "roll_number": user.student_profile.roll_number,
             "register_number": user.student_profile.register_number,
             "class_name": user.student_profile.class_name,
