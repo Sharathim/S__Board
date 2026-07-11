@@ -30,7 +30,7 @@ function StudentRegistrationBanner() {
   return null;
 }
 
-function ClassCard({ c, meta, isHOD, onAssignIncharge }) {
+function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
   const hasIncharge = !!c.incharge;
   const activeMeta = meta || {
     label: c.class_name,
