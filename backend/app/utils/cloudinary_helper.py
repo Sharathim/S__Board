@@ -48,10 +48,14 @@ def upload_file(file, folder="dpms"):
     unique_suffix = uuid.uuid4().hex[:8]
     
     ext_lower = ext.lower().lstrip('.')
-    is_doc = ext_lower in {"pdf", "ppt", "pptx", "doc", "docx"}
+    is_office_doc = ext_lower in {"ppt", "pptx", "doc", "docx"}
     
-    public_id = f"{clean_name}_{unique_suffix}{ext.lower()}"
-    res_type = "raw" if is_doc else "auto"
+    if is_office_doc:
+        public_id = f"{clean_name}_{unique_suffix}{ext.lower()}"
+        res_type = "raw"
+    else:
+        public_id = f"{clean_name}_{unique_suffix}"
+        res_type = "auto"
 
     try:
         result = cloudinary.uploader.upload(

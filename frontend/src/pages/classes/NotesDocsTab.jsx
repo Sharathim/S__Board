@@ -888,11 +888,12 @@ export default function NotesDocsTab({ className }) {
 
 // ─── Preview Helper Components ──────────────────────────────────────────
 
-function PdfPreviewer({ fileUrl }) {
+function PdfPreviewer({ fileUrl, fileName }) {
   const [pdfBlob, setPdfBlob] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -907,11 +908,13 @@ function PdfPreviewer({ fileUrl }) {
         if (active) {
           setPdfBlob(blob);
           setError(null);
+          setUseFallback(false);
         }
       } catch (err) {
         console.error("Error loading PDF blob:", err);
         if (active) {
           setError(err.message || "Failed to fetch PDF file");
+          setUseFallback(true);
         }
       } finally {
         if (active) {
@@ -925,18 +928,20 @@ function PdfPreviewer({ fileUrl }) {
     };
   }, [fileUrl]);
 
+  if (useFallback) {
+    return (
+      <DocxPptPreviewer
+        fileUrl={fileUrl}
+        fileName={fileName}
+        fileType="pdf"
+      />
+    );
+  }
+
   if (loading && !pdfBlob) {
     return (
       <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] border border-gray-100 dark:border-gray-800/80">
         <div className="py-8 text-xs font-bold text-gray-400 animate-pulse">Loading document pages...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] border border-gray-100 dark:border-gray-800/80">
-        <div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>
       </div>
     );
   }
@@ -952,6 +957,7 @@ function PdfPreviewer({ fileUrl }) {
           onLoadError={(err) => {
             console.error("PDF load error:", err);
             setError(err.message || "Failed to load PDF");
+            setUseFallback(true);
           }}
           loading={<div className="py-8 text-xs font-bold text-gray-400 animate-pulse">Initializing renderer...</div>}
           error={<div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>}
@@ -1067,7 +1073,7 @@ function PreviewModal({ open, onClose, unit, initialFileId, handleDownload }) {
               {/* Render Preview */}
               <div className="w-full flex justify-center pb-4">
                 {isPdf ? (
-                  <PdfPreviewer fileUrl={file.file_url} />
+                  <PdfPreviewer fileUrl={file.file_url} fileName={file.file_name} />
                 ) : (
                   <DocxPptPreviewer
                     fileUrl={file.file_url}

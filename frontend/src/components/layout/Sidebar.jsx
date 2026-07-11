@@ -118,7 +118,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
       <aside
         className={clsx(
-          "fixed top-[72px] bottom-0 left-0 z-40 flex flex-col bg-white p-4 transition-[width,transform] duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0 border-r border-[var(--border-light)]",
+          "fixed top-[72px] bottom-0 left-0 z-40 flex flex-col bg-white p-4 transition-[width,transform] duration-300 ease-in-out lg:z-30 lg:translate-y-0 lg:static lg:translate-x-0 border-r border-[var(--border-light)] overflow-y-auto scrollbar-thin",
           open ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-[72px] lg:w-[72px]" : "w-[260px] lg:w-[260px]",
           "h-[calc(100vh-72px)] lg:h-[calc(100vh-72px)] flex flex-col justify-between"
@@ -145,7 +145,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
         {/* ── Navigation Menu Links ── */}
         <nav className={clsx(
-          "flex-1 overflow-y-auto py-4 space-y-1",
+          "flex-1 py-4 space-y-1",
           isCollapsed ? "px-0" : "px-0"
         )}>
           {uniqueNavItems.map(item => {
