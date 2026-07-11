@@ -39,7 +39,20 @@ def _get_or_create_global_student_invite():
     return invite
 
 
+CORE_FIELDS = [
+    "gender", "blood_group", "nationality", "religion", "community", "caste",
+    "mobile_number", "communication_address", "permanent_address", "tenth_percentage",
+    "twelfth_percentage", "admission_type", "aadhar_number", "pan_number",
+    "father_name", "father_occupation", "father_income", "father_mobile",
+    "mother_name", "mother_occupation", "mother_income", "mother_mobile"
+]
+
 def _serialize_student(s):
+    details = s.details
+    details_dict = {}
+    if details:
+        for f in CORE_FIELDS:
+            details_dict[f] = getattr(details, f) or ""
     return {
         "id": s.id,
         "user_id": s.user_id,
@@ -50,6 +63,7 @@ def _serialize_student(s):
         "register_number": s.register_number,
         "class_name": s.class_name,
         "is_forum_member": s.is_forum_member,
+        "details": details_dict if details else None
     }
 
 

@@ -48,3 +48,35 @@ export const deleteFile = (className, subjectId, unitId, fileId) =>
 export const getNotesLogs = (className, page = 1) =>
   api.get(`/classes/${className}/notes/logs`, { params: { page } });
 
+// ─── Student Forms & Data Endpoints ─────────────────────────────────────
+export const getStudentDetails = (className, studentId) =>
+  api.get(`/classes/${className}/students/${studentId}/details`);
+export const saveStudentDetails = (className, studentId, details) =>
+  api.post(`/classes/${className}/students/${studentId}/details`, { details });
+export const saveStudentDetailsAdmin = (className, studentId, details, extraDetails) =>
+  api.post(`/classes/${className}/students/${studentId}/details/admin`, { details, extra_details: extraDetails });
+
+export const getStudentsData = (className) =>
+  api.get(`/classes/${className}/students-data`);
+export const getClassStats = (className) =>
+  api.get(`/classes/${className}/stats`);
+
+export const createForm = (className, data) =>
+  api.post(`/classes/${className}/forms`, data);
+export const listForms = (className) =>
+  api.get(`/classes/${className}/forms`);
+export const getForm = (className, formId) =>
+  api.get(`/classes/${className}/forms/${formId}`);
+export const deleteForm = (className, formId) =>
+  api.delete(`/classes/${className}/forms/${formId}`);
+export const submitFormResponse = (className, formId, formDataOrJson, isMultipart = false) => {
+  if (isMultipart) {
+    return api.post(`/classes/${className}/forms/${formId}/responses`, formDataOrJson, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  }
+  return api.post(`/classes/${className}/forms/${formId}/responses`, formDataOrJson);
+};
+export const getFormResponses = (className, formId) =>
+  api.get(`/classes/${className}/forms/${formId}/responses`);
+
