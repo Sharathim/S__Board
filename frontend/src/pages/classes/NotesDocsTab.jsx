@@ -889,37 +889,85 @@ export default function NotesDocsTab({ className }) {
 // ─── Preview Helper Components ──────────────────────────────────────────
 
 function PdfPreviewer({ fileUrl }) {
+  const [pdfBlob, setPdfBlob] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    let active = true;
+    async function loadPdf() {
+      try {
+        setLoading(true);
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+        }
+        const blob = await response.blob();
+        if (active) {
+          setPdfBlob(blob);
+          setError(null);
+        }
+      } catch (err) {
+        console.error("Error loading PDF blob:", err);
+        if (active) {
+          setError(err.message || "Failed to fetch PDF file");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+    loadPdf();
+    return () => {
+      active = false;
+    };
+  }, [fileUrl]);
+
+  if (loading && !pdfBlob) {
+    return (
+      <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] border border-gray-100 dark:border-gray-800/80">
+        <div className="py-8 text-xs font-bold text-gray-400 animate-pulse">Loading document pages...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] border border-gray-100 dark:border-gray-800/80">
+        <div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/40 p-4 rounded-2xl w-full max-h-[600px] overflow-y-auto border border-gray-100 dark:border-gray-800/80">
-      <Document
-        file={fileUrl}
-        onLoadSuccess={({ numPages }) => {
-          setNumPages(numPages);
-          setLoading(false);
-        }}
-        onLoadError={(err) => {
-          console.error("PDF load error:", err);
-          setError(err.message || "Failed to load PDF");
-          setLoading(false);
-        }}
-        loading={<div className="py-8 text-xs font-bold text-gray-400 animate-pulse">Loading document pages...</div>}
-        error={<div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>}
-      >
-        {Array.from(new Array(numPages), (el, index) => (
-          <Page
-            key={`page_${index + 1}`}
-            pageNumber={index + 1}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            width={Math.min(window.innerWidth * 0.7, 680)}
-            className="shadow-md rounded-xl overflow-hidden mb-4 bg-white"
-          />
-        ))}
-      </Document>
+      {pdfBlob && (
+        <Document
+          file={pdfBlob}
+          onLoadSuccess={({ numPages }) => {
+            setNumPages(numPages);
+          }}
+          onLoadError={(err) => {
+            console.error("PDF load error:", err);
+            setError(err.message || "Failed to load PDF");
+          }}
+          loading={<div className="py-8 text-xs font-bold text-gray-400 animate-pulse">Initializing renderer...</div>}
+          error={<div className="py-8 text-xs font-bold text-red-500">Failed to render PDF: {error}</div>}
+        >
+          {Array.from(new Array(numPages), (el, index) => (
+            <Page
+              key={`page_${index + 1}`}
+              pageNumber={index + 1}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              width={Math.min(window.innerWidth * 0.7, 680)}
+              className="shadow-md rounded-xl overflow-hidden mb-4 bg-white"
+            />
+          ))}
+        </Document>
+      )}
     </div>
   );
 }

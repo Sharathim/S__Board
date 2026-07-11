@@ -245,4 +245,3 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
     </>
   );
 }
-}

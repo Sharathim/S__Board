@@ -373,59 +373,6 @@ export function TopBar() {
           </div>
 
         </div>
-
-        {/* User Profile Card (Bottom of Drawer, mt-auto keeps it anchored) */}
-        <div
-          className="profile-section-card stagger-item mt-auto"
-          style={{
-            transitionDelay: `${(navItems.length + 2) * 40}ms`,
-            transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
-            opacity: drawerOpen ? 1 : 0,
-          }}
-        >
-          <div className="flex items-center gap-3.5">
-            
-            {/* Profile Image/Initials */}
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-base font-black text-white shadow-md overflow-hidden flex-shrink-0"
-              style={{
-                background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
-              }}
-            >
-              {user?.profile_picture ? (
-                <img
-                  src={user.profile_picture}
-                  alt={user?.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                getInitials(user?.name)
-              )}
-            </div>
-
-            {/* User details */}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold truncate text-gray-900 dark:text-white">
-                {user?.name}
-              </p>
-              <p className="text-xs truncate text-gray-500 dark:text-gray-400 mt-0.5">
-                {user?.email}
-              </p>
-              <span
-                className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-md mt-2"
-                style={{
-                  background: roleColors.light,
-                  color: roleColors.text,
-                }}
-              >
-                <Sparkles className="w-2.5 h-2.5" />
-                {getRoleLabel(user?.role)}
-              </span>
-            </div>
-
-          </div>
-        </div>
-
       </div>
 
       {/* Logout confirmation Dialog */}
