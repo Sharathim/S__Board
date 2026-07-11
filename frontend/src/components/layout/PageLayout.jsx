@@ -17,7 +17,7 @@ export default function PageLayout() {
 
   return (
     <TransitionProvider pageContentRef={pageContentRef}>
-      <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#fbfbff] dark:bg-[#001229] transition-colors duration-300">
+      <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[#FAFAFA] dark:bg-[#001229] transition-colors duration-300">
 
         {/* Floating Navbar */}
         <div className="relative z-50">

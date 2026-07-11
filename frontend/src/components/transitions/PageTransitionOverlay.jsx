@@ -35,7 +35,7 @@ export default function PageTransitionOverlay() {
     <div
       ref={overlayRef}
       className={`fixed inset-0 z-[9999] flex items-center justify-center transition-colors duration-300 ${transitionMode === "PORTAL"
-          ? "bg-[#fbfbff] dark:bg-[#001229]"
+          ? "bg-[#FAFAFA] dark:bg-[#001229]"
           : "pointer-events-none"
         }`}
       style={{ opacity: 0 }}

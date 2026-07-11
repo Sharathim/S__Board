@@ -2,8 +2,8 @@
   "name": "HIVE – Department Management System",
   "short_name": "HIVE",
   "description": "Department Management System",
-  "theme_color": "#fbfbff",
-  "background_color": "#fbfbff",
+  "theme_color": "#FAFAFA",
+  "background_color": "#FAFAFA",
   "color_scheme_dark": {
     "theme_color": "#001229",
     "background_color": "#001229"

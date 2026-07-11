@@ -10,7 +10,7 @@ const FEATURES = [
 
 export function HeroSection() {
   return (
-    <section className="relative h-screen bg-[#fbfbff] dark:bg-[#001229] overflow-hidden pt-[72px] flex items-center transition-colors duration-300">
+    <section className="relative h-screen bg-[#FAFAFA] dark:bg-[#001229] overflow-hidden pt-[72px] flex items-center transition-colors duration-300">
 
       {/* ── Ambient blobs ── */}
       <div className="absolute top-16 right-0 w-[400px] h-[400px] rounded-full bg-primary-50/50 blur-3xl pointer-events-none" aria-hidden="true" />

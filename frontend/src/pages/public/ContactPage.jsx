@@ -127,7 +127,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfbff] dark:bg-[#001229] text-slate-800 font-sans pt-[72px] selection:bg-indigo-500 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#001229] text-slate-800 font-sans pt-[72px] selection:bg-indigo-500 selection:text-white transition-colors duration-300">
 
       {/* ── Ambient backgrounds ── */}
       <div className="absolute top-0 inset-x-0 h-[480px] bg-gradient-to-b from-indigo-50/50 via-transparent to-transparent pointer-events-none" />

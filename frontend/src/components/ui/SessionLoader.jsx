@@ -116,7 +116,7 @@ export function SessionLoader() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#fbfbff] dark:bg-[#001229] overflow-hidden transition-colors duration-300"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAFAFA] dark:bg-[#001229] overflow-hidden transition-colors duration-300"
       style={{ opacity: 0 }}
     >
       {/* Background Particles */}

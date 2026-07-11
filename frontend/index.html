@@ -21,7 +21,7 @@
           document.documentElement.classList.remove("dark");
         }
         
-        var themeColor = isDark ? "#001229" : "#fbfbff";
+        var themeColor = isDark ? "#001229" : "#FAFAFA";
         
         var meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');
@@ -32,7 +32,7 @@
           mutations.forEach(function(mutation) {
             if (mutation.attributeName === 'class') {
               var currentDark = document.documentElement.classList.contains('dark');
-              var color = currentDark ? "#001229" : "#fbfbff";
+              var color = currentDark ? "#001229" : "#FAFAFA";
               var m = document.querySelector('meta[name="theme-color"]');
               if (m) {
                 m.setAttribute("content", color);
