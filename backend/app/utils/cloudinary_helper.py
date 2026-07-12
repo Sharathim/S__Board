@@ -49,8 +49,12 @@ def upload_file(file, folder="dpms"):
     
     ext_lower = ext.lower().lstrip('.')
     is_office_doc = ext_lower in {"ppt", "pptx", "doc", "docx"}
+    is_pdf = ext_lower == "pdf"
     
-    if is_office_doc:
+    if is_pdf:
+        public_id = f"{clean_name}_{unique_suffix}"
+        res_type = "image"
+    elif is_office_doc:
         public_id = f"{clean_name}_{unique_suffix}{ext.lower()}"
         res_type = "raw"
     else:
