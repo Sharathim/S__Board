@@ -343,7 +343,7 @@ export default function FacultyPage() {
           {/* HOD only: Invite toggle "Faculty Invite" */}
           {isHOD && invite && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 px-1">Faculty Registration</span>
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 px-1">+ Faculty</span>
               <Switch
                 checked={invite.is_active}
                 onChange={() => toggleInviteMutation.mutate()}

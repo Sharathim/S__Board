@@ -295,7 +295,7 @@ export default function ClassesPage() {
           {/* HOD only: Student registration toggle "Student Invite" */}
           {isHOD && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
-              <span className="text-xs font-bold text-gray-550 dark:text-gray-400 px-1">Student Registration</span>
+              <span className="text-xs font-bold text-gray-550 dark:text-gray-400 px-1">+Student</span>
               <Switch
                 checked={regOpen}
                 onChange={() => toggleRegMutation.mutate()}
