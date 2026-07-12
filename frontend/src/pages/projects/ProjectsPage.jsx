@@ -31,7 +31,7 @@ import {
 import { format } from "date-fns";
 
 const statusOptions = [
-  { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
+  { value: "IN_PROGRESS", label: "In Progress", color: "#F4B315" },
   { value: "NOT_STARTED", label: "Not Started", color: "#9ca3af" },
   { value: "REVIEW", label: "Review", color: "#f97316" },
   { value: "COMPLETED", label: "Completed", color: "#10b981" },
@@ -40,7 +40,7 @@ const statusOptions = [
 ];
 
 const filterStatusOptions = [
-  { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
+  { value: "IN_PROGRESS", label: "In Progress", color: "#F4B315" },
   { value: "COMPLETED", label: "Completed", color: "#10b981" },
 ];
 

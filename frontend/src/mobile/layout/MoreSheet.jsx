@@ -34,8 +34,8 @@ export default function MoreSheet({ open, onClose }) {
   };
 
   const roleColors = {
-    HOD: { from: "#7C3AED", to: "#5B21B6", light: "#EDE9FE", text: "#6D28D9" },
-    FACULTY: { from: "#3B82F6", to: "#1D4ED8", light: "#DBEAFE", text: "#1D4ED8" },
+    HOD: { from: "#F4B315", to: "#8E5915", light: "#FFFDF2", text: "#8E5915" },
+    FACULTY: { from: "#E59312", to: "#D3AF85", light: "#FCFAF6", text: "#E59312" },
     STUDENT: { from: "#10B981", to: "#059669", light: "#D1FAE5", text: "#059669" },
   };
   const rc = roleColors[user?.role] || roleColors.HOD;
