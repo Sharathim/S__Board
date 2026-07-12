@@ -316,6 +316,18 @@ export function TopBar() {
       {/* ── Side Menu Drawer (Right Panel) ── */}
       <div ref={drawerRef} className={`drawer-container ${drawerOpen ? "open" : ""}`}>
         
+        {/* Drawer Brand Logo */}
+        <div className="absolute top-[22px] left-5 flex items-center gap-3 select-none">
+          <img
+            src="/logo-icon.png"
+            alt="Hive Logo Icon"
+            className="h-9 w-9 object-contain"
+          />
+          <span className="text-lg font-black tracking-tight text-slate-800 dark:text-slate-100">
+            Hive
+          </span>
+        </div>
+
         {/* Close Menu Button */}
         <button
           onClick={() => setDrawerOpen(false)}
@@ -325,8 +337,8 @@ export function TopBar() {
           <X className="w-4.5 h-4.5" />
         </button>
 
-        {/* Content wrapper (non-scrollable layout) */}
-        <div className="flex-1 overflow-hidden pr-1 my-4 flex flex-col justify-between min-h-0 gap-6 mt-12">
+        {/* Content wrapper (scrollable layout) */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin pr-1 my-4 flex flex-col justify-between min-h-0 gap-6 mt-20">
           
           {/* Navigation Items list (Staggered load) */}
           <div className="flex flex-col gap-1.5">

@@ -1317,11 +1317,11 @@ button {
 /* Static Drawer Card Container */
 .drawer-container {
   position: fixed;
-  top: 72px;
+  top: 0;
   bottom: 0;
   left: 0;
   width: 280px;
-  z-index: 90;
+  z-index: 110;
   border-radius: 0;
   padding: 24px 20px 20px 20px;
   display: flex;
@@ -1344,6 +1344,21 @@ button {
 
 .drawer-container.open {
   transform: translateX(0);
+}
+
+/* Custom scrollbar utility for drawer */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
 }
 
 /* Dark Mode Drawer Container */
