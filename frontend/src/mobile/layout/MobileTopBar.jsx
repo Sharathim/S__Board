@@ -21,8 +21,8 @@ const DETAIL_PATTERNS = ["/projects/", "/classes/"];
 
 function getRoleColor(role) {
   const map = {
-    HOD: { from: "#F4B315", to: "#8E5915" },
-    FACULTY: { from: "#E59312", to: "#D3AF85" },
+    HOD: { from: "#7C3AED", to: "#5B21B6" },
+    FACULTY: { from: "#3B82F6", to: "#1D4ED8" },
     STUDENT: { from: "#10B981", to: "#059669" },
   };
   return map[role] || map.HOD;
