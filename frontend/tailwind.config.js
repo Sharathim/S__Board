@@ -70,7 +70,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Manrope", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Inter", "Manrope", "system-ui", "-apple-system", "sans-serif"],
         mono: ["JetBrains Mono", "Roboto Mono", "monospace"],
       },
       borderRadius: {
