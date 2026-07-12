@@ -22,7 +22,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   MessageSquare, Heart, Trash2, Crown, Image,
   X, Search, Edit2, Clock, AlertCircle,
-  CheckCircle2, Users, Plus, Calendar, Share2, Copy, UserPlus
+  CheckCircle2, Users, Plus, Calendar, Share2, Copy, UserPlus, MoreVertical
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -48,6 +48,8 @@ function formatPostTime(dateString) {
   }
 }
 
+import { useNavigate } from "react-router-dom";
+
 function parseForumPostContent(content = "") {
   if (!content) return { title: "", body: "" };
   const lines = content.split("\n").map(l => l.trim()).filter(Boolean);
@@ -55,6 +57,55 @@ function parseForumPostContent(content = "") {
     return { title: lines[0], body: lines.slice(1).join("\n") };
   }
   return { title: "", body: content };
+}
+
+function ForumPostKebab({ post, isAuthor, isHOD, onEdit, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
+  const canEdit = isAuthor && isWithinEditWindow;
+  const canDelete = isAuthor || isHOD;
+
+  if (!canEdit && !canDelete) return null;
+
+  return (
+    <div ref={ref} className="relative shrink-0" onClick={e => e.stopPropagation()}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+      >
+        <MoreVertical className="w-4.5 h-4.5" />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1 z-50 w-32 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 animate-fade-in">
+          {canEdit && (
+            <button
+              onClick={() => { setOpen(false); onEdit(post); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            >
+              <Edit2 className="w-3.5 h-3.5 text-amber-500" /> Edit
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={() => { setOpen(false); onDelete(post); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function ForumPage() {
@@ -89,7 +140,14 @@ export default function ForumPage() {
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const canPost = user?.student?.is_forum_member === true;
+  const navigate = useNavigate();
+  const [postTitle, setPostTitle] = useState("");
+  const [postTags, setPostTags] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editTags, setEditTags] = useState("");
+
+  const isForumMember = isHOD || user?.role === "FACULTY" || user?.student?.is_forum_member === true;
+  const canPost = isForumMember;
 
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ["forum-members"],
@@ -149,6 +207,8 @@ export default function ForumPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
       setNewPost("");
+      setPostTitle("");
+      setPostTags("");
       setSelectedFiles([]);
       setFilePreviews([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -158,11 +218,13 @@ export default function ForumPage() {
   });
 
   const editMutation = useMutation({
-    mutationFn: ({ id, content }) => editForumPost(id, { content }),
+    mutationFn: ({ id, content, title, tags }) => editForumPost(id, { content, title, tags }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
       setEditTarget(null);
       setEditContent("");
+      setEditTitle("");
+      setEditTags("");
       showSuccess("Post updated successfully!");
     },
     onError: (err) => showError(err.response?.data?.error || "Failed to edit post."),
@@ -231,6 +293,12 @@ export default function ForumPage() {
     if (!newPost.trim() && selectedFiles.length === 0) return;
     const formData = new FormData();
     formData.append("content", newPost);
+    if (postTitle.trim()) {
+      formData.append("title", postTitle.trim());
+    }
+    if (postTags.trim()) {
+      formData.append("tags", postTags.trim());
+    }
     selectedFiles.forEach((file) => {
       formData.append("attachment", file);
     });
@@ -239,12 +307,19 @@ export default function ForumPage() {
 
   const handleSaveEdit = () => {
     if (!editContent.trim() || !editTarget) return;
-    editMutation.mutate({ id: editTarget.id, content: editContent });
+    editMutation.mutate({
+      id: editTarget.id,
+      content: editContent,
+      title: editTitle.trim(),
+      tags: editTags.trim(),
+    });
   };
 
   const openEditModal = (post) => {
     setEditTarget(post);
     setEditContent(post.content || "");
+    setEditTitle(post.title || "");
+    setEditTags(post.tags || "");
   };
 
   const memberList = members || [];
@@ -372,248 +447,149 @@ export default function ForumPage() {
       )}
 
       {/* Redesigned Header Row */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Forum</h1>
-          {/* Vibrant, glittering count icon */}
-          <button
-            onClick={() => setShowMembersModal(true)}
-            className="glitter-btn w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-white bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 hover:scale-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(139,92,246,0.5)] shrink-0"
-            title="View Forum Directory"
-          >
-            {memberList.length}
-          </button>
         </div>
 
         {/* Header End Actions */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowMembersModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-750 dark:text-gray-200 text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0 cursor-pointer"
+          >
+            <Users className="w-4 h-4 text-violet-500" /> Roster
+          </button>
           {isHOD && (
             <button
               onClick={() => setPickerOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 hover:shadow-violet-500/20 hover:-translate-y-0.5 active:translate-y-0 border border-violet-500/20 active:scale-95 shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0 cursor-pointer"
             >
               <UserPlus className="w-4 h-4" /> Add Member
-            </button>
-          )}
-          {canPost && (
-            <button
-              onClick={() => setPostModalOpen(true)}
-              className="lg:hidden inline-flex items-center gap-1.5 px-3.5 py-1.8 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all shadow-md active:scale-95 shrink-0"
-            >
-              <Plus className="w-3.5 h-3.5" /> Post
             </button>
           )}
         </div>
       </div>
 
-      {/* Main Grid Layout: Feed left, Sidebar right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      {/* Centered Forum Feed Layout (No Sidebar) */}
+      <div className="max-w-[1000px] mx-auto space-y-5">
         
-        {/* Left column: Feed */}
-        <div className="lg:col-span-2 space-y-5">
-          
-          {/* Post Search Bar */}
-          <div className="relative flex items-center">
-            <Search className="absolute left-3.5 w-4 h-4 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search posts by content or author..."
-              value={postSearchQuery}
-              onChange={(e) => setPostSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
-            />
-            {postSearchQuery && (
-              <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 text-gray-400 hover:text-gray-600">
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Inline Feed Post Composer */}
-          {canPost && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm space-y-3">
-              <div className="flex gap-3">
-                <Avatar
-                  src={user?.profile_picture}
-                  name={user?.name}
-                  size="sm"
-                  className="shrink-0 w-8 h-8 ring-2 ring-violet-500/10"
-                />
-                <div className="flex-1">
-                  <textarea
-                    value={newPost}
-                    onChange={(e) => setNewPost(e.target.value)}
-                    placeholder="Share something with the department forum..."
-                    rows={newPost.trim() || selectedFiles.length > 0 ? 3 : 1}
-                    className="w-full p-2.5 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
-                  />
-                </div>
-              </div>
-
-              {/* Upload Previews */}
-              {filePreviews.length > 0 && (
-                <div className="grid grid-cols-3 gap-2.5 pl-11">
-                  {filePreviews.map((preview, idx) => (
-                    <div key={idx} className="relative rounded-xl border border-gray-155 dark:border-gray-700 overflow-hidden h-16 bg-gray-50 dark:bg-gray-900/30 animate-fade-in group">
-                      <img src={preview} alt="preview" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeFile(idx)}
-                        className="absolute top-1 right-1 p-0.5 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Actions Row */}
-              <div className="flex items-center justify-between pl-11 pt-2.5 border-t border-slate-100 dark:border-slate-800/40">
-                <div>
-                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-805 transition-all"
-                  >
-                    <Image className="w-3.5 h-3.5 text-violet-500" />
-                    Add Image
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {(newPost.trim() || selectedFiles.length > 0) && (
-                    <button
-                      type="button"
-                      onClick={() => { setNewPost(""); setSelectedFiles([]); setFilePreviews([]); }}
-                      className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-750 text-[11px] font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                    >
-                      Clear
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={handlePublish}
-                    disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
-                    className="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-700 hover:to-indigo-700 text-white text-[11px] font-bold transition-all shadow-sm disabled:opacity-50"
-                  >
-                    {createMutation.isPending ? "Publishing..." : "Publish Post"}
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Post Search Bar */}
+        <div className="relative flex items-center">
+          <Search className="absolute left-3.5 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search posts by content, title, tags or author..."
+            value={postSearchQuery}
+            onChange={(e) => setPostSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
+          />
+          {postSearchQuery && (
+            <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 text-gray-450 hover:text-gray-600">
+              <X className="w-4 h-4" />
+            </button>
           )}
+        </div>
 
-          {/* Posts Feed Area */}
-          <div className="space-y-4">
-            {postsByDay.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
-                <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3 border border-gray-100 dark:border-gray-700/40">
-                  <MessageSquare className="w-6 h-6 text-gray-300 dark:text-gray-600" />
-                </div>
-                <h4 className="text-xs font-bold text-gray-700 dark:text-gray-350">No posts matched search</h4>
-                <p className="text-[11px] text-gray-400 mt-0.5 max-w-xs">
-                  Try adjusting your search queries or share a new post!
-                </p>
+        {/* Posts Feed Area */}
+        <div className="space-y-4">
+          {postsByDay.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3 border border-gray-100 dark:border-gray-700/40">
+                <MessageSquare className="w-6 h-6 text-gray-300 dark:text-gray-600" />
               </div>
-            ) : (
-              postsByDay.map((group) => (
-                <div key={group.dateString} className="space-y-3">
+              <h4 className="text-xs font-bold text-gray-700 dark:text-gray-350">No posts matched search</h4>
+              <p className="text-[11px] text-gray-400 mt-0.5 max-w-xs">
+                Try adjusting your search queries or share a new post!
+              </p>
+            </div>
+          ) : (
+            postsByDay.map((group) => (
+              <div key={group.dateString} className="space-y-3">
+                
+                {/* Clean Date Divider */}
+                <div className="flex items-center gap-3 my-4">
+                  <span className="text-[9px] font-black tracking-widest text-gray-400 dark:text-gray-505 uppercase flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-slate-950/20 py-0.8 px-3 rounded-full border border-gray-200/40 dark:border-slate-800/20">
+                    <Calendar className="w-3 h-3 text-violet-500" />
+                    {group.dateString}
+                  </span>
+                </div>
+
+                {/* Individual Post Cards */}
+                {group.posts.map((post) => {
+                  const isAuthor = post.posted_by?.id === user?.id;
+                  const displayTitle = post.title;
+                  const displayTags = post.tags ? post.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
                   
-                  {/* Clean Date Divider */}
-                  <div className="flex items-center gap-3 my-4">
-                    <span className="text-[9px] font-black tracking-widest text-gray-400 dark:text-gray-505 uppercase flex items-center gap-1 shrink-0 bg-gray-55 dark:bg-slate-950/20 py-0.8 px-3 rounded-full border border-gray-200/40 dark:border-slate-800/20">
-                      <Calendar className="w-3 h-3 text-violet-500" />
-                      {group.dateString}
-                    </span>
-                    <div className="h-[1px] w-full bg-gray-150 dark:bg-slate-800/30" />
-                  </div>
+                  const { body } = parseForumPostContent(post.content);
+                  const isExpanded = !!expandedPostIds[post.id];
+                  const hasLongBody = body.length > 220;
+                  
+                  const urls = post.attachment_url ? post.attachment_url.split(',').filter(Boolean) : [];
 
-                  {/* Individual Post Cards (RESTYLED: COMPACT DESIGN) */}
-                  {group.posts.map((post) => {
-                    const isAuthor = post.posted_by?.id === user?.id;
-                    const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
-                    const canEdit = isAuthor && isWithinEditWindow;
-                    const canDelete = isAuthor || isHOD;
-                    
-                    const { title, body } = parseForumPostContent(post.content);
-                    const isExpanded = !!expandedPostIds[post.id];
-                    const hasLongBody = body.length > 220;
-                    
-                    const urls = post.attachment_url ? post.attachment_url.split(',').filter(Boolean) : [];
-
-                    return (
-                      <div
-                        key={post.id}
-                        className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/70 shadow-[0_1px_8px_rgba(30,50,80,0.02)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] space-y-2.5 hover:border-violet-200 dark:hover:border-violet-850/40 hover:shadow-[0_4px_16px_rgba(139,92,246,0.04)] transition-all duration-200"
-                      >
-                        {/* Post Header (Author info + actions) */}
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            <Avatar
-                              src={post.posted_by?.profile_picture}
-                              name={post.posted_by?.name}
-                              size="xs"
-                              className="ring-2 ring-slate-50 dark:ring-slate-800 shrink-0 w-7 h-7"
-                            />
-                            <div>
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">
-                                  {post.posted_by?.name}
+                  return (
+                    <div
+                      key={post.id}
+                      className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/70 shadow-[0_1px_8px_rgba(30,50,80,0.02)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] space-y-3 hover:border-violet-200 dark:hover:border-violet-850/40 hover:shadow-[0_4px_24px_rgba(139,92,246,0.05)] transition-all duration-200"
+                    >
+                      {/* Post Header (Author info + actions) */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <Avatar
+                            src={post.posted_by?.profile_picture}
+                            name={post.posted_by?.name}
+                            size="xs"
+                            className="ring-2 ring-slate-50 dark:ring-slate-800 shrink-0 w-7 h-7"
+                          />
+                          <div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">
+                                {post.posted_by?.name}
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {post.posted_by?.forum_role || post.posted_by?.role}
+                              </span>
+                              {isAuthor && (
+                                <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
+                                  You
                                 </span>
-                                <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                  {post.posted_by?.role}
+                              )}
+                              {post.is_edited && (
+                                <span className="text-[8px] font-semibold px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                                  Edited
                                 </span>
-                                {isAuthor && (
-                                  <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
-                                    You
-                                  </span>
-                                )}
-                                {post.is_edited && (
-                                  <span className="text-[8px] font-semibold px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
-                                    Edited
-                                  </span>
-                                )}
-                                <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 ml-1">
+                              )}
+                              <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 ml-1">
                                   <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                  {formatPostTime(post.created_at)}
-                                </span>
-                              </div>
+                                {formatPostTime(post.created_at)}
+                              </span>
                             </div>
                           </div>
-
-                          {/* Actions (Edit / Delete) */}
-                          {(canEdit || canDelete) && (
-                            <div className="flex items-center gap-0.5">
-                              {canEdit && (
-                                <button
-                                  onClick={() => openEditModal(post)}
-                                  className="p-1 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all"
-                                  title="Edit post (30 min window)"
-                                >
-                                  <Edit2 className="w-3 h-3" />
-                                </button>
-                              )}
-                              {canDelete && (
-                                <button
-                                  onClick={() => setDeleteTarget(post)}
-                                  className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                                  title="Delete post"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              )}
-                            </div>
-                          )}
                         </div>
 
+                        {/* Kebab menu on the right - only for forum members */}
+                        {isForumMember && (
+                          <ForumPostKebab
+                            post={post}
+                            isAuthor={isAuthor}
+                            isHOD={isHOD}
+                            onEdit={openEditModal}
+                            onDelete={setDeleteTarget}
+                          />
+                        )}
+                      </div>
+
+                      {/* Clickable Area for Post Detail Page */}
+                      <div
+                        onClick={() => navigate(`/forum/post/${post.id}`)}
+                        className="cursor-pointer space-y-2.5"
+                      >
                         {/* Split Content: Text Left, Thumbnail Right (Compact Space Saving) */}
                         <div className="flex gap-4 items-start justify-between">
-                          <div className="flex-1 min-w-0 space-y-1">
-                            {title && (
-                              <h3 className="text-xs font-bold text-gray-900 dark:text-white leading-snug">
-                                {title}
+                          <div className="flex-1 min-w-0 space-y-1.5">
+                            {displayTitle && (
+                              <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug group-hover:text-primary transition-colors">
+                                {displayTitle}
                               </h3>
                             )}
                             <p className="text-xs text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
@@ -621,18 +597,29 @@ export default function ForumPage() {
                               {hasLongBody && (
                                 <button
                                   type="button"
-                                  onClick={() => toggleExpandPost(post.id)}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpandPost(post.id); }}
                                   className="text-violet-650 dark:text-violet-400 font-bold ml-1 hover:underline focus:outline-none"
                                 >
                                   {isExpanded ? "Show Less" : "Read More"}
                                 </button>
                               )}
                             </p>
+                            
+                            {/* Display Tags */}
+                            {displayTags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pt-1">
+                                {displayTags.map(tag => (
+                                  <span key={tag} className="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/20">
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           {/* Image Attachment (Desktop Side-by-Side Thumbnail) */}
                           {urls.length > 0 && (
-                            <div className="shrink-0 animate-fade-in">
+                            <div className="shrink-0 animate-fade-in" onClick={e => e.stopPropagation()}>
                               <div 
                                 className="relative w-40 h-24 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 cursor-pointer shadow-sm hover:scale-[1.01] hover:brightness-95 transition-all group"
                                 onClick={() => handleOpenLightbox(urls, 0)}
@@ -651,143 +638,61 @@ export default function ForumPage() {
                             </div>
                           )}
                         </div>
+                      </div>
 
-                        {/* Card footer */}
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/40 mt-1 text-slate-400">
-                          <div className="flex items-center gap-5">
-                            <button
-                              onClick={() => likeMutation.mutate(post.id)}
-                              className={`group/like inline-flex items-center gap-1 text-[11px] font-semibold py-1 transition-all ${post.liked
-                                ? "text-rose-500"
-                                : "text-gray-400 hover:text-rose-500"
-                                }`}
-                            >
-                              <Heart
-                                className={`w-3.5 h-3.5 transition-all group-active/like:scale-120 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                              />
-                              <span>{post.like_count || 0}</span>
-                            </button>
-
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400">
-                              <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
-                              <span>0</span>
-                            </span>
-                          </div>
-
+                      {/* Card footer */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/40 mt-1 text-slate-400">
+                        <div className="flex items-center gap-5">
                           <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/forum#post-${post.id}`);
-                              showSuccess("Link copied to clipboard!");
-                            }}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-405 hover:text-indigo-650 transition-colors"
-                            title="Copy link to post"
+                            onClick={() => likeMutation.mutate(post.id)}
+                            className={`group/like inline-flex items-center gap-1 text-[11px] font-semibold py-1 transition-all ${post.liked
+                              ? "text-rose-500"
+                              : "text-gray-400 hover:text-rose-500"
+                              }`}
                           >
-                            <Share2 className="w-3.5 h-3.5" />
-                            <span>Share</span>
+                            <Heart
+                              className={`w-3.5 h-3.5 transition-all group-active/like:scale-120 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
+                            />
+                            <span>{post.like_count || 0}</span>
                           </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
 
-        {/* Right column: Sticky Sidebar (Directory, Quick management) */}
-        <div className="lg:col-span-1 space-y-5 lg:sticky lg:top-24">
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800/80 pb-2.5">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-violet-500" />
-                <h2 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Forum Roster</h2>
-              </div>
-              <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-655 dark:text-violet-405">
-                {memberList.length}
-              </span>
-            </div>
-
-            {/* Inline Quick Add Roster */}
-            {isHOD && (
-              <button
-                onClick={() => setPickerOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 hover:shadow-violet-500/20 hover:-translate-y-0.5 active:translate-y-0 border border-violet-500/20 active:scale-95"
-              >
-                <UserPlus className="w-4 h-4" /> Add Forum Member
-              </button>
-            )}
-
-            {/* Roster Search Bar */}
-            <div className="relative flex items-center">
-              <Search className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search forum members..."
-                value={memberSearchQuery}
-                onChange={(e) => setMemberSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-9 py-1.5 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
-              />
-              {memberSearchQuery && (
-                <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 text-gray-405 hover:text-gray-650">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Roster Members List (Sidebar view) */}
-            <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
-              {filteredMembers.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-5 italic">No members found</p>
-              ) : (
-                filteredMembers.map(m => (
-                  <div
-                    key={m.id}
-                    className="flex items-center justify-between gap-2.5 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/20 hover:bg-gray-100/80 dark:hover:bg-gray-805 transition-all border border-gray-100/60 dark:border-gray-850/10"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-1 ring-gray-100 dark:ring-gray-800 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wide">
-                            {m.class_name?.replace("_", " ")}
-                          </span>
-                          <span className="text-[8px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.5 rounded">
-                            {m.role}
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400">
+                            <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
+                            <span>0</span>
                           </span>
                         </div>
-                      </div>
-                    </div>
 
-                    {isHOD && (
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        <div className="flex items-center gap-1 mr-1">
-                          <Switch
-                            checked={m.is_update_coordinator}
-                            onChange={() => coordMutation.mutate(m.id)}
-                            loading={coordMutation.isPending}
-                            size="sm"
-                          />
-                        </div>
                         <button
-                          onClick={() => removeMutation.mutate(m.id)}
-                          disabled={removeMutation.isPending}
-                          className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                          title="Remove member"
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/forum/post/${post.id}`);
+                            showSuccess("Link copied to clipboard!");
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 hover:text-indigo-650 transition-colors"
+                          title="Copy link to post"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>Share</span>
                         </button>
                       </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))
+          )}
         </div>
-
       </div>
+
+      {/* Floating Plus Button for Forum Members to Post */}
+      {canPost && (
+        <button
+          onClick={() => setPostModalOpen(true)}
+          className="fixed bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          title="Create Forum Post"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
 
       {/* ── Add Member Picker ── */}
       <SearchPicker
@@ -825,13 +730,22 @@ export default function ForumPage() {
                     setCustomRole("");
                   }
                 }}
-                className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
               >
                 <option value="President">President</option>
                 <option value="Vice President">Vice President</option>
-                <option value="Treasurer">Treasurer</option>
                 <option value="Secretary">Secretary</option>
-                <option value="Custom">Custom Designation...</option>
+                <option value="Joint Secretary">Joint Secretary</option>
+                <option value="Media Secretary">Media Secretary</option>
+                <option value="Technical Head">Technical Head</option>
+                <option value="Technical Coordinator">Technical Coordinator</option>
+                <option value="Cultural Secretary">Cultural Secretary</option>
+                <option value="Sports Secretary">Sports Secretary</option>
+                <option value="Treasurer">Treasurer</option>
+                <option value="Executive Member">Executive Member</option>
+                <option value="Discipline Coordinator">Discipline Coordinator</option>
+                <option value="Placement Coordinator">Placement Coordinator</option>
+                <option value="Custom">Custom Role...</option>
               </select>
             </div>
 
@@ -875,10 +789,9 @@ export default function ForumPage() {
           </div>
         </Modal>
       )}
-
       {/* ── Members Directory Modal ── */}
-      <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory">
-        <div className="space-y-4 pt-1">
+      <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory" size="lg">
+        <div className="space-y-5 pt-1">
           {/* Member Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -887,57 +800,78 @@ export default function ForumPage() {
               placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-105 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
             />
             {memberSearchQuery && (
-              <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-655">
+              <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-405 hover:text-gray-650">
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Members List */}
-          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+          {/* Members List (Fancy Grid) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-1">
             {filteredMembers.length === 0 ? (
-              <p className="text-xs text-gray-400 text-center py-8 italic">No matching members found</p>
+              <div className="col-span-2 text-center py-10">
+                <p className="text-xs text-gray-450 italic">No matching members found</p>
+              </div>
             ) : (
-              filteredMembers.map(m => (
-                <div
-                  key={m.id}
-                  className="flex items-center justify-between gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-gray-100 dark:border-gray-700/40"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-gray-100 dark:ring-gray-700 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
-                      <p className="text-[10px] text-gray-505 dark:text-gray-400 mt-1">
-                        Class: <span className="font-semibold text-gray-750 dark:text-gray-300">{m.class_name?.replace("_", " ")}</span> · Role: <span className="font-semibold text-gray-750 dark:text-gray-300">{m.role}</span>
-                      </p>
-                    </div>
-                  </div>
-                  {isHOD && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <div className="flex items-center gap-1.5 mr-2">
-                        <span className="text-[10px] text-gray-450 dark:text-gray-500 font-semibold">Coord</span>
-                        <Switch
-                          checked={m.is_update_coordinator}
-                          onChange={() => coordMutation.mutate(m.id)}
-                          loading={coordMutation.isPending}
-                          size="sm"
-                        />
+              filteredMembers.map(m => {
+                const isLeader = m.role?.toLowerCase() === "president" || m.role?.toLowerCase() === "vice president";
+                return (
+                  <div
+                    key={m.id}
+                    className={`relative flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-white to-gray-50/30 dark:from-gray-800 dark:to-gray-800/60 border border-gray-150 dark:border-gray-700/60 shadow-sm hover:shadow-md hover:border-violet-300 dark:hover:border-violet-900/40 transition-all ${
+                      isLeader ? "ring-2 ring-violet-500/25" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative">
+                        <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-violet-500/10 shrink-0" />
+                        {isLeader && (
+                          <div className="absolute -top-1.5 -left-1.5 bg-amber-500 text-white rounded-full p-0.5 shadow-sm">
+                            <Crown className="w-2.5 h-2.5" />
+                          </div>
+                        )}
                       </div>
-                      <button
-                        onClick={() => removeMutation.mutate(m.id)}
-                        disabled={removeMutation.isPending}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-505 hover:bg-red-55 transition-colors"
-                        title="Remove member"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight flex items-center gap-1.5">
+                          {m.name}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-55/60 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-900/20">
+                            {m.role}
+                          </span>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700/80 text-gray-500 dark:text-gray-300">
+                            {m.class_name?.replace("_", " ")}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
+                    {isHOD && (
+                      <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className="text-[8px] text-gray-400 dark:text-gray-500 font-bold uppercase">Coord</span>
+                          <Switch
+                            checked={m.is_update_coordinator}
+                            onChange={() => coordMutation.mutate(m.id)}
+                            loading={coordMutation.isPending}
+                            size="sm"
+                          />
+                        </div>
+                        <button
+                          onClick={() => removeMutation.mutate(m.id)}
+                          disabled={removeMutation.isPending}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          title="Remove member"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
@@ -954,19 +888,44 @@ export default function ForumPage() {
             </div>
           </div>
 
-          <textarea
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-            placeholder="Share something with the forum..."
-            rows={4}
-            className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-101 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none leading-relaxed"
-          />
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Title</label>
+            <input
+              type="text"
+              placeholder="Give your post a title..."
+              value={postTitle}
+              onChange={(e) => setPostTitle(e.target.value)}
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Description</label>
+            <textarea
+              value={newPost}
+              onChange={(e) => setNewPost(e.target.value)}
+              placeholder="Share something with the forum..."
+              rows={4}
+              className="w-full p-3 text-xs rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 resize-none leading-relaxed"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Tags (optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. academic, events, announcements (comma separated)"
+              value={postTags}
+              onChange={(e) => setPostTags(e.target.value)}
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+            />
+          </div>
 
           {/* Previews */}
           {filePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {filePreviews.map((preview, idx) => (
-                <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-20 bg-gray-50 dark:bg-gray-900/30 animate-fade-in">
+                <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-20 bg-gray-55 dark:bg-gray-900/30 animate-fade-in">
                   <img src={preview} alt="preview" className="w-full h-full object-cover" />
                   <button
                     type="button"
@@ -985,7 +944,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-505 hover:text-gray-700 dark:hover:text-gray-305 hover:bg-gray-55 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-305 hover:bg-gray-50 transition-all cursor-pointer"
             >
               <Image className="w-3.5 h-3.5 text-violet-500" />
               Add Image
@@ -996,7 +955,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }}
-              className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -1007,7 +966,7 @@ export default function ForumPage() {
                 setPostModalOpen(false);
               }}
               disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-650 to-indigo-650 hover:from-violet-750 hover:to-indigo-750 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-750 hover:to-indigo-755 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60 cursor-pointer"
             >
               {createMutation.isPending ? "Publishing..." : "Publish Post"}
             </button>
@@ -1018,24 +977,50 @@ export default function ForumPage() {
       {/* ── Edit Post Modal ── */}
       <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit Forum Post">
         <div className="space-y-4 pt-1">
-          <textarea
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            rows={5}
-            className="w-full p-4 text-sm rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-101 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all resize-none"
-            placeholder="Edit your post..."
-          />
-          <div className="flex gap-3">
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Title</label>
+            <input
+              type="text"
+              placeholder="Give your post a title..."
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Description</label>
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              rows={5}
+              className="w-full p-4 text-xs rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all resize-none leading-relaxed"
+              placeholder="Edit your post..."
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-widest">Tags (optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. academic, events, announcements (comma separated)"
+              value={editTags}
+              onChange={(e) => setEditTags(e.target.value)}
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-1">
             <button
               onClick={() => setEditTarget(null)}
-              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveEdit}
               disabled={editMutation.isPending || !editContent.trim()}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60 cursor-pointer"
             >
               {editMutation.isPending ? "Saving..." : "Save Changes"}
             </button>

@@ -326,7 +326,7 @@ export default function UpdatesPage() {
 
   // isUpdateCoordinator check: only flagged faculty or students in the coordinators list
   const isUpdateCoordinator = user?.faculty?.is_update_coordinator
-    || (user?.role === "STUDENT" && (coordData?.coordinators || []).some(c => c.name === user?.name));
+    || (user?.role === "STUDENT" && ((coordData?.coordinators || []).some(c => c.name === user?.name) || user?.student?.forum_role?.toLowerCase() === "media secretary"));
 
   const removeCoordMutation = useMutation({
     mutationFn: ({ kind, refId }) => removeCoordinator(kind, refId),
@@ -563,7 +563,7 @@ export default function UpdatesPage() {
 
       {/* ─── Page Header Row & Actions ─── */}
       {/* Desktop Header Row (Hidden on Mobile) */}
-      <div className="hidden sm:flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
+      <div className="hidden sm:flex items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
         <div className="flex items-center gap-2">
           {/* Coordinator Avatars (Desktop) */}
@@ -681,7 +681,7 @@ export default function UpdatesPage() {
       )}
 
       {/* Filter Bar (Reverse column order on mobile to show search on top of tabs) */}
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-150 dark:border-gray-805 pb-2.5 mt-2 mb-6">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pb-2.5 mt-2 mb-6">
         {/* Filter Tabs (responsive wrapping, no scrolling on mobile) */}
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 shrink-0">
           {[

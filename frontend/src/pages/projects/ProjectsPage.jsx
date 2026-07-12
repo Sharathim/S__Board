@@ -192,42 +192,31 @@ export default function ProjectsPage() {
   const openCreate = () => { setEditProject(null); setModalOpen(true); };
   const openEdit = (p) => { setEditProject(p); setModalOpen(true); };
 
+  const canCreateProject = isHOD || (user?.role === "STUDENT" && user?.student?.forum_role?.toLowerCase() === "placement coordinator");
+
   if (isLoading) return <Spinner />;
   const projects = data?.projects || [];
 
   return (
     <div className="space-y-6">
-      {/* ─── Premium Header ─── */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
-        </div>
-        {isHOD && (
-          <Button onClick={openCreate} className="gap-1 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm">
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">New Project</span>
-            <span className="sm:hidden">Project</span>
-          </Button>
-        )}
-      </div>
-
-      {/* ─── Filters & Actions Dock ─── */}
-      <div className="flex flex-row items-center justify-between gap-2 p-2 rounded-2xl bg-gray-50/50 dark:bg-gray-900/10 border border-gray-200/50 dark:border-gray-800/30 overflow-x-auto no-scrollbar w-full">
-        <div className="flex flex-row items-center gap-2 flex-1 min-w-0">
-          <div className="w-28 xs:w-40 sm:w-64 flex-1">
+      {/* ─── Premium Header & Actions ─── */}
+      <div className="flex flex-row items-center justify-between gap-4 mb-6 flex-wrap">
+        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
+        
+        {/* Filters and switcher in one line */}
+        <div className="flex items-center gap-3">
+          <div className="w-32 sm:w-48">
             <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search..." />
           </div>
-          <div className="shrink-0">
-            <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
-          </div>
+          <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
 
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-200/50 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40 shrink-0">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200/40 dark:border-gray-700/40 shrink-0 h-9">
             <button
               onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-555 hover:text-gray-650 dark:hover:text-gray-400"
+              className={`p-1 rounded-lg transition-all ${viewMode === "grid"
+                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-400 hover:text-gray-650"
                 }`}
               title="Grid View"
             >
@@ -235,9 +224,9 @@ export default function ProjectsPage() {
             </button>
             <button
               onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-400 dark:text-gray-555 hover:text-gray-655 dark:hover:text-gray-400"
+              className={`p-1 rounded-lg transition-all ${viewMode === "list"
+                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-400 hover:text-gray-650"
                 }`}
               title="List View"
             >
@@ -300,7 +289,7 @@ export default function ProjectsPage() {
                         <div onClick={e => e.stopPropagation()}>
                           <ProjectKebab
                             project={project}
-                            isHOD={isHOD}
+                            isHOD={isHOD || canCreateProject}
                             onEdit={openEdit}
                             onDelete={setDeleteTarget}
                           />
@@ -373,7 +362,8 @@ export default function ProjectsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center justify-between mt-1 text-[10px] text-gray-450 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
+                  <div className="flex items-center justify-between mt-1 text-[10px] text-gray-455 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
+                    <span>By: {project.created_by?.name || "Unknown"}</span>
                     <span>Last updated: {format(new Date(project.updated_at), "MMM d, yyyy")}</span>
                   </div>
                 </div>
@@ -476,7 +466,7 @@ export default function ProjectsPage() {
                   <div className="flex justify-end lg:justify-center" onClick={e => e.stopPropagation()}>
                     <ProjectKebab
                       project={project}
-                      isHOD={isHOD}
+                      isHOD={isHOD || canCreateProject}
                       onEdit={openEdit}
                       onDelete={setDeleteTarget}
                     />
@@ -518,6 +508,17 @@ export default function ProjectsPage() {
         confirmText="Delete"
         danger
       />
+
+      {/* Floating Plus Button for Project Creation */}
+      {canCreateProject && (
+        <button
+          onClick={openCreate}
+          className="fixed bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          title="Create New Project"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 }

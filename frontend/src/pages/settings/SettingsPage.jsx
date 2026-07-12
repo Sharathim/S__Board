@@ -85,7 +85,7 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-2xl mx-auto pb-12 animate-fade-in">
 
       {/* Page Header */}
-      <div className="flex items-center justify-between gap-4 border-b border-gray-150 dark:border-gray-800/80 pb-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Settings</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your account and preferences</p>

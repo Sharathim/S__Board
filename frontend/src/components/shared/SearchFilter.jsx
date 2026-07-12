@@ -1,26 +1,26 @@
 import { Search } from "lucide-react";
 
-export function SearchFilter({ value, onChange, placeholder = "Search..." }) {
+export function SearchFilter({ value, onChange, placeholder = "Search...", className = "" }) {
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        className="w-full pl-9 pr-3 h-9 rounded-xl border border-gray-250 dark:border-gray-650 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
       />
     </div>
   );
 }
 
-export function StatusFilter({ value, onChange, options = [] }) {
+export function StatusFilter({ value, onChange, options = [], className = "" }) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
+      className={`px-3 h-9 rounded-xl border border-gray-250 dark:border-gray-650 bg-white dark:bg-gray-800 text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all ${className}`}
     >
       <option value="">All Status</option>
       {options.map(opt => (

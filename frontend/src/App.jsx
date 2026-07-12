@@ -14,6 +14,7 @@ import FacultyPage from "./pages/faculty/FacultyPage";
 import ClassesPage from "./pages/classes/ClassesPage";
 import ClassDetailPage from "./pages/classes/ClassDetailPage";
 import ForumPage from "./pages/forum/ForumPage";
+import ForumPostDetailPage from "./pages/forum/ForumPostDetailPage";
 import ProjectsPage from "./pages/projects/ProjectsPage";
 import ProjectDetailPage from "./pages/projects/ProjectDetailPage";
 import UpdatesPage from "./pages/updates/UpdatesPage";
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="/classes" element={<ClassesPage />} />
           <Route path="/classes/:className" element={<ClassDetailPage />} />
           <Route path="/forum" element={<ForumPage />} />
+          <Route path="/forum/post/:id" element={<ForumPostDetailPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/updates" element={<UpdatesPage />} />

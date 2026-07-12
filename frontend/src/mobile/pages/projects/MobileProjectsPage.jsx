@@ -45,6 +45,7 @@ const getStatusTheme = (status) => {
 export default function MobileProjectsPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
+  const canCreateProject = isHOD || (user?.role === "STUDENT" && user?.student?.forum_role?.toLowerCase() === "placement coordinator");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -260,9 +261,12 @@ export default function MobileProjectsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-gray-400 dark:text-gray-555">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {format(new Date(project.updated_at), "MMM d")}
+                  <div className="flex flex-col items-end text-[10px] font-bold text-gray-400 dark:text-gray-555">
+                    <span>By: {project.created_by?.name || "Unknown"}</span>
+                    <span className="flex items-center gap-1 mt-0.5">
+                      <Calendar className="w-3 h-3" />
+                      {format(new Date(project.updated_at), "MMM d")}
+                    </span>
                   </div>
                 </div>
               </MobileCard>
@@ -271,8 +275,8 @@ export default function MobileProjectsPage() {
         </div>
       )}
 
-      {/* FAB for HOD to open bottom sheet */}
-      {isHOD && <MobileFAB onClick={() => setCreateSheetOpen(true)} icon={Plus} label="Create Project" />}
+      {/* FAB to open bottom sheet */}
+      {canCreateProject && <MobileFAB onClick={() => setCreateSheetOpen(true)} icon={Plus} label="Create Project" />}
 
       {/* Create Project BottomSheet */}
       <BottomSheet

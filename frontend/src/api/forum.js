@@ -15,4 +15,5 @@ export const toggleForumPostLike = (id) => api.post(`/forum/posts/${id}/like`);
 export const deleteForumPost = (id) => api.delete(`/forum/posts/${id}`);
 export const getForumInvite = () => api.get("/forum/invite");
 export const toggleForumInvite = () => api.post("/forum/invite/toggle");
+export const getForumPost = (id) => api.get(`/forum/posts/${id}`);
 

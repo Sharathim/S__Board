@@ -18,6 +18,7 @@ import {
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
 
@@ -38,10 +39,17 @@ function parseForumPostContent(content = "") {
 export default function MobileForumPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
-  const canPost = user?.student?.is_forum_member === true;
+  const isForumMember = isHOD || user?.role === "FACULTY" || user?.student?.is_forum_member === true;
+  const canPost = isForumMember;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [newPost, setNewPost] = useState("");
+  const [postTitle, setPostTitle] = useState("");
+  const [postTags, setPostTags] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editTags, setEditTags] = useState("");
+
   const [postModalOpen, setPostModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [editContent, setEditContent] = useState("");
@@ -91,12 +99,21 @@ export default function MobileForumPage() {
     mutationFn: (data) => createForumPost(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
-      setNewPost(""); setSelectedFiles([]); setFilePreviews([]);
+      setNewPost("");
+      setPostTitle("");
+      setPostTags("");
+      setSelectedFiles([]);
+      setFilePreviews([]);
     },
   });
   const editMutation = useMutation({
-    mutationFn: ({ id, content }) => editForumPost(id, { content }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["forum-posts"] }); setEditTarget(null); },
+    mutationFn: ({ id, content, title, tags }) => editForumPost(id, { content, title, tags }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
+      setEditTarget(null);
+      setEditTitle("");
+      setEditTags("");
+    },
   });
   const deleteMutation = useMutation({
     mutationFn: deleteForumPost,
@@ -462,7 +479,20 @@ export default function MobileForumPage() {
             </div>
             <select value={rolePreset} onChange={e => { setRolePreset(e.target.value); if (e.target.value !== "Custom") setCustomRole(""); }}
               className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-gray-900 dark:text-white">
-              <option value="President">President</option><option value="Vice President">Vice President</option><option value="Treasurer">Treasurer</option><option value="Secretary">Secretary</option><option value="Custom">Custom...</option>
+              <option value="President">President</option>
+              <option value="Vice President">Vice President</option>
+              <option value="Secretary">Secretary</option>
+              <option value="Joint Secretary">Joint Secretary</option>
+              <option value="Media Secretary">Media Secretary</option>
+              <option value="Technical Head">Technical Head</option>
+              <option value="Technical Coordinator">Technical Coordinator</option>
+              <option value="Cultural Secretary">Cultural Secretary</option>
+              <option value="Sports Secretary">Sports Secretary</option>
+              <option value="Treasurer">Treasurer</option>
+              <option value="Executive Member">Executive Member</option>
+              <option value="Discipline Coordinator">Discipline Coordinator</option>
+              <option value="Placement Coordinator">Placement Coordinator</option>
+              <option value="Custom">Custom...</option>
             </select>
             {rolePreset === "Custom" && (
               <input type="text" value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..." className="w-full p-2.5 rounded-xl border border-gray-255 dark:border-slate-755 bg-white dark:bg-slate-900 text-sm" />

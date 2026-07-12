@@ -27,6 +27,8 @@ def _serialize_project(project):
     last_msg = project.messages.filter_by(is_deleted=False).order_by(
         ProjectMessage.created_at.desc()).first()
 
+    creator = User.query.get(project.created_by) if project.created_by else None
+
     return {
         "id": project.id,
         "name": project.name,
@@ -35,6 +37,12 @@ def _serialize_project(project):
         "created_at": project.created_at.isoformat(),
         "updated_at": project.updated_at.isoformat(),
         "last_message_time": project.last_message_time().isoformat(),
+        "created_by": {
+            "id": creator.id,
+            "name": creator.name,
+            "profile_picture": creator.profile_picture,
+            "role": creator.role.value,
+        } if creator else None,
         "members": [
             {
                 "id": m.id,
@@ -186,8 +194,21 @@ def recent_activity():
 
 
 @projects_bp.route("/", methods=["POST"])
-@require_hod
+@require_auth
 def create_project():
+    user = g.current_user
+    is_authorized = False
+    if user.role == UserRole.HOD:
+        is_authorized = True
+    elif user.role == UserRole.STUDENT and user.student_profile:
+        from ..models.forum_member import ForumMember
+        fm = ForumMember.query.filter_by(student_id=user.student_profile.id).first()
+        if fm and fm.role.lower() == "placement coordinator":
+            is_authorized = True
+
+    if not is_authorized:
+        return jsonify({"error": "Unauthorized. Only HOD or Placement Coordinators can create projects."}), 403
+
     data = request.get_json()
     name = data.get("name", "").strip()
     description = data.get("description", "").strip()

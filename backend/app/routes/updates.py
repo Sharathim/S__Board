@@ -42,7 +42,7 @@ def _can_post_update(user):
         if user.student_profile.is_forum_member:
             from ..models.forum_member import ForumMember
             fm = ForumMember.query.filter_by(student_id=user.student_profile.id).first()
-            if fm and fm.is_update_coordinator:
+            if fm and (fm.is_update_coordinator or fm.role.lower() == "media secretary"):
                 return True
     return False
 

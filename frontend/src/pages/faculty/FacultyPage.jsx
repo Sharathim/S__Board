@@ -332,18 +332,18 @@ export default function FacultyPage() {
   return (
     <div className="space-y-6 animate-fade-in">
 
-            {/* ── Page Header ── */}
-      <div className="flex flex-row items-center justify-between gap-2 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
+      {/* ── Page Header ── */}
+      <div className="flex flex-row items-center justify-between gap-2 mb-6">
         <div className="flex items-center">
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Faculty</h1>
         </div>
 
-                {/* Right side actions */}
+        {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* HOD only: Invite toggle "Faculty Invite" */}
           {isHOD && invite && (
-            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 px-1">New Faculty</span>
+            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400">New Faculty</span>
               <Switch
                 checked={invite.is_active}
                 onChange={() => toggleInviteMutation.mutate()}
@@ -354,13 +354,13 @@ export default function FacultyPage() {
           )}
 
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-1.5 rounded-lg transition-all ${
+              className={`p-1 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-450 dark:text-gray-500 hover:text-gray-650 dark:hover:text-gray-400"
+                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-450 dark:text-gray-500 hover:text-gray-650"
               }`}
               title="Grid View"
             >
@@ -368,10 +368,10 @@ export default function FacultyPage() {
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-1.5 rounded-lg transition-all ${
+              className={`p-1 rounded-lg transition-all ${
                 viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650 dark:hover:text-gray-400"
+                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-455 dark:text-gray-500 hover:text-gray-655"
               }`}
               title="List View"
             >

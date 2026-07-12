@@ -84,6 +84,12 @@ def assign_member():
     if ForumMember.query.filter_by(student_id=student_id).first():
         return jsonify({"error": "Already a forum member"}), 409
 
+    # Enforce President and Vice President uniqueness check
+    if role.lower() in ["president", "vice president"]:
+        existing = ForumMember.query.filter(db.func.lower(ForumMember.role) == role.lower()).first()
+        if existing:
+            return jsonify({"error": f"A student is already assigned as {role}."}), 400
+
     member = ForumMember(student_id=student_id, role=role)
     student.is_forum_member = True
     db.session.add(member)
@@ -181,12 +187,17 @@ def create_post():
     attachment_urls = ",".join([a["url"] for a in attachments]) if attachments else None
     attachment_types = ",".join([a["type"] for a in attachments]) if attachments else None
 
+    title = data.get("title", "").strip() or None
+    tags = data.get("tags", "").strip() or None
+
     if not content and not attachment_urls:
         return jsonify({"error": "Content cannot be empty"}), 400
 
     from ..models.forum_post import ForumPost
     post = ForumPost(
+        title=title,
         content=content,
+        tags=tags,
         posted_by=user.id,
         attachment_url=attachment_urls,
         attachment_type=attachment_types,
@@ -214,15 +225,29 @@ def edit_post(post_id):
         return jsonify({"error": "Edit window expired (30 minutes)"}), 400
 
     data = request.get_json()
+    new_title = data.get("title", "").strip()
     new_content = data.get("content", "").strip()
+    new_tags = data.get("tags", "").strip()
     if not new_content:
         return jsonify({"error": "Content cannot be empty"}), 400
 
+    post.title = new_title or None
     post.content = new_content
+    post.tags = new_tags or None
     post.is_edited = True
     post.updated_at = datetime.utcnow()
     db.session.commit()
 
+    return jsonify({"post": _serialize_post(post, g.current_user)})
+
+
+@forum_bp.route("/posts/<int:post_id>", methods=["GET"])
+@require_auth
+def get_post(post_id):
+    from ..models.forum_post import ForumPost
+    post = ForumPost.query.get_or_404(post_id)
+    if post.is_deleted:
+        return jsonify({"error": "Post has been deleted"}), 404
     return jsonify({"post": _serialize_post(post, g.current_user)})
 
 
@@ -281,6 +306,7 @@ def toggle_like(post_id):
 def _serialize_post(p, current_user=None):
     from ..models.user import User
     from ..models.forum_post import forum_post_likes
+    from ..models.forum_member import ForumMember
     poster = User.query.get(p.posted_by) if p.posted_by else None
     liked = False
     if current_user is not None:
@@ -290,14 +316,28 @@ def _serialize_post(p, current_user=None):
                 forum_post_likes.c.user_id == current_user.id,
             )
         ).first() is not None
+
+    forum_role = None
+    if poster:
+        if poster.role.value == "STUDENT" and poster.student_profile:
+            fm = ForumMember.query.filter_by(student_id=poster.student_profile.id).first()
+            if fm:
+                forum_role = fm.role
+        elif poster.role.value in ["HOD", "FACULTY"]:
+            forum_role = poster.role.value
+
     return {
         "id": p.id,
+        "title": p.title,
         "content": p.content,
+        "tags": p.tags,
         "posted_by": {
             "id": p.posted_by,
             "name": poster.name if poster else "Unknown",
             "profile_picture": poster.profile_picture if poster else None,
-        } if poster else {"id": p.posted_by, "name": "Unknown", "profile_picture": None},
+            "role": poster.role.value if poster else "Unknown",
+            "forum_role": forum_role,
+        } if poster else {"id": p.posted_by, "name": "Unknown", "profile_picture": None, "role": "Unknown", "forum_role": None},
         "is_deleted": p.is_deleted,
         "is_edited": p.is_edited,
         "attachment_url": p.attachment_url,

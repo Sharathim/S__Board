@@ -202,11 +202,19 @@ def _serialize_user(user):
             "is_update_coordinator": user.faculty_profile.is_update_coordinator,
         }
     if user.role == UserRole.STUDENT and user.student_profile:
+        is_forum_member = user.student_profile.is_forum_member
+        forum_role = None
+        if is_forum_member:
+            from ..models.forum_member import ForumMember
+            fm = ForumMember.query.filter_by(student_id=user.student_profile.id).first()
+            if fm:
+                forum_role = fm.role
         out["student"] = {
             "id": user.student_profile.id,
             "roll_number": user.student_profile.roll_number,
             "register_number": user.student_profile.register_number,
             "class_name": user.student_profile.class_name,
-            "is_forum_member": user.student_profile.is_forum_member,
+            "is_forum_member": is_forum_member,
+            "forum_role": forum_role,
         }
     return out

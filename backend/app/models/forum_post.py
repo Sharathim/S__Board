@@ -14,7 +14,9 @@ class ForumPost(db.Model):
     __tablename__ = "forum_posts"
 
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=True)
     content = db.Column(db.Text, nullable=True)  # nullable: image-only posts allowed
+    tags = db.Column(db.Text, nullable=True)
     posted_by = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     is_deleted = db.Column(db.Boolean, default=False)
     is_edited = db.Column(db.Boolean, default=False)

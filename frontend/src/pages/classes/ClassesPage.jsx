@@ -285,7 +285,7 @@ export default function ClassesPage() {
     <div className="space-y-6 animate-fade-in">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-row items-center justify-between gap-2 border-b border-gray-150 dark:border-gray-800/80 pb-3 mb-6">
+      <div className="flex flex-row items-center justify-between gap-2 mb-6">
         <div className="flex items-center">
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
         </div>
@@ -294,8 +294,8 @@ export default function ClassesPage() {
         <div className="flex items-center gap-2 sm:gap-3">
           {/* HOD only: Student registration toggle "Student Invite" */}
           {isHOD && (
-            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
-              <span className="text-xs font-bold text-gray-550 dark:text-gray-400 px-1">New Student</span>
+            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
+              <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
               <Switch
                 checked={regOpen}
                 onChange={() => toggleRegMutation.mutate()}
@@ -304,53 +304,142 @@ export default function ClassesPage() {
               />
             </div>
           )}
+
+          {/* Grid / List Switcher */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-1 rounded-lg transition-all ${
+                viewMode === "grid"
+                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-1 rounded-lg transition-all ${
+                viewMode === "list"
+                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-455 dark:text-gray-500 hover:text-gray-655"
+              }`}
+              title="List View"
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
+      {viewMode === "grid" ? (
+        <>
+          {/* ── UG Classes ── */}
+          {ugList.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {ugList.map((c) => (
+                  <ClassCard
+                    key={c.class_name}
+                    c={c}
+                    meta={CLASS_META[c.class_name]}
+                    isHOD={isHOD}
+                    onAssignIncharge={setInchargeModal}
+                    onNavigate={navigateWithTransition}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
+          {/* ── PG Classes ── */}
+          {pgList.length > 0 && (
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {pgList.map((c) => (
+                  <ClassCard
+                    key={c.class_name}
+                    c={c}
+                    meta={CLASS_META[c.class_name]}
+                    isHOD={isHOD}
+                    onAssignIncharge={setInchargeModal}
+                    onNavigate={navigateWithTransition}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        /* List View */
+        <div className="space-y-4">
+          <div className="hidden lg:grid grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+            <span>Class Name</span>
+            <span>Level</span>
+            <span>Class Incharge</span>
+            <span className="text-center">Students</span>
+            <span className="text-right">Action</span>
+          </div>
+          <div className="space-y-2.5">
+            {classes.map((c) => {
+              const meta = CLASS_META[c.class_name];
+              const hasIncharge = !!c.incharge;
+              return (
+                <div
+                  key={c.class_name}
+                  onClick={() => c.can_view_details && navigateWithTransition(`/classes/${c.class_name}`, meta?.label || c.class_name, BookOpen)}
+                  className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
+                    c.can_view_details ? "cursor-pointer" : "opacity-80"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
+                      {meta?.short || c.class_name}
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{meta?.label || c.class_name}</span>
+                  </div>
 
-      {/* ── UG Classes ── */}
-      {ugList.length > 0 && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Undergraduate</span>
-            <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-505">{ugList.length} classes</span>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {ugList.map((c) => (
-              <ClassCard
-                key={c.class_name}
-                c={c}
-                meta={CLASS_META[c.class_name]}
-                isHOD={isHOD}
-                onAssignIncharge={setInchargeModal}
-                onNavigate={navigateWithTransition}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    {meta?.level === "UG" ? "Undergraduate" : "Postgraduate"}
+                  </span>
 
-      {/* ── PG Classes ── */}
-      {pgList.length > 0 && (
-        <div className="space-y-6 pt-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Postgraduate</span>
-            <div className="flex-1 h-px bg-gray-100 dark:bg-gray-700/60" />
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-550">{pgList.length} classes</span>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {pgList.map((c) => (
-              <ClassCard
-                key={c.class_name}
-                c={c}
-                meta={CLASS_META[c.class_name]}
-                isHOD={isHOD}
-                onAssignIncharge={setInchargeModal}
-                onNavigate={navigateWithTransition}
-              />
-            ))}
+                  <div className="flex items-center gap-2">
+                    {hasIncharge ? (
+                      <>
+                        <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6.5 h-6.5 ring-2 ring-primary/10 shrink-0" />
+                        <span className="text-xs font-bold text-gray-800 dark:text-gray-250 truncate">{c.incharge.name}</span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">Not Assigned</span>
+                    )}
+                  </div>
+
+                  <span className="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">
+                    {c.student_count ?? 0} Students
+                  </span>
+
+                  <div className="text-right" onClick={(e) => e.stopPropagation()}>
+                    {isHOD ? (
+                      <button
+                        onClick={() => setInchargeModal(c.class_name)}
+                        className="text-xs font-bold text-indigo-600 hover:text-indigo-755 hover:underline bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 transition-all active:scale-95"
+                      >
+                        Assign Incharge
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

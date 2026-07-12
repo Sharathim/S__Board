@@ -818,6 +818,12 @@ export default function ProjectDetailPage() {
                 <span className="font-extrabold text-gray-850 dark:text-gray-200">{allMembers.length} Members</span>
               </div>
               <div className="flex justify-between items-center text-xs pb-3.5 border-b border-dashed border-gray-150 dark:border-gray-750/60">
+                <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Created By</span>
+                <span className="font-extrabold text-gray-850 dark:text-gray-200 truncate max-w-[150px]" title={project.created_by?.name || "Unknown"}>
+                  {project.created_by?.name || "Unknown"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-xs pb-3.5 border-b border-dashed border-gray-150 dark:border-gray-750/60">
                 <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Created On</span>
                 <span className="font-extrabold text-gray-850 dark:text-gray-200">
                   {format(new Date(project.created_at), "MMM d, yyyy")}
