@@ -1,37 +1,81 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Hexagon, LogIn } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const NAV_LINKS = [
-  { label: "Home", href: "/", route: true },
-  { label: "About", href: "/about", route: true },
-  { label: "Features", href: "/features", route: true },
-  { label: "Contact", href: "/contact", route: true },
+const NAV_SECTIONS = [
+  { label: "Home", id: "hero" },
+  { label: "About", id: "about" },
+  { label: "Features", id: "features" },
+  { label: "Contact", id: "contact" },
 ];
 
 export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("hero");
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isHomePage = pathname === "/";
 
+  // Scroll spy
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 10);
+
+      if (!isHomePage) return;
+      const sections = NAV_SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean);
+      let current = "hero";
+      sections.forEach((el) => {
+        if (window.scrollY >= el.offsetTop - 120) current = el.id;
+      });
+      setActiveSection(current);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isHomePage]);
+
+  const handleNavClick = useCallback(
+    (id) => {
+      setMobileOpen(false);
+      if (isHomePage) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      } else {
+        // Navigate to home and scroll after mount
+        navigate(`/#${id}`);
+      }
+    },
+    [isHomePage, navigate]
+  );
+
+  // Handle hash-based navigation on mount (for cross-page links)
+  useEffect(() => {
+    if (isHomePage && window.location.hash) {
+      const id = window.location.hash.replace("#", "");
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [isHomePage]);
+
+  const navbarClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+    scrolled
+      ? "bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/20 dark:border-white/5 shadow-[0_1px_20px_rgba(0,0,0,0.08)]"
+      : "bg-transparent border-b border-transparent"
+  }`;
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 bg-white/96 backdrop-blur-md border-b
-        transition-all duration-300 ${scrolled
-          ? "border-gray-200/80 shadow-[0_1px_12px_rgba(0,0,0,0.06)]"
-          : "border-gray-100/80"
-        }`}
-    >
+    <nav className={navbarClasses}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
 
-          <Link to="/" className="flex items-center group shrink-0">
+          {/* ── Logo ── */}
+          <Link to="/" onClick={() => handleNavClick("hero")} className="flex items-center gap-2 group shrink-0">
             <img
               src="/website-name-logo.png"
               alt="Hive Logo"
@@ -40,64 +84,110 @@ export function PublicNavbar() {
           </Link>
 
           {/* ── Desktop Nav Links ── */}
-          <div className="hidden md:flex items-center gap-0.5">
-            {NAV_LINKS.map(({ label, href, route }) => {
-              const isActive = route ? pathname === href : false;
-              const cls = `relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${isActive ? "text-primary-600" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/80"
-                }`;
-              return route ? (
-                <Link key={label} to={href} className={cls}>
-                  {label}
-                  {isActive && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-primary-600 rounded-full" />}
-                </Link>
-              ) : (
-                <a key={label} href={href} className={cls}>{label}</a>
+          <div className="hidden md:flex items-center bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-full px-2 py-1.5 gap-1 shadow-sm">
+            {NAV_SECTIONS.map(({ label, id }) => {
+              const isActive = isHomePage && activeSection === id;
+              return (
+                <button
+                  key={id}
+                  onClick={() => handleNavClick(id)}
+                  className={`relative px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
+                    isActive
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{label}</span>
+                </button>
               );
             })}
           </div>
 
-          {/* ── HOD Login + Mobile Hamburger ── */}
+          {/* ── Enter Hive CTA + Mobile Toggle ── */}
           <div className="flex items-center gap-3">
-            <a
-              href="#login"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-                border-2 border-primary-600 text-primary-600 text-sm font-semibold
-                hover:bg-primary-600 hover:text-white hover:shadow-primary-glow hover:scale-[1.02]
-                active:scale-[0.99]
+            <Link
+              to="/login"
+              className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full
+                bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold
+                hover:from-indigo-700 hover:to-violet-700 hover:shadow-lg hover:shadow-indigo-200/40
+                hover:-translate-y-0.5 active:translate-y-0 active:shadow-none
                 transition-all duration-200"
             >
-              {/* Shield icon from the DPMS logo family */}
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <span>Login</span>
-            </a>
+              <LogIn className="w-4 h-4" />
+              <span>Enter Hive</span>
+            </Link>
+
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-all duration-150"
+              className="md:hidden p-2.5 rounded-xl bg-white/60 dark:bg-white/5 backdrop-blur-sm border border-white/40 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-white hover:text-gray-900 transition-all duration-150"
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <AnimatePresence mode="wait" initial={false}>
+                {mobileOpen ? (
+                  <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                    <X className="w-5 h-5" />
+                  </motion.div>
+                ) : (
+                  <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                    <Menu className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
           </div>
         </div>
       </div>
 
       {/* ── Mobile Menu ── */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white/98 px-4 py-4 space-y-1 animate-fade-in shadow-md">
-          {NAV_LINKS.map(({ label, href, route }) => {
-            const isActive = route ? pathname === href : false;
-            const cls = `block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 ${isActive ? "bg-primary-50 text-primary-600" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`;
-            return route ? (
-              <Link key={label} to={href} onClick={() => setMobileOpen(false)} className={cls}>{label}</Link>
-            ) : (
-              <a key={label} href={href} onClick={() => setMobileOpen(false)} className={cls}>{label}</a>
-            );
-          })}
-        </div>
-      )}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden border-t border-gray-100/80 dark:border-white/5 bg-white/95 dark:bg-black/95 backdrop-blur-2xl"
+          >
+            <div className="px-4 py-4 space-y-1">
+              {NAV_SECTIONS.map(({ label, id }, i) => (
+                <motion.button
+                  key={id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  onClick={() => handleNavClick(id)}
+                  className={`w-full text-left block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    isHomePage && activeSection === id
+                      ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
+                  }`}
+                >
+                  {label}
+                </motion.button>
+              ))}
+              <div className="pt-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl
+                    bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold
+                    hover:from-indigo-700 hover:to-violet-700 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Enter Hive
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

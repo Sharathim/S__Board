@@ -4,6 +4,7 @@ import { SessionLoader } from "./components/ui/SessionLoader";
 import PageLayout from "./components/layout/PageLayout";
 import PublicLayout from "./components/layout/PublicLayout";
 import HomePage from "./pages/public/HomePage";
+import LoginPage from "./pages/public/LoginPage";
 import AboutPage from "./pages/public/AboutPage";
 import FeaturesPage from "./pages/public/FeaturesPage";
 import ContactPage from "./pages/public/ContactPage";
@@ -23,17 +24,6 @@ import SettingsPage from "./pages/settings/SettingsPage";
 
 import NotFoundPage from "./pages/public/NotFoundPage";
 
-function PublicRoute() {
-  const { user, loading, onboardingData } = useAuth();
-  if (loading) return <SessionLoader />;
-  if (onboardingData) {
-    if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" replace />;
-    if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
-  }
-  if (user) return <Navigate to="/dashboard" replace />;
-  return <PublicLayout />;
-}
-
 function ProtectedRoute({ children }) {
   const { user, loading, onboardingData } = useAuth();
   if (loading) return <SessionLoader />;
@@ -49,15 +39,17 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<PublicRoute />}>
-          <Route path="/" element={<HomePage />} />
-        </Route>
-        {/* About, Features, and Contact pages: public, no auth redirect */}
+        {/* Public landing — always accessible */}
         <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/contact" element={<ContactPage />} />
         </Route>
+
+        {/* Login page — standalone (no navbar) */}
+        <Route path="/login" element={<LoginPage />} />
+
         <Route path="/onboard/faculty" element={<FacultyOnboarding />} />
         <Route path="/onboard/student" element={<StudentOnboarding />} />
         <Route element={<ProtectedRoute><PageLayout /></ProtectedRoute>}>
@@ -72,7 +64,6 @@ export default function App() {
           <Route path="/updates" element={<UpdatesPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
