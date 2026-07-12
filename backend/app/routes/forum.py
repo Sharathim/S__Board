@@ -13,21 +13,38 @@ forum_bp = Blueprint("forum", __name__)
 
 @forum_bp.route("/members", methods=["GET"])
 def list_members():
-    members = ForumMember.query.filter_by(is_visible=True).join(Student).join(User).all()
-    return jsonify({
-        "members": [
-            {
+    try:
+        members = ForumMember.query.filter_by(is_visible=True).join(Student).join(User).all()
+    except Exception:
+        # is_visible column might not exist in the live DB yet (pending migration)
+        # Fall back to fetching all members without that filter
+        members = ForumMember.query.join(Student).join(User).all()
+
+    result = []
+    for m in members:
+        try:
+            student = m.student
+            if not student:
+                continue
+            user = student.user
+            if not user:
+                continue
+            result.append({
                 "id": m.id,
-                "user_id": m.student.user.id,
-                "name": m.student.user.name,
-                "profile_picture": m.student.user.profile_picture,
+                "user_id": user.id,
+                "name": user.name,
+                "profile_picture": user.profile_picture,
                 "role": m.role,
-                "class_name": m.student.class_name,
+                "class_name": student.class_name,
                 "is_update_coordinator": m.is_update_coordinator,
-            }
-            for m in members
-        ]
-    })
+            })
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] list_members: failed to serialize member id={m.id}: {e}\n{traceback.format_exc()}", flush=True)
+            continue
+
+    return jsonify({"members": result})
+
 
 
 @forum_bp.route("/eligible-students", methods=["GET"])
