@@ -36,7 +36,7 @@ export function PublicNavbar() {
             <img
               src="/website-name-logo.png"
               alt="Hive Logo"
-              className="h-[54px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+              className="h-[72px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
             />
           </Link>
 
