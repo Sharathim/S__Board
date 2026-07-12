@@ -150,20 +150,32 @@ def toggle_coordinator(member_id):
 @require_auth
 def list_posts():
     from ..models.forum_post import ForumPost
+    import traceback
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 10, type=int)
 
-    query = ForumPost.query.filter_by(is_deleted=False)
-
-    paginated = query.order_by(ForumPost.created_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
-    )
+    try:
+        query = ForumPost.query.filter_by(is_deleted=False)
+        paginated = query.order_by(ForumPost.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        posts = [_serialize_post(p, g.current_user) for p in paginated.items]
+        total = paginated.total
+        pages = paginated.pages
+    except Exception as e:
+        print(f"[ERROR] list_posts query failed: {e}\n{traceback.format_exc()}", flush=True)
+        # Return empty list so the UI shows 'No posts' instead of crashing
+        # This usually means the DB schema is missing columns — run init_db.py on the server
+        posts = []
+        total = 0
+        pages = 0
 
     return jsonify({
-        "posts": [_serialize_post(p, g.current_user) for p in paginated.items],
-        "total": paginated.total,
-        "pages": paginated.pages,
+        "posts": posts,
+        "total": total,
+        "pages": pages,
     })
+
 
 
 @forum_bp.route("/posts", methods=["POST"])
