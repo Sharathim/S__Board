@@ -307,46 +307,76 @@ def _serialize_post(p, current_user=None):
     from ..models.user import User
     from ..models.forum_post import forum_post_likes
     from ..models.forum_member import ForumMember
-    poster = User.query.get(p.posted_by) if p.posted_by else None
-    liked = False
-    if current_user is not None:
-        liked = db.session.execute(
-            forum_post_likes.select().where(
-                forum_post_likes.c.post_id == p.id,
-                forum_post_likes.c.user_id == current_user.id,
-            )
-        ).first() is not None
+    try:
+        poster = User.query.get(p.posted_by) if p.posted_by else None
+        liked = False
+        if current_user is not None:
+            liked = db.session.execute(
+                forum_post_likes.select().where(
+                    forum_post_likes.c.post_id == p.id,
+                    forum_post_likes.c.user_id == current_user.id,
+                )
+            ).first() is not None
 
-    forum_role = None
-    if poster:
-        if poster.role.value == "STUDENT" and poster.student_profile:
-            fm = ForumMember.query.filter_by(student_id=poster.student_profile.id).first()
-            if fm:
-                forum_role = fm.role
-        elif poster.role.value in ["HOD", "FACULTY"]:
-            forum_role = poster.role.value
+        forum_role = None
+        if poster:
+            if poster.role.value == "STUDENT" and poster.student_profile:
+                fm = ForumMember.query.filter_by(student_id=poster.student_profile.id).first()
+                if fm:
+                    forum_role = fm.role
+            elif poster.role.value in ["HOD", "FACULTY"]:
+                forum_role = poster.role.value
 
-    return {
-        "id": p.id,
-        "title": p.title,
-        "content": p.content,
-        "tags": p.tags,
-        "posted_by": {
-            "id": p.posted_by,
-            "name": poster.name if poster else "Unknown",
-            "profile_picture": poster.profile_picture if poster else None,
-            "role": poster.role.value if poster else "Unknown",
-            "forum_role": forum_role,
-        } if poster else {"id": p.posted_by, "name": "Unknown", "profile_picture": None, "role": "Unknown", "forum_role": None},
-        "is_deleted": p.is_deleted,
-        "is_edited": p.is_edited,
-        "attachment_url": p.attachment_url,
-        "attachment_type": p.attachment_type,
-        "created_at": p.created_at.isoformat(),
-        "updated_at": (p.updated_at or p.created_at).isoformat() if (p.updated_at or p.created_at) else None,
-        "like_count": p.likes.count() if hasattr(p, 'likes') else 0,
-        "liked": liked,
-    }
+        # Direct SQL COUNT — avoids ORM relationship loading issues entirely
+        like_count = db.session.execute(
+            db.text("SELECT COUNT(*) FROM forum_post_likes WHERE post_id = :pid"),
+            {"pid": p.id}
+        ).scalar() or 0
+
+        # Null-safe datetime helpers
+        created_iso = p.created_at.isoformat() if p.created_at else None
+        updated_iso = (p.updated_at or p.created_at).isoformat() if (p.updated_at or p.created_at) else None
+
+        return {
+            "id": p.id,
+            "title": p.title,
+            "content": p.content,
+            "tags": p.tags,
+            "posted_by": {
+                "id": p.posted_by,
+                "name": poster.name if poster else "Unknown",
+                "profile_picture": poster.profile_picture if poster else None,
+                "role": poster.role.value if poster else "Unknown",
+                "forum_role": forum_role,
+            } if poster else {"id": p.posted_by, "name": "Unknown", "profile_picture": None, "role": "Unknown", "forum_role": None},
+            "is_deleted": p.is_deleted,
+            "is_edited": p.is_edited,
+            "attachment_url": p.attachment_url,
+            "attachment_type": p.attachment_type,
+            "created_at": created_iso,
+            "updated_at": updated_iso,
+            "like_count": like_count,
+            "liked": liked,
+        }
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] _serialize_post failed for post id={p.id}: {e}\n{traceback.format_exc()}", flush=True)
+        # Return a safe fallback so one bad post never kills the whole list
+        return {
+            "id": p.id,
+            "title": None,
+            "content": "[Error loading post]",
+            "tags": None,
+            "posted_by": {"id": None, "name": "Unknown", "profile_picture": None, "role": "Unknown", "forum_role": None},
+            "is_deleted": True,
+            "is_edited": False,
+            "attachment_url": None,
+            "attachment_type": None,
+            "created_at": None,
+            "updated_at": None,
+            "like_count": 0,
+            "liked": False,
+        }
 
 
 @forum_bp.route("/invite", methods=["GET"])

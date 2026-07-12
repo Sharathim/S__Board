@@ -25,4 +25,4 @@ class ForumPost(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    likes = db.relationship("User", secondary=forum_post_likes, lazy="dynamic")
+    likes = db.relationship("User", secondary=forum_post_likes, lazy="select")
