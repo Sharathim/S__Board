@@ -6,26 +6,26 @@
 /* ─── Department Hub Design Tokens ─────────────────────────────────────── */
 :root {
   /* Provided Custom Styling Variables */
-  --color-1: #1A141A;
-  --color-2: #423738;
-  --color-3: #1A141A;
+  --color-1: #0F172A;
+  --color-2: #64748B;
+  --color-3: #334155;
   --color-4: #FFFFFF;
-  --color-5: #F4B315;
-  --color-6: #E59312;
-  --color-7: #E9ECEF;
+  --color-5: #059669;
+  --color-6: #22C55E;
+  --color-7: #DDE3EC;
   --color-8: #EF4444;
-  --color-9: #F4B315;
-  --color-10: #F8F9FB;
-  --color-11: #E9ECEF;
-  --color-12: #8E5915;
-  --color-13: #F4B315;
-  --color-14: #D3AF85;
-  --color-15: rgba(244, 179, 21, 0.13);
-  --color-16: #1A141A;
-  --color-17: #1A141A;
-  --color-18: #423738;
-  --color-19: #1A141A;
-  --color-20: #FCFCFD;
+  --color-9: #F59E0B;
+  --color-10: #F4F6F9;
+  --color-11: #E8EDF4;
+  --color-12: #047857;
+  --color-13: #8B5CF6;
+  --color-14: #A78BFA;
+  --color-15: rgba(196, 155, 20, 0.13);
+  --color-16: #000000;
+  --color-17: #0D1521;
+  --color-18: #3D5068;
+  --color-19: #0D0E14;
+  --color-20: #F0F2F5;
 
   --font-1: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-2: "JetBrains Mono", "Roboto Mono", monospace;
@@ -75,144 +75,144 @@
   --space-16: 28px;
 
   --shadow-1: rgba(30, 50, 80, 0.07) 2px 0px 12px 0px;
-  --shadow-2: rgba(244, 179, 21, 0.25) 0px 8px 18px 0px;
-  --shadow-3: rgba(26, 20, 26, 0.04) 0px 1px 2px 0px;
+  --shadow-2: rgba(5, 150, 105, 0.25) 0px 8px 18px 0px;
+  --shadow-3: rgba(15, 23, 42, 0.04) 0px 1px 2px 0px;
 
-  /* Theme Tokens mapping to Hive Gold Palette */
+  /* Theme Tokens mapping to Blue & Cyan Gradient Minimalist Palette */
   /* Backgrounds */
-  --background: #F8F9FB; /* Hive Clean off-white background */
+  --background: #F8FAFC; /* Clean off-white background */
   --surface: #FFFFFF;
-  --surface-hover: #FCFCFD;
-  --surface-secondary: #FCFCFD;
+  --surface-hover: #F8FAFC;
+  --surface-secondary: #F1F5F9;
 
   /* Sidebar */
-  --sidebar-bg: #1A141A;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-hover: rgba(255, 255, 255, 0.06);
-  --sidebar-active-bg: #F4B315;
-  --sidebar-active-fg: #1A141A;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: #E2E8F0;
+  --sidebar-hover: #F1F5F9;
+  --sidebar-active-bg: rgba(79, 70, 229, 0.08); /* 8% Primary Blue opacity */
+  --sidebar-active-fg: #4F46E5;
 
   /* Text */
-  --text-primary: #1A141A;
-  --text-secondary: #423738;
-  --text-muted: #8E5915;
+  --text-primary: #1E293B; /* Slate 800 */
+  --text-secondary: #475569; /* Slate 600 */
+  --text-muted: #64748B; /* Slate 500 */
 
   /* Borders */
-  --border-light: #E9ECEF;
-  --border-medium: #D3AF85;
+  --border-light: #E2E8F0;
+  --border-medium: #CBD5E1;
 
   /* Brand Dual Primary */
-  --primary: #F4B315;
-  --primary-hover: #E59312;
-  --primary-light: rgba(244, 179, 21, 0.08);
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-light: #EEF2FF;
 
-  --secondary: #E59312;
-  --secondary-hover: #D2810E;
-  --secondary-light: rgba(229, 147, 18, 0.08);
+  --secondary: #3B82F6;
+  --secondary-hover: #2563EB;
+  --secondary-light: #E0E7FF;
 
   /* Status colors */
-  --status-not-started: #D3AF85;
-  --status-in-progress: #F4B315;
-  --status-review: #E59312;
-  --status-completed: #8E5915;
-  --status-on-hold: #D3AF85;
-  --status-cancelled: #423738;
-  --status-low-activity: #8E5915;
+  --status-not-started: #64748b;
+  --status-in-progress: #4F46E5;
+  --status-review: #06B6D4;
+  --status-completed: #10B981;
+  --status-on-hold: #F59E0B;
+  --status-cancelled: #EF4444;
+  --status-low-activity: #3B82F6;
 
   /* Shadows */
-  --shadow-sm: 0 4px 10px rgba(0,0,0,.03);
-  --shadow-card: 0 10px 30px rgba(26,20,26,.04);
-  --shadow-md: 0 10px 30px rgba(26,20,26,.04);
-  --shadow-lg: 0 20px 50px rgba(26,20,26,.06);
+  --shadow-sm: 0 4px 10px rgba(0,0,0,.05);
+  --shadow-card: 0 10px 30px rgba(59,130,246,.10);
+  --shadow-md: 0 10px 30px rgba(59,130,246,.10);
+  --shadow-lg: 0 20px 50px rgba(59,130,246,.15);
   --border-color: var(--border-light);
 
-  /* Primary/Indigo/Violet/Emerald Accents mapped to Hive Gold Theme */
-  --primary-50: rgba(244, 179, 21, 0.05);
-  --primary-100: rgba(244, 179, 21, 0.1);
-  --primary-200: rgba(244, 179, 21, 0.2);
-  --primary-300: #D3AF85;
-  --primary-400: #C99F6C;
-  --primary-500: #F4B315;
-  --primary-600: #E59312;
-  --primary-700: #B56C0A;
-  --primary-800: #8E5915;
-  --primary-900: #1A141A;
+  /* Primary/Indigo/Violet/Emerald Accents mapped to Blue & Cyan Gradient Theme */
+  --primary-50: #EEF2FF;
+  --primary-100: #E0E7FF;
+  --primary-200: #C7D2FE;
+  --primary-300: #A5B4FC;
+  --primary-400: #818CF8;
+  --primary-500: #4F46E5;
+  --primary-600: #4338CA;
+  --primary-700: #3730A3;
+  --primary-800: #312E81;
+  --primary-900: #1E1B4B;
 
-  --indigo-50: rgba(244, 179, 21, 0.05);
-  --indigo-100: rgba(244, 179, 21, 0.1);
-  --indigo-200: rgba(244, 179, 21, 0.2);
-  --indigo-300: #D3AF85;
-  --indigo-400: #C99F6C;
-  --indigo-500: #F4B315;
-  --indigo-600: #E59312;
-  --indigo-700: #B56C0A;
-  --indigo-800: #8E5915;
-  --indigo-900: #1A141A;
+  --indigo-50: #EEF2FF;
+  --indigo-100: #E0E7FF;
+  --indigo-200: #C7D2FE;
+  --indigo-300: #A5B4FC;
+  --indigo-400: #818CF8;
+  --indigo-500: #6366F1;
+  --indigo-600: #4F46E5;
+  --indigo-700: #4338CA;
+  --indigo-800: #3730A3;
+  --indigo-900: #312E81;
 
-  --violet-50: rgba(244, 179, 21, 0.05);
-  --violet-100: rgba(244, 179, 21, 0.1);
-  --violet-200: rgba(244, 179, 21, 0.2);
-  --violet-300: #D3AF85;
-  --violet-400: #C99F6C;
-  --violet-500: #F4B315;
-  --violet-600: #E59312;
-  --violet-700: #B56C0A;
-  --violet-800: #8E5915;
-  --violet-900: #1A141A;
-  --violet-950: #1A141A;
+  --violet-50: #EEF2FF;
+  --violet-100: #E0E7FF;
+  --violet-200: #C7D2FE;
+  --violet-300: #A5B4FC;
+  --violet-400: #818CF8;
+  --violet-500: #6366F1;
+  --violet-600: #4F46E5;
+  --violet-700: #4338CA;
+  --violet-800: #3730A3;
+  --violet-900: #312E81;
+  --violet-950: #1E1B4B;
 
-  --emerald-50: rgba(244, 179, 21, 0.05);
-  --emerald-100: rgba(244, 179, 21, 0.1);
-  --emerald-200: rgba(244, 179, 21, 0.2);
-  --emerald-300: #D3AF85;
-  --emerald-400: #C99F6C;
-  --emerald-500: #F4B315;
-  --emerald-600: #E59312;
-  --emerald-700: #B56C0A;
-  --emerald-800: #8E5915;
-  --emerald-900: #1A141A;
-  --emerald-950: #1A141A;
+  --emerald-50: #ECFEFF;
+  --emerald-100: #CFFAFE;
+  --emerald-200: #A5F3FC;
+  --emerald-300: #67E8F9;
+  --emerald-400: #22D3EE;
+  --emerald-500: #06B6D4;
+  --emerald-600: #0891B2;
+  --emerald-700: #0E7490;
+  --emerald-800: #155E75;
+  --emerald-900: #164E63;
+  --emerald-950: #083344;
 
-  /* Slate & Gray backgrounds and borders mapped to Hive greys */
+  /* Slate & Gray backgrounds and borders mapped to standard light mode greys */
   --slate-50: #FFFFFF;
-  --slate-100: #FCFCFD;
-  --slate-200: #E9ECEF;
-  --slate-300: #E9ECEF;
-  --slate-400: #D3AF85;
-  --slate-500: #423738;
-  --slate-600: #423738;
-  --slate-700: #1A141A;
-  --slate-850: #1A141A;
-  --slate-800: #1A141A;
-  --slate-900: #1A141A;
-  --slate-950: #1A141A;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-850: #1e293b;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020817;
 
   --gray-50: #FFFFFF;
-  --gray-100: #FCFCFD;
-  --gray-200: #E9ECEF;
-  --gray-300: #E9ECEF;
-  --gray-400: #D3AF85;
-  --gray-500: #423738;
-  --gray-600: #423738;
-  --gray-700: #1A141A;
-  --gray-800: #1A141A;
-  --gray-900: #1A141A;
-  --gray-950: #1A141A;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  --gray-950: #020817;
 
   /* Glow & Outline styling variables for Cyprus */
-  --primary-glow-30: rgba(244, 179, 21, 0.3);
-  --primary-glow-15: rgba(244, 179, 21, 0.15);
-  --primary-glow-35: rgba(244, 179, 21, 0.35);
-  --primary-glow-20: rgba(244, 179, 21, 0.2);
-  --primary-glow-45: rgba(244, 179, 21, 0.45);
-  --primary-glow-25: rgba(244, 179, 21, 0.25);
-  --indicator-gradient: linear-gradient(135deg, #D3AF85 0%, #E59312 50%, #F4B315 100%);
-  --nav-pill-hover-bg: rgba(244, 179, 21, 0.07);
-  --nav-pill-hover-glow: rgba(244, 179, 21, 0.1);
-  --navbar-icon-btn-hover-bg: rgba(244, 179, 21, 0.08);
-  --navbar-icon-btn-hover-glow: rgba(244, 179, 21, 0.12);
-  --navbar-icon-btn-hover-glow-sm: rgba(244, 179, 21, 0.08);
-  --navbar-outline: rgba(244, 179, 21, 0.08);
+  --primary-glow-30: rgba(79, 70, 229, 0.3);
+  --primary-glow-15: rgba(79, 70, 229, 0.15);
+  --primary-glow-35: rgba(79, 70, 229, 0.35);
+  --primary-glow-20: rgba(79, 70, 229, 0.2);
+  --primary-glow-45: rgba(79, 70, 229, 0.45);
+  --primary-glow-25: rgba(79, 70, 229, 0.25);
+  --indicator-gradient: linear-gradient(135deg, #38BDF8 0%, #3B82F6 50%, #4F46E5 100%);
+  --nav-pill-hover-bg: rgba(79, 70, 229, 0.07);
+  --nav-pill-hover-glow: rgba(79, 70, 229, 0.1);
+  --navbar-icon-btn-hover-bg: rgba(79, 70, 229, 0.08);
+  --navbar-icon-btn-hover-glow: rgba(79, 70, 229, 0.12);
+  --navbar-icon-btn-hover-glow-sm: rgba(79, 70, 229, 0.08);
+  --navbar-outline: rgba(79, 70, 229, 0.08);
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
@@ -1363,11 +1363,8 @@ button {
 
 /* Dark Mode Drawer Container */
 .dark .drawer-container {
-  background: #1A141A;
-  border-right: 1.5px solid rgba(255, 255, 255, 0.08);
-  border-top: none;
-  border-bottom: none;
-  border-left: none;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
   box-shadow:
     12px 12px 48px rgba(0, 0, 0, 0.6),
     inset 1px 1px 0 rgba(255, 255, 255, 0.06),
@@ -1386,30 +1383,34 @@ button {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: none;
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    4px 4px 10px rgba(165, 180, 203, 0.15),
+    -3px -3px 8px rgba(255, 255, 255, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   outline: none;
 }
 
 .drawer-close-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--primary);
   transform: scale(1.08) rotate(90deg);
 }
 
 .dark .drawer-close-btn {
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: none;
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .dark .drawer-close-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
+  background: rgba(30, 41, 59, 0.7);
+  color: var(--primary);
 }
 
 /* Numbered Vertical Menu Items */
@@ -1419,7 +1420,7 @@ button {
   justify-content: space-between;
   padding: 14px 18px;
   border-radius: 18px;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 700;
   font-size: 19px;
@@ -1429,28 +1430,30 @@ button {
 }
 
 .drawer-nav-item:hover {
-  background: var(--sidebar-hover);
-  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.5);
   padding-left: 22px;
+  box-shadow:
+    2px 4px 12px rgba(165, 180, 203, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .dark .drawer-nav-item:hover {
-  background: var(--sidebar-hover);
-  color: #FFFFFF;
-  padding-left: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    2px 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .drawer-nav-item.active {
-  color: var(--sidebar-active-fg) !important;
-  background: var(--sidebar-active-bg) !important;
+  color: var(--primary);
+  background: var(--primary-light);
   box-shadow:
-    inset 0 1px 2px rgba(26, 20, 26, 0.05),
+    inset 0 1px 2px rgba(5, 150, 105, 0.05),
     inset 0 -1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .dark .drawer-nav-item.active {
-  color: var(--sidebar-active-fg) !important;
-  background: var(--sidebar-active-bg) !important;
+  background: rgba(16, 185, 129, 0.12);
   box-shadow:
     inset 0 1px 2px rgba(0, 0, 0, 0.4);
 }
@@ -1463,25 +1466,25 @@ button {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--color-1);
+  color: #fff;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .dark .drawer-nav-arrow {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background: #f9fafb;
+  color: #000000;
 }
 
 .drawer-nav-item:hover .drawer-nav-arrow {
-  background: var(--sidebar-active-bg);
-  color: var(--sidebar-active-fg);
+  background: var(--primary);
+  color: #fff;
   transform: translateX(3px) scale(1.05);
 }
 
 .drawer-nav-item.active .drawer-nav-arrow {
-  background: var(--sidebar-active-fg);
-  color: var(--sidebar-active-bg);
+  background: var(--primary);
+  color: #fff;
 }
 
 /* Secondary Actions */
@@ -1491,7 +1494,7 @@ button {
   justify-content: space-between;
   padding: 10px 16px;
   border-radius: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-weight: 600;
   transition: all 0.25s ease;
   background: transparent;
@@ -1500,13 +1503,12 @@ button {
 }
 
 .drawer-nav-item-secondary:hover {
-  color: #FFFFFF;
-  background: var(--sidebar-hover);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .dark .drawer-nav-item-secondary:hover {
-  color: #FFFFFF;
-  background: var(--sidebar-hover);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .drawer-nav-arrow-sm {

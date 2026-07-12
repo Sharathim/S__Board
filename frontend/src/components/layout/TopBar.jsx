@@ -27,11 +27,11 @@ function getRoleLabel(role) {
 
 function getRoleColor(role) {
   const map = {
-    HOD: { from: "#F4B315", to: "#8E5915", light: "rgba(244, 179, 21, 0.1)", text: "#8E5915" },
-    FACULTY: { from: "#E59312", to: "#8E5915", light: "rgba(229, 147, 18, 0.1)", text: "#8E5915" },
-    STUDENT: { from: "#D3AF85", to: "#8E5915", light: "rgba(211, 175, 133, 0.1)", text: "#8E5915" },
+    HOD: { from: "#7C3AED", to: "#5B21B6", light: "#EDE9FE", text: "#6D28D9" },
+    FACULTY: { from: "#3B82F6", to: "#1D4ED8", light: "#DBEAFE", text: "#1D4ED8" },
+    STUDENT: { from: "#10B981", to: "#059669", light: "#D1FAE5", text: "#059669" },
   };
-  return map[role] || { from: "#D3AF85", to: "#8E5915", light: "rgba(211, 175, 133, 0.1)", text: "#8E5915" };
+  return map[role] || { from: "#6B7280", to: "#4B5563", light: "#F3F4F6", text: "#6B7280" };
 }
 
 /* ─── Premium GSAP Hover Rolling Text Component ─────────────────────────── */
@@ -323,7 +323,7 @@ export function TopBar() {
             alt="Hive Logo Icon"
             className="h-9 w-9 object-contain"
           />
-          <span className="text-lg font-black tracking-tight text-white">
+          <span className="text-lg font-black tracking-tight text-slate-800 dark:text-slate-100">
             Hive
           </span>
         </div>
@@ -363,7 +363,7 @@ export function TopBar() {
             <div
               className="w-full h-px"
               style={{
-                background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent)",
+                background: "linear-gradient(90deg, transparent, var(--border-light), transparent)",
               }}
             />
 
