@@ -319,7 +319,7 @@ export function TopBar() {
         {/* Drawer Brand Logo */}
         <div className="absolute top-[22px] left-5 flex items-center gap-3 select-none">
           <img
-            src="/logo-icon.png"
+            src="/logo-icon.png?v=2"
             alt="Hive Logo Icon"
             className="h-9 w-9 object-contain"
           />

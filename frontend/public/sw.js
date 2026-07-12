@@ -1,9 +1,7 @@
-const CACHE_NAME = "dpms-v3";
+const CACHE_NAME = "dpms-v4";
 const STATIC_ASSETS = [
   "/manifest.json",
-  "/favicon.svg",
-  "/icons/icon-192.svg",
-  "/icons/icon-512.svg",
+  "/logo-icon.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -60,7 +58,7 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || "DPMS", {
       body: data.body || "",
-      icon: "/icons/icon-192.png",
+      icon: "/logo-icon.png",
     })
   );
 });
