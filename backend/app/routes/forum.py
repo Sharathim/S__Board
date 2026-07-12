@@ -343,7 +343,7 @@ def _serialize_post(p, current_user=None):
         "attachment_url": p.attachment_url,
         "attachment_type": p.attachment_type,
         "created_at": p.created_at.isoformat(),
-        "updated_at": p.updated_at.isoformat(),
+        "updated_at": (p.updated_at or p.created_at).isoformat() if (p.updated_at or p.created_at) else None,
         "like_count": p.likes.count() if hasattr(p, 'likes') else 0,
         "liked": liked,
     }
