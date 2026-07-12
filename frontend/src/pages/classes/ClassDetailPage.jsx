@@ -610,34 +610,34 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
 
   return (
     <div className="space-y-6 animate-fade-in w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-            <Users className="w-5 h-5" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="p-3.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+            <Users className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total Students</p>
-            <h4 className="text-xl font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.total_students ?? 0}</h4>
+            <p className="text-[9px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Total Students</p>
+            <h4 className="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.total_students ?? 0}</h4>
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5" />
+        <div className="p-3.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+            <CheckCircle className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Completed Profiles</p>
-            <h4 className="text-xl font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.complete_students ?? 0}</h4>
+            <p className="text-[9px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Completed Profiles</p>
+            <h4 className="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.complete_students ?? 0}</h4>
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-            <AlertCircle className="w-5 h-5" />
+        <div className="p-3.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Incomplete Profiles</p>
-            <h4 className="text-xl font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.incomplete_students ?? 0}</h4>
+            <p className="text-[9px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Incomplete Profiles</p>
+            <h4 className="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.incomplete_students ?? 0}</h4>
           </div>
         </div>
       </div>

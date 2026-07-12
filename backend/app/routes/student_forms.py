@@ -579,17 +579,30 @@ def download_certificates(class_name, form_id):
     form = CustomForm.query.filter_by(id=form_id, class_name=class_name, form_type="internship").first_or_404()
     responses = form.responses.all()
 
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
     memory_file = io.BytesIO()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
         for resp in responses:
             if resp.attachment_url:
                 try:
-                    r = requests.get(resp.attachment_url, timeout=15)
+                    r = requests.get(resp.attachment_url, headers=headers, verify=False, timeout=20)
                     if r.status_code == 200:
-                        filename = f"{resp.student_rel.roll_number}.pdf"
+                        roll = resp.student_rel.roll_number if resp.student_rel else None
+                        if not roll or not str(roll).strip():
+                            roll = f"student_{resp.student_id}"
+                        filename = f"{str(roll).strip()}.pdf"
                         zf.writestr(filename, r.content)
+                    else:
+                        print(f"Failed to fetch certificate for student {resp.student_id} from {resp.attachment_url}: Status {r.status_code}")
                 except Exception as e:
-                    print(f"Failed to fetch certificate for student {resp.student_rel.roll_number}: {e}")
+                    student_roll = resp.student_rel.roll_number if (resp.student_rel and resp.student_rel.roll_number) else f"ID {resp.student_id}"
+                    print(f"Failed to fetch certificate for student {student_roll}: {e}")
 
     memory_file.seek(0)
     
