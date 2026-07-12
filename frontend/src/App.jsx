@@ -3,10 +3,8 @@ import { useAuth } from "./context/AuthContext";
 import { SessionLoader } from "./components/ui/SessionLoader";
 import PageLayout from "./components/layout/PageLayout";
 import PublicLayout from "./components/layout/PublicLayout";
-import HomePage from "./pages/public/HomePage";
-import AboutPage from "./pages/public/AboutPage";
-import FeaturesPage from "./pages/public/FeaturesPage";
-import ContactPage from "./pages/public/ContactPage";
+import LandingPage from "./pages/public/LandingPage";
+import LoginPage from "./pages/public/LoginPage";
 import FacultyOnboarding from "./pages/auth/FacultyOnboarding";
 import StudentOnboarding from "./pages/auth/StudentOnboarding";
 import DashboardPage from "./pages/dashboard/DashboardPage";
@@ -20,10 +18,9 @@ import ProjectDetailPage from "./pages/projects/ProjectDetailPage";
 import UpdatesPage from "./pages/updates/UpdatesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
-
 import NotFoundPage from "./pages/public/NotFoundPage";
 
-function PublicRoute() {
+function PublicRoute({ children }) {
   const { user, loading, onboardingData } = useAuth();
   if (loading) return <SessionLoader />;
   if (onboardingData) {
@@ -31,7 +28,7 @@ function PublicRoute() {
     if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
   }
   if (user) return <Navigate to="/dashboard" replace />;
-  return <PublicLayout />;
+  return children;
 }
 
 function ProtectedRoute({ children }) {
@@ -49,18 +46,40 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<PublicRoute />}>
-          <Route path="/" element={<HomePage />} />
+        {/* ── Public single-page landing ── */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <PublicLayout />
+            </PublicRoute>
+          }
+        >
+          <Route index element={<LandingPage />} />
         </Route>
-        {/* About, Features, and Contact pages: public, no auth redirect */}
-        <Route element={<PublicLayout />}>
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/features" element={<FeaturesPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-        </Route>
+
+        {/* ── Login page (separate, no navbar) ── */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+
+        {/* ── Onboarding ── */}
         <Route path="/onboard/faculty" element={<FacultyOnboarding />} />
         <Route path="/onboard/student" element={<StudentOnboarding />} />
-        <Route element={<ProtectedRoute><PageLayout /></ProtectedRoute>}>
+
+        {/* ── Protected app routes ── */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <PageLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/faculty" element={<FacultyPage />} />
           <Route path="/classes" element={<ClassesPage />} />
@@ -72,8 +91,9 @@ export default function App() {
           <Route path="/updates" element={<UpdatesPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-
         </Route>
+
+        {/* ── 404 ── */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
