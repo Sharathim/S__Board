@@ -205,7 +205,7 @@ export default function ProjectsPage() {
         {isHOD && (
           <Button onClick={openCreate} className="gap-1 shadow-sm hover:shadow-primary-glow/20 transition-all shrink-0 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm">
             <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Create New Project</span>
+            <span className="hidden sm:inline">New Project</span>
             <span className="sm:hidden">Project</span>
           </Button>
         )}
