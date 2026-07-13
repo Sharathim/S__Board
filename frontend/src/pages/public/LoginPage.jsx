@@ -12,11 +12,7 @@ export default function LoginPage() {
   const leftPanelRef = useRef(null);
   const rightPanelRef = useRef(null);
 
-  // Redirect if already logged in
-  if (!loading && user && !onboardingData) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
+  // NOTE: All hooks must run before any early return (Rules of Hooks)
   useEffect(() => {
     // GSAP entrance animations for split panels
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -100,6 +96,11 @@ export default function LoginPage() {
       ro.disconnect();
     };
   }, []);
+
+  // Redirect if already logged in (placed after hooks per Rules of Hooks)
+  if (!loading && user && !onboardingData) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="relative min-h-screen bg-gradient-to-tr from-slate-50 via-indigo-50/20 to-violet-50/30 dark:from-slate-950 dark:via-indigo-950/10 dark:to-slate-900 flex flex-col justify-between overflow-x-hidden font-sans transition-colors duration-300">
