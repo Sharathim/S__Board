@@ -24,8 +24,8 @@ import {
   X, Search, Edit2, Clock, AlertCircle,
   CheckCircle2, Users, Plus, Calendar, Share2, Copy, UserPlus, MoreVertical
 } from "lucide-react";
-import { useState, useMemo, useRef, useEffect } from "react";
-import { formatDistanceToNow } from "date-fns";
+import { Pagination } from "../../components/shared/Pagination";
+import { format, formatDistanceToNow } from "date-fns";
 import { Switch } from "../../components/ui/Switch";
 import { createPortal } from "react-dom";
 
@@ -149,15 +149,19 @@ export default function ForumPage() {
   const isForumMember = isHOD || user?.role === "FACULTY" || user?.student?.is_forum_member === true;
   const canPost = isForumMember;
 
+  const [page, setPage] = useState(1);
+
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ["forum-members"],
     queryFn: () => listForumMembers().then(r => r.data.members),
   });
 
-  const { data: posts, isLoading: postsLoading } = useQuery({
-    queryKey: ["forum-posts"],
-    queryFn: () => listForumPosts({ page: 1, per_page: 50 }).then(r => r.data.posts),
+  const { data: postsData, isLoading: postsLoading } = useQuery({
+    queryKey: ["forum-posts", page],
+    queryFn: () => listForumPosts({ page, per_page: 5 }).then(r => r.data),
   });
+
+  const posts = postsData?.posts || [];
 
   // Lightbox key listener for arrow navigation
   useEffect(() => {
@@ -493,7 +497,7 @@ export default function ForumPage() {
 
         {/* Posts Feed Area */}
         <div className="space-y-4">
-          {postsByDay.length === 0 ? (
+          {filteredPosts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
               <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3 border border-gray-100 dark:border-gray-700/40">
                 <MessageSquare className="w-6 h-6 text-gray-300 dark:text-gray-600" />
@@ -504,181 +508,183 @@ export default function ForumPage() {
               </p>
             </div>
           ) : (
-            postsByDay.map((group) => (
-              <div key={group.dateString} className="space-y-3">
+            <div className="space-y-4">
+              {filteredPosts.map((post) => {
+                const isAuthor = post.posted_by?.id === user?.id;
+                const displayTitle = post.title;
+                const displayTags = post.tags ? post.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
                 
-                {/* Clean Date Divider */}
-                <div className="flex items-center gap-3 my-4">
-                  <span className="text-[9px] font-black tracking-widest text-gray-400 dark:text-gray-505 uppercase flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-slate-950/20 py-0.8 px-3 rounded-full border border-gray-200/40 dark:border-slate-800/20">
-                    <Calendar className="w-3 h-3 text-violet-500" />
-                    {group.dateString}
-                  </span>
-                </div>
+                const { body } = parseForumPostContent(post.content);
+                const isExpanded = !!expandedPostIds[post.id];
+                const hasLongBody = body.length > 220;
+                
+                const urls = post.attachment_url ? post.attachment_url.split(',').filter(Boolean) : [];
+                const hasImages = urls.length > 0;
 
-                {/* Individual Post Cards */}
-                {group.posts.map((post) => {
-                  const isAuthor = post.posted_by?.id === user?.id;
-                  const displayTitle = post.title;
-                  const displayTags = post.tags ? post.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
-                  
-                  const { body } = parseForumPostContent(post.content);
-                  const isExpanded = !!expandedPostIds[post.id];
-                  const hasLongBody = body.length > 220;
-                  
-                  const urls = post.attachment_url ? post.attachment_url.split(',').filter(Boolean) : [];
-
-                  return (
-                    <div
-                      key={post.id}
-                      className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/70 shadow-[0_1px_8px_rgba(30,50,80,0.02)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] space-y-3 hover:border-violet-200 dark:hover:border-violet-850/40 hover:shadow-[0_4px_24px_rgba(139,92,246,0.05)] transition-all duration-200"
-                    >
-                      {/* Post Header (Author info + actions) */}
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <Avatar
-                            src={post.posted_by?.profile_picture}
-                            name={post.posted_by?.name}
-                            size="xs"
-                            className="ring-2 ring-slate-50 dark:ring-slate-800 shrink-0 w-7 h-7"
-                          />
-                          <div>
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs font-bold text-gray-900 dark:text-white leading-none">
-                                {post.posted_by?.name}
-                              </span>
-                              <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                {post.posted_by?.forum_role || post.posted_by?.role}
-                              </span>
-                              {isAuthor && (
-                                <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 uppercase tracking-wide">
-                                  You
+                return (
+                  <article
+                    key={post.id}
+                    className="update-card mx-auto p-4 sm:p-5 mb-4 flex flex-col justify-between"
+                  >
+                    <div className={hasImages ? "grid grid-cols-1 md:grid-cols-10 gap-5" : "w-full"}>
+                      
+                      {/* Left Content Area */}
+                      <div className={hasImages ? "col-span-1 md:col-span-7 flex flex-col justify-between min-w-0" : "w-full min-w-0"}>
+                        <div>
+                          {/* Header */}
+                          <div className="flex items-center justify-between gap-3 mb-2.5">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <Avatar
+                                src={post.posted_by?.profile_picture}
+                                name={post.posted_by?.name}
+                                size="sm"
+                                className="shrink-0 w-8 h-8 ring-2 ring-violet-500/10"
+                              />
+                              <div className="flex items-center gap-2 flex-wrap min-w-0 leading-none">
+                                <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                                  {post.posted_by?.name}
                                 </span>
-                              )}
-                              {post.is_edited && (
-                                <span className="text-[8px] font-semibold px-1 py-0.2 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
-                                  Edited
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                  {post.posted_by?.forum_role || post.posted_by?.role || "Member"}
                                 </span>
-                              )}
-                              <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-0.5 ml-1">
-                                  <Clock className="w-3.5 h-3.5 text-gray-400" />
-                                {formatPostTime(post.created_at)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Kebab menu on the right - only for forum members */}
-                        {isForumMember && (
-                          <ForumPostKebab
-                            post={post}
-                            isAuthor={isAuthor}
-                            isHOD={isHOD}
-                            onEdit={openEditModal}
-                            onDelete={setDeleteTarget}
-                          />
-                        )}
-                      </div>
-
-                      {/* Clickable Area for Post Detail Page */}
-                      <div
-                        onClick={() => navigate(`/forum/post/${post.id}`)}
-                        className="cursor-pointer space-y-2.5"
-                      >
-                        {/* Split Content: Text Left, Thumbnail Right (Compact Space Saving) */}
-                        <div className="flex gap-4 items-start justify-between">
-                          <div className="flex-1 min-w-0 space-y-1.5">
-                            {displayTitle && (
-                              <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug group-hover:text-primary transition-colors">
-                                {displayTitle}
-                              </h3>
-                            )}
-                            <p className="text-xs text-gray-750 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
-                              {isExpanded ? body : (hasLongBody ? body.slice(0, 220) + "..." : body)}
-                              {hasLongBody && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); toggleExpandPost(post.id); }}
-                                  className="text-violet-650 dark:text-violet-400 font-bold ml-1 hover:underline focus:outline-none"
-                                >
-                                  {isExpanded ? "Show Less" : "Read More"}
-                                </button>
-                              )}
-                            </p>
-                            
-                            {/* Display Tags */}
-                            {displayTags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 pt-1">
-                                {displayTags.map(tag => (
-                                  <span key={tag} className="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/20">
-                                    #{tag}
+                                {isAuthor && (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 uppercase tracking-wider">
+                                    You
                                   </span>
-                                ))}
+                                )}
+                                {post.is_edited && (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                    Edited
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                  <Clock className="w-3 h-3 text-gray-400" />
+                                  {formatPostTime(post.created_at)}
+                                </span>
                               </div>
+                            </div>
+
+                            {/* Actions Kebab Menu for Forum Members */}
+                            {isForumMember && (
+                              <ForumPostKebab
+                                post={post}
+                                isAuthor={isAuthor}
+                                isHOD={isHOD}
+                                onEdit={openEditModal}
+                                onDelete={setDeleteTarget}
+                              />
                             )}
                           </div>
 
-                          {/* Image Attachment (Desktop Side-by-Side Thumbnail) */}
-                          {urls.length > 0 && (
-                            <div className="shrink-0 animate-fade-in" onClick={e => e.stopPropagation()}>
-                              <div 
-                                className="relative w-40 h-24 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 cursor-pointer shadow-sm hover:scale-[1.01] hover:brightness-95 transition-all group"
-                                onClick={() => handleOpenLightbox(urls, 0)}
+                          {/* Title */}
+                          {displayTitle && (
+                            <h2
+                              onClick={() => navigate(`/forum/post/${post.id}`)}
+                              className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-white leading-snug line-clamp-2 hover:text-violet-600 cursor-pointer transition-colors"
+                            >
+                              {displayTitle}
+                            </h2>
+                          )}
+
+                          {/* Description with Read More Toggle */}
+                          <p className="text-xs sm:text-sm text-gray-750 dark:text-gray-350 leading-relaxed mb-3 break-words">
+                            {isExpanded ? body : (hasLongBody ? body.slice(0, 220) + "..." : body)}
+                            {hasLongBody && (
+                              <button
+                                type="button"
+                                onClick={() => toggleExpandPost(post.id)}
+                                className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
                               >
-                                <img
-                                  src={urls[0]}
-                                  alt="attachment thumbnail"
-                                  className="w-full h-full object-cover"
-                                />
-                                {urls.length > 1 && (
-                                  <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-[10px] font-black text-white uppercase tracking-wider">
-                                    +{urls.length - 1} More
-                                  </div>
-                                )}
-                              </div>
+                                {isExpanded ? "Show Less" : "Read More"}
+                              </button>
+                            )}
+                          </p>
+
+                          {/* Display Tags */}
+                          {displayTags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {displayTags.map(tag => (
+                                <span key={tag} className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/20">
+                                  #{tag}
+                                </span>
+                              ))}
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      {/* Card footer */}
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/40 mt-1 text-slate-400">
-                        <div className="flex items-center gap-5">
-                          <button
-                            onClick={() => likeMutation.mutate(post.id)}
-                            className={`group/like inline-flex items-center gap-1 text-[11px] font-semibold py-1 transition-all ${post.liked
-                              ? "text-rose-500"
-                              : "text-gray-400 hover:text-rose-500"
-                              }`}
-                          >
-                            <Heart
-                              className={`w-3.5 h-3.5 transition-all group-active/like:scale-120 duration-150 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                            />
-                            <span>{post.like_count || 0}</span>
-                          </button>
-
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400">
-                            <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
-                            <span>0</span>
+                        {/* Footer Date & Reactions */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
+                          <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                            {format(new Date(post.created_at), "dd MMM yyyy · hh:mm a")}
                           </span>
-                        </div>
 
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(`${window.location.origin}/forum/post/${post.id}`);
-                            showSuccess("Link copied to clipboard!");
-                          }}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 hover:text-indigo-650 transition-colors"
-                          title="Copy link to post"
-                        >
-                          <Share2 className="w-3.5 h-3.5" />
-                          <span>Share</span>
-                        </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => likeMutation.mutate(post.id)}
+                              className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 transition-all ${
+                                post.liked ? "text-rose-500 animate-pulse" : "text-gray-400 hover:text-rose-500"
+                              }`}
+                            >
+                              <Heart className={`w-3.5 h-3.5 transition-all ${post.liked ? "fill-rose-500 text-rose-500" : ""}`} />
+                              <span>{post.like_count || 0}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/forum/post/${post.id}`)}
+                              className="inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 text-gray-400 hover:text-violet-600 transition-all cursor-pointer"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
+                              <span>0</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/forum/post/${post.id}`);
+                                showSuccess("Link copied to clipboard!");
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 text-gray-400 hover:text-indigo-600 transition-all cursor-pointer"
+                              title="Copy link to post"
+                            >
+                              <Share2 className="w-3.5 h-3.5" />
+                              <span>Share</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Right Image Thumbnail Block (Desktop Split) */}
+                      {hasImages && (
+                        <div className="col-span-1 md:col-span-3 flex flex-col justify-center">
+                          <div 
+                            className="relative rounded-2xl overflow-hidden border border-gray-105 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950/20 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer shadow-sm hover:scale-[1.01] transition-all"
+                            onClick={() => handleOpenLightbox(urls, 0)}
+                          >
+                            <img 
+                              src={urls[0]} 
+                              alt="thumbnail" 
+                              className="w-full h-36 md:h-28 object-cover rounded-xl hover:scale-[1.02] transition-transform duration-300" 
+                            />
+                            {urls.length > 1 && (
+                              <div className="absolute inset-0.5 bg-black/60 rounded-xl flex flex-col items-center justify-center text-white gap-0.5">
+                                <span className="text-base font-black">+{urls.length - 1}</span>
+                                <span className="text-[9px] font-black uppercase tracking-wider text-white/80">More Photos</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                     </div>
-                  );
-                })}
-              </div>
-            ))
+                  </article>
+                );
+              })}
+
+              <Pagination page={postsData?.page || page} pages={postsData?.pages || 1} onPageChange={(p) => setPage(p)} />
+            </div>
           )}
         </div>
       </div>

@@ -321,7 +321,7 @@ export default function UpdatesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["updates", page],
-    queryFn: () => listUpdates({ page, per_page: 15 }).then(r => r.data),
+    queryFn: () => listUpdates({ page, per_page: 5 }).then(r => r.data),
   });
 
   // isUpdateCoordinator check: only flagged faculty or students in the coordinators list
