@@ -67,14 +67,14 @@ function AttachmentCard({ url, name }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl hover:-translate-y-0.5 transition-all shadow-xs shrink-0 w-[210px]"
+      className="flex items-center gap-3.5 p-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-xl hover:-translate-y-0.5 transition-all shadow-xs shrink-0 w-[220px]"
     >
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <span className="block text-xs font-extrabold text-slate-800 dark:text-slate-250 truncate leading-tight">{name || "Attachment"}</span>
-        <span className="block text-[10px] text-slate-400 dark:text-slate-550 font-bold mt-0.5 leading-none">{fileSize}</span>
+        <span className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate leading-tight">{name || "Attachment"}</span>
+        <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-bold mt-1 leading-none">{fileSize}</span>
       </div>
     </a>
   );
@@ -466,19 +466,19 @@ export default function ProjectDetailPage() {
             {/* Last update card badge */}
             {currentUpdate && (
               <div className="hidden sm:flex items-center gap-3.5 border-l border-slate-850 pl-6 shrink-0 h-14">
-                <div className="flex flex-col text-right">
+                <div className="flex flex-col text-left">
                   <span className="text-[9px] uppercase font-black text-slate-500 tracking-wider">Last update</span>
-                  <div className="flex items-center gap-2 justify-end mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     {currentUpdate.avatar ? (
-                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-5.5 h-5.5 rounded-full object-cover ring-1 ring-indigo-500/25" />
+                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-6 h-6 rounded-full object-cover ring-1 ring-white/10" />
                     ) : (
-                      <div className={`w-5.5 h-5.5 rounded-full flex items-center justify-center font-bold text-[9px] ${getAvatarBg(currentUpdate.author)}`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] ${getAvatarBg(currentUpdate.author)}`}>
                         {currentUpdate.author.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-xs font-black text-white">{currentUpdate.author}</span>
+                    <span className="text-xs font-bold text-white leading-none">{currentUpdate.author}</span>
                   </div>
-                  <span className="text-[9.5px] text-slate-400 font-semibold mt-1">
+                  <span className="text-[10px] text-slate-400 font-semibold mt-1.5 leading-none">
                     {currentUpdate.dateOnly} • {currentUpdate.timeOnly}
                   </span>
                 </div>
@@ -489,60 +489,60 @@ export default function ProjectDetailPage() {
           {/* 2x2 Layout Grid (Fixed height/no internal scroll design) */}
           <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 min-h-0">
             {/* Card 1: Completed This Week */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
               <div className="space-y-3">
-                <div className="flex gap-2.5 items-center shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                <div className="flex gap-3 items-center shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-200/60 shadow-xs">
+                    <CheckCircle className="w-4.5 h-4.5 text-emerald-500" />
                   </div>
-                  <span className="text-[10.5px] font-black text-emerald-650 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
+                  <span className="text-[10.5px] font-black text-emerald-655 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
                 </div>
-                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
                   {updateData.completed_this_week || "No accomplishments recorded for this period."}
                 </p>
               </div>
             </div>
 
             {/* Card 2: Next Milestone */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
               <div className="space-y-3">
-                <div className="flex gap-2.5 items-center shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
-                    <TrendingUp className="w-4 h-4 text-indigo-650" />
+                <div className="flex gap-3 items-center shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-200/60 shadow-xs">
+                    <TrendingUp className="w-4.5 h-4.5 text-indigo-650" />
                   </div>
                   <span className="text-[10.5px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
                 </div>
-                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
                   {updateData.next_milestone || "No upcoming milestones declared."}
                 </p>
               </div>
             </div>
 
             {/* Card 3: Challenges / Blockers */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
               <div className="space-y-3">
-                <div className="flex gap-2.5 items-center shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
-                    <ShieldAlert className="w-4 h-4 text-rose-500" />
+                <div className="flex gap-3 items-center shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-200/60 shadow-xs">
+                    <ShieldAlert className="w-4.5 h-4.5 text-rose-500" />
                   </div>
                   <span className="text-[10.5px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
                 </div>
-                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
                   {updateData.challenges || "No active challenges or blockers."}
                 </p>
               </div>
             </div>
 
             {/* Card 4: Support Needed */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
               <div className="space-y-3">
-                <div className="flex gap-2.5 items-center shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
-                    <LifeBuoy className="w-4 h-4 text-amber-500" />
+                <div className="flex gap-3 items-center shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-200/60 shadow-xs">
+                    <LifeBuoy className="w-4.5 h-4.5 text-amber-500" />
                   </div>
                   <span className="text-[10.5px] font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">Support Needed</span>
                 </div>
-                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
                   {updateData.support || "No additional support required."}
                 </p>
               </div>
@@ -551,11 +551,9 @@ export default function ProjectDetailPage() {
 
           {/* Attachments Section Row */}
           {allAttachments.length > 0 && (
-            <div className="shrink-0 h-[80px] bg-slate-50/50 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800 rounded-2xl p-3 flex flex-col justify-center min-w-0">
-              <div className="flex items-center justify-between mb-1.5 shrink-0">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Attachments ({allAttachments.length})</span>
-              </div>
-              <div className="flex gap-3 overflow-x-auto min-w-0 pr-2 scrollbar-none">
+            <div className="shrink-0 bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0">
+              <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">Attachments ({allAttachments.length})</span>
+              <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-none py-1">
                 {allAttachments.map(node => (
                   <AttachmentCard key={node.id} url={node.attachmentUrl} name={node.attachmentName} />
                 ))}
@@ -564,7 +562,7 @@ export default function ProjectDetailPage() {
           )}
 
           {/* Horizontal Update Timeline (History log with visual connecting line) */}
-          <div className="shrink-0 h-[130px] bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center shadow-xs">
+          <div className="shrink-0 h-[140px] bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center shadow-xs">
             <div className="flex items-center justify-between shrink-0 mb-3">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Update History ({timelineNodes.length})</span>
               {selectedUpdateId !== null && (
@@ -579,10 +577,10 @@ export default function ProjectDetailPage() {
 
             <div className="relative flex-1 min-h-0 flex flex-col justify-center">
               {/* Connector Line */}
-              <div className="absolute left-6 right-6 top-[22px] h-[2px] bg-indigo-50 dark:bg-slate-800/80" />
+              <div className="absolute left-6 right-6 top-[22px] h-[2px] bg-indigo-50 dark:bg-slate-850" />
               
               {/* Nodes list */}
-              <div className="flex items-start gap-8 overflow-x-auto min-w-0 pr-2 scrollbar-none h-full w-full relative z-10">
+              <div className="flex items-start gap-8 overflow-x-auto overflow-y-hidden scrollbar-none h-full w-full relative z-10">
                 {timelineNodes.length === 0 ? (
                   <div className="text-xs font-semibold text-slate-400 italic pl-6 pt-6">No progress updates published yet.</div>
                 ) : (
@@ -598,28 +596,28 @@ export default function ProjectDetailPage() {
                         <div className="flex items-center pl-4 mb-2">
                           <div className={`w-3.5 h-3.5 rounded-full border-2 bg-white dark:bg-slate-900 transition-all flex items-center justify-center ${
                             isActive
-                              ? "border-indigo-600 ring-4 ring-indigo-100 dark:ring-indigo-900/30 scale-110"
+                              ? "border-indigo-605 ring-4 ring-indigo-100 dark:ring-indigo-900/30 scale-110"
                               : "border-slate-350 hover:border-indigo-500"
                           }`}>
-                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
+                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-605" />}
                           </div>
                         </div>
 
                         <div className="pl-4">
-                          <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                          <div className="text-[9px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">
                             {node.dateStr}
                           </div>
                           <div className="flex items-center gap-1.5 mt-1.5 shrink-0">
-                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[120px]">{node.author}</span>
+                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-205 truncate max-w-[120px]">{node.author}</span>
                             <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded border scale-95 leading-none ${
                               isActive
                                 ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
-                                : "bg-slate-50 dark:bg-slate-800/60 text-slate-500 border-slate-200/50 dark:border-slate-700/50"
+                                : "bg-slate-50 dark:bg-slate-800/60 text-slate-505 border-slate-200/50 dark:border-slate-700/50"
                             }`}>
                               {node.role}
                             </span>
                           </div>
-                          <div className="text-[10px] text-slate-505 dark:text-slate-400 mt-1 truncate leading-tight font-medium">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate leading-tight font-medium">
                             {node.summary}
                           </div>
                         </div>
@@ -638,7 +636,7 @@ export default function ProjectDetailPage() {
           
           {/* Project Overview metadata list */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-2xl p-5 space-y-4 shrink-0 shadow-xs">
-            <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-400 uppercase tracking-widest leading-none">Project Overview</h3>
+            <h3 className="text-[10px] font-black text-gray-405 dark:text-gray-400 uppercase tracking-widest leading-none">Project Overview</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
                 <div className="flex items-center gap-2 text-slate-400">
@@ -680,7 +678,7 @@ export default function ProjectDetailPage() {
 
           {/* Workspace Members list (COMPACT row system design) */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-2xl p-5 flex flex-col flex-1 min-h-0 shadow-xs">
-            <h3 className="text-[10px] font-black text-gray-450 dark:text-gray-400 uppercase tracking-widest leading-none shrink-0 mb-4">Workspace Members</h3>
+            <h3 className="text-[10px] font-black text-gray-455 dark:text-gray-400 uppercase tracking-widest leading-none shrink-0 mb-4">Workspace Members</h3>
             <div className="space-y-3.5 overflow-y-auto pr-1 flex-1 scrollbar-premium">
               {allMembers.map(m => {
                 const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
@@ -698,7 +696,7 @@ export default function ProjectDetailPage() {
                       )}
                       <span className="font-bold text-slate-800 dark:text-slate-200 truncate leading-none">{m.name}</span>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+                    <span className="text-[9px] font-bold text-slate-405 uppercase tracking-wider shrink-0">
                       {isFaculty ? "FACULTY" : isForum ? "FORUM" : "STUDENT"}
                     </span>
                   </div>
@@ -751,7 +749,7 @@ export default function ProjectDetailPage() {
               onChange={e => setFormTitle(e.target.value)}
               placeholder="e.g., Sprint 1 Demo, UI Design Completed..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -847,7 +845,7 @@ export default function ProjectDetailPage() {
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Attachment</label>
               {formAttachment ? (
-                <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
+                <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-950/20">
                   <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-md">
                     {formAttachment.name}
                   </span>
