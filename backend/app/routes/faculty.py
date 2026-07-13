@@ -86,6 +86,14 @@ def delete_faculty(faculty_id):
     from ..models.update import Update
     Update.query.filter_by(posted_by=user.id).update({Update.posted_by: None})
 
+    # Reassign subjects, units, unit files, and logs to HOD
+    hod_id = g.current_user.id
+    from ..models.notes import Subject, Unit, UnitFile, NotesLog
+    Subject.query.filter_by(created_by=user.id).update({Subject.created_by: hod_id})
+    Unit.query.filter_by(created_by=user.id).update({Unit.created_by: hod_id})
+    UnitFile.query.filter_by(uploaded_by=user.id).update({UnitFile.uploaded_by: hod_id})
+    NotesLog.query.filter_by(performed_by=user.id).update({NotesLog.performed_by: hod_id})
+
     faculty.class_incharge_of = None
 
     db.session.delete(user)

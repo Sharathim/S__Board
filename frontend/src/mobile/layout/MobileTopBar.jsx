@@ -3,7 +3,7 @@ import { ChevronLeft, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState } from "react";
-import MoreSheet from "./MoreSheet";
+
 
 const ROUTE_TITLES = {
   "/dashboard": "Dashboard",
@@ -33,8 +33,6 @@ export default function MobileTopBar({ title: titleProp }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { unreadCount } = useNotificationContext();
-  const [moreOpen, setMoreOpen] = useState(false);
-
   const isDetail = DETAIL_PATTERNS.some((p) => location.pathname.startsWith(p) && location.pathname !== p.slice(0, -1));
   const rc = getRoleColor(user?.role);
 
@@ -89,7 +87,7 @@ export default function MobileTopBar({ title: titleProp }) {
 
           {/* Avatar */}
           <button
-            onClick={() => setMoreOpen(true)}
+            onClick={() => navigate("/settings")}
             className="mobile-tappable w-8 h-8 rounded-xl overflow-hidden shrink-0"
           >
             {user?.profile_picture ? (
@@ -105,8 +103,6 @@ export default function MobileTopBar({ title: titleProp }) {
           </button>
         </div>
       </header>
-
-      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
     </>
   );
 }

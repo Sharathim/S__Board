@@ -160,6 +160,10 @@ def remove_student(class_name, student_id):
     if not student:
         return jsonify({"error": "Student not found in this class"}), 404
 
+    # Clean up projects created by this student
+    from ..models.project import Project
+    Project.query.filter_by(created_by=student.user_id).update({Project.created_by: None})
+
     # Clean up an associated forum-member record, then the user (cascade removes
     # the student profile).
     from ..models.forum_member import ForumMember

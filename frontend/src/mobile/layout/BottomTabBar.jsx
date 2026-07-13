@@ -1,9 +1,8 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, BookOpen, GraduationCap, Menu } from "lucide-react";
+import { LayoutDashboard, FolderKanban, BookOpen, GraduationCap, Settings } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState, useEffect, useRef } from "react";
-import MoreSheet from "./MoreSheet";
 
 const TAB_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Home", roles: ["HOD"] },
@@ -16,7 +15,6 @@ export default function BottomTabBar() {
   const { user } = useAuth();
   const { unreadCount } = useNotificationContext();
   const location = useLocation();
-  const [moreOpen, setMoreOpen] = useState(false);
 
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -102,20 +100,37 @@ export default function BottomTabBar() {
             );
           })}
 
-          {/* More tab */}
-          <button
-            onClick={() => setMoreOpen(true)}
-            className="mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all"
-          >
-            <Menu className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-            <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-              More
-            </span>
-          </button>
+          {/* Settings tab */}
+          {(() => {
+            const active = isActive("/settings");
+            return (
+              <NavLink
+                to="/settings"
+                className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
+                  active ? "mobile-tab-active" : ""
+                }`}
+              >
+                <Settings
+                  className={`w-5 h-5 transition-colors ${
+                    active
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-gray-400 dark:text-gray-500"
+                  }`}
+                />
+                <span
+                  className={`text-[10px] font-semibold transition-colors ${
+                    active
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-gray-400 dark:text-gray-500"
+                  }`}
+                >
+                  Settings
+                </span>
+              </NavLink>
+            );
+          })()}
         </div>
       </nav>
-
-      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
     </>
   );
 }
