@@ -10,7 +10,7 @@ import { Switch } from "../../components/ui/Switch";
 import {
   GraduationCap, Users, ToggleLeft, ToggleRight, Crown,
   Lock, ChevronRight, X, ShieldCheck, BookOpen, UserCog, Copy,
-  Layers, TrendingUp, LayoutGrid, List
+  Layers, TrendingUp, LayoutGrid, List, Trophy
 } from "lucide-react";
 import { useState } from "react";
 
@@ -245,6 +245,7 @@ export default function ClassesPage() {
 
   const [inchargeModal, setInchargeModal] = useState(null);
   const [viewMode, setViewMode] = useState("grid");
+  const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
 
   const { data: raw, isLoading } = useQuery({
     queryKey: ["classes"],
@@ -292,6 +293,18 @@ export default function ClassesPage() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Leaderboard Button */}
+          <button
+            onClick={() => {
+              setShowLeaderboardPopup(true);
+              setTimeout(() => setShowLeaderboardPopup(false), 2000);
+            }}
+            className="flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm text-xs font-bold text-gray-700 dark:text-gray-300 transition-all shrink-0 hover:scale-[1.02]"
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-500" />
+            <span>Leaderboard</span>
+          </button>
+
           {/* HOD only: Student registration toggle "Student Invite" */}
           {isHOD && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
@@ -452,6 +465,14 @@ export default function ClassesPage() {
         onClose={() => setInchargeModal(null)}
         isPending={assignInchargeMutation.isPending}
       />
+
+      {/* Leaderboard Coming Soon Popup */}
+      {showLeaderboardPopup && (
+        <div className="fixed bottom-5 right-5 z-[9999] flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-2xl border border-gray-850 dark:border-gray-150 animate-slide-in">
+          <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
+          <p className="text-xs font-semibold">Leaderboard is coming soon!</p>
+        </div>
+      )}
     </div>
   );
 }

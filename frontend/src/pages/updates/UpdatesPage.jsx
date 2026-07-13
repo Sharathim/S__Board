@@ -545,7 +545,7 @@ export default function UpdatesPage() {
   });
 
   return (
-    <div className="animate-fade-in pb-12 w-full">
+    <div className="animate-fade-in pb-12 w-full max-w-[1320px] mx-auto px-4 sm:px-6">
 
       {/* Toast Notifications */}
       {successMessage && (
@@ -562,11 +562,10 @@ export default function UpdatesPage() {
       )}
 
       {/* ─── Page Header Row & Actions ─── */}
-      {/* Desktop Header Row (Hidden on Mobile) */}
-      <div className="hidden sm:flex items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
-        <div className="flex items-center gap-2">
-          {/* Coordinator Avatars (Desktop) */}
+      <div className="flex items-center justify-between gap-4 mb-4 mt-2">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-black text-[#111827] dark:text-white tracking-tight">Updates</h1>
+          {/* Coordinator Avatars (Desktop & Mobile combined) */}
           {(isHOD || isUpdateCoordinator) && coordData?.coordinators && coordData.coordinators.length > 0 && (
             <div className="flex items-center -space-x-1.5 mr-2">
               {coordData.coordinators.map(coord => {
@@ -586,7 +585,7 @@ export default function UpdatesPage() {
                         <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
                         {isHOD ? (
                           <button
-                            type="button"
+                            type="button; cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
                               removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
@@ -606,123 +605,68 @@ export default function UpdatesPage() {
               })}
             </div>
           )}
-
-          {isHOD && (
-            <button
-              type="button"
-              onClick={() => setCoordPickerOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
-            >
-              <Plus className="w-4 h-4" /> Updates coordinator
-            </button>
-          )}
-          {isUpdateCoordinator && (
-            <button
-              type="button"
-              onClick={triggerCreateModal}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
-            >
-              <Plus className="w-4 h-4" /> Create Update
-            </button>
-          )}
         </div>
+
+        {/* Create Update Button */}
+        {isUpdateCoordinator && (
+          <button
+            type="button"
+            onClick={triggerCreateModal}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#5B4CF0] hover:bg-[#4b3de0] text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Create Update
+          </button>
+        )}
       </div>
 
-      {/* Mobile Actions/Coordinators Row (Only shown on mobile) */}
-      {isHOD && (
-        <div className="sm:hidden flex items-center justify-between gap-2 mt-1 mb-6">
-          {/* Render Coordinator profiles + Button for HOD */}
-          <div className="flex items-center justify-between w-full gap-3">
-            {/* Left: profiles */}
-            <div className="flex items-center -space-x-1.5 shrink-0">
-              {coordData?.coordinators && coordData.coordinators.map(coord => {
-                const isSelected = selectedCoordForRemove === `${coord.kind}-${coord.ref_id}`;
-                return (
-                  <div key={`${coord.kind}-${coord.ref_id}`} className="relative shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCoordForRemove(isSelected ? null : `${coord.kind}-${coord.ref_id}`)}
-                      className="block rounded-full ring-2 ring-white dark:ring-slate-900 overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
-                      title={coord.name}
-                    >
-                      <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-8 h-8 rounded-full" />
-                    </button>
-                    {isSelected && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
-                        <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
-                            setSelectedCoordForRemove(null);
-                          }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-955/20 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* Right: fixed button */}
-            <button
-              type="button"
-              onClick={() => setCoordPickerOpen(true)}
-              className="w-[130px] justify-center inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold transition-all shadow-md shadow-violet-500/10 active:scale-95 shrink-0"
-            >
-              <Plus className="w-3.5 h-3.5" /> Coordinator
-            </button>
+      {/* Filter & Search Toolbar */}
+      <div className="border-b border-[#E8ECF4] dark:border-gray-700/60 pb-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Filter Tabs */}
+          <div className="flex flex-wrap gap-1.5 shrink-0">
+            {[
+              { key: "all", label: "All" },
+              { key: "announcements", label: "Announcements" },
+              { key: "events", label: "Events" },
+              { key: "achievements", label: "Achievements" },
+            ].map(tab => {
+              const isSelected = activeFilterTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => { setActiveFilterTab(tab.key); setPage(1); }}
+                  className={`px-3.5 py-1.5 text-sm font-medium transition-all shrink-0 rounded-full relative ${
+                    isSelected
+                      ? "text-[#5B4CF0] bg-violet-50/60 dark:bg-violet-950/20 shadow-sm"
+                      : "text-[#64748B] hover:text-[#111827] dark:text-gray-400 dark:hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                  {isSelected && (
+                    <div className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-[#5B4CF0] rounded-full animate-fade-in" />
+                  )}
+                </button>
+              );
+            })}
           </div>
-        </div>
-      )}
 
-      {/* Filter Bar (Reverse column order on mobile to show search on top of tabs) */}
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pb-2.5 mt-2 mb-6">
-        {/* Filter Tabs (responsive wrapping, no scrolling on mobile) */}
-        <div className="flex flex-wrap gap-x-4 gap-y-1.5 shrink-0">
-          {[
-            { key: "all", label: "All" },
-            { key: "announcements", label: "Announcements" },
-            { key: "events", label: "Events" },
-            { key: "achievements", label: "Achievements" },
-          ].map(tab => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => { setActiveFilterTab(tab.key); setPage(1); }}
-              className={`px-0.5 py-1 text-xs sm:text-sm transition-all shrink-0 relative ${
-                activeFilterTab === tab.key
-                  ? "text-violet-650 dark:text-violet-400 font-bold"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-850 dark:hover:text-gray-205"
-              }`}
-            >
-              {tab.label}
-              {activeFilterTab === tab.key && (
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-violet-600 rounded-full" />
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div className="relative w-full sm:max-w-xs shrink-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search updates..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-905 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
-          />
-          {searchTerm && (
-            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-605">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+          {/* Search bar */}
+          <div className="relative w-full sm:max-w-xs shrink-0">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
+            <input
+              type="text"
+              placeholder="Search updates..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-9 py-1.5 text-[13px] rounded-full border border-[#E8ECF4] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#111827] dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#5B4CF0] focus:ring-1 focus:ring-[#5B4CF0] transition-all shadow-sm"
+            />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#111827]">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -749,28 +693,27 @@ export default function UpdatesPage() {
             return (
               <article
                 key={update.id}
-                className="update-card mx-auto p-4 sm:p-5 mb-4 flex flex-col justify-between"
+                className="mx-auto w-full mb-4 bg-white dark:bg-gray-800/80 rounded-[18px] border border-[#E8ECF4] dark:border-gray-700/80 p-[18px] shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.05)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
               >
-                <div className={hasImages ? "grid grid-cols-1 md:grid-cols-10 gap-5" : "w-full"}>
-                  
-                  {/* Left Content Area */}
-                  <div className={hasImages ? "col-span-1 md:col-span-7 flex flex-col justify-between min-w-0" : "w-full min-w-0"}>
+                <div className="flex flex-col md:flex-row gap-5 items-start justify-between">
+                  <div className="flex-1 min-w-0 w-full flex flex-col justify-between">
                     <div>
-                      {/* Header */}
-                      <div className="flex items-center justify-between gap-3 mb-2.5">
+                      {/* Header Row */}
+                      <div className="flex items-center justify-between gap-3 mb-3">
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-violet-900 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
+                          {/* Department Avatar */}
+                          <div className="w-8 h-8 rounded-full bg-[#5B4CF0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
                             {(parsed.department || "D").charAt(0).toUpperCase()}
                           </div>
-                          <div className="flex items-center gap-2 flex-wrap min-w-0 leading-none">
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">
+                          <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <span className="text-[14px] font-medium text-[#111827] dark:text-gray-200 truncate">
                               {parsed.department || "PG Department of Computer Science"}
                             </span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-505 dark:text-gray-450 uppercase tracking-wider">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 dark:bg-violet-955 text-[#5B4CF0] dark:text-violet-400 border border-violet-100/30 dark:border-violet-900/30 uppercase tracking-wider">
                               {parsed.update_type || "Announcement"}
                             </span>
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-gray-400" />
+                            <span className="text-[13px] text-[#64748B] dark:text-gray-550 flex items-center gap-1 shrink-0">
+                              <Clock className="w-3.5 h-3.5 text-gray-400" />
                               {formatTime(update.created_at)}
                             </span>
                           </div>
@@ -782,7 +725,7 @@ export default function UpdatesPage() {
                             <button
                               type="button"
                               onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
-                              className="p-1 rounded-lg text-gray-400 hover:text-gray-605 dark:hover:text-gray-250 transition-colors"
+                              className="p-1 rounded-lg text-gray-400 hover:text-gray-650 dark:hover:text-gray-250 transition-colors"
                             >
                               <span className="text-lg font-bold tracking-widest leading-none block -mt-1">...</span>
                             </button>
@@ -812,23 +755,23 @@ export default function UpdatesPage() {
 
                       {/* Title */}
                       {parsed.title && (
-                        <h2 className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-white leading-snug line-clamp-2">
+                        <h2 className="text-[28px] font-bold tracking-tight mb-2 text-[#111827] dark:text-white leading-tight line-clamp-2">
                           {parsed.title}
                         </h2>
                       )}
 
-                      {/* Description with Read More Toggle */}
+                      {/* Description with Read More Toggle Inline */}
                       {(() => {
                         const isExpanded = !!expandedUpdateIds[update.id];
                         const hasLongDesc = parsed.description.length > 200;
                         return (
-                          <p className="text-xs sm:text-sm text-gray-750 dark:text-gray-350 leading-relaxed mb-3 break-words">
-                            {isExpanded ? parsed.description : (hasLongDesc ? parsed.description.slice(0, 200) + "..." : parsed.description)}
+                          <p className="text-[15px] text-[#64748B] dark:text-gray-300 leading-relaxed font-normal mb-3 break-words">
+                            {isExpanded ? parsed.description : (hasLongDesc ? parsed.description.slice(0, 180) + "..." : parsed.description)}
                             {hasLongDesc && (
                               <button
                                 type="button"
                                 onClick={() => setExpandedUpdateIds(prev => ({ ...prev, [update.id]: !prev[update.id] }))}
-                                className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
+                                className="text-[#5B4CF0] dark:text-violet-400 font-semibold ml-1.5 hover:underline focus:outline-none inline"
                               >
                                 {isExpanded ? "Show Less" : "Read More"}
                               </button>
@@ -844,64 +787,54 @@ export default function UpdatesPage() {
                         <CardMediaRenderer urls={otherUrls} />
                       </div>
                     )}
-
-                    {/* Footer Date, Location & Like */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
-                      {(parsed.update_type === "Event" || parsed.date_time || parsed.location) ? (
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-405">
-                          {parsed.date_time && (
-                            <span className="flex items-center gap-1 shrink-0">
-                              <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                              {formatEventDate(parsed.date_time)}
-                            </span>
-                          )}
-                          {parsed.location && (
-                            <span className="flex items-center gap-1 truncate max-w-[150px] sm:max-w-none">
-                              <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                              {parsed.location}
-                            </span>
-                          )}
-                        </div>
-                      ) : <div />}
-
-                      <button
-                        type="button"
-                        onClick={() => likeMutation.mutate(update.id)}
-                        className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 transition-all ${
-                          update.liked ? "text-rose-500 animate-pulse" : "text-gray-400 hover:text-rose-500"
-                        }`}
-                      >
-                        <Heart
-                          className={`w-3.5 h-3.5 transition-all ${update.liked ? "fill-rose-500 text-rose-500" : ""}`}
-                        />
-                        <span>{update.like_count || 0}</span>
-                      </button>
-                    </div>
                   </div>
 
-                  {/* Right Image Thumbnail Block (Desktop Split, Mobile stack) */}
+                  {/* Right Image Thumbnail Block */}
                   {hasImages && (
-                    <div className="col-span-1 md:col-span-3 flex flex-col justify-center">
-                      <div 
-                        className="relative rounded-2xl overflow-hidden border border-gray-105 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950/20 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer"
-                        onClick={() => handleOpenLightbox(imageUrls, 0)}
-                      >
-                        <img 
-                          src={imageUrls[0]} 
-                          alt="thumbnail" 
-                          className="w-full h-36 md:h-28 object-cover rounded-xl hover:scale-[1.02] transition-transform duration-300" 
-                        />
-                        {imageUrls.length > 1 && (
-                          <div className="absolute inset-0.5 bg-black/60 rounded-xl flex flex-col items-center justify-center text-white gap-0.5">
-                            <span className="text-base font-black">+{imageUrls.length - 1}</span>
-                            <span className="text-[9px] font-black uppercase tracking-wider text-white/80">More Photos</span>
-                          </div>
-                        )}
-                      </div>
+                    <div 
+                      className="relative w-full md:w-[180px] h-[120px] rounded-xl overflow-hidden border border-[#E8ECF4] dark:border-gray-750 shadow-sm shrink-0 cursor-pointer group/img"
+                      onClick={() => handleOpenLightbox(imageUrls, 0)}
+                    >
+                      <img 
+                        src={imageUrls[0]} 
+                        alt="thumbnail" 
+                        className="w-full h-full object-cover group-hover/img:scale-102 transition-transform duration-500" 
+                      />
+                      {imageUrls.length > 1 && (
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1.5px] flex flex-col items-center justify-center text-white transition-opacity duration-300">
+                          <span className="text-base font-black">+{imageUrls.length - 1}</span>
+                          <span className="text-[9px] font-black uppercase tracking-wider text-white/80">Photos</span>
+                        </div>
+                      )}
                     </div>
                   )}
 
                 </div>
+
+                {/* Footer Date, Location & Like */}
+                <div className="flex flex-wrap items-center gap-6 pt-3.5 border-t border-[#E8ECF4] dark:border-gray-700/60 mt-4 text-[13px] font-medium text-[#64748B] dark:text-gray-400">
+                  {parsed.date_time && (
+                    <span className="flex items-center gap-1.5 shrink-0">
+                      <Calendar className="w-4 h-4 text-[#64748B]" />
+                      {formatEventDate(parsed.date_time)}
+                    </span>
+                  )}
+                  {parsed.location && (
+                    <span className="flex items-center gap-1.5 truncate max-w-[200px] sm:max-w-none">
+                      <MapPin className="w-4 h-4 text-[#64748B]" />
+                      {parsed.location}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => likeMutation.mutate(update.id)}
+                    className="flex items-center gap-1.5 hover:text-rose-500 transition-colors shrink-0 ml-auto sm:ml-0"
+                  >
+                    <Heart className={`w-4 h-4 transition-colors ${update.liked ? "fill-rose-500 text-rose-500" : "text-[#64748B]"}`} />
+                    <span>{update.like_count || 0} Likes</span>
+                  </button>
+                </div>
+
               </article>
             );
           })}
