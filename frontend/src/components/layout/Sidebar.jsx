@@ -95,7 +95,9 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
   const { user, logout } = useAuth();
 
   const navItems = allNavItems.filter(item =>
-    !item.roles || item.roles.includes(user?.role)
+    (!item.roles || item.roles.includes(user?.role)) &&
+    item.to !== "/forum" &&
+    item.to !== "/updates"
   );
 
   const seen = new Set();

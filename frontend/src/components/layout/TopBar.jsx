@@ -174,7 +174,9 @@ export function TopBar() {
 
   // Filter nav items by role and deduplicate
   const filteredNavs = allNavItems.filter(item =>
-    !item.roles || item.roles.includes(user?.role)
+    (!item.roles || item.roles.includes(user?.role)) &&
+    item.to !== "/forum" &&
+    item.to !== "/updates"
   );
   const seen = new Set();
   const navItems = filteredNavs.filter(item => {

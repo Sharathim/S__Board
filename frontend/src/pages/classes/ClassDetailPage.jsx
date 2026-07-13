@@ -126,16 +126,9 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
 
         <div className="flex items-center">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Status:</span>
-          {s.is_forum_member ? (
-            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${FORUM_ROLE_COLORS[s.forum_role] || FORUM_ROLE_COLORS.Member}`}>
-              <CheckCircle2 className="w-2.5 h-2.5" />
-              {s.forum_role || "Forum"}
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-gray-700/40 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700">
-              Student
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-gray-700/40 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700">
+            Student
+          </span>
         </div>
 
         {canManage && (
@@ -148,15 +141,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
               <Mail className="w-3.5 h-3.5" />
             </a>
 
-            {isHOD && isForumClass && !s.is_forum_member && (
-              <button
-                onClick={() => onForum(s)}
-                className="p-1.5 rounded-xl text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors border border-transparent hover:border-primary-100 dark:hover:border-primary-900/30"
-                title="Assign to Forum"
-              >
-                <MessageSquarePlus className="w-3.5 h-3.5" />
-              </button>
-            )}
+
 
             <button
               onClick={() => onRemove(s)}
@@ -323,12 +308,7 @@ export default function ClassDetailPage() {
                   <Users className="w-3.5 h-3.5" />
                   {studentList.length} student{studentList.length !== 1 ? "s" : ""}
                 </span>
-                {isForumClass && (
-                  <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-                    <GraduationCap className="w-3.5 h-3.5" />
-                    {forumCount} forum member{forumCount !== 1 ? "s" : ""}
-                  </span>
-                )}
+
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, MessageSquare, Megaphone, Menu } from "lucide-react";
+import { LayoutDashboard, FolderKanban, BookOpen, GraduationCap, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState, useEffect, useRef } from "react";
@@ -8,8 +8,8 @@ import MoreSheet from "./MoreSheet";
 const TAB_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Home", roles: ["HOD"] },
   { to: "/projects", icon: FolderKanban, label: "Projects", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/forum", icon: MessageSquare, label: "Forum", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/updates", icon: Megaphone, label: "Updates", roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/classes", icon: BookOpen, label: "Classes", roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/faculty", icon: GraduationCap, label: "Faculty", roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
 export default function BottomTabBar() {

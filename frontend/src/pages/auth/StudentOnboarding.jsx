@@ -103,7 +103,7 @@ export default function StudentOnboarding() {
                   type="button"
                   onClick={() => setSelectedClass(cls)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${selectedClass === cls
-                      ? "bg-primary-600 text-white border-primary-600 shadow-sm"
+                      ? "bg-violet-600 text-white border-violet-600 shadow-sm"
                       : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
                     }`}
                 >

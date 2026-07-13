@@ -97,9 +97,16 @@ export default function LoginPage() {
     };
   }, []);
 
-  // Redirect if already logged in (placed after hooks per Rules of Hooks)
-  if (!loading && user && !onboardingData) {
-    return <Navigate to="/dashboard" replace />;
+  // Redirect based on session and onboarding requirements (placed after hooks per Rules of Hooks)
+  if (!loading) {
+    if (onboardingData) {
+      if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" replace />;
+      if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
+    }
+    if (user) {
+      const dest = user.role === "HOD" ? "/dashboard" : user.role === "FACULTY" ? "/faculty" : "/classes";
+      return <Navigate to={dest} replace />;
+    }
   }
 
   return (

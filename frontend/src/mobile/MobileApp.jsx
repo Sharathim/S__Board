@@ -38,7 +38,10 @@ function MobilePublicRoute() {
     if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" replace />;
     if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
   }
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    const dest = user.role === "HOD" ? "/dashboard" : user.role === "FACULTY" ? "/faculty" : "/classes";
+    return <Navigate to={dest} replace />;
+  }
   return <MobilePublicShell />;
 }
 
@@ -76,10 +79,10 @@ export default function MobileApp() {
           <Route path="/faculty" element={<MobileFacultyPage />} />
           <Route path="/classes" element={<MobileClassesPage />} />
           <Route path="/classes/:className" element={<MobileClassDetailPage />} />
-          <Route path="/forum" element={<MobileForumPage />} />
+          <Route path="/forum" element={<Navigate to="/" replace />} />
           <Route path="/projects" element={<MobileProjectsPage />} />
           <Route path="/projects/:id" element={<MobileProjectDetailPage />} />
-          <Route path="/updates" element={<MobileUpdatesPage />} />
+          <Route path="/updates" element={<Navigate to="/" replace />} />
           <Route path="/notifications" element={<MobileNotificationsPage />} />
           <Route path="/settings" element={<MobileSettingsPage />} />
         </Route>

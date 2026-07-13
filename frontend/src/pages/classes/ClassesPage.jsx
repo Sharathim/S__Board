@@ -110,10 +110,10 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
           <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
             <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">
-              {c.forum_member_count !== undefined ? c.forum_member_count : `Year ${activeMeta.year}`}
+              {`Year ${activeMeta.year}`}
             </span>
             <span className="text-[10px] font-[600] tracking-[0.5px] text-[var(--text-muted)] uppercase mt-[2px] leading-none">
-              {c.forum_member_count !== undefined ? "Forum" : "Year"}
+              Year
             </span>
           </div>
         </div>

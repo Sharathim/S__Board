@@ -127,7 +127,9 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
   }, [menuOpen]);
 
   return (
-    <div className="group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full relative">
+    <div className={`group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full relative ${
+      menuOpen ? "z-30" : "z-10"
+    }`}>
       {/* Profile Header Banner */}
       <div className={`h-[76px] w-full bg-gradient-to-r ${palette.bg} opacity-90 relative rounded-t-[20px]`}>
         {/* Pattern overlay */}
@@ -437,7 +439,9 @@ export default function FacultyPage() {
             {filtered.map((fac) => (
               <div
                 key={fac.id}
-                className="group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300"
+                className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 relative ${
+                  openKebabId === fac.id ? "z-30" : "z-10"
+                }`}
               >
                 {/* Col 1: Avatar + Name */}
                 <div className="flex items-center gap-3 min-w-0">
@@ -497,11 +501,11 @@ export default function FacultyPage() {
                   >
                     <GmailIcon className="w-4 h-4" />
                   </a>
-                  {isHOD ? (
+                   {isHOD ? (
                     <div className="relative kebab-container-list">
                       <button
                         onClick={(e) => { e.stopPropagation(); setOpenKebabId(openKebabId === fac.id ? null : fac.id); }}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-655 dark:hover:text-gray-300 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
@@ -510,9 +514,14 @@ export default function FacultyPage() {
                           <button
                             onClick={() => {
                               setOpenKebabId(null);
-                              fac.class_incharge_of ? assignMutation.mutate({ id: fac.id, className: "" }) : setAssignModal(fac);
+                              if (fac.class_incharge_of) {
+                                assignMutation.mutate({ id: fac.id, className: "" });
+                              } else {
+                                setAssignModal(fac);
+                                setSelectedClass("");
+                              }
                             }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
                           >
                             {fac.class_incharge_of
                               ? <><UserX className="w-4 h-4" />Remove as Incharge</>
@@ -522,7 +531,7 @@ export default function FacultyPage() {
                           <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
                           <button
                             onClick={() => { setOpenKebabId(null); setDeleteConfirm(fac); }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
                           >
                             <Trash2 className="w-4 h-4" />
                             Remove Faculty

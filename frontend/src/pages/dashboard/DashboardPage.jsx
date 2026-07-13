@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Navigate } from "react-router-dom";
 import { getProjectStats } from "../../api/projects";
 import { listClasses } from "../../api/classes";
 import { listFaculty } from "../../api/faculty";
@@ -214,6 +215,10 @@ function ForumFeedItem({ post }) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  if (user && user.role !== "HOD") {
+    const dest = user.role === "FACULTY" ? "/faculty" : "/classes";
+    return <Navigate to={dest} replace />;
+  }
   const [isMailModalOpen, setIsMailModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("updates");
   const { navigateWithTransition } = usePageTransition();
@@ -337,178 +342,85 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Main Activity Feed vs Sidebar Layout ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* ── Insights & Shortcuts Layout ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* Column 1: Unified Activity Feed (65%) */}
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col min-h-[400px]">
+        {/* Live Date/Time widget */}
+        <LiveClockWidget />
+
+        {/* Engagement Metrics Card */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
+          <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
+            Department Insights
+          </h3>
           
-          {/* Workspace Tabs Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-3">
-            <h3 className="text-sm font-black text-slate-800 flex items-center gap-1.5">
-              <Megaphone className="w-4 h-4 text-emerald-600" />
-              Activity Feed
-            </h3>
-            
-            {/* Sliding Tab Switcher */}
-            <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
-              <button
-                onClick={() => setActiveTab("updates")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "updates"
-                    ? "bg-white text-emerald-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                Announcements
-              </button>
-              <button
-                onClick={() => setActiveTab("forum")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  activeTab === "forum"
-                    ? "bg-white text-indigo-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                Discussions
-              </button>
+          <div className="space-y-3.5">
+            {/* Total Views */}
+            <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+              <div className="min-w-0">
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                  Department Views
+                </span>
+                <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
+                  {totalViews}
+                </span>
+                <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
+                  Logged-in & public sections
+                </span>
+              </div>
+              <div className="w-8.5 h-8.5 rounded-lg bg-indigo-50 text-indigo-605 flex items-center justify-center shrink-0">
+                <Eye className="w-4 h-4" />
+              </div>
             </div>
-          </div>
 
-          {/* Feed Content Area */}
-          <div className="flex-1 mt-2">
-            {activeTab === "updates" ? (
-              updatesList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <Megaphone className="w-8 h-8 text-slate-300 mb-2.5" />
-                  <p className="text-xs font-semibold text-slate-400">No updates or announcements yet</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-50">
-                  {updatesList.slice(0, 3).map((up) => (
-                    <UpdateFeedItem key={up.id} update={up} />
-                  ))}
-                </div>
-              )
-            ) : (
-              forumPostsList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <MessageSquare className="w-8 h-8 text-slate-300 mb-2.5" />
-                  <p className="text-xs font-semibold text-slate-400">No discussion posts yet</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-50">
-                  {forumPostsList.slice(0, 3).map((fp) => (
-                    <ForumFeedItem key={fp.id} post={fp} />
-                  ))}
-                </div>
-              )
-            )}
-          </div>
-
-          {/* Footer View More Action */}
-          <div className="pt-3 border-t border-slate-50 mt-4 flex justify-end">
-            <button
-              onClick={() => {
-                if (activeTab === "updates") {
-                  navigateWithTransition("/updates", "Updates", Megaphone);
-                } else {
-                  navigateWithTransition("/forum", "Forum", MessageSquare);
-                }
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "updates"
-                  ? "text-emerald-600 hover:bg-emerald-50/50"
-                  : "text-indigo-600 hover:bg-indigo-50/50"
-              }`}
-            >
-              See all {activeTab === "updates" ? "Announcements" : "Discussions"}{" "}
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            {/* Total Users */}
+            <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+              <div className="min-w-0">
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                  Total Members
+                </span>
+                <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
+                  {totalUsers}
+                </span>
+                <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
+                  HOD, Faculty & Students
+                </span>
+              </div>
+              <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4" />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Column 2: Insights & Action Sidebar (35%) */}
-        <div className="space-y-6">
-          
-          {/* Live Date/Time widget */}
-          <LiveClockWidget />
-
-          {/* Engagement Metrics Card */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
-            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
-              Department Insights
-            </h3>
-            
-            <div className="space-y-3.5">
-              {/* Total Views */}
-              <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+        {/* Quick Action Directories */}
+        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3">
+          <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-1">
+            Shortcuts
+          </h3>
+          <div className="space-y-2">
+            {[
+              { label: "Classrooms Directory", desc: "Manage classes & view incharge info", to: "/classes", icon: BookOpen },
+              { label: "Projects Registry", desc: "Browse, filter & search projects", to: "/projects", icon: FolderKanban },
+              { label: "Faculty Directory", desc: "View department active faculty list", to: "/faculty", icon: Users }
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                onClick={() => navigateWithTransition(item.to, item.label, item.icon)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 cursor-pointer group transition-all"
+              >
                 <div className="min-w-0">
-                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
-                    Department Views
+                  <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition-colors leading-tight">
+                    {item.label}
                   </span>
-                  <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
-                    {totalViews}
-                  </span>
-                  <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
-                    Logged-in & public sections
+                  <span className="block text-[10px] text-slate-400 mt-0.5 truncate leading-none">
+                    {item.desc}
                   </span>
                 </div>
-                <div className="w-8.5 h-8.5 rounded-lg bg-indigo-50 text-indigo-605 flex items-center justify-center shrink-0">
-                  <Eye className="w-4 h-4" />
-                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all shrink-0" />
               </div>
-
-              {/* Total Users */}
-              <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                <div className="min-w-0">
-                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
-                    Total Members
-                  </span>
-                  <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
-                    {totalUsers}
-                  </span>
-                  <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
-                    HOD, Faculty & Students
-                  </span>
-                </div>
-                <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                  <Users className="w-4 h-4" />
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-
-          {/* Quick Action Directories */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3">
-            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-1">
-              Shortcuts
-            </h3>
-            <div className="space-y-2">
-              {[
-                { label: "Classrooms Directory", desc: "Manage classes & view incharge info", to: "/classes", icon: BookOpen },
-                { label: "Projects Registry", desc: "Browse, filter & search projects", to: "/projects", icon: FolderKanban },
-                { label: "Faculty Directory", desc: "View department active faculty list", to: "/faculty", icon: Users }
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => navigateWithTransition(item.to, item.label, item.icon)}
-                  className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 cursor-pointer group transition-all"
-                >
-                  <div className="min-w-0">
-                    <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition-colors leading-tight">
-                      {item.label}
-                    </span>
-                    <span className="block text-[10px] text-slate-400 mt-0.5 truncate leading-none">
-                      {item.desc}
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all shrink-0" />
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
 
       </div>

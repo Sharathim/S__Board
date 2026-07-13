@@ -24,6 +24,20 @@ import SettingsPage from "./pages/settings/SettingsPage";
 
 import NotFoundPage from "./pages/public/NotFoundPage";
 
+function PublicRoute({ children }) {
+  const { user, loading, onboardingData } = useAuth();
+  if (loading) return <SessionLoader />;
+  if (onboardingData) {
+    if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" replace />;
+    if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
+  }
+  if (user) {
+    const dest = user.role === "HOD" ? "/dashboard" : user.role === "FACULTY" ? "/faculty" : "/classes";
+    return <Navigate to={dest} replace />;
+  }
+  return children;
+}
+
 function ProtectedRoute({ children }) {
   const { user, loading, onboardingData } = useAuth();
   if (loading) return <SessionLoader />;
@@ -41,7 +55,7 @@ export default function App() {
       <Routes>
         {/* Public landing — always accessible */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<PublicRoute><HomePage /></PublicRoute>} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/contact" element={<ContactPage />} />
@@ -57,11 +71,11 @@ export default function App() {
           <Route path="/faculty" element={<FacultyPage />} />
           <Route path="/classes" element={<ClassesPage />} />
           <Route path="/classes/:className" element={<ClassDetailPage />} />
-          <Route path="/forum" element={<ForumPage />} />
-          <Route path="/forum/post/:id" element={<ForumPostDetailPage />} />
+          <Route path="/forum" element={<Navigate to="/" replace />} />
+          <Route path="/forum/post/:id" element={<Navigate to="/" replace />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
-          <Route path="/updates" element={<UpdatesPage />} />
+          <Route path="/updates" element={<Navigate to="/" replace />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

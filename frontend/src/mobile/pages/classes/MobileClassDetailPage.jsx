@@ -110,11 +110,7 @@ export default function MobileClassDetailPage() {
               <p className="text-xs text-white/70 mt-1 flex items-center gap-1">
                 <Users className="w-3.5 h-3.5" /> {studentList.length} student{studentList.length !== 1 ? "s" : ""}
               </p>
-              {isForumClass && (
-                <p className="text-[11px] text-white/70 mt-0.5 flex items-center gap-1">
-                  <GraduationCap className="w-3.5 h-3.5" /> {forumCount} forum member{forumCount !== 1 ? "s" : ""}
-                </p>
-              )}
+
             </div>
           </div>
         </div>
@@ -164,15 +160,7 @@ export default function MobileClassDetailPage() {
 
                   {canManage && (
                     <>
-                      {isHOD && isForumClass && !s.is_forum_member && (
-                        <button
-                          onClick={() => { setForumTarget(s); setForumRole("Member"); }}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-primary-600 transition-colors"
-                          title="Assign to Forum"
-                        >
-                          <MessageSquarePlus className="w-4 h-4" />
-                        </button>
-                      )}
+
                       <button
                         onClick={() => setRemoveTarget(s)}
                         className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
@@ -188,16 +176,9 @@ export default function MobileClassDetailPage() {
               {/* Status Badge */}
               <div className="mt-3 pt-2.5 border-t border-dashed border-gray-150 dark:border-slate-700/50 flex items-center justify-between">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Access Status</span>
-                {s.is_forum_member ? (
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${FORUM_ROLE_COLORS[s.forum_role] || FORUM_ROLE_COLORS.Member}`}>
-                    <CheckCircle2 className="w-2.5 h-2.5" />
-                    {s.forum_role || "Forum"}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-700">
-                    Student
-                  </span>
-                )}
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-700">
+                  Student
+                </span>
               </div>
             </MobileCard>
           ))}

@@ -16,7 +16,7 @@ export default function MobileFacultyOnboarding() {
   useEffect(() => {
     if (!authLoading) {
       if (user) {
-        navigate("/dashboard", { replace: true });
+        navigate("/faculty", { replace: true });
       } else if (!onboardingData) {
         navigate("/", { replace: true });
       }
@@ -54,7 +54,7 @@ export default function MobileFacultyOnboarding() {
       setOnboardingData(null);
       setUser(res.data.user);
       sessionStorage.removeItem("loginRole");
-      navigate("/dashboard");
+      navigate("/faculty");
     } catch (err) {
       setError(err.response?.data?.error || "Onboarding failed");
     } finally {
@@ -107,7 +107,7 @@ export default function MobileFacultyOnboarding() {
                     type="button"
                     onClick={() => toggleClass(cls)}
                     className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 ${classes.includes(cls)
-                        ? "bg-primary-650 text-white border-primary-650 shadow-sm"
+                        ? "bg-violet-600 text-white border-violet-600 shadow-sm"
                         : "bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-primary-400"
                       }`}
                   >
