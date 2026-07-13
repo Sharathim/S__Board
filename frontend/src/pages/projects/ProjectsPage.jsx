@@ -68,7 +68,7 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
 
       {open && (
         <div
-          className="absolute right-0 bottom-full mb-2 z-[100] w-44 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200/80 dark:border-gray-700 py-1.5 animate-fade-in"
+          className="absolute right-0 top-full mt-2 z-[100] w-44 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200/80 dark:border-gray-700 py-1.5 animate-fade-in"
           onClick={(e) => { e.stopPropagation(); setOpen(false); }}
         >
           <button
