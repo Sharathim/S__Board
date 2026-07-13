@@ -70,8 +70,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "Manrope", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["JetBrains Mono", "Roboto Mono", "monospace"],
+        sans: ["'Inter'", "Inter", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
+        mono: ["'JetBrains Mono'", "JetBrains Mono", "Roboto Mono", "monospace"],
       },
       borderRadius: {
         sm: "6px",

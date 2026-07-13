@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100;0,14..32,200;0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,100;1,14..32,200;1,14..32,300;1,14..32,400;1,14..32,500;1,14..32,600;1,14..32,700;1,14..32,800;1,14..32,900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -27,10 +27,10 @@
   --color-19: #0D0E14;
   --color-20: #F0F2F5;
 
-  --font-1: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-2: "JetBrains Mono", "Roboto Mono", monospace;
-  --font-3: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-4: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-1: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-2: 'JetBrains Mono', 'Roboto Mono', monospace;
+  --font-3: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-4: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --text-1: 9px;
   --text-2: 10px;
@@ -222,10 +222,14 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
-body, button, input, select, textarea {
-  font-family: var(--font-1);
+body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, label, li {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+body {
   background-color: var(--background);
   color: var(--text-primary);
   font-size: var(--text-8);
@@ -233,6 +237,7 @@ body, button, input, select, textarea {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
