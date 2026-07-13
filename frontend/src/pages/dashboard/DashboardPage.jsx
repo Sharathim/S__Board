@@ -384,7 +384,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-50">
-                  {updatesList.slice(0, 4).map((up) => (
+                  {updatesList.slice(0, 3).map((up) => (
                     <UpdateFeedItem key={up.id} update={up} />
                   ))}
                 </div>
@@ -397,7 +397,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-50">
-                  {forumPostsList.slice(0, 4).map((fp) => (
+                  {forumPostsList.slice(0, 3).map((fp) => (
                     <ForumFeedItem key={fp.id} post={fp} />
                   ))}
                 </div>
