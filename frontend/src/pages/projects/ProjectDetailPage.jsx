@@ -416,13 +416,11 @@ export default function ProjectDetailPage() {
             <Plus className="w-4 h-4" /> Add progress
           </button>
         </div>
-      </div>
-
-      {/* Main Grid Viewport */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 overflow-hidden">
+      </div>      {/* Main Grid Viewport */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 lg:overflow-hidden">
         
         {/* Left Dashboard Panel (col-span-9) */}
-        <div className="lg:col-span-9 flex flex-col h-full min-h-0 gap-4">
+        <div className="lg:col-span-9 flex flex-col lg:h-full min-h-0 gap-4">
           
           {/* Header Card (Indigo Deep Ocean Theme) */}
           <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 h-[125px] relative overflow-hidden shadow-sm">
@@ -486,8 +484,8 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
-          {/* 2x2 Layout Grid (Fixed height/no internal scroll design) */}
-          <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 min-h-0">
+          {/* Accomplishments Grid (Stacks on mobile/tablet, 2x2 on desktop) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex-1 min-h-0">
             {/* Card 1: Completed This Week */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
               <div className="space-y-3">
@@ -508,7 +506,7 @@ export default function ProjectDetailPage() {
               <div className="space-y-3">
                 <div className="flex gap-3 items-center shrink-0">
                   <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-200/60 shadow-xs">
-                    <TrendingUp className="w-4.5 h-4.5 text-indigo-650" />
+                    <TrendingUp className="w-4.5 h-4.5 text-indigo-655" />
                   </div>
                   <span className="text-[10.5px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
                 </div>
@@ -632,7 +630,7 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* Right Sidebar Panel (col-span-3) */}
-        <div className="lg:col-span-3 flex flex-col h-full min-h-0 gap-4">
+        <div className="lg:col-span-3 flex flex-col lg:h-full min-h-0 gap-4">
           
           {/* Project Overview metadata list */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-2xl p-5 space-y-4 shrink-0 shadow-xs">

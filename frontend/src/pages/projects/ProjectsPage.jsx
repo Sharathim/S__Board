@@ -211,7 +211,7 @@ export default function ProjectsPage() {
           <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
 
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200/40 dark:border-gray-700/40 shrink-0 h-9">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200/40 dark:border-gray-700/40 shrink-0 h-9">
             <button
               onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
               className={`p-1 rounded-lg transition-all ${viewMode === "grid"
@@ -513,7 +513,7 @@ export default function ProjectsPage() {
       {canCreateProject && (
         <button
           onClick={openCreate}
-          className="fixed bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          className="fixed bottom-24 md:bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
           title="Create New Project"
         >
           <Plus className="w-6 h-6" />

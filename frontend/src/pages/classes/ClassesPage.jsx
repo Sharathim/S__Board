@@ -330,7 +330,7 @@ export default function ClassesPage() {
           )}
 
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
@@ -365,7 +365,7 @@ export default function ClassesPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {ugList.map((c) => (
                   <ClassCard
                     key={c.class_name}
@@ -386,7 +386,7 @@ export default function ClassesPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {pgList.map((c) => (
                   <ClassCard
                     key={c.class_name}

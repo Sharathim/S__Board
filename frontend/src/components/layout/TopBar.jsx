@@ -222,7 +222,7 @@ export function TopBar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 h-[72px] z-[99] bg-[var(--background)]/85 backdrop-blur-md border-b border-gray-150 flex items-center justify-between px-6 transition-all duration-300">
+      <header className="relative w-full h-[72px] z-[99] bg-[var(--background)]/85 backdrop-blur-md border-b border-gray-150 flex items-center justify-between px-6 transition-all duration-300">
         {/* ── Left Side: Hamburger & Brand Logo ── */}
         <div className="flex items-center gap-3">
           {/* Hamburger Menu Button */}

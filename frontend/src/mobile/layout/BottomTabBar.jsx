@@ -51,12 +51,11 @@ export default function BottomTabBar() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[100] mobile-glass border-t transition-transform duration-300 ease-in-out"
+        className="relative w-full z-[100] mobile-glass border-t shrink-0"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           borderRadius: "20px 20px 0 0",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          transform: visible ? "translateY(0)" : "translateY(100%)",
         }}
       >
         <div className="flex items-center justify-around h-[60px] px-2">

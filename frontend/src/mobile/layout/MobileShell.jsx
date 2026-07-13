@@ -20,18 +20,13 @@ export default function MobileShell() {
 
   return (
     <TransitionProvider pageContentRef={pageContentRef}>
-      <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative overflow-x-hidden">
+      <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
         <MobileTopBar />
 
-        {/* Page content — padded to clear fixed bars */}
+        {/* Page content — inner scrollable */}
         <main
           ref={pageContentRef}
-          className="mobile-page-enter page-content-animated relative z-10"
-          style={{
-            paddingTop: "calc(56px + env(safe-area-inset-top, 0px))",
-            paddingBottom: "calc(60px + env(safe-area-inset-bottom, 0px))",
-            minHeight: "100vh",
-          }}
+          className="flex-1 overflow-y-auto w-full mobile-page-enter page-content-animated relative z-10"
         >
           <div className="px-4 py-4 page-content-container">
             <ErrorBoundary>

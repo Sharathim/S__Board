@@ -49,10 +49,10 @@ export default function MobilePublicShell() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
       {/* Top Bar */}
       <header
-        className="fixed top-0 left-0 right-0 z-[100] bg-[#FFFFFF]/95 dark:bg-[#000000]/95 backdrop-blur-lg border-b border-gray-100 dark:border-slate-800 flex items-center justify-between px-4"
+        className="relative w-full shrink-0 z-[100] bg-[#FFFFFF]/95 dark:bg-[#000000]/95 backdrop-blur-lg border-b border-gray-150 flex items-center justify-between px-4"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
@@ -71,14 +71,9 @@ export default function MobilePublicShell() {
         </button>
       </header>
 
-      {/* Content — cleared to accommodate both fixed header and footer */}
+      {/* Content — inner scrollable */}
       <main
-        className="mobile-page-enter"
-        style={{
-          paddingTop: "calc(56px + env(safe-area-inset-top, 0px))",
-          paddingBottom: "calc(60px + env(safe-area-inset-bottom, 0px))",
-          minHeight: "100vh",
-        }}
+        className="flex-1 overflow-y-auto w-full mobile-page-enter"
       >
         <div className="px-4 py-4">
           <Outlet />
@@ -87,12 +82,11 @@ export default function MobilePublicShell() {
 
       {/* Public Bottom Navigation Bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[100] mobile-glass border-t flex items-center justify-around px-2 transition-transform duration-300 ease-in-out"
+        className="relative w-full shrink-0 z-[100] mobile-glass border-t flex items-center justify-around px-2"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           borderRadius: "20px 20px 0 0",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          transform: visible ? "translateY(0)" : "translateY(100%)",
         }}
       >
         {NAV_ITEMS.map((item) => {

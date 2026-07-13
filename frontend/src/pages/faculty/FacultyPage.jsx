@@ -355,7 +355,7 @@ export default function FacultyPage() {
           )}
 
           {/* Grid / List Switcher */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${

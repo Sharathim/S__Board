@@ -2050,3 +2050,50 @@ button {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ─── Standardized Typography & Spacing System (Sidebar-Inspired) ─── */
+body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, label, li {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+h1, .page-title-standard {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+h2, .section-header-standard {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+h3, .card-title-standard {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+label, .form-label-standard {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.badge-standard, .chip-standard {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.button-standard {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}

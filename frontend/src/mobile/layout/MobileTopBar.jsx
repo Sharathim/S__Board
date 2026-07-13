@@ -44,7 +44,7 @@ export default function MobileTopBar({ title: titleProp }) {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-[100] mobile-glass border-b flex items-center justify-between px-4"
+        className="relative w-full shrink-0 z-[100] mobile-glass border-b flex items-center justify-between px-4"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         {/* Left */}

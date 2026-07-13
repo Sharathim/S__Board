@@ -80,7 +80,7 @@ function getInitials(name) {
     : (parts[0]?.[0] || "?").toUpperCase();
 }
 
-function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, onRemove, onClick }) {
+function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, onRemove, onEdit, onClick }) {
   const initials = getInitials(s.name);
   const isFaculty = role === "FACULTY" && !canManage;
   const showPresentDetails = isFaculty && s.details;
@@ -140,6 +140,14 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
             >
               <Mail className="w-3.5 h-3.5" />
             </a>
+
+            <button
+              onClick={() => onEdit?.(s)}
+              className="p-1.5 rounded-xl text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30"
+              title="Edit student profile"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
 
 
 
@@ -315,7 +323,7 @@ export default function ClassDetailPage() {
         </div>
       </div>
 
-      <div className="flex border-b border-gray-150 dark:border-gray-700/60 pb-px">
+      <div className="flex border-b border-gray-150 dark:border-gray-700/60 pb-px overflow-x-auto whitespace-nowrap scrollbar-none gap-1">
         <button
           onClick={() => setActiveTab("students")}
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
@@ -425,6 +433,7 @@ export default function ClassDetailPage() {
                       isForumClass={isForumClass}
                       onForum={(st) => { setForumTarget(st); setForumRole("Member"); }}
                       onRemove={setRemoveTarget}
+                      onEdit={(st) => setAdminDetailModal({ open: true, student: st })}
                       onClick={() => setDetailModalOpen(true)}
                     />
                   ))
@@ -622,7 +631,7 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
         </div>
       </div>
 
-      <div className="flex border-b border-gray-150 dark:border-gray-750 pb-px gap-2">
+      <div className="flex border-b border-gray-150 dark:border-gray-750 pb-px gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
         <button
           onClick={() => setSubTab("main_table")}
           className={`px-3 py-2 text-xs font-bold border-b-2 transition-all ${

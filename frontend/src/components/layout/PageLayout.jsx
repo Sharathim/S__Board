@@ -17,19 +17,17 @@ export default function PageLayout() {
 
   return (
     <TransitionProvider pageContentRef={pageContentRef}>
-      <div className="flex flex-col min-h-screen w-screen relative overflow-hidden bg-[var(--background)] transition-colors duration-300">
+      <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--background)] transition-colors duration-300 relative">
 
-        {/* Floating Navbar */}
-        <div className="relative z-50">
-          <TopBar />
-        </div>
+        {/* Top Navbar */}
+        <TopBar />
 
-        {/* Main Content — offset by navbar height + spacing */}
+        {/* Main Content — inner scrollable */}
         <main
           ref={pageContentRef}
-          className="flex-1 overflow-y-auto pt-[88px] relative z-10 page-content-animated"
+          className="flex-1 overflow-y-auto relative z-10 page-content-animated p-6"
         >
-          <div className="page-content-container">
+          <div className="page-content-container max-w-7xl mx-auto w-full">
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>
