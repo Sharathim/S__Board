@@ -17,7 +17,7 @@ import {
   Users, ToggleLeft, ToggleRight, MoreVertical, Trash2,
   UserCheck, UserX, Pencil, Mail, GraduationCap, BookOpen,
   FolderKanban, Search, Link2, Copy, CheckCheck, ChevronDown,
-  ShieldCheck, Star, TrendingUp, X, LayoutGrid, List
+  ShieldCheck, Star, TrendingUp, X, LayoutGrid, List, Trophy
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 
@@ -117,6 +117,7 @@ function InviteBanner() {
 // ─── Faculty Card ─────────────────────────────────────────────────────────────
 function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const palette = getAvatarPalette(fac.name);
 
   useEffect(() => {
@@ -202,14 +203,14 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
             <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {fac.name}
             </h3>
-            <p className="text-[13px] text-gray-400 dark:text-gray-505 font-medium truncate leading-none">{fac.email}</p>
+            <p className="text-[13px] text-gray-400 dark:text-gray-550 font-medium truncate leading-none">{fac.email}</p>
             <div className="mt-1">
               <DesignationBadge designation={fac.designation || "Professor"} />
             </div>
           </div>
 
           {/* Compact Info Chips */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 items-center">
             {fac.classes_handling?.length > 0 ? (
               fac.classes_handling.map((cls) => (
                 <ClassChip key={cls} label={cls} variant="default" />
@@ -220,6 +221,29 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
             {fac.class_incharge_of && (
               <ClassChip label={`IC: ${fac.class_incharge_of}`} variant="incharge" />
             )}
+
+            {/* Leaderboard Chip */}
+            <div className="relative inline-block">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowComingSoon(true);
+                  setTimeout(() => setShowComingSoon(false), 2000);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 h-[26px] rounded-full text-[11px] font-semibold border border-amber-200/60 bg-amber-50/70 text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-400 hover:bg-amber-100/60 dark:hover:bg-amber-900/40 transition-colors shrink-0"
+              >
+                <Trophy className="w-3 h-3 text-amber-500" />
+                <span>Leaderboard</span>
+              </button>
+              
+              {showComingSoon && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-0.5 bg-gray-900 text-white text-[10px] font-medium rounded shadow-md whitespace-nowrap z-50 animate-fade-in">
+                  Coming soon!
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
