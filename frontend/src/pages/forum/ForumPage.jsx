@@ -24,6 +24,7 @@ import {
   X, Search, Edit2, Clock, AlertCircle,
   CheckCircle2, Users, Plus, Calendar, Share2, Copy, UserPlus, MoreVertical
 } from "lucide-react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Pagination } from "../../components/shared/Pagination";
 import { format, formatDistanceToNow } from "date-fns";
 import { Switch } from "../../components/ui/Switch";

@@ -29,8 +29,8 @@
 
   --font-1: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-2: "JetBrains Mono", "Roboto Mono", monospace;
-  --font-3: "Times New Roman";
-  --font-4: Manrope, Inter, system-ui, -apple-system, sans-serif;
+  --font-3: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-4: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --text-1: 9px;
   --text-2: 10px;
@@ -224,7 +224,7 @@
   padding: 0;
 }
 
-body {
+body, button, input, select, textarea {
   font-family: var(--font-1);
   background-color: var(--background);
   color: var(--text-primary);
