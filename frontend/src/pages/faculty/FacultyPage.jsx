@@ -50,22 +50,22 @@ function getInitials(name) {
     : (parts[0]?.[0] || "?").toUpperCase();
 }
 
-function Avatar({ fac, size = "lg" }) {
+function Avatar({ fac, size = "lg", className = "" }) {
   const palette = getAvatarPalette(fac.name);
-  const sizeClass = size === "lg" ? "w-14 h-14 text-lg" : "w-10 h-10 text-sm";
+  const sizeClass = size === "lg" ? "w-[52px] h-[52px] text-base" : "w-10 h-10 text-sm";
 
   if (fac.profile_picture) {
     return (
       <img
         src={fac.profile_picture}
         alt={fac.name}
-        className={`${sizeClass} rounded-2xl object-cover ring-2 ring-offset-1 ${palette.ring} shrink-0`}
+        className={`${sizeClass} rounded-2xl object-cover ring-2 ring-offset-1 ${palette.ring} shrink-0 ${className}`}
       />
     );
   }
 
   return (
-    <div className={`${sizeClass} rounded-2xl bg-gradient-to-br ${palette.bg} flex items-center justify-center font-bold text-white ring-2 ring-offset-1 ${palette.ring} shrink-0`}>
+    <div className={`${sizeClass} rounded-2xl bg-gradient-to-br ${palette.bg} flex items-center justify-center font-bold text-white ring-2 ring-offset-1 ${palette.ring} shrink-0 ${className}`}>
       {getInitials(fac.name)}
     </div>
   );
@@ -91,8 +91,8 @@ function DesignationBadge({ designation }) {
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${style.color}`}>
-      <Icon className="w-3 h-3" />
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border ${style.color}`}>
+      <Icon className="w-3 h-3 opacity-90" />
       {designation}
     </span>
   );
@@ -100,10 +100,10 @@ function DesignationBadge({ designation }) {
 
 // ─── Class Chip ───────────────────────────────────────────────────────────────
 function ClassChip({ label, variant = "default" }) {
-  const base = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-colors";
+  const base = "inline-flex items-center justify-center px-2.5 h-[26px] rounded-full text-[11px] font-semibold border transition-colors shrink-0";
   const variants = {
-    default: "bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800/50",
-    incharge: "bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50",
+    default: "bg-indigo-50/70 text-indigo-700 border-indigo-200/60 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-850/50",
+    incharge: "bg-emerald-50/70 text-emerald-700 border-emerald-200/60 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-850/50",
   };
   return <span className={`${base} ${variants[variant]}`}>{label.replace("_", " ")}</span>;
 }
@@ -127,81 +127,83 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
   }, [menuOpen]);
 
   return (
-    <div className="group bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative">
+    <div className="group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative">
       {/* Profile Header Banner */}
-      <div className={`h-20 w-full bg-gradient-to-r ${palette.bg} opacity-90 relative`} />
-      
-      {/* Profile Details Block */}
-      <div className="px-5 pb-5 pt-0 flex-1 flex flex-col justify-between -mt-10 relative z-10">
-        <div className="space-y-4">
-          {/* Avatar and Action overlay */}
-          <div className="flex justify-between items-end">
-            <Avatar fac={fac} size="lg" className="w-16 h-16 rounded-2xl border-4 border-white dark:border-gray-800 shadow-md ring-2 ring-indigo-500/10" />
-            
-            {/* Actions button strip */}
-            <div className="flex items-center gap-1.5 pb-1">
-              <a
-                href={`mailto:${fac.email}`}
-                className="p-2 rounded-xl bg-slate-50 hover:bg-red-50 dark:bg-gray-900 dark:hover:bg-red-950/20 text-gray-500 dark:text-gray-400 hover:text-red-600 transition-colors border border-slate-100 dark:border-gray-800/40 shadow-sm"
-                title={`Email ${fac.name}`}
-              >
-                <GmailIcon className="w-4 h-4" />
-              </a>
+      <div className={`h-[76px] w-full bg-gradient-to-r ${palette.bg} opacity-90 relative overflow-hidden`}>
+        {/* Pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:10px_10px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5" />
 
-              {isHOD ? (
-                <div className="relative kebab-container">
+        {/* Actions button strip in header */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
+          <a
+            href={`mailto:${fac.email}`}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-500 hover:text-red-650 transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
+            title={`Email ${fac.name}`}
+          >
+            <GmailIcon className="w-3.5 h-3.5" />
+          </a>
+
+          {isHOD ? (
+            <div className="relative kebab-container">
+              <button
+                onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-450 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
+              >
+                <MoreVertical className="w-3.5 h-3.5" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-gray-900 dark:hover:bg-gray-750 text-gray-400 dark:text-gray-505 transition-colors border border-slate-100 dark:border-gray-800/40 shadow-sm"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      fac.class_incharge_of ? onRemoveIncharge(fac) : onAssignIncharge(fac);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
                   >
-                    <MoreVertical className="w-4 h-4" />
+                    {fac.class_incharge_of
+                      ? <><UserX className="w-4 h-4" />Remove as Incharge</>
+                      : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+                    }
                   </button>
-                  {menuOpen && (
-                    <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                      <button
-                        onClick={() => {
-                          setMenuOpen(false);
-                          fac.class_incharge_of ? onRemoveIncharge(fac) : onAssignIncharge(fac);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-650 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
-                      >
-                        {fac.class_incharge_of
-                          ? <><UserX className="w-4 h-4" />Remove as Incharge</>
-                          : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
-                        }
-                      </button>
-                      <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
-                      <button
-                        onClick={() => { setMenuOpen(false); onDelete(fac); }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition-colors text-left"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Remove Faculty
-                      </button>
-                    </div>
-                  )}
+                  <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                  <button
+                    onClick={() => { setMenuOpen(false); onDelete(fac); }}
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove Faculty
+                  </button>
                 </div>
-              ) : (
-                userRole === "FACULTY" && userId === fac.user_id && (
-                  <button
-                    onClick={() => onEdit(fac)}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 dark:bg-gray-900 dark:hover:bg-indigo-950/20 text-indigo-500 border border-slate-100 dark:border-gray-800/40 transition-colors shadow-sm"
-                    title="Edit your profile"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                )
               )}
             </div>
-          </div>
-
-          {/* Name & Designation */}
-          <div>
-            <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-primary-650 transition-colors">
+          ) : (
+            userRole === "FACULTY" && userId === fac.user_id && (
+              <button
+                onClick={() => onEdit(fac)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 border border-gray-200/40 dark:border-gray-700/40 transition-all shadow-sm backdrop-blur-sm hover:scale-105"
+                title="Edit your profile"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            )
+          )}
+        </div>
+      </div>
+      
+      {/* Profile Details Block */}
+      <div className="px-[18px] pb-[18px] pt-0 flex-1 flex flex-col justify-between -mt-[26px] relative z-10">
+        <div className="flex flex-col gap-3">
+          {/* Avatar and Border */}
+          <Avatar fac={fac} size="lg" className="border-4 border-white dark:border-gray-800 shadow-sm" />
+          
+          {/* Name & Email & Designation */}
+          <div className="flex flex-col gap-1">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {fac.name}
             </h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5 truncate">{fac.email}</p>
-            <div className="mt-2">
+            <p className="text-[13px] text-gray-400 dark:text-gray-505 font-medium truncate leading-none">{fac.email}</p>
+            <div className="mt-1">
               <DesignationBadge designation={fac.designation || "Professor"} />
             </div>
           </div>
@@ -213,7 +215,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
                 <ClassChip key={cls} label={cls} variant="default" />
               ))
             ) : (
-              <span className="text-[11px] text-gray-400 dark:text-gray-500 italic">No classes</span>
+              <span className="text-[11px] text-gray-400 dark:text-gray-505 italic">No classes</span>
             )}
             {fac.class_incharge_of && (
               <ClassChip label={`IC: ${fac.class_incharge_of}`} variant="incharge" />
@@ -221,19 +223,16 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
           </div>
         </div>
 
-        {/* Footer info strip */}
-        <div className="mt-5 pt-3.5 border-t border-dashed border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-gray-400">
-            <FolderKanban className="w-4 h-4 text-indigo-500" />
-            <span>Projects</span>
-          </div>
-          
-          <span className={`text-xs font-extrabold px-3 py-1 rounded-full ${
+        {/* Bottom Section */}
+        <div className="mt-3 pt-3 border-t border-dashed border-gray-150 dark:border-gray-700/60 flex items-center justify-start gap-1.5">
+          <FolderKanban className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+          <span className="text-[12px] font-bold text-gray-550 dark:text-gray-400">Projects</span>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
             fac.project_count > 0 
               ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30" 
-              : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-505 border border-slate-100 dark:border-gray-700/60"
+              : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 border border-slate-100 dark:border-gray-700/60"
           }`}>
-            {fac.project_count || 0} active
+            {fac.project_count || 0} Active
           </span>
         </div>
       </div>
