@@ -47,17 +47,17 @@ function AttachmentCard({ url, name }) {
   const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext);
 
   let iconBg = "bg-blue-500/10 text-blue-600";
-  let icon = <File className="w-4.5 h-4.5" />;
+  let icon = <File className="w-4 h-4" />;
 
   if (isPdf) {
-    iconBg = "bg-rose-500/10 text-rose-600 dark:text-rose-455";
-    icon = <FileText className="w-4.5 h-4.5" />;
+    iconBg = "bg-rose-500/10 text-rose-650 dark:text-rose-455";
+    icon = <FileText className="w-4 h-4" />;
   } else if (isZip) {
     iconBg = "bg-indigo-500/10 text-indigo-650 dark:text-indigo-400";
-    icon = <FolderKanban className="w-4.5 h-4.5" />;
+    icon = <FolderKanban className="w-4 h-4" />;
   } else if (isImage) {
     iconBg = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
-    icon = <Image className="w-4.5 h-4.5" />;
+    icon = <Image className="w-4 h-4" />;
   }
 
   const fileSize = getDeterministicSize(name || url);
@@ -67,14 +67,14 @@ function AttachmentCard({ url, name }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3.5 p-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-xl hover:-translate-y-0.5 transition-all shadow-xs shrink-0 w-[220px]"
+      className="flex items-center gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl hover:-translate-y-0.5 transition-all shadow-xs shrink-0 w-[210px]"
     >
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <span className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate leading-tight">{name || "Attachment"}</span>
-        <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-bold mt-1 leading-none">{fileSize}</span>
+        <span className="block text-xs font-extrabold text-slate-800 dark:text-slate-250 truncate leading-tight">{name || "Attachment"}</span>
+        <span className="block text-[10px] text-slate-400 dark:text-slate-550 font-bold mt-0.5 leading-none">{fileSize}</span>
       </div>
     </a>
   );
@@ -379,27 +379,6 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-4 space-y-4">
-      <style>{`
-        .scrollbar-premium::-webkit-scrollbar {
-          width: 5px;
-          height: 5px;
-        }
-        .scrollbar-premium::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .scrollbar-premium::-webkit-scrollbar-thumb {
-          background: rgba(156, 163, 175, 0.25);
-          border-radius: 10px;
-        }
-        .scrollbar-premium::-webkit-scrollbar-thumb:hover {
-          background: rgba(156, 163, 175, 0.4);
-        }
-        .scrollbar-premium {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(156, 163, 175, 0.25) transparent;
-        }
-      `}</style>
-
       {/* Top Header Navigation bar */}
       <div className="flex justify-between items-start shrink-0">
         <div className="space-y-1">
@@ -410,14 +389,14 @@ export default function ProjectDetailPage() {
             <ArrowLeft className="w-3.5 h-3.5" /> Back to projects
           </div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1.5 leading-none">Progress monitor</h1>
-          <p className="text-xs text-slate-405 dark:text-slate-500 font-semibold">Current state of {project.name}, at a glance</p>
+          <p className="text-xs text-slate-405 dark:text-slate-500 font-semibold mt-0.5">Current state of {project.name}, at a glance</p>
         </div>
 
         <div className="flex items-center gap-3 mt-1">
           {project.status !== "COMPLETED" && (
             <button
               onClick={() => statusMutation.mutate("COMPLETED")}
-              className="neomorphic-btn text-emerald-650 dark:text-emerald-400"
+              className="neomorphic-btn text-emerald-655 dark:text-emerald-400"
             >
               <CheckCircle className="w-4 h-4 text-emerald-500" />
               Mark completed
@@ -431,7 +410,7 @@ export default function ProjectDetailPage() {
             Edit project
           </button>
           <button
-            onClick={() => { setEditingMsg(null); setAddModalOpen(true); }}
+            onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
             className="px-4 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add progress
@@ -446,36 +425,36 @@ export default function ProjectDetailPage() {
         <div className="lg:col-span-9 flex flex-col h-full min-h-0 gap-4">
           
           {/* Header Card (Indigo Deep Ocean Theme) */}
-          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 h-[145px] relative overflow-hidden shadow-sm">
+          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 h-[125px] relative overflow-hidden shadow-sm">
             <div className="flex items-center gap-5">
               {/* Circular SVG Progress Meter */}
-              <div className="relative w-20 h-20 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
-                <svg className="w-18 h-18 transform -rotate-90">
-                  <circle stroke="rgba(255, 255, 255, 0.05)" fill="transparent" strokeWidth="4.5" r="28" cx="36" cy="36" />
+              <div className="relative w-18 h-18 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
+                <svg className="w-16 h-16 transform -rotate-90">
+                  <circle stroke="rgba(255, 255, 255, 0.05)" fill="transparent" strokeWidth="4" r="25" cx="32" cy="32" />
                   <circle
                     stroke="#6366f1"
                     fill="transparent"
-                    strokeWidth="4.5"
-                    strokeDasharray={2 * Math.PI * 28}
-                    strokeDashoffset={2 * Math.PI * 28 * (1 - currentCompletion / 100)}
+                    strokeWidth="4"
+                    strokeDasharray={2 * Math.PI * 25}
+                    strokeDashoffset={2 * Math.PI * 25 * (1 - currentCompletion / 100)}
                     strokeLinecap="round"
-                    r="28"
-                    cx="36"
-                    cy="36"
+                    r="25"
+                    cx="32"
+                    cy="32"
                     style={{ transition: "stroke-dashoffset 0.5s ease" }}
                   />
                 </svg>
                 <div className="absolute flex flex-col items-center justify-center text-center">
-                  <span className="text-sm font-black tracking-tight leading-none">{currentCompletion}%</span>
-                  <span className="text-[7.5px] text-slate-400 font-extrabold uppercase mt-0.5">Complete</span>
+                  <span className="text-xs font-black tracking-tight leading-none">{currentCompletion}%</span>
+                  <span className="text-[7px] text-slate-400 font-extrabold uppercase mt-0.5">Complete</span>
                 </div>
               </div>
 
               {/* Card Meta Content */}
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">In progress</span>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[9.5px] font-black text-emerald-500 uppercase tracking-wider">In progress</span>
                 </div>
                 <h2 className="text-base font-black tracking-tight text-white">{project.name}</h2>
                 <p className="text-xs text-slate-350 max-w-xl line-clamp-2 leading-relaxed font-medium">
@@ -486,20 +465,20 @@ export default function ProjectDetailPage() {
 
             {/* Last update card badge */}
             {currentUpdate && (
-              <div className="hidden sm:flex items-center gap-3.5 border-l border-slate-800/80 pl-6 shrink-0 h-16">
+              <div className="hidden sm:flex items-center gap-3.5 border-l border-slate-850 pl-6 shrink-0 h-14">
                 <div className="flex flex-col text-right">
                   <span className="text-[9px] uppercase font-black text-slate-500 tracking-wider">Last update</span>
                   <div className="flex items-center gap-2 justify-end mt-1">
                     {currentUpdate.avatar ? (
-                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-6 h-6 rounded-full object-cover ring-2 ring-indigo-500/20" />
+                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-5.5 h-5.5 rounded-full object-cover ring-1 ring-indigo-500/25" />
                     ) : (
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${getAvatarBg(currentUpdate.author)}`}>
+                      <div className={`w-5.5 h-5.5 rounded-full flex items-center justify-center font-bold text-[9px] ${getAvatarBg(currentUpdate.author)}`}>
                         {currentUpdate.author.charAt(0).toUpperCase()}
                       </div>
                     )}
                     <span className="text-xs font-black text-white">{currentUpdate.author}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-semibold mt-1">
+                  <span className="text-[9.5px] text-slate-400 font-semibold mt-1">
                     {currentUpdate.dateOnly} • {currentUpdate.timeOnly}
                   </span>
                 </div>
@@ -507,58 +486,66 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
-          {/* 2x2 Layout Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
+          {/* 2x2 Layout Grid (Fixed height/no internal scroll design) */}
+          <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1 min-h-0">
             {/* Card 1: Completed This Week */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col min-h-0 overflow-y-auto scrollbar-premium">
-              <div className="flex gap-3 items-center shrink-0">
-                <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-emerald-250 flex items-center justify-center shrink-0 shadow-xs">
-                  <CheckCircle className="w-4.5 h-4.5 text-emerald-500" />
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+              <div className="space-y-3">
+                <div className="flex gap-2.5 items-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <span className="text-[10.5px] font-black text-emerald-650 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
                 </div>
-                <span className="text-[10.5px] font-black text-emerald-650 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
+                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                  {updateData.completed_this_week || "No accomplishments recorded for this period."}
+                </p>
               </div>
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-350 leading-relaxed mt-3.5 whitespace-pre-wrap pl-1">
-                {updateData.completed_this_week || "No accomplishments recorded for this period."}
-              </p>
             </div>
 
             {/* Card 2: Next Milestone */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col min-h-0 overflow-y-auto scrollbar-premium">
-              <div className="flex gap-3 items-center shrink-0">
-                <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-indigo-200 flex items-center justify-center shrink-0 shadow-xs">
-                  <TrendingUp className="w-4.5 h-4.5 text-indigo-650" />
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+              <div className="space-y-3">
+                <div className="flex gap-2.5 items-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-4 h-4 text-indigo-650" />
+                  </div>
+                  <span className="text-[10.5px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
                 </div>
-                <span className="text-[10.5px] font-black text-indigo-650 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
+                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                  {updateData.next_milestone || "No upcoming milestones declared."}
+                </p>
               </div>
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-350 leading-relaxed mt-3.5 whitespace-pre-wrap pl-1">
-                {updateData.next_milestone || "No upcoming milestones declared."}
-              </p>
             </div>
 
             {/* Card 3: Challenges / Blockers */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col min-h-0 overflow-y-auto scrollbar-premium">
-              <div className="flex gap-3 items-center shrink-0">
-                <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
-                  <ShieldAlert className="w-4.5 h-4.5 text-rose-500" />
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+              <div className="space-y-3">
+                <div className="flex gap-2.5 items-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
+                    <ShieldAlert className="w-4 h-4 text-rose-500" />
+                  </div>
+                  <span className="text-[10.5px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
                 </div>
-                <span className="text-[10.5px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
+                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                  {updateData.challenges || "No active challenges or blockers."}
+                </p>
               </div>
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-350 leading-relaxed mt-3.5 whitespace-pre-wrap pl-1">
-                {updateData.challenges || "No active challenges or blockers."}
-              </p>
             </div>
 
             {/* Card 4: Support Needed */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col min-h-0 overflow-y-auto scrollbar-premium">
-              <div className="flex gap-3 items-center shrink-0">
-                <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
-                  <LifeBuoy className="w-4.5 h-4.5 text-amber-500" />
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4.5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs">
+              <div className="space-y-3">
+                <div className="flex gap-2.5 items-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0">
+                    <LifeBuoy className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <span className="text-[10.5px] font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">Support Needed</span>
                 </div>
-                <span className="text-[10.5px] font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">Support Needed</span>
+                <p className="text-[11.5px] font-semibold text-slate-500 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4">
+                  {updateData.support || "No additional support required."}
+                </p>
               </div>
-              <p className="text-xs font-medium text-slate-600 dark:text-slate-350 leading-relaxed mt-3.5 whitespace-pre-wrap pl-1">
-                {updateData.support || "No additional support required."}
-              </p>
             </div>
           </div>
 
@@ -568,7 +555,7 @@ export default function ProjectDetailPage() {
               <div className="flex items-center justify-between mb-1.5 shrink-0">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Attachments ({allAttachments.length})</span>
               </div>
-              <div className="flex gap-3 overflow-x-auto min-w-0 pr-2 scrollbar-premium">
+              <div className="flex gap-3 overflow-x-auto min-w-0 pr-2 scrollbar-none">
                 {allAttachments.map(node => (
                   <AttachmentCard key={node.id} url={node.attachmentUrl} name={node.attachmentName} />
                 ))}
@@ -577,57 +564,64 @@ export default function ProjectDetailPage() {
           )}
 
           {/* Horizontal Update Timeline (History log with visual connecting line) */}
-          <div className="shrink-0 h-[140px] bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center shadow-xs">
+          <div className="shrink-0 h-[130px] bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center shadow-xs">
             <div className="flex items-center justify-between shrink-0 mb-3">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Update History ({timelineNodes.length})</span>
               {selectedUpdateId !== null && (
                 <span
                   onClick={() => setSelectedUpdateId(null)}
-                  className="text-[10px] font-black text-indigo-650 dark:text-indigo-400 hover:underline cursor-pointer transition-colors"
+                  className="text-[10px] font-black text-indigo-655 dark:text-indigo-400 hover:underline cursor-pointer transition-colors"
                 >
                   View latest update →
                 </span>
               )}
             </div>
 
-            <div className="relative flex-1 min-h-0 flex items-center pr-2">
-              {/* The timeline background line */}
-              <div className="absolute left-6 right-6 top-[15px] h-[2px] bg-indigo-100 dark:bg-slate-800/80" />
-
-              <div className="flex items-center gap-8 overflow-x-auto min-w-0 pr-2 scrollbar-premium h-full w-full pt-1.5 relative z-10">
+            <div className="relative flex-1 min-h-0 flex flex-col justify-center">
+              {/* Connector Line */}
+              <div className="absolute left-6 right-6 top-[22px] h-[2px] bg-indigo-50 dark:bg-slate-800/80" />
+              
+              {/* Nodes list */}
+              <div className="flex items-start gap-8 overflow-x-auto min-w-0 pr-2 scrollbar-none h-full w-full relative z-10">
                 {timelineNodes.length === 0 ? (
-                  <div className="text-xs font-semibold text-slate-400 italic pl-6">No progress updates published yet.</div>
+                  <div className="text-xs font-semibold text-slate-400 italic pl-6 pt-6">No progress updates published yet.</div>
                 ) : (
-                  timelineNodes.map((node, idx) => {
+                  timelineNodes.map((node) => {
                     const isActive = currentUpdate?.id === node.id;
                     return (
                       <div
                         key={node.id}
                         onClick={() => setSelectedUpdateId(node.id)}
-                        className="flex flex-col min-w-[200px] max-w-[250px] cursor-pointer transition-all shrink-0 relative pt-7 pl-1"
+                        className="flex flex-col min-w-[210px] max-w-[250px] cursor-pointer transition-all shrink-0 relative pt-1"
                       >
-                        {/* Timeline node dot exactly positioned on the timeline line */}
-                        <div className={`absolute top-[9px] left-4 w-[12px] h-[12px] rounded-full border-2 bg-white dark:bg-slate-900 transition-all ${
-                          isActive
-                            ? "border-indigo-600 ring-4 ring-indigo-100 dark:ring-indigo-900/35 scale-110"
-                            : "border-slate-350 hover:border-indigo-500"
-                        }`} />
-
-                        <div className="flex items-center justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                          <span>{node.dateStr}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-1 shrink-0">
-                          <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[125px]">{node.author}</span>
-                          <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded border scale-95 leading-none ${
+                        {/* Node Dot */}
+                        <div className="flex items-center pl-4 mb-2">
+                          <div className={`w-3.5 h-3.5 rounded-full border-2 bg-white dark:bg-slate-900 transition-all flex items-center justify-center ${
                             isActive
-                              ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
-                              : "bg-slate-50 dark:bg-slate-800/60 text-slate-500 border-slate-200/50 dark:border-slate-700/50"
+                              ? "border-indigo-600 ring-4 ring-indigo-100 dark:ring-indigo-900/30 scale-110"
+                              : "border-slate-350 hover:border-indigo-500"
                           }`}>
-                            {node.role}
-                          </span>
+                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate leading-tight font-medium">
-                          {node.summary}
+
+                        <div className="pl-4">
+                          <div className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                            {node.dateStr}
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1.5 shrink-0">
+                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[120px]">{node.author}</span>
+                            <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded border scale-95 leading-none ${
+                              isActive
+                                ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
+                                : "bg-slate-50 dark:bg-slate-800/60 text-slate-500 border-slate-200/50 dark:border-slate-700/50"
+                            }`}>
+                              {node.role}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-505 dark:text-slate-400 mt-1 truncate leading-tight font-medium">
+                            {node.summary}
+                          </div>
                         </div>
                       </div>
                     );
@@ -646,28 +640,28 @@ export default function ProjectDetailPage() {
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-2xl p-5 space-y-4 shrink-0 shadow-xs">
             <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-400 uppercase tracking-widest leading-none">Project Overview</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-850">
+              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
                 <div className="flex items-center gap-2 text-slate-400">
                   <User className="w-4 h-4 shrink-0" />
                   <span className="font-bold uppercase tracking-wider text-[9px]">Lead advisor</span>
                 </div>
                 <span className="font-extrabold text-slate-850 dark:text-gray-250 truncate max-w-[140px]">{leadAdvisor}</span>
               </div>
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-850">
+              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
                 <div className="flex items-center gap-2 text-slate-400">
                   <Users className="w-4 h-4 shrink-0" />
                   <span className="font-bold uppercase tracking-wider text-[9px]">Team size</span>
                 </div>
                 <span className="font-extrabold text-slate-850 dark:text-gray-250">{allMembers.length} members</span>
               </div>
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-850">
+              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
                 <div className="flex items-center gap-2 text-slate-400">
                   <User className="w-4 h-4 shrink-0" />
                   <span className="font-bold uppercase tracking-wider text-[9px]">Created by</span>
                 </div>
                 <span className="font-extrabold text-slate-855 dark:text-gray-250 truncate max-w-[140px]">{project.created_by?.name || "Unknown"}</span>
               </div>
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-850">
+              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
                 <div className="flex items-center gap-2 text-slate-400">
                   <Calendar className="w-4 h-4 shrink-0" />
                   <span className="font-bold uppercase tracking-wider text-[9px]">Created on</span>
@@ -757,7 +751,7 @@ export default function ProjectDetailPage() {
               onChange={e => setFormTitle(e.target.value)}
               placeholder="e.g., Sprint 1 Demo, UI Design Completed..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -769,7 +763,7 @@ export default function ProjectDetailPage() {
               onChange={e => setFormSummary(e.target.value)}
               placeholder="Brief 1-sentence overview of current progress..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-805 text-gray-905 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -868,7 +862,7 @@ export default function ProjectDetailPage() {
               ) : (
                 <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-500 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center font-sans">
                   <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-555 mb-1" />
-                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-450">Attach file (Max 10MB)</span>
+                  <span className="text-xs font-semibold text-gray-505 dark:text-gray-450">Attach file (Max 10MB)</span>
                   <input
                     type="file"
                     className="hidden"
