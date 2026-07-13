@@ -9,6 +9,7 @@ import {
 import { getRecipients, sendMail } from "../../api/mail";
 import { useAuth } from "../../context/AuthContext";
 import clsx from "clsx";
+import { createPortal } from "react-dom";
 
 export default function MailComposerModal({ isOpen, onClose }) {
   const { user } = useAuth();
@@ -355,13 +356,19 @@ export default function MailComposerModal({ isOpen, onClose }) {
     return 0;
   };
 
-  return (
-    <div className="fixed inset-0 z-[1000] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex justify-center items-start lg:items-center p-4 md:p-6 lg:p-10 animate-fade-in">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-950/45 dark:bg-black/65 backdrop-blur-md flex justify-center items-start lg:items-center p-3 sm:p-6 lg:p-10 animate-fade-in"
+      onClick={onClose}
+    >
       
       {/* ========================================== */}
       {/*          DESKTOP CONTAINER LAYOUT          */}
       {/* ========================================== */}
-      <div className="hidden lg:flex relative w-full max-w-[1100px] my-auto bg-white border border-[var(--border-light)] rounded-[24px] shadow-2xl flex-col overflow-hidden transform transition-all animate-slide-up select-none">
+      <div
+        className="hidden lg:flex relative w-full max-w-[1100px] my-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] shadow-2xl shadow-indigo-500/10 flex-col overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 select-none"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Extraordinary Top Accent Gradient Line */}
         <div className="h-1.5 bg-gradient-to-r from-[#4F46E5] via-[#3B82F6] to-[#06B6D4] shrink-0" />
@@ -1059,7 +1066,10 @@ export default function MailComposerModal({ isOpen, onClose }) {
       {/* ========================================== */}
       {/*           MOBILE PORTAL CONTAINER          */}
       {/* ========================================== */}
-      <div className="flex lg:hidden fixed inset-0 z-50 bg-white dark:bg-slate-900 flex-col overflow-hidden w-full h-full select-none animate-slide-up">
+      <div 
+        className="flex lg:hidden fixed inset-0 z-50 bg-white dark:bg-slate-900 flex-col overflow-hidden w-full h-full select-none animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Mobile Header */}
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
@@ -1504,6 +1514,7 @@ export default function MailComposerModal({ isOpen, onClose }) {
 
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }

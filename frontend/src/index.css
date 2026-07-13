@@ -1283,6 +1283,72 @@ button {
     inset -2px -2px 6px rgba(255, 255, 255, 0.02);
 }
 
+/* Neomorphic Glassmorphic Compose Mail Pill Button */
+.neomorphic-compose-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(240, 243, 248, 0.75) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #4F46E5;
+  box-shadow:
+    6px 6px 16px rgba(165, 180, 203, 0.28),
+    -5px -5px 14px rgba(255, 255, 255, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  outline: none;
+}
+
+.dark .neomorphic-compose-btn {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.75) 100%);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #818CF8;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, 0.45),
+    -4px -4px 12px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.neomorphic-compose-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 252, 0.85) 100%);
+  box-shadow:
+    8px 8px 20px rgba(165, 180, 203, 0.35),
+    -6px -6px 16px rgba(255, 255, 255, 1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: #4338CA;
+}
+
+.dark .neomorphic-compose-btn:hover {
+  background: linear-gradient(135deg, rgba(40, 53, 72, 0.9) 0%, rgba(20, 30, 50, 0.85) 100%);
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, 0.6),
+    -5px -5px 14px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: #A5B4FC;
+}
+
+.neomorphic-compose-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 3px 3px 6px rgba(165, 180, 203, 0.35),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.8);
+}
+
+.dark .neomorphic-compose-btn:active {
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.6),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.02);
+}
+
 .hamburger-btn-wrapper {
   display: flex;
   align-items: center;

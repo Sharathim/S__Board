@@ -297,10 +297,11 @@ export default function DashboardPage() {
         {(user?.role === "HOD" || user?.role === "FACULTY") && (
           <button
             onClick={() => setIsMailModalOpen(true)}
-            className="group relative flex items-center gap-2 px-5 py-3 text-xs font-black text-white bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] hover:from-[#4338CA] hover:to-[#0891B2] rounded-xl transition-all shadow-md hover:shadow-lg shadow-indigo-500/15 hover:shadow-indigo-500/25 hover:-translate-y-0.5 active:translate-y-0 w-fit shrink-0 overflow-hidden mt-2 md:mt-0"
+            className="neomorphic-compose-btn group shrink-0 mt-2 md:mt-0"
           >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            <Mail className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <Mail className="w-3.5 h-3.5" />
+            </div>
             <span>Compose Mail</span>
           </button>
         )}
