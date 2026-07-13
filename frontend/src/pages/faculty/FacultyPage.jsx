@@ -127,12 +127,12 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
   }, [menuOpen]);
 
   return (
-    <div className="group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative">
+    <div className="group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full relative">
       {/* Profile Header Banner */}
-      <div className={`h-[76px] w-full bg-gradient-to-r ${palette.bg} opacity-90 relative overflow-hidden`}>
+      <div className={`h-[76px] w-full bg-gradient-to-r ${palette.bg} opacity-90 relative rounded-t-[20px]`}>
         {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:10px_10px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5" />
+        <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:10px_10px] rounded-t-[20px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5 rounded-t-[20px]" />
 
         {/* Actions button strip in header */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
