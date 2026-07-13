@@ -4,9 +4,10 @@ import { listClasses, toggleStudentRegistration } from "../../../api/classes";
 import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../components/ui/Spinner";
 import { Avatar } from "../../../components/ui/Avatar";
-import { Users, BookOpen, ShieldCheck, Layers, ChevronRight } from "lucide-react";
+import { Users, BookOpen, ShieldCheck, Layers, ChevronRight, Trophy } from "lucide-react";
 import MobileCard from "../../components/MobileCard";
 import MobileSectionHeader from "../../components/MobileSectionHeader";
+import { useState, useEffect } from "react";
 
 const CLASS_META = {
   UG_1A: { label: "UG 1A", short: "1A",  level: "UG", year: 1, gradient: "from-violet-500 to-purple-600"  },
@@ -23,6 +24,14 @@ export default function MobileClassesPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
+
+  const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
+
+  useEffect(() => {
+    if (!showLeaderboardPopup) return;
+    const timer = setTimeout(() => setShowLeaderboardPopup(false), 2000);
+    return () => clearTimeout(timer);
+  }, [showLeaderboardPopup]);
 
   const { data: raw, isLoading } = useQuery({
     queryKey: ["classes"],
@@ -43,10 +52,24 @@ export default function MobileClassesPage() {
 
   return (
     <div className="space-y-5 mobile-fade-in">
-      {/* Top Header/Button Row - left side free, right end button */}
-      {isHOD && (
-        <div className="flex justify-between items-center py-1">
-          <div />
+      {/* Top Header/Button Row */}
+      <div className="flex justify-between items-center py-1">
+        <div className="relative">
+          <button
+            onClick={() => setShowLeaderboardPopup(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/60 dark:border-slate-800/80 text-xs font-bold text-gray-700 dark:text-gray-300 shadow-sm transition-all"
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-500" />
+            <span>Leaderboard</span>
+          </button>
+          {showLeaderboardPopup && (
+            <div className="absolute left-0 top-full mt-1.5 px-3 py-1.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[10px] font-bold rounded-lg shadow-md border border-gray-800 dark:border-gray-200 whitespace-nowrap animate-fade-in z-30">
+              Coming soon!
+            </div>
+          )}
+        </div>
+
+        {isHOD && (
           <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-gray-200/60 dark:border-slate-800/80 shadow-sm shrink-0">
             <button
               type="button"
@@ -61,8 +84,8 @@ export default function MobileClassesPage() {
               <span>+ New Student</span>
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* UG Section */}
       {ugList.length > 0 && (
