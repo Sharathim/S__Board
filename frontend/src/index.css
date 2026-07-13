@@ -145,21 +145,26 @@
   --indigo-400: #818CF8;
   --indigo-500: #6366F1;
   --indigo-600: #4F46E5;
+  --indigo-605: #4B43E3;
+  --indigo-625: #4842DE;
+  --indigo-650: #4640D4;
+  --indigo-655: #453FD2;
   --indigo-700: #4338CA;
   --indigo-800: #3730A3;
   --indigo-900: #312E81;
 
-  --violet-50: #EEF2FF;
-  --violet-100: #E0E7FF;
-  --violet-200: #C7D2FE;
-  --violet-300: #A5B4FC;
-  --violet-400: #818CF8;
-  --violet-500: #6366F1;
-  --violet-600: #4F46E5;
-  --violet-700: #4338CA;
-  --violet-800: #3730A3;
-  --violet-900: #312E81;
-  --violet-950: #1E1B4B;
+  --violet-50: #F5F3FF;
+  --violet-100: #EDE9FE;
+  --violet-200: #DDD6FE;
+  --violet-300: #C4B5FD;
+  --violet-400: #A78BFA;
+  --violet-500: #8B5CF6;
+  --violet-600: #7C3AED;
+  --violet-650: #7330E8;
+  --violet-700: #6D28D9;
+  --violet-800: #5B21B6;
+  --violet-900: #4C1D95;
+  --violet-950: #2E1065;
 
   --emerald-50: #ECFEFF;
   --emerald-100: #CFFAFE;
