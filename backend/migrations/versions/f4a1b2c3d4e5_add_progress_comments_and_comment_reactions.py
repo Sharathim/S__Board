@@ -1,7 +1,7 @@
 """add progress_comments and comment_reactions tables
 
 Revision ID: f4a1b2c3d4e5
-Revises: c1f2e3d4b5a6
+Revises: e3d8c8d8b8a8
 Create Date: 2026-07-14 07:11:00.000000
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'f4a1b2c3d4e5'
-down_revision = 'c1f2e3d4b5a6'
+down_revision = 'e3d8c8d8b8a8'
 branch_labels = None
 depends_on = None
 
