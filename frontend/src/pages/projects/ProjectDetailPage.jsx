@@ -537,9 +537,28 @@ export default function ProjectDetailPage() {
           </div>
           
           {/* Timeline List */}
-          <div className="flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-6">
+          <div className={`flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-6 ${timelineNodes.length === 0 ? "flex flex-col items-center justify-center" : ""}`}>
             {timelineNodes.length === 0 ? (
-              <div className="text-xs font-semibold text-slate-400 italic py-6 text-center">No progress updates published yet.</div>
+              <div className="flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-[240px] mx-auto">
+                <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center text-slate-405 dark:text-slate-500 border border-slate-200/50 dark:border-slate-800">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="space-y-1 text-center">
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 italic">
+                    No progress updates published yet.
+                  </p>
+                  <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-normal">
+                    Create the first progress update to start tracking this project.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                  className="px-3.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 text-[10.5px] font-bold transition-all shadow-xs"
+                >
+                  + Add progress
+                </button>
+              </div>
             ) : (
               <>
                 {/* Connecting Line */}
@@ -601,7 +620,7 @@ export default function ProjectDetailPage() {
         {/* Right column: Dark hero, 2x2 grid, Attachments */}
         <div className="flex flex-col h-full overflow-y-auto pr-1 scrollbar-premium gap-4">
           {/* Dark Navy Hero Card */}
-          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 min-h-[140px] relative overflow-hidden shadow-sm text-left">
+          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-stretch justify-between shrink-0 min-h-[140px] relative overflow-visible shadow-sm text-left">
             <div className="flex items-center gap-5 flex-1 min-w-0">
               {/* Circular SVG Progress Meter */}
               <div className="relative w-18 h-18 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
@@ -646,7 +665,7 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Last updated by & Team members */}
-            <div className="flex flex-col justify-between items-end border-l border-slate-800/80 pl-6 shrink-0 h-[100px] w-[220px]">
+            <div className="flex flex-col justify-center gap-4 items-end border-l border-slate-800/80 pl-6 shrink-0 w-auto min-w-[180px] max-w-[240px]">
               {/* Last updated by */}
               <div className="text-right w-full">
                 <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider">Last updated by</span>
@@ -662,26 +681,26 @@ export default function ProjectDetailPage() {
                     <span className="text-xs font-bold text-white leading-none truncate max-w-[120px]">{currentUpdate.author}</span>
                   </div>
                 ) : (
-                  <div className="text-xs font-bold text-slate-400 mt-1 italic">No updates yet</div>
+                  <div className="text-xs font-bold text-slate-400 mt-1 italic font-medium">No updates yet</div>
                 )}
               </div>
               
               {/* Team members overlapping avatar row */}
               <div className="text-right w-full">
                 <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block mb-1">Team members</span>
-                <div className="flex items-center justify-end -space-x-1.5 overflow-hidden">
+                <div className="flex items-center justify-end -space-x-1.5">
                   {allMembers.slice(0, 4).map((m) => {
                     const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
                     return m.profile_picture ? (
-                      <img key={m.id} src={m.profile_picture} alt={m.name} className="inline-block h-6.5 w-6.5 rounded-full ring-2 ring-[#0b1329] object-cover" title={m.name} />
+                      <img key={m.id} src={m.profile_picture} alt={m.name} className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] object-cover" title={m.name} />
                     ) : (
-                      <div key={m.id} className={`inline-block h-6.5 w-6.5 rounded-full ring-2 ring-[#0b1329] flex items-center justify-center font-black text-[9px] ${getAvatarBg(m.name)}`} title={m.name}>
+                      <div key={m.id} className={`inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] flex items-center justify-center font-black text-[8px] ${getAvatarBg(m.name)}`} title={m.name}>
                         {initial}
                       </div>
                     );
                   })}
                   {allMembers.length > 4 && (
-                    <div className="inline-block h-6.5 w-6.5 rounded-full ring-2 ring-[#0b1329] bg-slate-800 flex items-center justify-center text-[8.5px] font-bold text-slate-300">
+                    <div className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-300">
                       +{allMembers.length - 4}
                     </div>
                   )}
@@ -691,9 +710,9 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* 2x2 grid */}
-          <div className="grid grid-cols-2 gap-4 shrink-0">
+          <div className="grid grid-cols-2 gap-4">
             {/* Card 1 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
               <div className="space-y-1.5">
                 <div className="flex gap-2 items-center shrink-0">
                   <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-250/60 shadow-xs">
@@ -710,7 +729,7 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
               <div className="space-y-1.5">
                 <div className="flex gap-2 items-center shrink-0">
                   <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-250/60 shadow-xs">
@@ -727,13 +746,13 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
               <div className="space-y-1.5">
                 <div className="flex gap-2 items-center shrink-0">
                   <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-250/60 shadow-xs">
-                    <ShieldAlert className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-rose-300 dark:text-rose-700" : "text-rose-500"}`} />
+                    <ShieldAlert className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-rose-350 dark:text-rose-700" : "text-rose-500"}`} />
                   </div>
-                  <span className="text-[9.5px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
+                  <span className="text-[9.5px] font-black text-rose-605 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
                 </div>
                 <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
                   timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
@@ -744,7 +763,7 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Card 4 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
               <div className="space-y-1.5">
                 <div className="flex gap-2 items-center shrink-0">
                   <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-250/60 shadow-xs">
@@ -762,7 +781,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Attachments Section Row */}
-          <div className="shrink-0 bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0 text-left">
+          <div className="bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0 text-left flex-1">
             <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">
               Attachments ({allAttachments.length})
             </span>
