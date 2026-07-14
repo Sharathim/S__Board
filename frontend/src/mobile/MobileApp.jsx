@@ -24,7 +24,6 @@ import MobileClassDetailPage from "./pages/classes/MobileClassDetailPage";
 import MobileForumPage from "./pages/forum/MobileForumPage";
 import MobileProjectsPage from "./pages/projects/MobileProjectsPage";
 import MobileProjectDetailPage from "./pages/projects/MobileProjectDetailPage";
-import MobileViewAllProgressPage from "./pages/projects/MobileViewAllProgressPage";
 import MobileUpdatesPage from "./pages/updates/MobileUpdatesPage";
 import MobileNotificationsPage from "./pages/notifications/MobileNotificationsPage";
 import MobileSettingsPage from "./pages/settings/MobileSettingsPage";
@@ -83,7 +82,6 @@ export default function MobileApp() {
           <Route path="/forum" element={<Navigate to="/" replace />} />
           <Route path="/projects" element={<MobileProjectsPage />} />
           <Route path="/projects/:id" element={<MobileProjectDetailPage />} />
-          <Route path="/projects/:id/progress" element={<MobileViewAllProgressPage />} />
           <Route path="/updates" element={<Navigate to="/" replace />} />
           <Route path="/notifications" element={<MobileNotificationsPage />} />
           <Route path="/settings" element={<MobileSettingsPage />} />
