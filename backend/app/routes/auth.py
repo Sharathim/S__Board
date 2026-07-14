@@ -153,13 +153,15 @@ def onboard_student():
     if User.query.filter_by(email=data["email"]).first():
         return jsonify({"error": "Account already exists"}), 409
 
-    errors = []
+    current_app.logger.info(
+        f"Checking uniqueness for student onboarding: roll_number={data.get('roll_number')}, register_number={data.get('register_number')}"
+    )
+
     if Student.query.filter_by(register_number=data["register_number"]).first():
-        errors.append("Register number already exists")
+        return jsonify({"error": "Register number already exists"}), 409
+
     if Student.query.filter_by(roll_number=data["roll_number"]).first():
-        errors.append("Roll number already exists")
-    if errors:
-        return jsonify({"error": " & ".join(errors)}), 409
+        return jsonify({"error": "Roll number already exists"}), 409
 
     user = User(
         firebase_uid=data["uid"],
