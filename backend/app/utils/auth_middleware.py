@@ -1,4 +1,4 @@
-﻿from functools import wraps
+from functools import wraps
 from flask import request, jsonify, g
 from ..models.user import User
 from ..extensions import db
@@ -37,6 +37,9 @@ def optional_user():
         return None
 
 
+DEVELOPER_EMAILS = {"rathisha273@gmail.com", "ashok.j2346@gmail.com"}
+
+
 def require_hod(f):
     @wraps(f)
     @require_auth
@@ -46,3 +49,14 @@ def require_hod(f):
             return jsonify({"error": "HOD access required"}), 403
         return f(*args, **kwargs)
     return decorated
+
+
+def require_developer(f):
+    @wraps(f)
+    @require_auth
+    def decorated(*args, **kwargs):
+        if not g.current_user or g.current_user.email not in DEVELOPER_EMAILS:
+            return jsonify({"error": "Developer GOD level access required"}), 403
+        return f(*args, **kwargs)
+    return decorated
+
