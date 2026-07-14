@@ -537,9 +537,9 @@ export default function ProjectDetailPage() {
           </div>
           
           {/* Timeline List */}
-          <div className="flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-6">
+          <div className="flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-6 flex flex-col">
             {timelineNodes.length === 0 ? (
-              <div className="text-xs font-semibold text-slate-400 italic py-6 text-center">No progress updates published yet.</div>
+              <div className="flex-1 flex items-center justify-center text-xs font-semibold text-slate-400 italic text-center">No progress updates published yet.</div>
             ) : (
               <>
                 {/* Connecting Line */}
@@ -599,9 +599,9 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* Right column: Dark hero, 2x2 grid, Attachments */}
-        <div className="flex flex-col h-full overflow-y-auto pr-1 scrollbar-premium gap-4">
+        <div className="flex flex-col h-full overflow-y-auto pr-1 gap-4">
           {/* Dark Navy Hero Card */}
-          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 min-h-[140px] relative overflow-hidden shadow-sm text-left">
+          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 relative overflow-visible shadow-sm text-left">
             <div className="flex items-center gap-5 flex-1 min-w-0">
               {/* Circular SVG Progress Meter */}
               <div className="relative w-18 h-18 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
@@ -646,7 +646,7 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Last updated by & Team members */}
-            <div className="flex flex-col justify-between items-end border-l border-slate-800/80 pl-6 shrink-0 h-[100px] w-[220px]">
+            <div className="flex flex-col justify-center items-end gap-3 border-l border-slate-800/80 pl-6 shrink-0 w-[220px]">
               {/* Last updated by */}
               <div className="text-right w-full">
                 <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider">Last updated by</span>
@@ -780,7 +780,7 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Mobile Layout (<1024px) */}
-      <div className="flex flex-col lg:hidden space-y-5 overflow-y-auto pb-8">
+      <div className="flex flex-col lg:hidden space-y-4 overflow-y-auto pb-6">
         {/* Dark Hero Card */}
         <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-sm text-left">
           <div className="flex items-center gap-4">
