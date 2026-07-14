@@ -1,93 +1,328 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import gsap from "gsap";
-import { usePageTransition } from "../../context/TransitionContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getProject, getMessages, postMessage, editMessage, deleteMessage,
-  updateProjectStatus, updateProject
+  updateProjectStatus, updateProject,
+  postProgressComment, deleteProgressComment, reactToComment,
 } from "../../api/projects";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../hooks/useSocket";
+import { usePageTransition } from "../../context/TransitionContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { Button } from "../../components/ui/Button";
-import { Avatar } from "../../components/ui/Avatar";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
-  ArrowLeft, Edit2, Trash2, Paperclip, CheckCircle,
-  Image, File, Download, FolderKanban, Plus, MoreVertical, Pencil,
-  Calendar, Clock, ShieldAlert, X, TrendingUp, AlertCircle, LifeBuoy, FileText, User, Users, ArrowRight
+  ArrowLeft, Plus, MoreVertical, CheckCircle, Paperclip, X,
+  FolderKanban, Trash2, Edit2, FileText, Image, File,
+  Download, ArrowRight, MessageSquare, Send, Smile,
+  Clock, Users, ChevronDown, ChevronUp,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 
-function getFileType(url) {
-  if (!url) return "unknown";
-  const lower = url.toLowerCase();
-  if (lower.endsWith(".mp4") || lower.endsWith(".mov") || lower.endsWith(".webm") || lower.endsWith(".avi")) {
-    return "video";
-  }
-  if (lower.endsWith(".pdf") || lower.endsWith(".docx") || lower.endsWith(".doc") || lower.endsWith(".xls") || lower.endsWith(".xlsx") || lower.endsWith(".ppt") || lower.endsWith(".pptx")) {
-    return "document";
-  }
-  return "image";
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getFileExt(name) {
+  if (!name) return "";
+  return name.split(".").pop().toLowerCase();
 }
 
-function getDeterministicSize(str) {
-  if (!str) return "1.2 MB";
-  const hash = str.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const size = (hash % 45) / 10 + 0.5;
-  return `${size.toFixed(1)} MB`;
-}
-
-function AttachmentCard({ url, name }) {
-  const ext = name ? name.split(".").pop().toLowerCase() : "";
+function AttachmentPill({ url, name, type }) {
+  const ext = getFileExt(name);
+  const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext);
   const isPdf = ext === "pdf";
   const isZip = ext === "zip" || ext === "rar";
-  const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext);
 
-  let iconBg = "bg-blue-500/10 text-blue-600";
-  let icon = <File className="w-4 h-4" />;
-
-  if (isPdf) {
-    iconBg = "bg-rose-500/10 text-rose-650 dark:text-rose-455";
-    icon = <FileText className="w-4 h-4" />;
-  } else if (isZip) {
-    iconBg = "bg-indigo-500/10 text-indigo-650 dark:text-indigo-400";
-    icon = <FolderKanban className="w-4 h-4" />;
-  } else if (isImage) {
-    iconBg = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
-    icon = <Image className="w-4 h-4" />;
-  }
-
-  const fileSize = getDeterministicSize(name || url);
+  let icon = <File className="w-3.5 h-3.5" />;
+  let colorCls = "text-blue-500 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/50";
+  if (isImage) { icon = <Image className="w-3.5 h-3.5" />; colorCls = "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50"; }
+  else if (isPdf) { icon = <FileText className="w-3.5 h-3.5" />; colorCls = "text-rose-500 bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/50"; }
+  else if (isZip) { icon = <FolderKanban className="w-3.5 h-3.5" />; colorCls = "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/50"; }
 
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3.5 p-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-xl hover:-translate-y-0.5 transition-all shadow-xs shrink-0 w-[220px]"
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold ${colorCls} hover:opacity-80 transition-opacity max-w-[200px] truncate`}
     >
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBg}`}>
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <span className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate leading-tight">{name || "Attachment"}</span>
-        <span className="block text-[10px] text-slate-400 dark:text-slate-500 font-bold mt-1 leading-none">{fileSize}</span>
-      </div>
+      {icon}
+      <span className="truncate">{name || "Attachment"}</span>
+      <Download className="w-3 h-3 shrink-0 opacity-60" />
     </a>
   );
 }
+
+function AvatarCircle({ name = "?", picture, size = "md", colorSeed }) {
+  const colors = [
+    "bg-indigo-600", "bg-rose-600", "bg-violet-600", "bg-emerald-600",
+    "bg-amber-600", "bg-cyan-600", "bg-pink-600", "bg-teal-600",
+  ];
+  const seed = colorSeed || name;
+  const colorIdx = seed.charCodeAt(0) % colors.length;
+  const sizeMap = { xs: "w-6 h-6 text-[9px]", sm: "w-7 h-7 text-[10px]", md: "w-8 h-8 text-xs", lg: "w-10 h-10 text-sm" };
+  const cls = sizeMap[size] || sizeMap.md;
+  if (picture) {
+    return <img src={picture} alt={name} className={`${cls} rounded-full object-cover ring-2 ring-white/10 shrink-0`} />;
+  }
+  return (
+    <div className={`${cls} ${colors[colorIdx]} rounded-full flex items-center justify-center font-black text-white shrink-0`}>
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
+}
+
+function RoleBadge({ role }) {
+  const map = {
+    HOD: "bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800/50",
+    FACULTY: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50",
+    STUDENT: "bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50",
+  };
+  return (
+    <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border leading-none ${map[role] || map.STUDENT}`}>
+      {role}
+    </span>
+  );
+}
+
+const EMOJIS = ["👍", "❤️", "🔥"];
+
+function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserId, onDelete, onReact }) {
+  const [showEmojis, setShowEmojis] = useState(false);
+  if (comment.is_deleted) return null;
+  const reactions = comment.reaction_counts || {};
+  const userReactions = comment.user_reactions || [];
+  const canDelete = isHOD || comment.author?.id === currentUserId;
+
+  return (
+    <div className="flex gap-3 items-start group">
+      <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size="sm" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{comment.author?.name || "Unknown"}</span>
+          <RoleBadge role={comment.author?.role} />
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
+            {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+          </span>
+          {canDelete && (
+            <button
+              onClick={() => onDelete(comment.id)}
+              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:text-rose-500 text-slate-400 transition-all"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-850 rounded-xl rounded-tl-none px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-150 dark:border-slate-700/50">
+          {comment.content}
+        </div>
+        {/* Reactions */}
+        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+          {EMOJIS.map(emoji => {
+            const count = reactions[emoji] || 0;
+            const reacted = userReactions.includes(emoji);
+            if (!isStudent && count === 0) return null;
+            return (
+              <button
+                key={emoji}
+                onClick={() => isStudent && onReact(comment.id, emoji)}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-all ${
+                  reacted
+                    ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300"
+                    : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400"
+                } ${isStudent ? "cursor-pointer hover:scale-105" : "cursor-default"}`}
+              >
+                {emoji} {count > 0 && <span>{count}</span>}
+              </button>
+            );
+          })}
+          {isStudent && (
+            <button
+              onClick={() => setShowEmojis(p => !p)}
+              className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <Smile className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {showEmojis && (
+            <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full px-2 py-0.5 shadow-md animate-fade-in">
+              {EMOJIS.map(e => (
+                <button
+                  key={e}
+                  onClick={() => { onReact(comment.id, e); setShowEmojis(false); }}
+                  className="text-base hover:scale-125 transition-transform p-0.5"
+                >{e}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProgressPostCard({
+  node, projectId, isStudent, isFaculty, isHOD, currentUserId,
+  onEdit, onDelete, onDeleteComment, onReact, onAddComment,
+  isOwn, canEdit,
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+
+  const handleFeedback = async (e) => {
+    e.preventDefault();
+    if (!feedbackText.trim()) return;
+    setSubmittingFeedback(true);
+    await onAddComment(node.id, feedbackText.trim());
+    setFeedbackText("");
+    setSubmittingFeedback(false);
+  };
+
+  const comments = node.comments || [];
+
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="flex items-start gap-3 p-4 sm:p-5">
+        <AvatarCircle name={node.author} picture={node.avatar} size="lg" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-bold text-slate-900 dark:text-white">{node.author}</span>
+            <RoleBadge role={node.role} />
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
+              {formatDistanceToNow(new Date(node.dateRaw), { addSuffix: true })}
+            </span>
+            {node.is_edited && (
+              <span className="text-[9px] text-slate-400 italic">(edited)</span>
+            )}
+          </div>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{node.dateStr}</p>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {isOwn && canEdit && (
+            <button
+              onClick={() => onEdit(node)}
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {(isOwn || isHOD) && (
+            <button
+              onClick={() => onDelete(node.id)}
+              className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={() => setExpanded(p => !p)}
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+          >
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="px-4 sm:px-5 pb-5 space-y-4">
+          {/* Accomplishment content */}
+          {node.accomplishment && (
+            <div className="bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl p-4">
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                {node.accomplishment}
+              </p>
+            </div>
+          )}
+
+          {/* Attachments */}
+          {node.attachments && node.attachments.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Attachments ({node.attachments.length})
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {node.attachments.map((att, i) => (
+                  <AttachmentPill key={i} url={att.url} name={att.name} type={att.type} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Faculty/HOD Feedback Section */}
+          <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Faculty Feedback {comments.length > 0 && `(${comments.length})`}
+              </span>
+            </div>
+
+            {comments.length === 0 && (
+              <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
+                {(isFaculty || isHOD) ? "Share your feedback below." : "No feedback yet from faculty."}
+              </p>
+            )}
+
+            {/* Comment list */}
+            <div className="space-y-3">
+              {comments.map(comment => (
+                <CommentCard
+                  key={comment.id}
+                  comment={comment}
+                  projectId={projectId}
+                  msgId={node.id}
+                  isStudent={isStudent}
+                  isHOD={isHOD}
+                  currentUserId={currentUserId}
+                  onDelete={(commentId) => onDeleteComment(node.id, commentId)}
+                  onReact={(commentId, emoji) => onReact(node.id, commentId, emoji)}
+                />
+              ))}
+            </div>
+
+            {/* Feedback input — HOD and Faculty only */}
+            {(isFaculty || isHOD) && (
+              <form onSubmit={handleFeedback} className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  value={feedbackText}
+                  onChange={e => setFeedbackText(e.target.value)}
+                  placeholder="Write feedback or guidance..."
+                  className="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 min-w-0"
+                />
+                <button
+                  type="submit"
+                  disabled={!feedbackText.trim() || submittingFeedback}
+                  className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span className="text-xs font-bold hidden sm:inline">Send</span>
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const { navigateWithTransition } = usePageTransition();
-  const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
 
-  // Modals state
+  const isHOD = user?.role === "HOD";
+  const isFaculty = user?.role === "FACULTY";
+  const isStudent = user?.role === "STUDENT";
+
+  // UI state
   const [editProjectModalOpen, setEditProjectModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
@@ -96,28 +331,20 @@ export default function ProjectDetailPage() {
   const [kebabOpen, setKebabOpen] = useState(false);
   const [viewAllProgress, setViewAllProgress] = useState(false);
 
-  // Edit Project fields
+  // Edit project fields
   const [editProjectName, setEditProjectName] = useState("");
   const [editProjectDesc, setEditProjectDesc] = useState("");
 
-  // Add/Edit Progress Update fields
-  const [formTitle, setFormTitle] = useState("");
-  const [formSummary, setFormSummary] = useState("");
-  const [formCompletion, setFormCompletion] = useState(0);
-  const [formStatus, setFormStatus] = useState("In Progress");
-  const [formCompletedThisWeek, setFormCompletedThisWeek] = useState("");
-  const [formNextMilestone, setFormNextMilestone] = useState("");
-  const [formChallenges, setFormChallenges] = useState("");
-  const [formSupport, setFormSupport] = useState("");
-  const [formAttachment, setFormAttachment] = useState(null);
+  // Simplified progress form fields (student only)
+  const [formAccomplishment, setFormAccomplishment] = useState("");
+  const [formFiles, setFormFiles] = useState([]);
 
-  // Fetch Project
+  // Fetch
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", id],
     queryFn: () => getProject(id).then(r => r.data.project),
   });
 
-  // Fetch Progress Updates
   const { data: messagesData, refetch: refetchMessages } = useQuery({
     queryKey: ["messages", id],
     queryFn: () => getMessages(id, { page: 1 }).then(r => r.data),
@@ -126,7 +353,6 @@ export default function ProjectDetailPage() {
   const messages = messagesData?.messages || [];
   const reversedMessages = [...messages].reverse();
 
-  // Sync edit project form
   useEffect(() => {
     if (project) {
       setEditProjectName(project.name || "");
@@ -134,37 +360,19 @@ export default function ProjectDetailPage() {
     }
   }, [project]);
 
-  // Sync add/edit progress form when editingMsg changes
   useEffect(() => {
     if (editingMsg) {
+      // For editing, parse old content format too
       let parsed = {};
-      try {
-        parsed = JSON.parse(editingMsg.content);
-      } catch (e) {
-        parsed = {
-          title: "Progress Update",
-          accomplishment: editingMsg.content || ""
-        };
-      }
-      setFormTitle(parsed.title || "Progress Update");
-      setFormSummary(parsed.summary || parsed.accomplishment || "");
-      setFormCompletion(typeof parsed.completion === "number" ? parsed.completion : 0);
-      setFormStatus(parsed.status || "In Progress");
-      setFormCompletedThisWeek(parsed.completed_this_week || parsed.accomplishment || "");
-      setFormNextMilestone(parsed.next_milestone || parsed.next || "");
-      setFormChallenges(parsed.challenges || "");
-      setFormSupport(parsed.support || "");
+      try { parsed = JSON.parse(editingMsg.content); } catch { parsed = {}; }
+      setFormAccomplishment(
+        parsed.completed_this_week || parsed.accomplishment || parsed.summary ||
+        editingMsg.content || ""
+      );
     } else {
-      setFormTitle("");
-      setFormSummary("");
-      setFormCompletion(0);
-      setFormStatus("In Progress");
-      setFormCompletedThisWeek("");
-      setFormNextMilestone("");
-      setFormChallenges("");
-      setFormSupport("");
+      setFormAccomplishment("");
     }
-    setFormAttachment(null);
+    setFormFiles([]);
   }, [editingMsg]);
 
   useEffect(() => {
@@ -185,10 +393,7 @@ export default function ProjectDetailPage() {
   const onMessageUpdated = useCallback((msg) => {
     queryClient.setQueryData(["messages", id], old => {
       if (!old) return old;
-      return {
-        ...old,
-        messages: (old.messages || []).map(m => m.id === msg.id ? msg : m)
-      };
+      return { ...old, messages: (old.messages || []).map(m => m.id === msg.id ? msg : m) };
     });
   }, [id, queryClient]);
 
@@ -211,33 +416,21 @@ export default function ProjectDetailPage() {
     mutationFn: (formData) => postMessage(id, formData),
     onSuccess: () => {
       refetchMessages();
-      setFormTitle("");
-      setFormSummary("");
-      setFormCompletion(0);
-      setFormStatus("In Progress");
-      setFormCompletedThisWeek("");
-      setFormNextMilestone("");
-      setFormChallenges("");
-      setFormSupport("");
-      setFormAttachment(null);
+      setFormAccomplishment("");
+      setFormFiles([]);
+      setAddModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ["project", id] });
     },
   });
 
   const editMutation = useMutation({
     mutationFn: ({ messageId, content }) => editMessage(id, messageId, { content }),
-    onSuccess: () => {
-      setEditingMsg(null);
-      refetchMessages();
-    },
+    onSuccess: () => { setEditingMsg(null); setAddModalOpen(false); refetchMessages(); },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (messageId) => deleteMessage(id, messageId),
-    onSuccess: () => {
-      setDeleteTarget(null);
-      refetchMessages();
-    },
+    onSuccess: () => { setDeleteTarget(null); refetchMessages(); },
   });
 
   const statusMutation = useMutation({
@@ -251,6 +444,21 @@ export default function ProjectDetailPage() {
       setEditProjectModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ["project", id] });
     }
+  });
+
+  const addCommentMutation = useMutation({
+    mutationFn: ({ msgId, content }) => postProgressComment(id, msgId, { content }),
+    onSuccess: () => refetchMessages(),
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: ({ msgId, commentId }) => deleteProgressComment(id, msgId, commentId),
+    onSuccess: () => refetchMessages(),
+  });
+
+  const reactMutation = useMutation({
+    mutationFn: ({ msgId, commentId, emoji }) => reactToComment(id, msgId, commentId, emoji),
+    onSuccess: () => refetchMessages(),
   });
 
   if (isLoading) return <Spinner />;
@@ -267,808 +475,524 @@ export default function ProjectDetailPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formAttachment && formAttachment.size > 10 * 1024 * 1024) {
-      alert("File size exceeds 10MB limit.");
-      return;
+    if (!formAccomplishment.trim() && formFiles.length === 0) return;
+
+    for (const f of formFiles) {
+      if (f.size > 10 * 1024 * 1024) {
+        alert(`File "${f.name}" exceeds 10MB limit.`);
+        return;
+      }
     }
-    const contentJson = JSON.stringify({
-      title: formTitle,
-      summary: formSummary,
-      completion: Number(formCompletion),
-      status: formStatus,
-      completed_this_week: formCompletedThisWeek,
-      next_milestone: formNextMilestone,
-      challenges: formChallenges,
-      support: formSupport
-    });
 
     if (editingMsg) {
+      // For edits keep as simple JSON with backward compat
+      const contentJson = JSON.stringify({
+        completed_this_week: formAccomplishment,
+        summary: formAccomplishment,
+      });
       editMutation.mutate({ messageId: editingMsg.id, content: contentJson });
     } else {
       const formData = new FormData();
-      formData.append("content", contentJson);
-      if (formAttachment) {
-        formData.append("attachment", formAttachment);
+      formData.append("content", formAccomplishment);
+      for (const file of formFiles) {
+        formData.append("attachments", file);
       }
       sendMutation.mutate(formData);
     }
-    setAddModalOpen(false);
-    setEditingMsg(null);
   };
 
-  // Group and format members
-  const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
-  const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-  const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
-
-  const allMembers = [
-    ...facultyMembers,
-    ...forumMembers,
-    ...studentMembers
-  ];
-  const leadAdvisor = facultyMembers[0]?.name || "Unassigned Advisor";
-
-  // Parse all messages into timeline nodes
+  // Parse messages into timeline nodes
   const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
-    let uData = {
-      title: "Progress Update",
-      summary: "",
-      completion: 0,
-      status: "In Progress",
-      completed_this_week: "",
-      next_milestone: "",
-      challenges: "",
-      support: ""
-    };
+    let accomplishment = "";
     try {
       const parsed = JSON.parse(msg.content);
-      uData = {
-        title: parsed.title || "Progress Update",
-        summary: parsed.summary || parsed.accomplishment || "",
-        completion: typeof parsed.completion === "number" ? parsed.completion : 0,
-        status: parsed.status || "In Progress",
-        completed_this_week: parsed.completed_this_week || parsed.accomplishment || "",
-        next_milestone: parsed.next_milestone || parsed.next || "",
-        challenges: parsed.challenges || "",
-        support: parsed.support || ""
-      };
-    } catch (e) {
-      uData.summary = msg.content || "";
-      uData.completed_this_week = msg.content || "";
+      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
+    } catch {
+      accomplishment = msg.content || "";
     }
+
+    // Resolve attachments - support both new multi-attachment list and legacy single
+    let attachments = [];
+    if (msg.attachments && msg.attachments.length > 0) {
+      attachments = msg.attachments;
+    } else if (msg.attachment_url) {
+      attachments = [{ url: msg.attachment_url, type: msg.attachment_type, name: msg.attachment_name }];
+    }
+
+    const isOwn = msg.sender?.id === user?.id;
+    const canEdit = msg.can_edit && isOwn;
+
     return {
       id: msg.id,
+      dateRaw: msg.created_at,
       dateStr: format(new Date(msg.created_at), "MMM d, yyyy · h:mm a"),
-      dateOnly: format(new Date(msg.created_at), "MMM d, yyyy"),
-      timeOnly: format(new Date(msg.created_at), "h:mm a"),
       author: msg.sender?.name || "Unknown",
       role: msg.sender?.role || "STUDENT",
       avatar: msg.sender?.profile_picture,
-      status: uData.status,
-      title: uData.title,
-      summary: uData.summary,
-      completion: uData.completion,
-      attachmentUrl: msg.attachment_url,
-      attachmentName: msg.attachment_name,
-      updateData: uData,
-      fullMsg: msg
+      accomplishment,
+      attachments,
+      comments: msg.comments || [],
+      is_edited: msg.is_edited,
+      isOwn,
+      canEdit,
     };
   });
 
-  // Determine currently selected progress update
   const currentUpdate = timelineNodes.find(n => n.id === selectedUpdateId) || timelineNodes[0];
+  const allMembers = project.members || [];
 
-  const updateData = currentUpdate ? currentUpdate.updateData : {
-    title: "Vibe chat — social media platform",
-    summary: "No updates posted yet.",
-    completion: 0,
-    status: project.status || "In Progress",
-    completed_this_week: "",
-    next_milestone: "",
-    challenges: "",
-    support: ""
-  };
-
-  const currentCompletion = currentUpdate ? currentUpdate.completion : 0;
-
-  // Gather attachments across all updates
-  const allAttachments = timelineNodes.filter(node => node.attachmentUrl);
-
-  // Avatar styling helpers
-  const getAvatarBg = (name = "A") => {
-    const char = name.charAt(0).toUpperCase();
-    const colors = {
-      S: "bg-indigo-600 text-white",
-    Z: "bg-rose-600 text-white"
-    };
-    return colors[char] || "bg-indigo-500 text-white";
-  };
+  // ─── View All Progress ────────────────────────────────────────────────────
 
   if (viewAllProgress) {
     return (
-      <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-4 space-y-4">
+      <div className="max-w-[860px] mx-auto px-4 sm:px-6 pb-12 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start shrink-0 gap-4">
-          <div className="space-y-1 text-left">
-            <div
-              onClick={() => setViewAllProgress(false)}
-              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-655 hover:text-indigo-700 dark:hover:text-indigo-400 cursor-pointer transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to progress monitor
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1.5 leading-none">
-              All progress updates
-            </h1>
-            <p className="text-xs text-slate-405 dark:text-slate-500 font-semibold mt-0.5">
-              History of progress logs for {project.name}
-            </p>
-          </div>
+        <div className="pt-2 space-y-1">
+          <button
+            onClick={() => setViewAllProgress(false)}
+            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to progress monitor
+          </button>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">All Progress Updates</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">Complete history for {project.name}</p>
         </div>
 
-        {/* Content list */}
-        <div className="flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-8 py-4 max-w-[800px] mx-auto w-full">
-          {timelineNodes.length === 0 ? (
-            <div className="text-sm font-semibold text-slate-400 italic py-12 text-center">
-              No progress updates published yet.
-            </div>
-          ) : (
-            <>
-              {/* Vertical Connector Line */}
-              <div className="absolute left-[39px] top-6 bottom-6 w-[2px] bg-indigo-50 dark:bg-slate-850" />
-
-              <div className="space-y-6 relative z-10 pt-2">
-                {timelineNodes.map((node) => (
-                  <div
-                    key={node.id}
-                    className="relative pl-8 pb-2 text-left"
-                  >
-                    {/* Node Dot */}
-                    <div className="absolute left-[-5px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-indigo-605 bg-white dark:bg-slate-900" />
-                    
-                    {/* Entry Card */}
-                    <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-                      <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">{node.dateStr}</span>
-                          <span className="text-xs font-bold text-slate-600 dark:text-slate-400">• By {node.author}</span>
-                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-slate-50 dark:bg-slate-800 text-slate-555 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 leading-none">{node.role}</span>
-                        </div>
-                        
-                        <span className={`text-[9.5px] font-black uppercase px-2 py-0.5 rounded border leading-none ${
-                          node.status === "Completed"
-                            ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-655 dark:text-emerald-400 border-emerald-250"
-                            : "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-250"
-                        }`}>
-                          {node.status}
-                        </span>
-                      </div>
-                      
-                      <h3 className="text-sm font-black text-slate-900 dark:text-white mt-3 leading-tight">{node.title}</h3>
-                      <p className="text-xs text-slate-550 dark:text-slate-400 mt-2 leading-relaxed whitespace-pre-wrap font-medium">{node.summary}</p>
-                      
-                      {node.attachmentUrl && (
-                        <div className="mt-4">
-                          <AttachmentCard url={node.attachmentUrl} name={node.attachmentName} />
-                        </div>
-                      )}
-                    </div>
+        {timelineNodes.length === 0 ? (
+          <div className="text-center py-20 text-slate-400 italic text-sm">No progress updates yet.</div>
+        ) : (
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-200 via-indigo-100 to-transparent dark:from-indigo-800 dark:via-indigo-900/40 dark:to-transparent" />
+            <div className="space-y-6 pl-12">
+              {timelineNodes.map((node, idx) => (
+                <div key={node.id} className="relative">
+                  {/* Dot */}
+                  <div className={`absolute -left-[38px] top-4 w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    idx === 0
+                      ? "border-indigo-500 bg-indigo-500"
+                      : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
+                  }`}>
+                    {idx === 0 && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
                   </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+                  <ProgressPostCard
+                    node={node}
+                    projectId={id}
+                    isStudent={isStudent}
+                    isFaculty={isFaculty}
+                    isHOD={isHOD}
+                    currentUserId={user?.id}
+                    isOwn={node.isOwn}
+                    canEdit={node.canEdit}
+                    onEdit={(n) => { setEditingMsg({ id: n.id, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); }}
+                    onDelete={(msgId) => setDeleteTarget(msgId)}
+                    onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
+                    onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
+                    onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
+  // ─── Main View ────────────────────────────────────────────────────────────
+
+  const statusColors = {
+    COMPLETED: { dot: "bg-emerald-500", text: "text-emerald-400", label: "Completed" },
+    IN_PROGRESS: { dot: "bg-indigo-500 animate-pulse", text: "text-indigo-400", label: "In Progress" },
+    NOT_STARTED: { dot: "bg-slate-400", text: "text-slate-400", label: "Not Started" },
+    ON_HOLD: { dot: "bg-amber-400", text: "text-amber-400", label: "On Hold" },
+    REVIEW: { dot: "bg-violet-500", text: "text-violet-400", label: "Review" },
+    CANCELLED: { dot: "bg-rose-500", text: "text-rose-400", label: "Cancelled" },
+    LOW_ACTIVITY: { dot: "bg-orange-400", text: "text-orange-400", label: "Low Activity" },
+  };
+  const statusStyle = statusColors[project.status] || statusColors.IN_PROGRESS;
+
   return (
-    <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-4 space-y-4">
-      {/* Top Header Navigation bar */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start shrink-0 gap-4">
-        <div className="space-y-1 text-left">
-          <div
+    <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1440px] mx-auto px-3 sm:px-5 md:px-8 pb-4 space-y-4">
+      {/* ── Top Header ── */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start shrink-0 gap-3">
+        <div className="space-y-0.5 text-left">
+          <button
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-655 hover:text-indigo-700 dark:hover:text-indigo-400 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to projects
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1.5 leading-none">Progress monitor</h1>
-          <p className="text-xs text-slate-405 dark:text-slate-500 font-semibold mt-0.5">Current state of {project.name}, at a glance</p>
+          </button>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">Progress Monitor</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">
+            Current state of <span className="font-bold text-slate-700 dark:text-slate-300">{project.name}</span>, at a glance
+          </p>
         </div>
 
         <div className="flex items-center justify-end gap-2 relative pm-kebab-container shrink-0">
-          <button
-            onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-            className="px-4 h-9 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all flex items-center gap-2 shrink-0"
-          >
-            <Plus className="w-4 h-4" /> Add progress
-          </button>
-          
-          <button
-            onClick={() => setKebabOpen(!kebabOpen)}
-            className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-505 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
+          {/* Only students get the Add progress button */}
+          {isStudent && (
+            <button
+              onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+              className="px-4 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all flex items-center gap-2 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Post Progress
+            </button>
+          )}
+
+          {(isHOD) && (
+            <button
+              onClick={() => setKebabOpen(!kebabOpen)}
+              className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          )}
 
           {kebabOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-155 dark:border-slate-800 py-1 z-35 animate-fade-in text-left">
+            <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-150 dark:border-slate-800 py-1 z-50 animate-fade-in text-left">
               {project.status !== "COMPLETED" && (
                 <button
-                  onClick={() => {
-                    statusMutation.mutate("COMPLETED");
-                    setKebabOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-xs text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bold transition-colors text-left"
+                  onClick={() => { statusMutation.mutate("COMPLETED"); setKebabOpen(false); }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bold transition-colors"
                 >
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  Mark completed
+                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Mark completed
                 </button>
               )}
               <button
-                onClick={() => {
-                  setEditProjectModalOpen(true);
-                  setKebabOpen(false);
-                }}
-                className="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold transition-colors text-left"
+                onClick={() => { setEditProjectModalOpen(true); setKebabOpen(false); }}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold transition-colors"
               >
-                <Edit2 className="w-3.5 h-3.5" />
-                Edit project
+                <Edit2 className="w-3.5 h-3.5" /> Edit project
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Desktop Layout (>=1024px) */}
-      <div className="hidden lg:grid grid-cols-[28%_72%] gap-5 flex-1 min-h-0 overflow-hidden h-full">
-        {/* Left column: Update History */}
-        <div className="flex flex-col h-full overflow-hidden border border-slate-150 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl p-4">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4 shrink-0">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">UPDATE HISTORY</span>
-            <span
-              onClick={() => setViewAllProgress(true)}
-              className="text-[10px] font-black text-indigo-655 dark:text-indigo-405 hover:underline cursor-pointer flex items-center gap-1"
-            >
-              View all progress <ArrowRight className="w-3 h-3" />
-            </span>
-          </div>
-          
-          {/* Timeline List */}
-          <div className={`flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-6 ${timelineNodes.length === 0 ? "flex flex-col items-center justify-center" : ""}`}>
-            {timelineNodes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-[240px] mx-auto">
-                <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center text-slate-405 dark:text-slate-500 border border-slate-200/50 dark:border-slate-800">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="space-y-1 text-center">
-                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 italic">
-                    No progress updates published yet.
-                  </p>
-                  <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-normal">
-                    Create the first progress update to start tracking this project.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                  className="px-3.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 text-[10.5px] font-bold transition-all shadow-xs"
-                >
-                  + Add progress
-                </button>
-              </div>
-            ) : (
-              <>
-                {/* Connecting Line */}
-                <div className="absolute left-[30px] top-4 bottom-4 w-[2px] bg-indigo-50 dark:bg-slate-855" />
-                
-                <div className="space-y-6 relative z-10 pt-2">
-                  {timelineNodes.map((node, index) => {
-                    const isActive = currentUpdate?.id === node.id;
-                    const isNewest = index === 0;
-                    return (
-                      <div
-                        key={node.id}
-                        onClick={() => setSelectedUpdateId(node.id)}
-                        className={`group flex flex-col cursor-pointer transition-all border p-3.5 rounded-xl text-left relative ${
-                          isActive
-                            ? "bg-slate-50/50 dark:bg-slate-950/20 border-indigo-200 dark:border-indigo-900/60 ring-2 ring-indigo-500/10"
-                            : "bg-white dark:bg-slate-900 border-transparent hover:border-slate-155 dark:hover:border-slate-800"
-                        }`}
-                      >
-                        {/* Dot */}
-                        <div className="absolute left-[-16px] top-4 mt-0.5">
-                          <div className={`w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 flex items-center justify-center transition-all ${
-                            isNewest ? "border-indigo-605 bg-indigo-605" : "border-slate-350"
-                          }`}>
-                            {isNewest && <div className="w-1 h-1 rounded-full bg-white" />}
-                          </div>
-                        </div>
+      {/* ── Desktop Layout (≥1024px) ── */}
+      <div className="hidden lg:grid grid-cols-[300px_1fr] gap-5 flex-1 min-h-0 overflow-hidden">
 
-                        <div>
-                          <div className="text-[9px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">
-                            {node.dateStr}
-                          </div>
-                          <div className="flex items-center gap-1.5 mt-1.5 shrink-0">
-                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-205 truncate max-w-[100px]">{node.author}</span>
-                            <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded border scale-95 leading-none ${
-                              isActive
-                                ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
-                                : "bg-slate-50 dark:bg-slate-805/60 text-slate-505 border-slate-200/50 dark:border-slate-700/50"
-                            }`}>
-                              {node.role}
-                            </span>
-                          </div>
-                          <div className="text-xs font-bold text-slate-900 dark:text-white mt-1.5 truncate">
-                            {node.title}
-                          </div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-455 mt-1 line-clamp-3 leading-relaxed font-medium">
-                            {node.summary}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Right column: Dark hero, 2x2 grid, Attachments */}
-        <div className="flex flex-col h-full overflow-y-auto pr-1 scrollbar-premium gap-4">
-          {/* Dark Navy Hero Card */}
-          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-stretch justify-between shrink-0 min-h-[140px] relative overflow-visible shadow-sm text-left">
-            <div className="flex items-center gap-5 flex-1 min-w-0">
-              {/* Circular SVG Progress Meter */}
-              <div className="relative w-18 h-18 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
-                <svg className="w-16 h-16 transform -rotate-90">
-                  <circle stroke="rgba(255, 255, 255, 0.05)" fill="transparent" strokeWidth="4" r="25" cx="32" cy="32" />
-                  <circle
-                    stroke="#6366f1"
-                    fill="transparent"
-                    strokeWidth="4"
-                    strokeDasharray={2 * Math.PI * 25}
-                    strokeDashoffset={2 * Math.PI * 25 * (1 - currentCompletion / 100)}
-                    strokeLinecap="round"
-                    r="25"
-                    cx="32"
-                    cy="32"
-                    style={{ transition: "stroke-dashoffset 0.5s ease" }}
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center justify-center text-center">
-                  <span className="text-xs font-black tracking-tight leading-none">{currentCompletion}%</span>
-                  <span className="text-[7px] text-slate-400 font-extrabold uppercase mt-0.5">Complete</span>
-                </div>
-              </div>
-
-              {/* Card Meta Content */}
-              <div className="space-y-1 min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-1.5 h-1.5 rounded-full ${
-                    project.status === "COMPLETED" ? "bg-emerald-500" : "bg-indigo-500 animate-pulse"
-                  }`} />
-                  <span className={`text-[9.5px] font-black uppercase tracking-wider ${
-                    project.status === "COMPLETED" ? "text-emerald-500" : "text-indigo-400"
-                  }`}>
-                    {project.status || "In progress"}
-                  </span>
-                </div>
-                <h2 className="text-base font-black tracking-tight text-white truncate">{project.name}</h2>
-                <p className="text-xs text-slate-350 line-clamp-2 leading-relaxed font-medium">
-                  {updateData.summary || "No updates posted yet."}
-                </p>
-              </div>
-            </div>
-
-            {/* Last updated by & Team members */}
-            <div className="flex flex-col justify-center gap-4 items-end border-l border-slate-800/80 pl-6 shrink-0 w-auto min-w-[180px] max-w-[240px]">
-              {/* Last updated by */}
-              <div className="text-right w-full">
-                <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider">Last updated by</span>
-                {currentUpdate ? (
-                  <div className="flex items-center justify-end gap-2 mt-1">
-                    {currentUpdate.avatar ? (
-                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-5 h-5 rounded-full object-cover ring-1 ring-white/10" />
-                    ) : (
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] ${getAvatarBg(currentUpdate.author)}`}>
-                        {currentUpdate.author.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <span className="text-xs font-bold text-white leading-none truncate max-w-[120px]">{currentUpdate.author}</span>
-                  </div>
-                ) : (
-                  <div className="text-xs font-bold text-slate-400 mt-1 italic font-medium">No updates yet</div>
-                )}
-              </div>
-              
-              {/* Team members overlapping avatar row */}
-              <div className="text-right w-full">
-                <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block mb-1">Team members</span>
-                <div className="flex items-center justify-end -space-x-1.5">
-                  {allMembers.slice(0, 4).map((m) => {
-                    const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
-                    return m.profile_picture ? (
-                      <img key={m.id} src={m.profile_picture} alt={m.name} className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] object-cover" title={m.name} />
-                    ) : (
-                      <div key={m.id} className={`inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] flex items-center justify-center font-black text-[8px] ${getAvatarBg(m.name)}`} title={m.name}>
-                        {initial}
-                      </div>
-                    );
-                  })}
-                  {allMembers.length > 4 && (
-                    <div className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-300">
-                      +{allMembers.length - 4}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 2x2 grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Card 1 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
-              <div className="space-y-1.5">
-                <div className="flex gap-2 items-center shrink-0">
-                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-250/60 shadow-xs">
-                    <CheckCircle className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-emerald-300 dark:text-emerald-700" : "text-emerald-500"}`} />
-                  </div>
-                  <span className="text-[9.5px] font-black text-emerald-655 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
-                </div>
-                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
-                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-                }`}>
-                  {updateData.completed_this_week || "No accomplishments recorded for this period."}
-                </p>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
-              <div className="space-y-1.5">
-                <div className="flex gap-2 items-center shrink-0">
-                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-250/60 shadow-xs">
-                    <TrendingUp className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-indigo-300 dark:text-indigo-700/60" : "text-indigo-655"}`} />
-                  </div>
-                  <span className="text-[9.5px] font-black text-indigo-705 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
-                </div>
-                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
-                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-                }`}>
-                  {updateData.next_milestone || "No upcoming milestones declared."}
-                </p>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
-              <div className="space-y-1.5">
-                <div className="flex gap-2 items-center shrink-0">
-                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-250/60 shadow-xs">
-                    <ShieldAlert className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-rose-350 dark:text-rose-700" : "text-rose-500"}`} />
-                  </div>
-                  <span className="text-[9.5px] font-black text-rose-605 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
-                </div>
-                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
-                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-                }`}>
-                  {updateData.challenges || "No active challenges or blockers."}
-                </p>
-              </div>
-            </div>
-
-            {/* Card 4 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden min-h-[120px] text-left">
-              <div className="space-y-1.5">
-                <div className="flex gap-2 items-center shrink-0">
-                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-250/60 shadow-xs">
-                    <LifeBuoy className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-amber-300 dark:text-amber-700" : "text-amber-500"}`} />
-                  </div>
-                  <span className="text-[9.5px] font-black text-amber-600 dark:text-amber-455 uppercase tracking-wider">Support Needed</span>
-                </div>
-                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
-                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-                }`}>
-                  {updateData.support || "No additional support required."}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Attachments Section Row */}
-          <div className="bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0 text-left flex-1">
-            <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">
-              Attachments ({allAttachments.length})
-            </span>
-            {allAttachments.length === 0 ? (
-              <div className="text-xs font-semibold text-slate-400 italic py-2">No attachments yet</div>
-            ) : (
-              <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-none py-1">
-                {allAttachments.map(node => (
-                  <AttachmentCard key={node.id} url={node.attachmentUrl} name={node.attachmentName} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Layout (<1024px) */}
-      <div className="flex flex-col lg:hidden space-y-5 overflow-y-auto pb-8">
-        {/* Dark Hero Card */}
-        <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-sm text-left">
-          <div className="flex items-center gap-4">
-            {/* Progress Meter */}
-            <div className="relative w-14 h-14 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
-              <svg className="w-12 h-12 transform -rotate-90">
-                <circle stroke="rgba(255, 255, 255, 0.05)" fill="transparent" strokeWidth="3" r="20" cx="24" cy="24" />
-                <circle
-                  stroke="#6366f1"
-                  fill="transparent"
-                  strokeWidth="3"
-                  strokeDasharray={2 * Math.PI * 20}
-                  strokeDashoffset={2 * Math.PI * 20 * (1 - currentCompletion / 100)}
-                  strokeLinecap="round"
-                  r="20"
-                  cx="24"
-                  cy="24"
-                  style={{ transition: "stroke-dashoffset 0.5s ease" }}
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-[10px] font-black tracking-tight leading-none">{currentCompletion}%</span>
-                <span className="text-[5px] text-slate-400 font-extrabold uppercase mt-0.5">Complete</span>
-              </div>
-            </div>
-
-            {/* Meta details */}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${
-                  project.status === "COMPLETED" ? "bg-emerald-500" : "bg-indigo-500 animate-pulse"
-                }`} />
-                <span className={`text-[9px] font-black uppercase tracking-wider ${
-                  project.status === "COMPLETED" ? "text-emerald-500" : "text-indigo-400"
-                }`}>
-                  {project.status || "In progress"}
+        {/* Left: Update History Panel */}
+        <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl">
+          <div className="flex items-center justify-between px-4 pt-4 pb-3 shrink-0 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                Update History
+              </span>
+              {timelineNodes.length > 0 && (
+                <span className="text-[9px] font-black bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-full px-1.5 py-0.5">
+                  {timelineNodes.length}
                 </span>
-              </div>
-              <h2 className="text-sm font-black tracking-tight text-white truncate">{project.name}</h2>
-              <p className="text-[11px] text-slate-350 line-clamp-2 leading-relaxed font-medium">
-                {updateData.summary || "No updates posted yet."}
-              </p>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-850 pt-3.5 flex items-center justify-between gap-4">
-            {/* Last updated by */}
-            <div className="flex-1 min-w-0">
-              <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block">Last updated by</span>
-              {currentUpdate ? (
-                <div className="flex items-center gap-1.5 mt-1">
-                  {currentUpdate.avatar ? (
-                    <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-5 h-5 rounded-full object-cover ring-1 ring-white/10" />
-                  ) : (
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] ${getAvatarBg(currentUpdate.author)}`}>
-                      {currentUpdate.author.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <span className="text-[11px] font-bold text-white truncate leading-none">{currentUpdate.author}</span>
-                </div>
-              ) : (
-                <span className="text-[11px] text-slate-400 italic">No updates yet</span>
               )}
             </div>
+            <button
+              onClick={() => setViewAllProgress(true)}
+              className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition-colors"
+            >
+              View all <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
 
-            {/* Team members overlapping avatars */}
-            <div className="shrink-0 text-right">
-              <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block mb-1">Team members</span>
-              <div className="flex items-center justify-end -space-x-1.5 overflow-hidden">
-                {allMembers.slice(0, 4).map((m) => {
-                  const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
-                  return m.profile_picture ? (
-                    <img key={m.id} src={m.profile_picture} alt={m.name} className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] object-cover" />
-                  ) : (
-                    <div key={m.id} className={`inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] flex items-center justify-center font-black text-[8px] ${getAvatarBg(m.name)}`}>
-                      {initial}
-                    </div>
-                  );
-                })}
-                {allMembers.length > 4 && (
-                  <div className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-300">
-                    +{allMembers.length - 4}
-                  </div>
+          <div className={`flex-1 overflow-y-auto scrollbar-premium ${timelineNodes.length === 0 ? "flex flex-col items-center justify-center" : ""}`}>
+            {timelineNodes.length === 0 ? (
+              <div className="text-center p-6 space-y-3 max-w-[200px]">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
+                  <FileText className="w-5 h-5 text-slate-400" />
+                </div>
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic leading-relaxed">
+                  No progress updates yet.
+                </p>
+                {isStudent && (
+                  <button
+                    onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                    className="px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-[10.5px] font-bold hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all"
+                  >
+                    + Post Progress
+                  </button>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 2x2 cards status grid */}
-        <div className="grid grid-cols-2 max-[430px]:grid-cols-1 gap-4">
-          {/* Card 1 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
-            <div className="space-y-2">
-              <div className="flex gap-2.5 items-center shrink-0">
-                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-250/60 shadow-xs">
-                  <CheckCircle className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-emerald-300 dark:text-emerald-700" : "text-emerald-500"}`} />
-                </div>
-                <span className="text-[10px] font-black text-emerald-655 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
-              </div>
-              <p className={`text-[12px] font-semibold leading-relaxed ${
-                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-              }`}>
-                {updateData.completed_this_week || "No accomplishments recorded for this period."}
-              </p>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
-            <div className="space-y-2">
-              <div className="flex gap-2.5 items-center shrink-0">
-                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-250/60 shadow-xs">
-                  <TrendingUp className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-indigo-300 dark:text-indigo-700/60" : "text-indigo-655"}`} />
-                </div>
-                <span className="text-[10px] font-black text-indigo-705 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
-              </div>
-              <p className={`text-[12px] font-semibold leading-relaxed ${
-                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-              }`}>
-                {updateData.next_milestone || "No upcoming milestones declared."}
-              </p>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
-            <div className="space-y-2">
-              <div className="flex gap-2.5 items-center shrink-0">
-                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-250/60 shadow-xs">
-                  <ShieldAlert className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-rose-300 dark:text-rose-700" : "text-rose-500"}`} />
-                </div>
-                <span className="text-[10px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
-              </div>
-              <p className={`text-[12px] font-semibold leading-relaxed ${
-                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-              }`}>
-                {updateData.challenges || "No active challenges or blockers."}
-              </p>
-            </div>
-          </div>
-
-          {/* Card 4 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
-            <div className="space-y-2">
-              <div className="flex gap-2.5 items-center shrink-0">
-                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-250/60 shadow-xs">
-                  <LifeBuoy className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-amber-300 dark:text-amber-700" : "text-amber-500"}`} />
-                </div>
-                <span className="text-[10px] font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">Support Needed</span>
-              </div>
-              <p className={`text-[12px] font-semibold leading-relaxed ${
-                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
-              }`}>
-                {updateData.support || "No additional support required."}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Attachments Section */}
-        <div className="bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0 text-left">
-          <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">
-            Attachments ({allAttachments.length})
-          </span>
-          {allAttachments.length === 0 ? (
-            <div className="text-xs font-semibold text-slate-400 italic py-2">No attachments yet</div>
-          ) : (
-            <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-none py-1 flex-wrap">
-              {allAttachments.map(node => (
-                <AttachmentCard key={node.id} url={node.attachmentUrl} name={node.attachmentName} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Update History Section at the bottom */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col shadow-xs text-left">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">UPDATE HISTORY ({timelineNodes.length})</span>
-            <span
-              onClick={() => setViewAllProgress(true)}
-              className="text-[10px] font-black text-indigo-655 dark:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
-            >
-              View all progress <ArrowRight className="w-3 h-3" />
-            </span>
-          </div>
-
-          <div className="relative pl-6">
-            {timelineNodes.length === 0 ? (
-              <div className="text-xs font-semibold text-slate-400 italic py-4 text-center">No progress updates published yet.</div>
             ) : (
-              <>
-                {/* Connector Line */}
-                <div className="absolute left-[30px] top-4 bottom-4 w-[2px] bg-indigo-50 dark:bg-slate-850" />
-                
-                <div className="space-y-5 relative z-10 pt-1">
-                  {timelineNodes.map((node, index) => {
-                    const isActive = currentUpdate?.id === node.id;
-                    const isNewest = index === 0;
-                    return (
-                      <div
-                        key={node.id}
-                        onClick={() => setSelectedUpdateId(node.id)}
-                        className={`flex flex-col cursor-pointer transition-all border p-3 rounded-xl text-left relative ${
-                          isActive
-                            ? "bg-slate-50/50 dark:bg-slate-950/20 border-indigo-200 dark:border-indigo-900/60"
-                            : "bg-white dark:bg-slate-900 border-transparent"
-                        }`}
-                      >
-                        {/* Dot */}
-                        <div className="absolute left-[-16px] top-3.5 mt-0.5">
-                          <div className={`w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 flex items-center justify-center transition-all ${
-                            isNewest ? "border-indigo-605 bg-indigo-605" : "border-slate-350"
-                          }`}>
-                            {isNewest && <div className="w-1 h-1 rounded-full bg-white" />}
-                          </div>
+              <div className="p-3 space-y-2">
+                {timelineNodes.map((node, idx) => {
+                  const isActive = currentUpdate?.id === node.id;
+                  const isNewest = idx === 0;
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => setSelectedUpdateId(node.id)}
+                      className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all ${
+                        isActive
+                          ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60 ring-1 ring-indigo-500/20"
+                          : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-150 dark:hover:border-slate-800"
+                      }`}
+                    >
+                      <div className="relative shrink-0 mt-0.5">
+                        <AvatarCircle name={node.author} picture={node.avatar} size="sm" />
+                        {isNewest && (
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-900 animate-pulse" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{node.author}</span>
+                          <RoleBadge role={node.role} />
                         </div>
-
-                        <div>
-                          <div className="text-[9px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">
-                            {node.dateStr}
-                          </div>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-205 truncate max-w-[120px]">{node.author}</span>
-                            <span className={`text-[8px] font-black uppercase px-1.5 py-0.2 rounded border scale-90 leading-none ${
-                              isActive
-                                ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
-                                : "bg-slate-55 dark:bg-slate-800/60 text-slate-505 border-slate-200/50 dark:border-slate-700/50"
-                            }`}>
-                              {node.role}
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">{node.dateStr}</p>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">
+                          {node.accomplishment || "No content"}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          {node.attachments.length > 0 && (
+                            <span className="text-[9px] font-bold text-slate-400 flex items-center gap-0.5">
+                              <Paperclip className="w-2.5 h-2.5" /> {node.attachments.length}
                             </span>
-                          </div>
-                          <div className="text-[11px] font-bold text-slate-900 dark:text-white mt-1 truncate">
-                            {node.title}
-                          </div>
-                          <div className="text-[10px] text-slate-505 dark:text-slate-400 mt-0.5 line-clamp-3 leading-relaxed font-medium">
-                            {node.summary}
-                          </div>
+                          )}
+                          {node.comments.length > 0 && (
+                            <span className="text-[9px] font-bold text-indigo-400 flex items-center gap-0.5">
+                              <MessageSquare className="w-2.5 h-2.5" /> {node.comments.length}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </>
+                    </button>
+                  );
+                })}
+              </div>
             )}
+          </div>
+        </div>
+
+        {/* Right: Main Content */}
+        <div className="flex flex-col h-full overflow-hidden gap-4">
+          {/* Hero Card */}
+          <div className="bg-[#080f20] text-white rounded-2xl overflow-hidden shrink-0 relative shadow-xl">
+            {/* Subtle glow effects */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-violet-600/10 rounded-full blur-3xl" />
+            </div>
+            <div className="relative flex items-center justify-between px-6 py-5 gap-4">
+              <div className="flex items-center gap-5 min-w-0 flex-1">
+                {/* Status + Name */}
+                <div className="min-w-0 space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${statusStyle.dot}`} />
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${statusStyle.text}`}>
+                      {statusStyle.label}
+                    </span>
+                  </div>
+                  <h2 className="text-xl font-black text-white tracking-tight truncate">{project.name}</h2>
+                  {project.description && (
+                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed max-w-[380px]">
+                      {project.description}
+                    </p>
+                  )}
+                  {currentUpdate && (
+                    <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+                      <span className="text-slate-500">Latest: </span>
+                      {currentUpdate.accomplishment}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Right side: last updated + team */}
+              <div className="flex flex-col gap-4 items-end border-l border-slate-800/80 pl-6 shrink-0 min-w-[160px]">
+                <div className="text-right w-full">
+                  <span className="text-[8px] uppercase font-black text-slate-500 tracking-widest block mb-1">Last Updated By</span>
+                  {currentUpdate ? (
+                    <div className="flex items-center justify-end gap-1.5">
+                      <AvatarCircle name={currentUpdate.author} picture={currentUpdate.avatar} size="xs" />
+                      <span className="text-xs font-bold text-white truncate max-w-[100px]">{currentUpdate.author}</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-500 italic">No updates yet</span>
+                  )}
+                </div>
+                <div className="text-right w-full">
+                  <div className="flex items-center gap-1 justify-end mb-1">
+                    <Users className="w-2.5 h-2.5 text-slate-500" />
+                    <span className="text-[8px] uppercase font-black text-slate-500 tracking-widest">Team</span>
+                  </div>
+                  <div className="flex items-center justify-end -space-x-1.5">
+                    {allMembers.slice(0, 5).map((m) => (
+                      m.profile_picture ? (
+                        <img key={m.id} src={m.profile_picture} alt={m.name} title={m.name}
+                          className="w-6 h-6 rounded-full ring-2 ring-[#080f20] object-cover" />
+                      ) : (
+                        <div key={m.id} title={m.name}
+                          className={`w-6 h-6 rounded-full ring-2 ring-[#080f20] flex items-center justify-center text-[8px] font-black bg-indigo-600 text-white`}>
+                          {(m.name || "?").charAt(0).toUpperCase()}
+                        </div>
+                      )
+                    ))}
+                    {allMembers.length > 5 && (
+                      <div className="w-6 h-6 rounded-full ring-2 ring-[#080f20] bg-slate-700 flex items-center justify-center text-[8px] font-bold text-slate-300">
+                        +{allMembers.length - 5}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Post Detail */}
+          <div className="flex-1 overflow-y-auto scrollbar-premium space-y-4 pr-0.5">
+            {timelineNodes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-16">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center">
+                  <FileText className="w-7 h-7 text-indigo-500/60" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No progress updates yet</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    {isStudent ? "Be the first to post a progress update for this project." : "Students haven't posted any updates yet."}
+                  </p>
+                </div>
+                {isStudent && (
+                  <button
+                    onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                    className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20"
+                  >
+                    <span className="flex items-center gap-2"><Plus className="w-3.5 h-3.5" /> Post First Update</span>
+                  </button>
+                )}
+              </div>
+            ) : currentUpdate ? (
+              <ProgressPostCard
+                node={currentUpdate}
+                projectId={id}
+                isStudent={isStudent}
+                isFaculty={isFaculty}
+                isHOD={isHOD}
+                currentUserId={user?.id}
+                isOwn={currentUpdate.isOwn}
+                canEdit={currentUpdate.canEdit}
+                onEdit={(n) => { setEditingMsg({ id: n.id, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); }}
+                onDelete={(msgId) => setDeleteTarget(msgId)}
+                onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
+                onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
+                onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
+              />
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* ─── Edit Project Modal ─── */}
+      {/* ── Mobile Layout (<1024px) ── */}
+      <div className="flex flex-col lg:hidden space-y-5 overflow-y-auto pb-8">
+        {/* Hero Card Mobile */}
+        <div className="bg-[#080f20] text-white rounded-2xl overflow-hidden relative shadow-xl">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-8 -left-8 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl" />
+          </div>
+          <div className="relative p-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${statusStyle.text}`}>
+                    {statusStyle.label}
+                  </span>
+                </div>
+                <h2 className="text-base font-black text-white tracking-tight">{project.name}</h2>
+              </div>
+              {/* Team */}
+              <div className="flex items-center -space-x-1.5 shrink-0">
+                {allMembers.slice(0, 4).map(m =>
+                  m.profile_picture ? (
+                    <img key={m.id} src={m.profile_picture} alt={m.name} className="w-6 h-6 rounded-full ring-2 ring-[#080f20] object-cover" />
+                  ) : (
+                    <div key={m.id} className="w-6 h-6 rounded-full ring-2 ring-[#080f20] bg-indigo-600 flex items-center justify-center text-[8px] font-black text-white">
+                      {(m.name || "?").charAt(0).toUpperCase()}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+            {currentUpdate && (
+              <div className="border-t border-white/10 pt-3">
+                <span className="text-[8px] font-black uppercase tracking-widest text-slate-500 block mb-1">Latest Update</span>
+                <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{currentUpdate.accomplishment}</p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <AvatarCircle name={currentUpdate.author} picture={currentUpdate.avatar} size="xs" />
+                  <span className="text-[10px] font-bold text-slate-400">{currentUpdate.author}</span>
+                  <span className="text-[10px] text-slate-500 ml-auto">{currentUpdate.dateStr}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Progress Posts */}
+        {timelineNodes.length === 0 ? (
+          <div className="text-center py-12 space-y-3">
+            <p className="text-sm text-slate-400 dark:text-slate-500 italic">No progress updates yet.</p>
+            {isStudent && (
+              <button
+                onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"
+              >+ Post Progress</button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress Updates ({timelineNodes.length})</span>
+              <button onClick={() => setViewAllProgress(true)} className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                View all <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+            {timelineNodes.slice(0, 3).map(node => (
+              <ProgressPostCard
+                key={node.id}
+                node={node}
+                projectId={id}
+                isStudent={isStudent}
+                isFaculty={isFaculty}
+                isHOD={isHOD}
+                currentUserId={user?.id}
+                isOwn={node.isOwn}
+                canEdit={node.canEdit}
+                onEdit={(n) => { setEditingMsg({ id: n.id, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); }}
+                onDelete={(msgId) => setDeleteTarget(msgId)}
+                onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
+                onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
+                onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
+              />
+            ))}
+            {timelineNodes.length > 3 && (
+              <button onClick={() => setViewAllProgress(true)} className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                View {timelineNodes.length - 3} more updates →
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Edit Project Modal ── */}
       <Modal open={editProjectModalOpen} onClose={() => setEditProjectModalOpen(false)} title="Edit Project">
         <form onSubmit={handleEditProjectSubmit} className="space-y-4">
           <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Project Name</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Project Name</label>
             <input
               type="text"
               value={editProjectName}
               onChange={e => setEditProjectName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               required
             />
           </div>
           <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Description</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Description</label>
             <textarea
               value={editProjectDesc}
               onChange={e => setEditProjectDesc(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               rows={4}
             />
           </div>
@@ -1079,162 +1003,105 @@ export default function ProjectDetailPage() {
         </form>
       </Modal>
 
-      {/* ─── Add / Edit Progress Update Modal ─── */}
-      <Modal open={addModalOpen} onClose={() => { setAddModalOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress Update" : "Publish Progress Update"}>
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1 scrollbar-premium">
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Update Title *</label>
-            <input
-              type="text"
-              value={formTitle}
-              onChange={e => setFormTitle(e.target.value)}
-              placeholder="e.g., Sprint 1 Demo, UI Design Completed..."
-              required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            />
-          </div>
-
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Short Summary *</label>
-            <input
-              type="text"
-              value={formSummary}
-              onChange={e => setFormSummary(e.target.value)}
-              placeholder="Brief 1-sentence overview of current progress..."
-              required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Completion Percentage ({formCompletion}%)</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value={formCompletion}
-                  onChange={e => setFormCompletion(Number(e.target.value))}
-                  className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-650"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Current Status</label>
-              <select
-                value={formStatus}
-                onChange={e => setFormStatus(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
-              >
-                <option value="Not Started">Not Started</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Review">Review</option>
-                <option value="Completed">Completed</option>
-                <option value="On Hold">On Hold</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Completed This Week</label>
-            <textarea
-              value={formCompletedThisWeek}
-              onChange={e => setFormCompletedThisWeek(e.target.value)}
-              placeholder="What tasks did you complete this week?"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-805 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              rows={2}
-            />
-          </div>
-
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Next Milestone</label>
-            <textarea
-              value={formNextMilestone}
-              onChange={e => setFormNextMilestone(e.target.value)}
-              placeholder="What are the next goals / sprint plan?"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-805 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              rows={2}
-            />
-          </div>
-
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Challenges / Blockers</label>
-            <textarea
-              value={formChallenges}
-              onChange={e => setFormChallenges(e.target.value)}
-              placeholder="Any technical or resource blockers? (Optional)"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-850 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              rows={2}
-            />
-          </div>
-
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Support Needed</label>
-            <textarea
-              value={formSupport}
-              onChange={e => setFormSupport(e.target.value)}
-              placeholder="Any support, reviews, or approvals needed? (Optional)"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-850 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              rows={2}
-            />
-          </div>
-
+      {/* ── Post / Edit Progress Modal (Students only) ── */}
+      <Modal
+        open={addModalOpen}
+        onClose={() => { setAddModalOpen(false); setEditingMsg(null); }}
+        title={editingMsg ? "Edit Progress Update" : "Post Progress Update"}
+      >
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Role info banner for student */}
           {!editingMsg && (
-            <div className="space-y-1.5 text-left">
-              <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Attachment</label>
-              {formAttachment ? (
-                <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/55 dark:bg-gray-950/20">
-                  <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-md">
-                    {formAttachment.name}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setFormAttachment(null)}
-                    className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 text-gray-450 hover:text-red-555 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-505 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center font-sans">
-                  <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-555 mb-1" />
-                  <span className="text-xs font-semibold text-gray-505 dark:text-gray-450">Attach file (Max 10MB)</span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 10 * 1024 * 1024) {
-                           alert("File size exceeds 10MB limit.");
-                           e.target.value = null;
-                           return;
-                        }
-                        setFormAttachment(file);
-                      }
-                    }}
-                  />
-                </label>
-              )}
+            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
+              <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0 mt-0.5">
+                <FileText className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
+                Share what you have completed or worked on. Faculty and HOD will review and provide feedback.
+              </p>
             </div>
           )}
 
-          <div className="flex justify-end gap-2.5 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => { setAddModalOpen(false); setEditingMsg(null); }}
-            >
+          {/* Main textarea */}
+          <div className="space-y-1.5 text-left">
+            <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              What did you complete / accomplish? <span className="text-rose-500">*</span>
+            </label>
+            <textarea
+              value={formAccomplishment}
+              onChange={e => setFormAccomplishment(e.target.value)}
+              placeholder="Describe what you worked on and completed. Be specific — what features, tasks, or milestones did you finish?"
+              required
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
+              rows={5}
+            />
+          </div>
+
+          {/* File attachments */}
+          {!editingMsg && (
+            <div className="space-y-2 text-left">
+              <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Attachments <span className="text-slate-400 font-normal">(optional, max 10MB each)</span>
+              </label>
+
+              {/* Selected files list */}
+              {formFiles.length > 0 && (
+                <div className="space-y-1.5">
+                  {formFiles.map((file, i) => (
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <Paperclip className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="text-xs text-slate-700 dark:text-slate-300 truncate flex-1">{file.name}</span>
+                      <span className="text-[10px] text-slate-400">{(file.size / 1024 / 1024).toFixed(1)}MB</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormFiles(prev => prev.filter((_, j) => j !== i))}
+                        className="p-0.5 rounded hover:text-rose-500 text-slate-400 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload zone */}
+              <label className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-slate-800/40 transition-colors text-center">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <Paperclip className="w-4 h-4 text-slate-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Click to attach files</span>
+                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">PDF, images, documents, ZIP accepted</span>
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    const valid = files.filter(f => {
+                      if (f.size > 10 * 1024 * 1024) { alert(`"${f.name}" exceeds 10MB`); return false; }
+                      return true;
+                    });
+                    setFormFiles(prev => [...prev, ...valid]);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2.5 pt-1">
+            <Button type="button" variant="ghost" onClick={() => { setAddModalOpen(false); setEditingMsg(null); }}>
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={sendMutation.isPending || editMutation.isPending}
+              disabled={sendMutation.isPending || editMutation.isPending || (!formAccomplishment.trim() && formFiles.length === 0)}
             >
-              {editingMsg ? "Save Update" : "Publish Update"}
+              {sendMutation.isPending || editMutation.isPending
+                ? "Posting..."
+                : editingMsg ? "Save Update" : "Post Update"}
             </Button>
           </div>
         </form>
@@ -1245,7 +1112,7 @@ export default function ProjectDetailPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteMutation.mutate(deleteTarget)}
         title="Delete Progress Update"
-        message="Are you sure you want to delete this progress update?"
+        message="Are you sure you want to delete this progress update? This cannot be undone."
         confirmText="Delete"
         danger
       />
