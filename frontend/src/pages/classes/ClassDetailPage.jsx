@@ -1789,7 +1789,7 @@ function ViewResponsesModal({ open, onClose, form, className }) {
   const fields = form.metadata?.fields || [];
 
   return (
-    <Modal open={open} onClose={onClose} title={`Submissions — ${form.title}`} size="xl">
+    <Modal open={open} onClose={onClose} title={`Submissions — ${form.title}`} size="full">
       <div className="space-y-4 pt-1 w-full text-xs">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">Showing submissions from students for {form.title}.</p>
@@ -1813,7 +1813,7 @@ function ViewResponsesModal({ open, onClose, form, className }) {
           </div>
         </div>
 
-        <div className="border border-gray-100 rounded-2xl overflow-hidden bg-white max-h-[50vh] overflow-y-auto">
+        <div className="border border-gray-100 rounded-2xl bg-white max-h-[70vh] overflow-auto">
           <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
             <thead>
               <tr className="bg-slate-50 border-b border-gray-150 text-[10px] font-bold text-gray-400 uppercase tracking-wider">

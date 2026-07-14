@@ -27,12 +27,14 @@ export function Modal({ open, onClose, title, children, size = "md", hideHeader 
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
+    xxl: "max-w-7xl",
+    full: "max-w-[95vw] w-full",
   };
 
   return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[6px] animate-in fade-in duration-200"
+      className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/25 animate-in fade-in duration-200"
       onClick={(e) => { if (e.target === overlayRef.current) onClose?.(); }}
     >
       <div className={`w-full ${sizes[size]} bg-white dark:bg-gray-800 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden`}>

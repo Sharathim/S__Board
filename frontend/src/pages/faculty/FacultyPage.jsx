@@ -135,69 +135,73 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
         {/* Pattern overlay */}
         <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:10px_10px] rounded-t-[20px]" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5 rounded-t-[20px]" />
+      </div>
 
-        {/* Actions button strip in header */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
-          <a
-            href={`mailto:${fac.email}`}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-500 hover:text-red-650 transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
-            title={`Email ${fac.name}`}
-          >
-            <GmailIcon className="w-3.5 h-3.5" />
-          </a>
+      {/* Actions button strip in header */}
+      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
+        <a
+          href={`mailto:${fac.email}`}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-500 hover:text-red-655 transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
+          title={`Email ${fac.name}`}
+        >
+          <GmailIcon className="w-3.5 h-3.5" />
+        </a>
 
-          {isHOD ? (
-            <div className="relative kebab-container">
-              <button
-                onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-450 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
-              >
-                <MoreVertical className="w-3.5 h-3.5" />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                  <button
-                    onClick={() => {
-                      if (fac.class_incharge_of) {
-                        onRemoveIncharge(fac);
-                      } else {
-                        onAssignIncharge(fac);
-                      }
-                      setMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
-                  >
-                    {fac.class_incharge_of
-                      ? <><UserX className="w-4 h-4" />Remove as Incharge</>
-                      : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+        {isHOD ? (
+          <div className="relative kebab-container">
+            <button
+              onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-450 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
+            >
+              <MoreVertical className="w-3.5 h-3.5" />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (fac.class_incharge_of) {
+                      onRemoveIncharge(fac);
+                    } else {
+                      onAssignIncharge(fac);
                     }
-                  </button>
-                  <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
-                  <button
-                    onClick={() => {
-                      onDelete(fac);
-                      setMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Remove Faculty
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            userRole === "FACULTY" && userId === fac.user_id && (
-              <button
-                onClick={() => onEdit(fac)}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 border border-gray-200/40 dark:border-gray-700/40 transition-all shadow-sm backdrop-blur-sm hover:scale-105"
-                title="Edit your profile"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            )
-          )}
-        </div>
+                    setMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
+                >
+                  {fac.class_incharge_of
+                    ? <><UserX className="w-4 h-4" />Remove as Incharge</>
+                    : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+                  }
+                </button>
+                <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onDelete(fac);
+                    setMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Remove Faculty
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          userRole === "FACULTY" && userId === fac.user_id && (
+            <button
+              onClick={() => onEdit(fac)}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 border border-gray-200/40 dark:border-gray-700/40 transition-all shadow-sm backdrop-blur-sm hover:scale-105"
+              title="Edit your profile"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          )
+        )}
       </div>
       
       {/* Profile Details Block */}
@@ -519,7 +523,9 @@ export default function FacultyPage() {
                       {openKebabId === fac.id && (
                         <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
                               if (fac.class_incharge_of) {
                                 assignMutation.mutate({ id: fac.id, className: "" });
                               } else {
@@ -537,7 +543,9 @@ export default function FacultyPage() {
                           </button>
                           <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
                               setDeleteConfirm(fac);
                               setOpenKebabId(null);
                             }}
