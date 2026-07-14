@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { listUpdates } from "../../api/updates";
 import { format } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { Calendar, Heart } from "lucide-react";
 
 export function UpdatesSection() {
@@ -43,7 +44,7 @@ export function UpdatesSection() {
               >
                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
                   <Calendar className="w-3.5 h-3.5" />
-                  {format(new Date(update.created_at), "MMM d, yyyy 'at' h:mm a")}
+                  {format(parseUTCDate(update.created_at), "MMM d, yyyy 'at' h:mm a")}
                   {update.is_edited && <span className="italic">(edited)</span>}
                 </div>
                 <p className="text-gray-800 dark:text-gray-200">{update.content}</p>

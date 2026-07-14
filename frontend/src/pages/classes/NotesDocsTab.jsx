@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
@@ -796,7 +797,7 @@ export default function NotesDocsTab({ className }) {
                             {log.performed_by.name}
                           </td>
                           <td className="p-3 text-gray-450 dark:text-gray-500 font-semibold">
-                            {new Date(log.created_at).toLocaleString()}
+                            {parseUTCDate(log.created_at).toLocaleString()}
                           </td>
                         </tr>
                       );

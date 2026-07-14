@@ -4,6 +4,7 @@ import { listNotifications, markAllRead, markRead, deleteNotification } from "..
 import { useNotificationContext } from "../../context/NotificationContext";
 import { Bell, CheckCheck, X, Mail, MailOpen, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { parseUpdateContent } from "../../utils/updateContent";
 
 const notificationIcons = {
@@ -154,7 +155,7 @@ export function NotificationsPanel({ open, onClose }) {
                       ? (parseUpdateContent(n.body).description || n.body)
                       : n.body}
                   </p>
-                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 font-mono">{format(new Date(n.created_at), "MMM d, h:mm a")}</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 font-mono">{format(parseUTCDate(n.created_at), "MMM d, h:mm a")}</p>
                 </div>
                 <div className="shrink-0 flex items-center gap-2 self-center">
                   {n.is_read

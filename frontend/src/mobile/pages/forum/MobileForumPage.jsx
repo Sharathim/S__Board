@@ -17,13 +17,14 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { parseUTCDate } from "../../../utils/dateUtils";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
 
 function formatPostTime(dateString) {
-  try { return formatDistanceToNow(new Date(dateString), { addSuffix: true }); }
+  try { return formatDistanceToNow(parseUTCDate(dateString), { addSuffix: true }); }
   catch { return "just now"; }
 }
 
@@ -170,7 +171,7 @@ export default function MobileForumPage() {
   const postsByDay = useMemo(() => {
     const groups = {};
     postList.forEach(post => {
-      const dateString = new Date(post.created_at).toLocaleDateString("en-US", {
+      const dateString = parseUTCDate(post.created_at).toLocaleDateString("en-US", {
         weekday: "long", year: "numeric", month: "long", day: "numeric"
       });
       if (!groups[dateString]) groups[dateString] = [];
@@ -178,8 +179,8 @@ export default function MobileForumPage() {
     });
     return Object.keys(groups).map(d => ({
       dateString: d,
-      posts: groups[d].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
-    })).sort((a, b) => new Date(b.posts[0].created_at) - new Date(a.posts[0].created_at));
+      posts: groups[d].sort((a, b) => parseUTCDate(b.created_at) - parseUTCDate(a.created_at)),
+    })).sort((a, b) => parseUTCDate(b.posts[0].created_at) - parseUTCDate(a.posts[0].created_at));
   }, [postList]);
 
   const memberList = members || [];
@@ -278,7 +279,7 @@ export default function MobileForumPage() {
               <div className="space-y-2.5">
                 {group.posts.map(post => {
                   const isAuthor = post.posted_by?.id === user?.id;
-                  const canEdit = isAuthor && (new Date() - new Date(post.created_at)) < 30 * 60 * 1000;
+                  const canEdit = isAuthor && (new Date() - parseUTCDate(post.created_at)) < 30 * 60 * 1000;
                   const canDelete = isAuthor || isHOD;
                   
                   const { title, body } = parseForumPostContent(post.content);

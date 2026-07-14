@@ -23,6 +23,14 @@ import { format, formatDistanceToNow } from "date-fns";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// Backend stores UTC datetimes WITHOUT 'Z' suffix.
+// Appending 'Z' makes JS parse them as UTC → converts to user's local timezone.
+function parseUTCDate(dateStr) {
+  if (!dateStr) return new Date();
+  const s = String(dateStr);
+  return new Date(s.endsWith('Z') ? s : s + 'Z');
+}
+
 function getFileExt(name) {
   if (!name) return "";
   return name.split(".").pop().toLowerCase();
@@ -103,7 +111,7 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{comment.author?.name || "Unknown"}</span>
           <RoleBadge role={comment.author?.role} />
           <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
-            {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+            {formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}
           </span>
           {canDelete && (
             <button
@@ -192,7 +200,7 @@ function ProgressPostCard({
             <span className="text-sm font-bold text-slate-900 dark:text-white">{node.author}</span>
             <RoleBadge role={node.role} />
             <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
-              {formatDistanceToNow(new Date(node.dateRaw), { addSuffix: true })}
+              {formatDistanceToNow(parseUTCDate(node.dateRaw), { addSuffix: true })}
             </span>
             {node.is_edited && (
               <span className="text-[9px] text-slate-400 italic">(edited)</span>
@@ -525,7 +533,7 @@ export default function ProjectDetailPage() {
     return {
       id: msg.id,
       dateRaw: msg.created_at,
-      dateStr: format(new Date(msg.created_at), "MMM d, yyyy · h:mm a"),
+      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
       author: msg.sender?.name || "Unknown",
       role: msg.sender?.role || "STUDENT",
       avatar: msg.sender?.profile_picture,

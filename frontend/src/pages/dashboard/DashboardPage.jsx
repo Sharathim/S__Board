@@ -11,6 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
 import { Avatar } from "../../components/ui/Avatar";
 import { parseUpdateContent } from "../../utils/updateContent";
+import { parseUTCDate } from "../../utils/dateUtils";
 import MailComposerModal from "./MailComposerModal";
 import {
   FolderKanban, TrendingUp, Users, CheckCircle,
@@ -26,7 +27,7 @@ function getFirstName(name) {
 
 function timeAgo(isoStr) {
   if (!isoStr) return "";
-  const diff = (Date.now() - new Date(isoStr)) / 1000;
+  const diff = (Date.now() - parseUTCDate(isoStr)) / 1000;
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;

@@ -19,11 +19,12 @@ import {
   TrendingUp, Award, Globe, MessageSquare, Share2, Users
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 
 function formatTime(dateStr) {
   try {
     if (!dateStr) return "";
-    return formatDistanceToNow(new Date(dateStr), { addSuffix: true });
+    return formatDistanceToNow(parseUTCDate(dateStr), { addSuffix: true });
   } catch {
     return "";
   }
@@ -32,7 +33,7 @@ function formatTime(dateStr) {
 function formatEventDate(dt) {
   try {
     if (!dt) return "";
-    return format(new Date(dt), "dd MMM yyyy · hh:mm a");
+    return format(parseUTCDate(dt), "dd MMM yyyy · hh:mm a");
   } catch {
     return dt;
   }
