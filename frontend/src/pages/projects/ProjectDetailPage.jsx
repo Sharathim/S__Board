@@ -403,6 +403,13 @@ export default function ProjectDetailPage() {
   // Gather attachments across all updates
   const allAttachments = timelineNodes.filter(node => node.attachmentUrl);
 
+  const heroCompletion = hasUpdates ? currentCompletion : 0;
+  const heroStatus = hasUpdates ? (project.status || "In Progress") : "Not Started";
+  const heroSummary = hasUpdates 
+    ? (updateData.summary || project.description || "No description provided.")
+    : "Start documenting milestones to build a complete progress history.";
+  const heroProjectName = project.name;
+
   const getStatusBadgeColor = (status) => {
     const s = status?.toLowerCase() || "";
     if (s.includes("complete")) return "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-650 dark:text-emerald-450 border-emerald-100 dark:border-emerald-900/30";
