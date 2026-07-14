@@ -18,6 +18,7 @@ import ForumPage from "./pages/forum/ForumPage";
 import ForumPostDetailPage from "./pages/forum/ForumPostDetailPage";
 import ProjectsPage from "./pages/projects/ProjectsPage";
 import ProjectDetailPage from "./pages/projects/ProjectDetailPage";
+import ViewAllProgressPage from "./pages/projects/ViewAllProgressPage";
 import UpdatesPage from "./pages/updates/UpdatesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="/forum/post/:id" element={<Navigate to="/" replace />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/projects/:id/progress" element={<ViewAllProgressPage />} />
           <Route path="/updates" element={<Navigate to="/" replace />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
