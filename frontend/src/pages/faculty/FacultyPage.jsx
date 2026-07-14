@@ -158,10 +158,14 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
                 <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                   <button
                     onClick={() => {
+                      if (fac.class_incharge_of) {
+                        onRemoveIncharge(fac);
+                      } else {
+                        onAssignIncharge(fac);
+                      }
                       setMenuOpen(false);
-                      fac.class_incharge_of ? onRemoveIncharge(fac) : onAssignIncharge(fac);
                     }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
                   >
                     {fac.class_incharge_of
                       ? <><UserX className="w-4 h-4" />Remove as Incharge</>
@@ -170,7 +174,10 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
                   </button>
                   <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
                   <button
-                    onClick={() => { setMenuOpen(false); onDelete(fac); }}
+                    onClick={() => {
+                      onDelete(fac);
+                      setMenuOpen(false);
+                    }}
                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -513,15 +520,15 @@ export default function FacultyPage() {
                         <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
                           <button
                             onClick={() => {
-                              setOpenKebabId(null);
                               if (fac.class_incharge_of) {
                                 assignMutation.mutate({ id: fac.id, className: "" });
                               } else {
                                 setAssignModal(fac);
                                 setSelectedClass("");
                               }
+                              setOpenKebabId(null);
                             }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-medium transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
                           >
                             {fac.class_incharge_of
                               ? <><UserX className="w-4 h-4" />Remove as Incharge</>
@@ -530,7 +537,10 @@ export default function FacultyPage() {
                           </button>
                           <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
                           <button
-                            onClick={() => { setOpenKebabId(null); setDeleteConfirm(fac); }}
+                            onClick={() => {
+                              setDeleteConfirm(fac);
+                              setOpenKebabId(null);
+                            }}
                             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
                           >
                             <Trash2 className="w-4 h-4" />

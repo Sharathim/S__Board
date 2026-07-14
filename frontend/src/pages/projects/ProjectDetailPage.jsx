@@ -17,7 +17,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   ArrowLeft, Edit2, Trash2, Paperclip, CheckCircle,
   Image, File, Download, FolderKanban, Plus, MoreVertical, Pencil,
-  Calendar, Clock, ShieldAlert, X, TrendingUp, AlertCircle, LifeBuoy, FileText, User, Users
+  Calendar, Clock, ShieldAlert, X, TrendingUp, AlertCircle, LifeBuoy, FileText, User, Users, ArrowRight
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -93,6 +93,8 @@ export default function ProjectDetailPage() {
   const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [selectedUpdateId, setSelectedUpdateId] = useState(null);
+  const [kebabOpen, setKebabOpen] = useState(false);
+  const [viewAllProgress, setViewAllProgress] = useState(false);
 
   // Edit Project fields
   const [editProjectName, setEditProjectName] = useState("");
@@ -164,6 +166,13 @@ export default function ProjectDetailPage() {
     }
     setFormAttachment(null);
   }, [editingMsg]);
+
+  useEffect(() => {
+    if (!kebabOpen) return;
+    const handler = (e) => { if (!e.target.closest(".pm-kebab-container")) setKebabOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [kebabOpen]);
 
   // Socket handlers
   const onNewMessage = useCallback((msg) => {
@@ -370,18 +379,94 @@ export default function ProjectDetailPage() {
     const char = name.charAt(0).toUpperCase();
     const colors = {
       S: "bg-indigo-600 text-white",
-      P: "bg-emerald-600 text-white",
-      Y: "bg-amber-600 text-white",
-      Z: "bg-rose-600 text-white"
+    Z: "bg-rose-600 text-white"
     };
     return colors[char] || "bg-indigo-500 text-white";
   };
 
+  if (viewAllProgress) {
+    return (
+      <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-4 space-y-4">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start shrink-0 gap-4">
+          <div className="space-y-1 text-left">
+            <div
+              onClick={() => setViewAllProgress(false)}
+              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-655 hover:text-indigo-700 dark:hover:text-indigo-400 cursor-pointer transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to progress monitor
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1.5 leading-none">
+              All progress updates
+            </h1>
+            <p className="text-xs text-slate-405 dark:text-slate-500 font-semibold mt-0.5">
+              History of progress logs for {project.name}
+            </p>
+          </div>
+        </div>
+
+        {/* Content list */}
+        <div className="flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-8 py-4 max-w-[800px] mx-auto w-full">
+          {timelineNodes.length === 0 ? (
+            <div className="text-sm font-semibold text-slate-400 italic py-12 text-center">
+              No progress updates published yet.
+            </div>
+          ) : (
+            <>
+              {/* Vertical Connector Line */}
+              <div className="absolute left-[39px] top-6 bottom-6 w-[2px] bg-indigo-50 dark:bg-slate-850" />
+
+              <div className="space-y-6 relative z-10 pt-2">
+                {timelineNodes.map((node) => (
+                  <div
+                    key={node.id}
+                    className="relative pl-8 pb-2 text-left"
+                  >
+                    {/* Node Dot */}
+                    <div className="absolute left-[-5px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-indigo-605 bg-white dark:bg-slate-900" />
+                    
+                    {/* Entry Card */}
+                    <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">{node.dateStr}</span>
+                          <span className="text-xs font-bold text-slate-600 dark:text-slate-400">• By {node.author}</span>
+                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-slate-50 dark:bg-slate-800 text-slate-555 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 leading-none">{node.role}</span>
+                        </div>
+                        
+                        <span className={`text-[9.5px] font-black uppercase px-2 py-0.5 rounded border leading-none ${
+                          node.status === "Completed"
+                            ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-655 dark:text-emerald-400 border-emerald-250"
+                            : "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-250"
+                        }`}>
+                          {node.status}
+                        </span>
+                      </div>
+                      
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white mt-3 leading-tight">{node.title}</h3>
+                      <p className="text-xs text-slate-550 dark:text-slate-400 mt-2 leading-relaxed whitespace-pre-wrap font-medium">{node.summary}</p>
+                      
+                      {node.attachmentUrl && (
+                        <div className="mt-4">
+                          <AttachmentCard url={node.attachmentUrl} name={node.attachmentName} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 pb-4 space-y-4">
       {/* Top Header Navigation bar */}
-      <div className="flex justify-between items-start shrink-0">
-        <div className="space-y-1">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start shrink-0 gap-4">
+        <div className="space-y-1 text-left">
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
             className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-655 hover:text-indigo-700 dark:hover:text-indigo-400 cursor-pointer transition-colors"
@@ -392,39 +477,132 @@ export default function ProjectDetailPage() {
           <p className="text-xs text-slate-405 dark:text-slate-500 font-semibold mt-0.5">Current state of {project.name}, at a glance</p>
         </div>
 
-        <div className="flex items-center gap-3 mt-1">
-          {project.status !== "COMPLETED" && (
-            <button
-              onClick={() => statusMutation.mutate("COMPLETED")}
-              className="neomorphic-btn text-emerald-655 dark:text-emerald-400"
-            >
-              <CheckCircle className="w-4 h-4 text-emerald-500" />
-              Mark completed
-            </button>
-          )}
-          <button
-            onClick={() => setEditProjectModalOpen(true)}
-            className="neomorphic-btn text-slate-600 dark:text-slate-350"
-          >
-            <Edit2 className="w-3.5 h-3.5" />
-            Edit project
-          </button>
+        <div className="flex items-center justify-end gap-2 relative pm-kebab-container shrink-0">
           <button
             onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-            className="px-4 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all flex items-center gap-2"
+            className="px-4 h-9 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all flex items-center gap-2 shrink-0"
           >
             <Plus className="w-4 h-4" /> Add progress
           </button>
-        </div>
-      </div>      {/* Main Grid Viewport */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 lg:overflow-hidden">
-        
-        {/* Left Dashboard Panel (col-span-9) */}
-        <div className="lg:col-span-9 flex flex-col lg:h-full min-h-0 gap-4">
           
-          {/* Header Card (Indigo Deep Ocean Theme) */}
-          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 h-[125px] relative overflow-hidden shadow-sm">
-            <div className="flex items-center gap-5">
+          <button
+            onClick={() => setKebabOpen(!kebabOpen)}
+            className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-505 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+
+          {kebabOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-155 dark:border-slate-800 py-1 z-35 animate-fade-in text-left">
+              {project.status !== "COMPLETED" && (
+                <button
+                  onClick={() => {
+                    statusMutation.mutate("COMPLETED");
+                    setKebabOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-xs text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bold transition-colors text-left"
+                >
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  Mark completed
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setEditProjectModalOpen(true);
+                  setKebabOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold transition-colors text-left"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                Edit project
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop Layout (>=1024px) */}
+      <div className="hidden lg:grid grid-cols-[28%_72%] gap-5 flex-1 min-h-0 overflow-hidden h-full">
+        {/* Left column: Update History */}
+        <div className="flex flex-col h-full overflow-hidden border border-slate-150 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl p-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4 shrink-0">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">UPDATE HISTORY</span>
+            <span
+              onClick={() => setViewAllProgress(true)}
+              className="text-[10px] font-black text-indigo-655 dark:text-indigo-405 hover:underline cursor-pointer flex items-center gap-1"
+            >
+              View all progress <ArrowRight className="w-3 h-3" />
+            </span>
+          </div>
+          
+          {/* Timeline List */}
+          <div className="flex-1 overflow-y-auto pr-1 scrollbar-premium relative pl-6">
+            {timelineNodes.length === 0 ? (
+              <div className="text-xs font-semibold text-slate-400 italic py-6 text-center">No progress updates published yet.</div>
+            ) : (
+              <>
+                {/* Connecting Line */}
+                <div className="absolute left-[30px] top-4 bottom-4 w-[2px] bg-indigo-50 dark:bg-slate-855" />
+                
+                <div className="space-y-6 relative z-10 pt-2">
+                  {timelineNodes.map((node, index) => {
+                    const isActive = currentUpdate?.id === node.id;
+                    const isNewest = index === 0;
+                    return (
+                      <div
+                        key={node.id}
+                        onClick={() => setSelectedUpdateId(node.id)}
+                        className={`group flex flex-col cursor-pointer transition-all border p-3.5 rounded-xl text-left relative ${
+                          isActive
+                            ? "bg-slate-50/50 dark:bg-slate-950/20 border-indigo-200 dark:border-indigo-900/60 ring-2 ring-indigo-500/10"
+                            : "bg-white dark:bg-slate-900 border-transparent hover:border-slate-155 dark:hover:border-slate-800"
+                        }`}
+                      >
+                        {/* Dot */}
+                        <div className="absolute left-[-16px] top-4 mt-0.5">
+                          <div className={`w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 flex items-center justify-center transition-all ${
+                            isNewest ? "border-indigo-605 bg-indigo-605" : "border-slate-350"
+                          }`}>
+                            {isNewest && <div className="w-1 h-1 rounded-full bg-white" />}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-[9px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">
+                            {node.dateStr}
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1.5 shrink-0">
+                            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-205 truncate max-w-[100px]">{node.author}</span>
+                            <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded border scale-95 leading-none ${
+                              isActive
+                                ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
+                                : "bg-slate-50 dark:bg-slate-805/60 text-slate-505 border-slate-200/50 dark:border-slate-700/50"
+                            }`}>
+                              {node.role}
+                            </span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-900 dark:text-white mt-1.5 truncate">
+                            {node.title}
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-455 mt-1 line-clamp-3 leading-relaxed font-medium">
+                            {node.summary}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Right column: Dark hero, 2x2 grid, Attachments */}
+        <div className="flex flex-col h-full overflow-y-auto pr-1 scrollbar-premium gap-4">
+          {/* Dark Navy Hero Card */}
+          <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex items-center justify-between shrink-0 min-h-[140px] relative overflow-hidden shadow-sm text-left">
+            <div className="flex items-center gap-5 flex-1 min-w-0">
               {/* Circular SVG Progress Meter */}
               <div className="relative w-18 h-18 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
                 <svg className="w-16 h-16 transform -rotate-90">
@@ -449,98 +627,134 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Card Meta Content */}
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[9.5px] font-black text-emerald-500 uppercase tracking-wider">In progress</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    project.status === "COMPLETED" ? "bg-emerald-500" : "bg-indigo-500 animate-pulse"
+                  }`} />
+                  <span className={`text-[9.5px] font-black uppercase tracking-wider ${
+                    project.status === "COMPLETED" ? "text-emerald-500" : "text-indigo-400"
+                  }`}>
+                    {project.status || "In progress"}
+                  </span>
                 </div>
-                <h2 className="text-base font-black tracking-tight text-white">{project.name}</h2>
-                <p className="text-xs text-slate-350 max-w-xl line-clamp-2 leading-relaxed font-medium">
-                  {updateData.summary || project.description || "No description provided."}
+                <h2 className="text-base font-black tracking-tight text-white truncate">{project.name}</h2>
+                <p className="text-xs text-slate-350 line-clamp-2 leading-relaxed font-medium">
+                  {updateData.summary || "No updates posted yet."}
                 </p>
               </div>
             </div>
 
-            {/* Last update card badge */}
-            {currentUpdate && (
-              <div className="hidden sm:flex items-center gap-3.5 border-l border-slate-850 pl-6 shrink-0 h-14">
-                <div className="flex flex-col text-left">
-                  <span className="text-[9px] uppercase font-black text-slate-500 tracking-wider">Last update</span>
-                  <div className="flex items-center gap-2 mt-1.5">
+            {/* Last updated by & Team members */}
+            <div className="flex flex-col justify-between items-end border-l border-slate-800/80 pl-6 shrink-0 h-[100px] w-[220px]">
+              {/* Last updated by */}
+              <div className="text-right w-full">
+                <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider">Last updated by</span>
+                {currentUpdate ? (
+                  <div className="flex items-center justify-end gap-2 mt-1">
                     {currentUpdate.avatar ? (
-                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-6 h-6 rounded-full object-cover ring-1 ring-white/10" />
+                      <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-5 h-5 rounded-full object-cover ring-1 ring-white/10" />
                     ) : (
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] ${getAvatarBg(currentUpdate.author)}`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] ${getAvatarBg(currentUpdate.author)}`}>
                         {currentUpdate.author.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-xs font-bold text-white leading-none">{currentUpdate.author}</span>
+                    <span className="text-xs font-bold text-white leading-none truncate max-w-[120px]">{currentUpdate.author}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-semibold mt-1.5 leading-none">
-                    {currentUpdate.dateOnly} • {currentUpdate.timeOnly}
-                  </span>
+                ) : (
+                  <div className="text-xs font-bold text-slate-400 mt-1 italic">No updates yet</div>
+                )}
+              </div>
+              
+              {/* Team members overlapping avatar row */}
+              <div className="text-right w-full">
+                <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block mb-1">Team members</span>
+                <div className="flex items-center justify-end -space-x-1.5 overflow-hidden">
+                  {allMembers.slice(0, 4).map((m) => {
+                    const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
+                    return m.profile_picture ? (
+                      <img key={m.id} src={m.profile_picture} alt={m.name} className="inline-block h-6.5 w-6.5 rounded-full ring-2 ring-[#0b1329] object-cover" title={m.name} />
+                    ) : (
+                      <div key={m.id} className={`inline-block h-6.5 w-6.5 rounded-full ring-2 ring-[#0b1329] flex items-center justify-center font-black text-[9px] ${getAvatarBg(m.name)}`} title={m.name}>
+                        {initial}
+                      </div>
+                    );
+                  })}
+                  {allMembers.length > 4 && (
+                    <div className="inline-block h-6.5 w-6.5 rounded-full ring-2 ring-[#0b1329] bg-slate-800 flex items-center justify-center text-[8.5px] font-bold text-slate-300">
+                      +{allMembers.length - 4}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Accomplishments Grid (Stacks on mobile/tablet, 2x2 on desktop) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:flex-1 min-h-0">
-            {/* Card 1: Completed This Week */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
-              <div className="space-y-3">
-                <div className="flex gap-3 items-center shrink-0">
-                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-200/60 shadow-xs">
-                    <CheckCircle className="w-4.5 h-4.5 text-emerald-500" />
+          {/* 2x2 grid */}
+          <div className="grid grid-cols-2 gap-4 shrink-0">
+            {/* Card 1 */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+              <div className="space-y-1.5">
+                <div className="flex gap-2 items-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-250/60 shadow-xs">
+                    <CheckCircle className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-emerald-300 dark:text-emerald-700" : "text-emerald-500"}`} />
                   </div>
-                  <span className="text-[10.5px] font-black text-emerald-655 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
+                  <span className="text-[9.5px] font-black text-emerald-655 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
                 </div>
-                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
+                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
+                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+                }`}>
                   {updateData.completed_this_week || "No accomplishments recorded for this period."}
                 </p>
               </div>
             </div>
 
-            {/* Card 2: Next Milestone */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
-              <div className="space-y-3">
-                <div className="flex gap-3 items-center shrink-0">
-                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-200/60 shadow-xs">
-                    <TrendingUp className="w-4.5 h-4.5 text-indigo-655" />
+            {/* Card 2 */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+              <div className="space-y-1.5">
+                <div className="flex gap-2 items-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-250/60 shadow-xs">
+                    <TrendingUp className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-indigo-300 dark:text-indigo-700/60" : "text-indigo-655"}`} />
                   </div>
-                  <span className="text-[10.5px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
+                  <span className="text-[9.5px] font-black text-indigo-705 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
                 </div>
-                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
+                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
+                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+                }`}>
                   {updateData.next_milestone || "No upcoming milestones declared."}
                 </p>
               </div>
             </div>
 
-            {/* Card 3: Challenges / Blockers */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
-              <div className="space-y-3">
-                <div className="flex gap-3 items-center shrink-0">
-                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-200/60 shadow-xs">
-                    <ShieldAlert className="w-4.5 h-4.5 text-rose-500" />
+            {/* Card 3 */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+              <div className="space-y-1.5">
+                <div className="flex gap-2 items-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-250/60 shadow-xs">
+                    <ShieldAlert className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-rose-300 dark:text-rose-700" : "text-rose-500"}`} />
                   </div>
-                  <span className="text-[10.5px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
+                  <span className="text-[9.5px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
                 </div>
-                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
+                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
+                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+                }`}>
                   {updateData.challenges || "No active challenges or blockers."}
                 </p>
               </div>
             </div>
 
-            {/* Card 4: Support Needed */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between h-full min-h-0 shadow-xs overflow-hidden">
-              <div className="space-y-3">
-                <div className="flex gap-3 items-center shrink-0">
-                  <div className="w-9 h-9 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-200/60 shadow-xs">
-                    <LifeBuoy className="w-4.5 h-4.5 text-amber-500" />
+            {/* Card 4 */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-805 p-4 rounded-2xl flex flex-col justify-between shadow-xs overflow-hidden h-[120px] text-left">
+              <div className="space-y-1.5">
+                <div className="flex gap-2 items-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-250/60 shadow-xs">
+                    <LifeBuoy className={`w-3.5 h-3.5 ${timelineNodes.length === 0 ? "text-amber-300 dark:text-amber-700" : "text-amber-500"}`} />
                   </div>
-                  <span className="text-[10.5px] font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">Support Needed</span>
+                  <span className="text-[9.5px] font-black text-amber-600 dark:text-amber-455 uppercase tracking-wider">Support Needed</span>
                 </div>
-                <p className="text-[12px] font-semibold text-slate-550 dark:text-slate-400 leading-relaxed pl-1 line-clamp-4 select-none">
+                <p className={`text-[11.5px] font-semibold leading-relaxed line-clamp-3 ${
+                  timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+                }`}>
                   {updateData.support || "No additional support required."}
                 </p>
               </div>
@@ -548,169 +762,279 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Attachments Section Row */}
-          {allAttachments.length > 0 && (
-            <div className="shrink-0 bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0">
-              <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">Attachments ({allAttachments.length})</span>
+          <div className="shrink-0 bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0 text-left">
+            <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">
+              Attachments ({allAttachments.length})
+            </span>
+            {allAttachments.length === 0 ? (
+              <div className="text-xs font-semibold text-slate-400 italic py-2">No attachments yet</div>
+            ) : (
               <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-none py-1">
                 {allAttachments.map(node => (
                   <AttachmentCard key={node.id} url={node.attachmentUrl} name={node.attachmentName} />
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        </div>
+      </div>
 
-          {/* Horizontal Update Timeline (History log with visual connecting line) */}
-          <div className="shrink-0 h-[140px] bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center shadow-xs">
-            <div className="flex items-center justify-between shrink-0 mb-3">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Update History ({timelineNodes.length})</span>
-              {selectedUpdateId !== null && (
-                <span
-                  onClick={() => setSelectedUpdateId(null)}
-                  className="text-[10px] font-black text-indigo-655 dark:text-indigo-400 hover:underline cursor-pointer transition-colors"
-                >
-                  View latest update →
+      {/* Mobile Layout (<1024px) */}
+      <div className="flex flex-col lg:hidden space-y-5 overflow-y-auto pb-8">
+        {/* Dark Hero Card */}
+        <div className="bg-[#0b1329] text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-sm text-left">
+          <div className="flex items-center gap-4">
+            {/* Progress Meter */}
+            <div className="relative w-14 h-14 flex items-center justify-center shrink-0 bg-slate-900/40 rounded-full border border-slate-800">
+              <svg className="w-12 h-12 transform -rotate-90">
+                <circle stroke="rgba(255, 255, 255, 0.05)" fill="transparent" strokeWidth="3" r="20" cx="24" cy="24" />
+                <circle
+                  stroke="#6366f1"
+                  fill="transparent"
+                  strokeWidth="3"
+                  strokeDasharray={2 * Math.PI * 20}
+                  strokeDashoffset={2 * Math.PI * 20 * (1 - currentCompletion / 100)}
+                  strokeLinecap="round"
+                  r="20"
+                  cx="24"
+                  cy="24"
+                  style={{ transition: "stroke-dashoffset 0.5s ease" }}
+                />
+              </svg>
+              <div className="absolute flex flex-col items-center justify-center text-center">
+                <span className="text-[10px] font-black tracking-tight leading-none">{currentCompletion}%</span>
+                <span className="text-[5px] text-slate-400 font-extrabold uppercase mt-0.5">Complete</span>
+              </div>
+            </div>
+
+            {/* Meta details */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  project.status === "COMPLETED" ? "bg-emerald-500" : "bg-indigo-500 animate-pulse"
+                }`} />
+                <span className={`text-[9px] font-black uppercase tracking-wider ${
+                  project.status === "COMPLETED" ? "text-emerald-500" : "text-indigo-400"
+                }`}>
+                  {project.status || "In progress"}
                 </span>
+              </div>
+              <h2 className="text-sm font-black tracking-tight text-white truncate">{project.name}</h2>
+              <p className="text-[11px] text-slate-350 line-clamp-2 leading-relaxed font-medium">
+                {updateData.summary || "No updates posted yet."}
+              </p>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-850 pt-3.5 flex items-center justify-between gap-4">
+            {/* Last updated by */}
+            <div className="flex-1 min-w-0">
+              <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block">Last updated by</span>
+              {currentUpdate ? (
+                <div className="flex items-center gap-1.5 mt-1">
+                  {currentUpdate.avatar ? (
+                    <img src={currentUpdate.avatar} alt={currentUpdate.author} className="w-5 h-5 rounded-full object-cover ring-1 ring-white/10" />
+                  ) : (
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[9px] ${getAvatarBg(currentUpdate.author)}`}>
+                      {currentUpdate.author.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="text-[11px] font-bold text-white truncate leading-none">{currentUpdate.author}</span>
+                </div>
+              ) : (
+                <span className="text-[11px] text-slate-400 italic">No updates yet</span>
               )}
             </div>
 
-            <div className="relative flex-1 min-h-0 flex flex-col justify-center">
-              {/* Connector Line */}
-              <div className="absolute left-6 right-6 top-[22px] h-[2px] bg-indigo-50 dark:bg-slate-850" />
-              
-              {/* Nodes list */}
-              <div className="flex items-start gap-8 overflow-x-auto overflow-y-hidden scrollbar-none h-full w-full relative z-10">
-                {timelineNodes.length === 0 ? (
-                  <div className="text-xs font-semibold text-slate-400 italic pl-6 pt-6">No progress updates published yet.</div>
-                ) : (
-                  timelineNodes.map((node) => {
+            {/* Team members overlapping avatars */}
+            <div className="shrink-0 text-right">
+              <span className="text-[8px] uppercase font-black text-slate-500 tracking-wider block mb-1">Team members</span>
+              <div className="flex items-center justify-end -space-x-1.5 overflow-hidden">
+                {allMembers.slice(0, 4).map((m) => {
+                  const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
+                  return m.profile_picture ? (
+                    <img key={m.id} src={m.profile_picture} alt={m.name} className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] object-cover" />
+                  ) : (
+                    <div key={m.id} className={`inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] flex items-center justify-center font-black text-[8px] ${getAvatarBg(m.name)}`}>
+                      {initial}
+                    </div>
+                  );
+                })}
+                {allMembers.length > 4 && (
+                  <div className="inline-block h-6 w-6 rounded-full ring-2 ring-[#0b1329] bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-300">
+                    +{allMembers.length - 4}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2x2 cards status grid */}
+        <div className="grid grid-cols-2 max-[430px]:grid-cols-1 gap-4">
+          {/* Card 1 */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
+            <div className="space-y-2">
+              <div className="flex gap-2.5 items-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-emerald-250/60 shadow-xs">
+                  <CheckCircle className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-emerald-300 dark:text-emerald-700" : "text-emerald-500"}`} />
+                </div>
+                <span className="text-[10px] font-black text-emerald-655 dark:text-emerald-400 uppercase tracking-wider">Completed This Week</span>
+              </div>
+              <p className={`text-[12px] font-semibold leading-relaxed ${
+                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+              }`}>
+                {updateData.completed_this_week || "No accomplishments recorded for this period."}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
+            <div className="space-y-2">
+              <div className="flex gap-2.5 items-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-indigo-250/60 shadow-xs">
+                  <TrendingUp className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-indigo-300 dark:text-indigo-700/60" : "text-indigo-655"}`} />
+                </div>
+                <span className="text-[10px] font-black text-indigo-705 dark:text-indigo-400 uppercase tracking-wider">Next Milestone</span>
+              </div>
+              <p className={`text-[12px] font-semibold leading-relaxed ${
+                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+              }`}>
+                {updateData.next_milestone || "No upcoming milestones declared."}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
+            <div className="space-y-2">
+              <div className="flex gap-2.5 items-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-rose-250/60 shadow-xs">
+                  <ShieldAlert className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-rose-300 dark:text-rose-700" : "text-rose-500"}`} />
+                </div>
+                <span className="text-[10px] font-black text-rose-600 dark:text-rose-455 uppercase tracking-wider">Challenges / Blockers</span>
+              </div>
+              <p className={`text-[12px] font-semibold leading-relaxed ${
+                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+              }`}>
+                {updateData.challenges || "No active challenges or blockers."}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xs text-left">
+            <div className="space-y-2">
+              <div className="flex gap-2.5 items-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-850 flex items-center justify-center shrink-0 border border-amber-250/60 shadow-xs">
+                  <LifeBuoy className={`w-4 h-4 ${timelineNodes.length === 0 ? "text-amber-300 dark:text-amber-700" : "text-amber-500"}`} />
+                </div>
+                <span className="text-[10px] font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">Support Needed</span>
+              </div>
+              <p className={`text-[12px] font-semibold leading-relaxed ${
+                timelineNodes.length === 0 ? "text-slate-400 dark:text-slate-650 italic" : "text-slate-550 dark:text-slate-400"
+              }`}>
+                {updateData.support || "No additional support required."}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Attachments Section */}
+        <div className="bg-slate-50/40 dark:bg-slate-900/20 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-center min-w-0 text-left">
+          <span className="text-[10px] font-black text-slate-405 uppercase tracking-wider mb-2 leading-none">
+            Attachments ({allAttachments.length})
+          </span>
+          {allAttachments.length === 0 ? (
+            <div className="text-xs font-semibold text-slate-400 italic py-2">No attachments yet</div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-none py-1 flex-wrap">
+              {allAttachments.map(node => (
+                <AttachmentCard key={node.id} url={node.attachmentUrl} name={node.attachmentName} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Update History Section at the bottom */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-4 flex flex-col shadow-xs text-left">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">UPDATE HISTORY ({timelineNodes.length})</span>
+            <span
+              onClick={() => setViewAllProgress(true)}
+              className="text-[10px] font-black text-indigo-655 dark:text-indigo-400 hover:underline cursor-pointer flex items-center gap-1"
+            >
+              View all progress <ArrowRight className="w-3 h-3" />
+            </span>
+          </div>
+
+          <div className="relative pl-6">
+            {timelineNodes.length === 0 ? (
+              <div className="text-xs font-semibold text-slate-400 italic py-4 text-center">No progress updates published yet.</div>
+            ) : (
+              <>
+                {/* Connector Line */}
+                <div className="absolute left-[30px] top-4 bottom-4 w-[2px] bg-indigo-50 dark:bg-slate-850" />
+                
+                <div className="space-y-5 relative z-10 pt-1">
+                  {timelineNodes.map((node, index) => {
                     const isActive = currentUpdate?.id === node.id;
+                    const isNewest = index === 0;
                     return (
                       <div
                         key={node.id}
                         onClick={() => setSelectedUpdateId(node.id)}
-                        className="flex flex-col min-w-[210px] max-w-[250px] cursor-pointer transition-all shrink-0 relative pt-1"
+                        className={`flex flex-col cursor-pointer transition-all border p-3 rounded-xl text-left relative ${
+                          isActive
+                            ? "bg-slate-50/50 dark:bg-slate-950/20 border-indigo-200 dark:border-indigo-900/60"
+                            : "bg-white dark:bg-slate-900 border-transparent"
+                        }`}
                       >
-                        {/* Node Dot */}
-                        <div className="flex items-center pl-4 mb-2">
-                          <div className={`w-3.5 h-3.5 rounded-full border-2 bg-white dark:bg-slate-900 transition-all flex items-center justify-center ${
-                            isActive
-                              ? "border-indigo-605 ring-4 ring-indigo-100 dark:ring-indigo-900/30 scale-110"
-                              : "border-slate-350 hover:border-indigo-500"
+                        {/* Dot */}
+                        <div className="absolute left-[-16px] top-3.5 mt-0.5">
+                          <div className={`w-3 h-3 rounded-full border-2 bg-white dark:bg-slate-900 flex items-center justify-center transition-all ${
+                            isNewest ? "border-indigo-605 bg-indigo-605" : "border-slate-350"
                           }`}>
-                            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-605" />}
+                            {isNewest && <div className="w-1 h-1 rounded-full bg-white" />}
                           </div>
                         </div>
 
-                        <div className="pl-4">
+                        <div>
                           <div className="text-[9px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wider">
                             {node.dateStr}
                           </div>
-                          <div className="flex items-center gap-1.5 mt-1.5 shrink-0">
+                          <div className="flex items-center gap-1.5 mt-1">
                             <span className="text-xs font-extrabold text-slate-800 dark:text-slate-205 truncate max-w-[120px]">{node.author}</span>
-                            <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.2 rounded border scale-95 leading-none ${
+                            <span className={`text-[8px] font-black uppercase px-1.5 py-0.2 rounded border scale-90 leading-none ${
                               isActive
                                 ? "bg-indigo-50 dark:bg-indigo-950/20 text-indigo-655 dark:text-indigo-400 border-indigo-200 dark:border-indigo-850"
-                                : "bg-slate-50 dark:bg-slate-800/60 text-slate-505 border-slate-200/50 dark:border-slate-700/50"
+                                : "bg-slate-55 dark:bg-slate-800/60 text-slate-505 border-slate-200/50 dark:border-slate-700/50"
                             }`}>
                               {node.role}
                             </span>
                           </div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate leading-tight font-medium">
+                          <div className="text-[11px] font-bold text-slate-900 dark:text-white mt-1 truncate">
+                            {node.title}
+                          </div>
+                          <div className="text-[10px] text-slate-505 dark:text-slate-400 mt-0.5 line-clamp-3 leading-relaxed font-medium">
                             {node.summary}
                           </div>
                         </div>
                       </div>
                     );
-                  })
-                )}
-              </div>
-            </div>
+                  })}
+                </div>
+              </>
+            )}
           </div>
-
         </div>
-
-        {/* Right Sidebar Panel (col-span-3) */}
-        <div className="lg:col-span-3 flex flex-col lg:h-full min-h-0 gap-4">
-          
-          {/* Project Overview metadata list */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-2xl p-5 space-y-4 shrink-0 shadow-xs">
-            <h3 className="text-[10px] font-black text-gray-405 dark:text-gray-400 uppercase tracking-widest leading-none">Project Overview</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <User className="w-4 h-4 shrink-0" />
-                  <span className="font-bold uppercase tracking-wider text-[9px]">Lead advisor</span>
-                </div>
-                <span className="font-extrabold text-slate-850 dark:text-gray-250 truncate max-w-[140px]">{leadAdvisor}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Users className="w-4 h-4 shrink-0" />
-                  <span className="font-bold uppercase tracking-wider text-[9px]">Team size</span>
-                </div>
-                <span className="font-extrabold text-slate-850 dark:text-gray-250">{allMembers.length} members</span>
-              </div>
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <User className="w-4 h-4 shrink-0" />
-                  <span className="font-bold uppercase tracking-wider text-[9px]">Created by</span>
-                </div>
-                <span className="font-extrabold text-slate-855 dark:text-gray-250 truncate max-w-[140px]">{project.created_by?.name || "Unknown"}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 dark:border-slate-855">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Calendar className="w-4 h-4 shrink-0" />
-                  <span className="font-bold uppercase tracking-wider text-[9px]">Created on</span>
-                </div>
-                <span className="font-extrabold text-slate-855 dark:text-gray-250">{format(new Date(project.created_at), "MMM d, yyyy")}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Calendar className="w-4 h-4 shrink-0" />
-                  <span className="font-bold uppercase tracking-wider text-[9px]">Last updated</span>
-                </div>
-                <span className="font-extrabold text-slate-850 dark:text-gray-250">{format(new Date(project.updated_at), "MMM d, yyyy")}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Workspace Members list (COMPACT row system design) */}
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/70 rounded-2xl p-5 flex flex-col flex-1 min-h-0 shadow-xs">
-            <h3 className="text-[10px] font-black text-gray-455 dark:text-gray-400 uppercase tracking-widest leading-none shrink-0 mb-4">Workspace Members</h3>
-            <div className="space-y-3.5 overflow-y-auto pr-1 flex-1 scrollbar-premium">
-              {allMembers.map(m => {
-                const initial = m.name ? m.name.charAt(0).toUpperCase() : "M";
-                const isFaculty = m.role_in_project === "faculty";
-                const isForum = m.role_in_project === "forum_member";
-                return (
-                  <div key={m.id} className="flex items-center justify-between gap-3 text-xs py-1">
-                    <div className="flex items-center gap-3 min-w-0">
-                      {m.profile_picture ? (
-                        <img src={m.profile_picture} alt={m.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
-                      ) : (
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-[11px] shrink-0 ${getAvatarBg(m.name)}`}>
-                          {initial}
-                        </div>
-                      )}
-                      <span className="font-bold text-slate-800 dark:text-slate-200 truncate leading-none">{m.name}</span>
-                    </div>
-                    <span className="text-[9px] font-bold text-slate-405 uppercase tracking-wider shrink-0">
-                      {isFaculty ? "FACULTY" : isForum ? "FORUM" : "STUDENT"}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-        </div>
-
       </div>
 
       {/* ─── Edit Project Modal ─── */}
       <Modal open={editProjectModalOpen} onClose={() => setEditProjectModalOpen(false)} title="Edit Project">
         <form onSubmit={handleEditProjectSubmit} className="space-y-4">
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Project Name</label>
             <input
               type="text"
@@ -720,7 +1044,7 @@ export default function ProjectDetailPage() {
               required
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Description</label>
             <textarea
               value={editProjectDesc}
@@ -739,7 +1063,7 @@ export default function ProjectDetailPage() {
       {/* ─── Add / Edit Progress Update Modal ─── */}
       <Modal open={addModalOpen} onClose={() => { setAddModalOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress Update" : "Publish Progress Update"}>
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1 scrollbar-premium">
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Update Title *</label>
             <input
               type="text"
@@ -747,11 +1071,11 @@ export default function ProjectDetailPage() {
               onChange={e => setFormTitle(e.target.value)}
               placeholder="e.g., Sprint 1 Demo, UI Design Completed..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Short Summary *</label>
             <input
               type="text"
@@ -759,12 +1083,12 @@ export default function ProjectDetailPage() {
               onChange={e => setFormSummary(e.target.value)}
               placeholder="Brief 1-sentence overview of current progress..."
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-255 bg-white dark:bg-gray-800 text-gray-905 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1 text-left">
               <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Completion Percentage ({formCompletion}%)</label>
               <div className="flex items-center gap-3">
                 <input
@@ -779,12 +1103,12 @@ export default function ProjectDetailPage() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1 text-left">
               <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Current Status</label>
               <select
                 value={formStatus}
                 onChange={e => setFormStatus(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-250 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
               >
                 <option value="Not Started">Not Started</option>
                 <option value="In Progress">In Progress</option>
@@ -795,68 +1119,68 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Completed This Week</label>
             <textarea
               value={formCompletedThisWeek}
               onChange={e => setFormCompletedThisWeek(e.target.value)}
               placeholder="What tasks did you complete this week?"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-805 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               rows={2}
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Next Milestone</label>
             <textarea
               value={formNextMilestone}
               onChange={e => setFormNextMilestone(e.target.value)}
               placeholder="What are the next goals / sprint plan?"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-805 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               rows={2}
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Challenges / Blockers</label>
             <textarea
               value={formChallenges}
               onChange={e => setFormChallenges(e.target.value)}
               placeholder="Any technical or resource blockers? (Optional)"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-850 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               rows={2}
             />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Support Needed</label>
             <textarea
               value={formSupport}
               onChange={e => setFormSupport(e.target.value)}
               placeholder="Any support, reviews, or approvals needed? (Optional)"
-              className="w-full px-3.5 py-2 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-3.5 py-2 rounded-xl border border-gray-255 bg-white dark:bg-gray-850 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               rows={2}
             />
           </div>
 
           {!editingMsg && (
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 text-left">
               <label className="text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider font-sans">Attachment</label>
               {formAttachment ? (
-                <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-950/20">
+                <div className="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/55 dark:bg-gray-950/20">
                   <span className="text-xs text-gray-700 dark:text-gray-300 truncate max-w-[200px] sm:max-w-md">
                     {formAttachment.name}
                   </span>
                   <button
                     type="button"
                     onClick={() => setFormAttachment(null)}
-                    className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 text-gray-450 hover:text-red-550 transition-colors"
+                    className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 text-gray-450 hover:text-red-555 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-500 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center font-sans">
+                <label className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-505 dark:border-gray-700 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-gray-800/40 transition-colors text-center font-sans">
                   <Paperclip className="w-5 h-5 text-gray-400 dark:text-gray-555 mb-1" />
                   <span className="text-xs font-semibold text-gray-505 dark:text-gray-450">Attach file (Max 10MB)</span>
                   <input
@@ -866,9 +1190,9 @@ export default function ProjectDetailPage() {
                       const file = e.target.files?.[0];
                       if (file) {
                         if (file.size > 10 * 1024 * 1024) {
-                          alert("File size exceeds 10MB limit.");
-                          e.target.value = null;
-                          return;
+                           alert("File size exceeds 10MB limit.");
+                           e.target.value = null;
+                           return;
                         }
                         setFormAttachment(file);
                       }
