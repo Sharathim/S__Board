@@ -20,7 +20,7 @@ import {
   Mail, MoreVertical, CheckCircle2, FileText, Download,
   Eye, Plus, Archive, History, Calendar, UploadCloud,
   Settings, Save, FileSpreadsheet, FileArchive, PlusCircle,
-  Lock, AlertCircle, Building, Columns, CheckCircle
+  Lock, AlertCircle, Building, Columns, CheckCircle, Pencil
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import NotesDocsTab from "./NotesDocsTab";

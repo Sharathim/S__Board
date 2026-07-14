@@ -10,7 +10,7 @@ import { Switch } from "../../components/ui/Switch";
 import {
   GraduationCap, Users, ToggleLeft, ToggleRight, Crown,
   Lock, ChevronRight, X, ShieldCheck, BookOpen, UserCog, Copy,
-  Layers, TrendingUp, LayoutGrid, List, Trophy
+  Layers, TrendingUp, LayoutGrid, List
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -299,22 +299,6 @@ export default function ClassesPage() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Leaderboard button */}
-          <div className="relative">
-            <button
-              onClick={() => setShowLeaderboardPopup(true)}
-              className="flex items-center gap-2 px-3 h-9 rounded-xl bg-white dark:bg-gray-800 border border-gray-200/60 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 shadow-sm text-xs font-bold transition-all shrink-0"
-              title="View Class Leaderboard"
-            >
-              <Trophy className="w-4 h-4 text-amber-500" />
-              <span>Leaderboard</span>
-            </button>
-            {showLeaderboardPopup && (
-              <div className="absolute right-0 top-full mt-1.5 px-3 py-1.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[11px] font-bold rounded-lg shadow-md border border-gray-800 dark:border-gray-200 whitespace-nowrap animate-fade-in z-30">
-                Coming soon!
-              </div>
-            )}
-          </div>
 
           {/* HOD only: Student registration toggle "Student Invite" */}
           {isHOD && (

@@ -77,7 +77,7 @@ def list_classes():
     result = []
     for cls in CLASSES:
         incharge = Faculty.query.filter_by(class_incharge_of=cls).join(User).first()
-        student_count = Student.query.filter_by(class_name=cls).count()
+        student_count = Student.query.filter_by(class_name=cls).join(User).count()
 
         entry = {
             "class_name": cls,
