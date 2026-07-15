@@ -21,6 +21,7 @@ with app.app_context():
         "ALTER TABLE forum_members ADD COLUMN IF NOT EXISTS is_update_coordinator BOOLEAN DEFAULT FALSE;",
         # students columns
         "ALTER TABLE students ADD COLUMN IF NOT EXISTS is_forum_member BOOLEAN DEFAULT FALSE;",
+        "ALTER TABLE students ADD CONSTRAINT students_roll_number_key UNIQUE (roll_number);",
         # Backfill NULL updated_at with created_at for existing forum_posts rows
         "UPDATE forum_posts SET updated_at = created_at WHERE updated_at IS NULL;",
         # Backfill NULL is_deleted with FALSE
