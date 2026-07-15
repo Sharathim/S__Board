@@ -7,6 +7,7 @@ import { Pagination } from "../../components/shared/Pagination";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Bell, CheckCheck, Mail, MailOpen, Trash2, Clock } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { useState, useEffect } from "react";
 import { parseUpdateContent } from "../../utils/updateContent";
 
@@ -68,7 +69,7 @@ export default function NotificationsPage() {
   const today = new Date();
   const groups = { Today: [], Yesterday: [], Earlier: [] };
   notifications.forEach(n => {
-    const d = new Date(n.created_at);
+    const d = parseUTCDate(n.created_at);
     const diffDays = Math.floor((today - d) / 86400000);
     if (diffDays === 0) groups.Today.push(n);
     else if (diffDays === 1) groups.Yesterday.push(n);
@@ -125,9 +126,9 @@ export default function NotificationsPage() {
                         </p>
                         <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-1.5 leading-none">
                           <Clock className="w-3.5 h-3.5" />
-                          {(() => { try { return formatDistanceToNow(new Date(n.created_at), { addSuffix: true }); } catch { return ""; } })()}
+                          {(() => { try { return formatDistanceToNow(parseUTCDate(n.created_at), { addSuffix: true }); } catch { return ""; } })()}
                           <span className="text-gray-300 dark:text-gray-600">•</span>
-                          {format(new Date(n.created_at), "MMM d, h:mm a")}
+                          {format(parseUTCDate(n.created_at), "MMM d, h:mm a")}
                         </span>
                       </div>
                       

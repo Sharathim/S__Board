@@ -51,6 +51,7 @@ def create_app():
     from .routes.notifications import notifications_bp
     from .routes.settings import settings_bp
     from .routes.mail import mail_bp
+    from .routes.developer import developer_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(faculty_bp, url_prefix="/api/faculty")
@@ -63,6 +64,7 @@ def create_app():
     app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
     app.register_blueprint(settings_bp, url_prefix="/api/settings")
     app.register_blueprint(mail_bp, url_prefix="/api/mail")
+    app.register_blueprint(developer_bp, url_prefix="/api/developer")
 
     # Socket handlers
     from .sockets import progress_monitor  # noqa

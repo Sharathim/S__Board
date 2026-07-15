@@ -17,3 +17,13 @@ export const editMessage = (projectId, messageId, data) =>
   api.patch(`/projects/${projectId}/messages/${messageId}`, data);
 export const deleteMessage = (projectId, messageId) =>
   api.delete(`/projects/${projectId}/messages/${messageId}`);
+
+// Progress comment endpoints (HOD/Faculty feedback)
+export const postProgressComment = (projectId, msgId, data) =>
+  api.post(`/projects/${projectId}/progress/${msgId}/comments`, data);
+export const deleteProgressComment = (projectId, msgId, commentId) =>
+  api.delete(`/projects/${projectId}/progress/${msgId}/comments/${commentId}`);
+
+// Emoji reactions (Students only)
+export const reactToComment = (projectId, msgId, commentId, emoji) =>
+  api.post(`/projects/${projectId}/progress/${msgId}/comments/${commentId}/react`, { emoji });

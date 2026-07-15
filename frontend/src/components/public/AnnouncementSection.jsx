@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { listUpdates } from "../../api/updates";
 import { formatDistanceToNow } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { Megaphone, Calendar, FileText, Users, ArrowRight, BellOff } from "lucide-react";
 
 const CARD_ICONS  = [Calendar, FileText, Users];
@@ -136,7 +137,7 @@ export function AnnouncementSection() {
               iconColor={CARD_COLORS[i % CARD_COLORS.length].icon}
               title={update.content.slice(0, 60)}
               description={update.content}
-              timeAgo={formatDistanceToNow(new Date(update.created_at), { addSuffix: true })}
+              timeAgo={formatDistanceToNow(parseUTCDate(update.created_at), { addSuffix: true })}
             />
           ))}
         </div>

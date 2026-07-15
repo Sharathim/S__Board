@@ -27,6 +27,7 @@ import {
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Pagination } from "../../components/shared/Pagination";
 import { format, formatDistanceToNow } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { Switch } from "../../components/ui/Switch";
 import { createPortal } from "react-dom";
 
@@ -43,7 +44,7 @@ const FORUM_ROLE_META = {
 function formatPostTime(dateString) {
   try {
     if (!dateString) return "";
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    return formatDistanceToNow(parseUTCDate(dateString), { addSuffix: true });
   } catch {
     return "just now";
   }
@@ -70,7 +71,7 @@ function ForumPostKebab({ post, isAuthor, isHOD, onEdit, onDelete }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
+  const isWithinEditWindow = (new Date() - parseUTCDate(post.created_at)) < (30 * 60 * 1000);
   const canEdit = isAuthor && isWithinEditWindow;
   const canDelete = isAuthor || isHOD;
 
@@ -354,7 +355,7 @@ export default function ForumPage() {
   const postsByDay = useMemo(() => {
     const groups = {};
     filteredPosts.forEach(post => {
-      const date = new Date(post.created_at);
+      const date = parseUTCDate(post.created_at);
       const dateString = date.toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
@@ -368,12 +369,12 @@ export default function ForumPage() {
     });
 
     return Object.keys(groups).map(dateKey => {
-      const groupPosts = groups[dateKey].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      const groupPosts = groups[dateKey].sort((a, b) => parseUTCDate(b.created_at) - parseUTCDate(a.created_at));
       return {
         dateString: dateKey,
         posts: groupPosts,
       };
-    }).sort((a, b) => new Date(b.posts[0].created_at) - new Date(a.posts[0].created_at));
+    }).sort((a, b) => parseUTCDate(b.posts[0].created_at) - parseUTCDate(a.posts[0].created_at));
   }, [filteredPosts]);
 
   const handleOpenLightbox = (urls, index) => {
@@ -617,7 +618,7 @@ export default function ForumPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
                           <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400">
                             <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                            {format(new Date(post.created_at), "dd MMM yyyy · hh:mm a")}
+                            {format(parseUTCDate(post.created_at), "dd MMM yyyy · hh:mm a")}
                           </span>
 
                           <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ from .student import Student, StudentDetail, CustomForm, FormResponse
 from .forum_member import ForumMember
 from .project import Project, ProjectStatus, project_members
 from .message import ProjectMessage
+from .progress_comment import ProgressComment, CommentReaction
 from .update import Update, update_likes
 from .forum_post import ForumPost, forum_post_likes
 from .notification import Notification

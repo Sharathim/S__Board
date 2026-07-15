@@ -9,6 +9,7 @@ import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import {
   ArrowLeft, Heart, Calendar, MoreVertical, Edit2, Trash2, X, Image, Sparkles
 } from "lucide-react";
@@ -118,7 +119,7 @@ export default function ForumPostDetailPage() {
   const isAuthor = post.posted_by?.id === user?.id;
   const isForumMember = isHOD || user?.role === "FACULTY" || user?.student?.is_forum_member === true;
 
-  const isWithinEditWindow = (new Date() - new Date(post.created_at)) < (30 * 60 * 1000);
+  const isWithinEditWindow = (new Date() - parseUTCDate(post.created_at)) < (30 * 60 * 1000);
   const canEdit = isAuthor && isWithinEditWindow;
   const canDelete = isAuthor || isHOD;
 
@@ -319,7 +320,7 @@ export default function ForumPostDetailPage() {
 
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-505 select-none">
             <Calendar className="w-4 h-4 text-violet-500" />
-            <span>{format(new Date(post.created_at), "d MMM yyyy, h:mm a")}</span>
+            <span>{format(parseUTCDate(post.created_at), "d MMM yyyy, h:mm a")}</span>
           </span>
         </div>
       </div>

@@ -3,6 +3,7 @@ from ..extensions import db
 from ..models.project import Project, ProjectStatus, project_members
 from ..models.user import User, UserRole
 from ..models.message import ProjectMessage
+from ..models.progress_comment import ProgressComment, CommentReaction
 from ..utils.auth_middleware import require_auth, require_hod
 from ..utils.cloudinary_helper import upload_file
 from ..utils.fcm_helper import send_notification
@@ -298,29 +299,48 @@ def get_messages(project_id):
 @require_auth
 def post_message(project_id):
     project = Project.query.get_or_404(project_id)
-    if not _is_project_member(project, g.current_user):
+    user = g.current_user
+
+    if not _is_project_member(project, user):
         return jsonify({"error": "Access denied"}), 403
 
-    content = request.form.get("content", "").strip()
-    file = request.files.get("attachment")
-    attachment = None
+    # Only STUDENT members can post progress updates.
+    # HOD and Faculty should use the feedback/comment system instead.
+    if user.role in (UserRole.HOD, UserRole.FACULTY):
+        return jsonify({"error": "HOD and Faculty cannot post progress updates. Use the feedback system to comment on existing posts."}), 403
 
-    if file:
+    content = request.form.get("content", "").strip()
+    files = request.files.getlist("attachments")
+    # Support legacy single-file field too
+    single_file = request.files.get("attachment")
+    if single_file and single_file.filename:
+        files = [single_file]
+
+    attachment_urls = []
+    attachment_types = []
+    attachment_names = []
+
+    for file in files:
+        if not file or not file.filename:
+            continue
         try:
-            attachment = upload_file(file, folder="dpms/progress_monitor")
+            res = upload_file(file, folder="dpms/progress_monitor")
+            attachment_urls.append(res["url"])
+            attachment_types.append(res["type"])
+            attachment_names.append(res.get("name", file.filename))
         except Exception as e:
             return jsonify({"error": f"Upload failed: {str(e)}"}), 400
 
-    if not content and not attachment:
-        return jsonify({"error": "Message cannot be empty"}), 400
+    if not content and not attachment_urls:
+        return jsonify({"error": "Progress update cannot be empty"}), 400
 
     msg = ProjectMessage(
         project_id=project_id,
-        sender_id=g.current_user.id,
+        sender_id=user.id,
         content=content,
-        attachment_url=attachment["url"] if attachment else None,
-        attachment_type=attachment["type"] if attachment else None,
-        attachment_name=attachment["name"] if attachment else None,
+        attachment_url=",".join(attachment_urls) if attachment_urls else None,
+        attachment_type=",".join(attachment_types) if attachment_types else None,
+        attachment_name=",".join(attachment_names) if attachment_names else None,
     )
     db.session.add(msg)
     project.updated_at = datetime.utcnow()
@@ -437,11 +457,65 @@ def delete_project(project_id):
     return jsonify({"ok": True})
 
 
-def _serialize_message(msg):
+def _serialize_comment(comment, current_user=None):
+    """Serialize a ProgressComment with per-emoji reaction counts and user's own reactions."""
+    # Aggregate reactions
+    raw_reactions = db.session.execute(
+        text("SELECT emoji, COUNT(*) as cnt FROM comment_reactions WHERE comment_id = :cid GROUP BY emoji"),
+        {"cid": comment.id}
+    ).fetchall()
+    reaction_counts = {r.emoji: r.cnt for r in raw_reactions}
+
+    user_reactions = []
+    if current_user:
+        user_reacted = db.session.execute(
+            text("SELECT emoji FROM comment_reactions WHERE comment_id = :cid AND user_id = :uid"),
+            {"cid": comment.id, "uid": current_user.id}
+        ).fetchall()
+        user_reactions = [r.emoji for r in user_reacted]
+
+    return {
+        "id": comment.id,
+        "progress_post_id": comment.progress_post_id,
+        "author": {
+            "id": comment.author.id,
+            "name": comment.author.name,
+            "profile_picture": comment.author.profile_picture,
+            "role": comment.author.role.value,
+        } if comment.author and not comment.is_deleted else None,
+        "content": comment.content if not comment.is_deleted else None,
+        "is_deleted": comment.is_deleted,
+        "reaction_counts": reaction_counts,
+        "user_reactions": user_reactions,
+        "created_at": comment.created_at.isoformat(),
+        "updated_at": comment.updated_at.isoformat(),
+    }
+
+
+def _serialize_message(msg, current_user=None):
     can_edit = (
         not msg.is_deleted and
+        msg.sender_id is not None and
         (datetime.utcnow() - msg.created_at) < timedelta(minutes=30)
     ) if msg.sender else False
+
+    # Fetch comments for this progress post
+    comments_raw = ProgressComment.query.filter_by(
+        progress_post_id=msg.id, is_deleted=False
+    ).order_by(ProgressComment.created_at.asc()).all()
+
+    # Parse multi-attachment fields
+    urls = msg.attachment_url.split(",") if msg.attachment_url else []
+    types = msg.attachment_type.split(",") if msg.attachment_type else []
+    names = msg.attachment_name.split(",") if msg.attachment_name else []
+    attachments = [
+        {"url": u, "type": t, "name": n}
+        for u, t, n in zip(
+            urls,
+            types + [""] * max(0, len(urls) - len(types)),
+            names + [""] * max(0, len(urls) - len(names))
+        )
+    ]
 
     return {
         "id": msg.id,
@@ -455,10 +529,132 @@ def _serialize_message(msg):
         "content": msg.content,
         "is_deleted": msg.is_deleted,
         "is_edited": msg.is_edited,
+        # Legacy single-file fields kept for backward compat
         "attachment_url": msg.attachment_url,
         "attachment_type": msg.attachment_type,
         "attachment_name": msg.attachment_name,
+        # New multi-attachment list
+        "attachments": attachments,
         "created_at": msg.created_at.isoformat(),
         "updated_at": msg.updated_at.isoformat(),
         "can_edit": can_edit,
+        "comments": [_serialize_comment(c, current_user) for c in comments_raw],
     }
+
+
+# ─── Progress Comment Routes ─────────────────────────────────────────────────
+
+@projects_bp.route("/<int:project_id>/progress/<int:msg_id>/comments", methods=["POST"])
+@require_auth
+def post_progress_comment(project_id, msg_id):
+    """HOD or Faculty member posts feedback on a student's progress update."""
+    user = g.current_user
+    project = Project.query.get_or_404(project_id)
+
+    if not _is_project_member(project, user):
+        return jsonify({"error": "Access denied"}), 403
+
+    if user.role not in (UserRole.HOD, UserRole.FACULTY):
+        return jsonify({"error": "Only HOD and Faculty can leave feedback on progress updates"}), 403
+
+    msg = ProjectMessage.query.filter_by(id=msg_id, project_id=project_id, is_deleted=False).first_or_404()
+
+    data = request.get_json() or {}
+    content = data.get("content", "").strip()
+    if not content:
+        return jsonify({"error": "Feedback content cannot be empty"}), 400
+
+    comment = ProgressComment(
+        progress_post_id=msg_id,
+        author_id=user.id,
+        content=content,
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    from ..extensions import socketio
+    socketio.emit(f"progress_comment_{project_id}", _serialize_comment(comment, user))
+
+    return jsonify({"comment": _serialize_comment(comment, user)}), 201
+
+
+@projects_bp.route("/<int:project_id>/progress/<int:msg_id>/comments/<int:comment_id>", methods=["DELETE"])
+@require_auth
+def delete_progress_comment(project_id, msg_id, comment_id):
+    user = g.current_user
+    project = Project.query.get_or_404(project_id)
+
+    if not _is_project_member(project, user):
+        return jsonify({"error": "Access denied"}), 403
+
+    comment = ProgressComment.query.filter_by(id=comment_id, progress_post_id=msg_id).first_or_404()
+
+    if comment.author_id != user.id and user.role != UserRole.HOD:
+        return jsonify({"error": "Cannot delete others' feedback"}), 403
+
+    comment.is_deleted = True
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@projects_bp.route("/<int:project_id>/progress/<int:msg_id>/comments/<int:comment_id>/react", methods=["POST"])
+@require_auth
+def react_to_comment(project_id, msg_id, comment_id):
+    """Students can toggle an emoji reaction on a HOD/Faculty feedback comment."""
+    user = g.current_user
+    project = Project.query.get_or_404(project_id)
+
+    if not _is_project_member(project, user):
+        return jsonify({"error": "Access denied"}), 403
+
+    if user.role not in (UserRole.STUDENT,):
+        return jsonify({"error": "Only students can react to feedback comments"}), 403
+
+    comment = ProgressComment.query.filter_by(id=comment_id, progress_post_id=msg_id, is_deleted=False).first_or_404()
+
+    data = request.get_json() or {}
+    emoji = data.get("emoji", "").strip()
+    ALLOWED_EMOJIS = ["👍", "❤️", "🔥"]
+    if emoji not in ALLOWED_EMOJIS:
+        return jsonify({"error": f"Emoji must be one of: {', '.join(ALLOWED_EMOJIS)}"}), 400
+
+    existing = db.session.execute(
+        text("SELECT id FROM comment_reactions WHERE comment_id = :cid AND user_id = :uid AND emoji = :emoji"),
+        {"cid": comment_id, "uid": user.id, "emoji": emoji}
+    ).first()
+
+    if existing:
+        db.session.execute(
+            text("DELETE FROM comment_reactions WHERE comment_id = :cid AND user_id = :uid AND emoji = :emoji"),
+            {"cid": comment_id, "uid": user.id, "emoji": emoji}
+        )
+        reacted = False
+    else:
+        db.session.execute(
+            text("INSERT INTO comment_reactions (comment_id, user_id, emoji, created_at) VALUES (:cid, :uid, :emoji, :now)"),
+            {"cid": comment_id, "uid": user.id, "emoji": emoji, "now": datetime.utcnow()}
+        )
+        reacted = True
+
+    db.session.commit()
+
+    # Return updated counts
+    raw = db.session.execute(
+        text("SELECT emoji, COUNT(*) as cnt FROM comment_reactions WHERE comment_id = :cid GROUP BY emoji"),
+        {"cid": comment_id}
+    ).fetchall()
+    reaction_counts = {r.emoji: r.cnt for r in raw}
+
+    user_reactions = [r.emoji for r in db.session.execute(
+        text("SELECT emoji FROM comment_reactions WHERE comment_id = :cid AND user_id = :uid"),
+        {"cid": comment_id, "uid": user.id}
+    ).fetchall()]
+
+    from ..extensions import socketio
+    socketio.emit(f"comment_reaction_{project_id}", {
+        "comment_id": comment_id,
+        "reaction_counts": reaction_counts,
+        "user_reactions": user_reactions,
+    })
+
+    return jsonify({"reacted": reacted, "reaction_counts": reaction_counts, "user_reactions": user_reactions})

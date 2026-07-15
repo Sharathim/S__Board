@@ -29,6 +29,7 @@ import {
   Calendar
 } from "lucide-react";
 import { format } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 
 const statusOptions = [
   { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
@@ -364,7 +365,7 @@ export default function ProjectsPage() {
                   </div>
                   <div className="flex items-center justify-between mt-1 text-[10px] text-gray-455 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
                     <span>By: {project.created_by?.name || "Unknown"}</span>
-                    <span>Last updated: {format(new Date(project.updated_at), "MMM d, yyyy")}</span>
+                    <span>Last updated: {format(parseUTCDate(project.updated_at), "MMM d, yyyy")}</span>
                   </div>
                 </div>
               </div>
@@ -459,7 +460,7 @@ export default function ProjectsPage() {
                   {/* Col 6: Activity / Updated */}
                   <div className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400">
                     <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Updated:</span>
-                    <span className="truncate">{format(new Date(project.updated_at), "MMM d")}</span>
+                    <span className="truncate">{format(parseUTCDate(project.updated_at), "MMM d")}</span>
                   </div>
 
                   {/* Col 7: Actions kebab */}
