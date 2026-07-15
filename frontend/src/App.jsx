@@ -76,7 +76,7 @@ export default function App() {
           <Route path="/forum/post/:id" element={<Navigate to="/" replace />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
-          <Route path="/updates" element={<Navigate to="/" replace />} />
+          <Route path="/updates" element={<UpdatesPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/GOAT" element={<GoatPage />} />

@@ -1,14 +1,14 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, BookOpen, GraduationCap, Settings } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Megaphone, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState, useEffect, useRef } from "react";
+import MoreSheet from "./MoreSheet";
 
 const TAB_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Home", roles: ["HOD"] },
   { to: "/projects", icon: FolderKanban, label: "Projects", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/classes", icon: BookOpen, label: "Classes", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/faculty", icon: GraduationCap, label: "Faculty", roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/updates", icon: Megaphone, label: "Updates", roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
 export default function BottomTabBar() {
@@ -17,6 +17,7 @@ export default function BottomTabBar() {
   const location = useLocation();
 
   const [visible, setVisible] = useState(true);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -99,37 +100,33 @@ export default function BottomTabBar() {
             );
           })}
 
-          {/* Settings tab */}
-          {(() => {
-            const active = isActive("/settings");
-            return (
-              <NavLink
-                to="/settings"
-                className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
-                  active ? "mobile-tab-active" : ""
-                }`}
-              >
-                <Settings
-                  className={`w-5 h-5 transition-colors ${
-                    active
-                      ? "text-primary-600 dark:text-primary-400"
-                      : "text-gray-400 dark:text-gray-500"
-                  }`}
-                />
-                <span
-                  className={`text-[10px] font-semibold transition-colors ${
-                    active
-                      ? "text-primary-600 dark:text-primary-400"
-                      : "text-gray-400 dark:text-gray-500"
-                  }`}
-                >
-                  Settings
-                </span>
-              </NavLink>
-            );
-          })()}
+          {/* More tab button */}
+          <button
+            onClick={() => setIsMoreOpen(true)}
+            className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
+              isMoreOpen ? "mobile-tab-active" : ""
+            }`}
+          >
+            <Menu
+              className={`w-5 h-5 transition-colors ${
+                isMoreOpen
+                  ? "text-primary-600 dark:text-primary-400"
+                  : "text-gray-400 dark:text-gray-500"
+              }`}
+            />
+            <span
+              className={`text-[10px] font-semibold transition-colors ${
+                isMoreOpen
+                  ? "text-primary-600 dark:text-primary-400"
+                  : "text-gray-400 dark:text-gray-500"
+              }`}
+            >
+              More
+            </span>
+          </button>
         </div>
       </nav>
+      <MoreSheet open={isMoreOpen} onClose={() => setIsMoreOpen(false)} />
     </>
   );
 }

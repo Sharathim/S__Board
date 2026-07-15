@@ -96,8 +96,7 @@ export function Sidebar({ open, onClose, isCollapsed, onToggleCollapse }) {
 
   const navItems = allNavItems.filter(item =>
     (!item.roles || item.roles.includes(user?.role)) &&
-    item.to !== "/forum" &&
-    item.to !== "/updates"
+    item.to !== "/forum"
   );
 
   const seen = new Set();

@@ -82,7 +82,7 @@ export default function MobileApp() {
           <Route path="/forum" element={<Navigate to="/" replace />} />
           <Route path="/projects" element={<MobileProjectsPage />} />
           <Route path="/projects/:id" element={<MobileProjectDetailPage />} />
-          <Route path="/updates" element={<Navigate to="/" replace />} />
+          <Route path="/updates" element={<MobileUpdatesPage />} />
           <Route path="/notifications" element={<MobileNotificationsPage />} />
           <Route path="/settings" element={<MobileSettingsPage />} />
         </Route>
