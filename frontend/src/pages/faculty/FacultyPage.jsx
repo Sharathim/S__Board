@@ -26,22 +26,6 @@ const CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", 
 const DESIGNATION_OPTIONS = ["Professor", "Associate Professor", "Assistant Professor"];
 
 // ─── Avatar helpers ───────────────────────────────────────────────────────────
-const AVATAR_PALETTES = [
-  { bg: "from-violet-500 to-purple-600", ring: "ring-violet-200 dark:ring-violet-900" },
-  { bg: "from-blue-500 to-indigo-600", ring: "ring-blue-200 dark:ring-blue-900" },
-  { bg: "from-pink-500 to-rose-600", ring: "ring-pink-200 dark:ring-pink-900" },
-  { bg: "from-amber-500 to-orange-500", ring: "ring-amber-200 dark:ring-amber-900" },
-  { bg: "from-emerald-500 to-teal-600", ring: "ring-emerald-200 dark:ring-emerald-900" },
-  { bg: "from-cyan-500 to-sky-600", ring: "ring-cyan-200 dark:ring-cyan-900" },
-];
-
-function getAvatarPalette(name) {
-  const safeName = name || "";
-  let sum = 0;
-  for (let i = 0; i < safeName.length; i++) sum += safeName.charCodeAt(i);
-  return AVATAR_PALETTES[sum % AVATAR_PALETTES.length];
-}
-
 function getInitials(name) {
   if (!name) return "?";
   const parts = name.trim().split(" ");
@@ -51,7 +35,6 @@ function getInitials(name) {
 }
 
 function Avatar({ fac, size = "lg", className = "" }) {
-  const palette = getAvatarPalette(fac.name);
   const sizeClass = size === "lg" ? "w-[52px] h-[52px] text-base" : "w-10 h-10 text-sm";
 
   if (fac.profile_picture) {
@@ -59,13 +42,13 @@ function Avatar({ fac, size = "lg", className = "" }) {
       <img
         src={fac.profile_picture}
         alt={fac.name}
-        className={`${sizeClass} rounded-2xl object-cover ring-2 ring-offset-1 ${palette.ring} shrink-0 ${className}`}
+        className={`${sizeClass} rounded-2xl object-cover ring-2 ring-[#5B5CEB] shrink-0 ${className}`}
       />
     );
   }
 
   return (
-    <div className={`${sizeClass} rounded-2xl bg-gradient-to-br ${palette.bg} flex items-center justify-center font-bold text-white ring-2 ring-offset-1 ${palette.ring} shrink-0 ${className}`}>
+    <div className={`${sizeClass} rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center font-bold text-[#5B5CEB] dark:text-indigo-300 ring-2 ring-[#5B5CEB] shrink-0 ${className}`}>
       {getInitials(fac.name)}
     </div>
   );
@@ -75,8 +58,8 @@ function Avatar({ fac, size = "lg", className = "" }) {
 function GmailIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none">
-      <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" fill="#F2F2F2" />
-      <path d="M22 6V18C22 19.1 21.1 20 20 20H18V8.5L12 13L6 8.5V20H4C2.9 20 2 19.1 2 18V6C2 5.23 2.44 4.57 3.07 4.25L12 11L20.93 4.25C21.56 4.57 22 5.23 22 6Z" fill="#EA4335" />
+      <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" fill="#F2F2F2"/>
+      <path d="M22 6V18C22 19.1 21.1 20 20 20H18V8.5L12 13L6 8.5V20H4C2.9 20 2 19.1 2 18V6C2 5.23 2.44 4.57 3.07 4.25L12 11L20.93 4.25C21.56 4.57 22 5.23 22 6Z" fill="#EA4335"/>
     </svg>
   );
 }
@@ -84,28 +67,27 @@ function GmailIcon({ className }) {
 // ─── Designation Badge ────────────────────────────────────────────────────────
 function DesignationBadge({ designation }) {
   const map = {
-    "Professor": { color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50", icon: Star },
-    "Associate Professor": { color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50", icon: TrendingUp },
-    "Assistant Professor": { color: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50", icon: GraduationCap },
+    "Professor":            { color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50", icon: Star },
+    "Associate Professor":  { color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50",     icon: TrendingUp },
+    "Assistant Professor":  { color: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50", icon: GraduationCap },
   };
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border ${style.color}`}>
-      <Icon className="w-3 h-3 opacity-90" />
+    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border ${style.color}`}>
+      <Icon className="w-2.5 h-2.5 opacity-90" />
       {designation}
     </span>
   );
 }
 
 // ─── Class Chip ───────────────────────────────────────────────────────────────
-function ClassChip({ label, variant = "default" }) {
-  const base = "inline-flex items-center justify-center px-2.5 h-[26px] rounded-full text-[11px] font-semibold border transition-colors shrink-0";
-  const variants = {
-    default: "bg-indigo-50/70 text-indigo-700 border-indigo-200/60 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-850/50",
-    incharge: "bg-emerald-50/70 text-emerald-700 border-emerald-200/60 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-850/50",
-  };
-  return <span className={`${base} ${variants[variant]}`}>{label.replace("_", " ")}</span>;
+function ClassChip({ label }) {
+  return (
+    <span className="inline-flex items-center justify-center px-[12px] h-[28px] rounded-full text-[11px] font-semibold border bg-white dark:bg-gray-800/40 border-[#DDE3ED] dark:border-gray-700 text-[#4F46E5] dark:text-indigo-400 shrink-0">
+      {label.replace("_", " ")}
+    </span>
+  );
 }
 
 
@@ -117,7 +99,6 @@ function InviteBanner() {
 // ─── Faculty Card ─────────────────────────────────────────────────────────────
 function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const palette = getAvatarPalette(fac.name);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -127,125 +108,131 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
   }, [menuOpen]);
 
   return (
-    <div className={`group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full relative ${menuOpen ? "z-30" : "z-10"
-      }`}>
-      {/* Profile Header Banner */}
-      <div className={`h-[76px] w-full bg-gradient-to-r ${palette.bg} opacity-90 relative rounded-t-[20px]`}>
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:10px_10px] rounded-t-[20px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5 rounded-t-[20px]" />
-      </div>
+    <div className={`group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px] transition-all duration-200 ease-out flex flex-col justify-between h-full relative p-[20px] ${
+      menuOpen ? "z-30" : "z-10"
+    }`}>
+      {/* Top half container that will grow to fill space */}
+      <div className="flex flex-col flex-1">
+        {/* Top Section (Avatar & Actions) */}
+        <div className="flex justify-between items-start">
+          <Avatar fac={fac} size="lg" />
 
-      {/* Actions button strip in header */}
-      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
-        <a
-          href={`mailto:${fac.email}`}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-500 hover:text-red-655 transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
-          title={`Email ${fac.name}`}
-        >
-          <GmailIcon className="w-3.5 h-3.5" />
-        </a>
-
-        {isHOD ? (
-          <div className="relative kebab-container">
-            <button
-              onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-450 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
+          {/* Actions button strip */}
+          <div className="flex items-center gap-2">
+            <a
+              href={`mailto:${fac.email}`}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-[#5B5CEB] dark:text-gray-400 dark:hover:text-white transition-colors"
+              title={`Email ${fac.name}`}
             >
-              <MoreVertical className="w-3.5 h-3.5" />
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+              <GmailIcon className="w-3.5 h-3.5" />
+            </a>
+
+            {isHOD ? (
+              <div className="relative kebab-container">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (fac.class_incharge_of) {
-                      onRemoveIncharge(fac);
-                    } else {
-                      onAssignIncharge(fac);
-                    }
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
+                  onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
                 >
-                  {fac.class_incharge_of
-                    ? <><UserX className="w-4 h-4" />Remove as Incharge</>
-                    : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
-                  }
+                  <MoreVertical className="w-3.5 h-3.5" />
                 </button>
-                <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    onDelete(fac);
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Remove Faculty
-                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (fac.class_incharge_of) {
+                          onRemoveIncharge(fac);
+                        } else {
+                          onAssignIncharge(fac);
+                        }
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
+                    >
+                      {fac.class_incharge_of
+                        ? <><UserX className="w-4 h-4" />Remove as Incharge</>
+                        : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+                      }
+                    </button>
+                    <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        onDelete(fac);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Remove Faculty
+                    </button>
+                  </div>
+                )}
               </div>
+            ) : (
+              userRole === "FACULTY" && userId === fac.user_id && (
+                <button
+                  onClick={() => onEdit(fac)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 transition-all"
+                  title="Edit your profile"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              )
             )}
           </div>
-        ) : (
-          userRole === "FACULTY" && userId === fac.user_id && (
-            <button
-              onClick={() => onEdit(fac)}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 border border-gray-200/40 dark:border-gray-700/40 transition-all shadow-sm backdrop-blur-sm hover:scale-105"
-              title="Edit your profile"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-          )
-        )}
+        </div>
+
+        {/* Faculty Name */}
+        <div className="mt-[8px]">
+          <h3 className="text-[26px] font-bold text-[#1E293B] dark:text-white leading-tight tracking-tight group-hover:text-[#5B5CEB] dark:group-hover:text-indigo-400 transition-colors">
+            {fac.name}
+          </h3>
+        </div>
+
+        {/* Email Address */}
+        <div className="mt-[8px]">
+          <p className="text-[14px] font-medium text-[#64748B] dark:text-gray-400 truncate leading-none">
+            {fac.email}
+          </p>
+        </div>
+
+        {/* Designation Badge */}
+        <div className="mt-[10px]">
+          <DesignationBadge designation={fac.designation || "Professor"} />
+        </div>
+
+        {/* Class Chips */}
+        <div className="mt-[8px] flex flex-wrap gap-1.5 flex-1 align-content-start">
+          {fac.classes_handling?.length > 0 ? (
+            fac.classes_handling.map((cls) => (
+              <ClassChip key={cls} label={cls} />
+            ))
+          ) : (
+            <span className="text-[11px] text-gray-400 dark:text-gray-505 italic mt-1">No classes</span>
+          )}
+          {fac.class_incharge_of && (
+            <ClassChip label={`IC: ${fac.class_incharge_of}`} />
+          )}
+        </div>
       </div>
 
-      {/* Profile Details Block */}
-      <div className="px-[18px] pb-[18px] pt-0 flex-1 flex flex-col justify-between -mt-[26px] relative z-10">
-        <div className="flex flex-col gap-3">
-          {/* Avatar and Border */}
-          <Avatar fac={fac} size="lg" className="border-4 border-white dark:border-gray-800 shadow-sm" />
+      {/* Divider */}
+      <div className="mt-[18px] border-t border-[#EEF2F7] dark:border-gray-700" />
 
-          {/* Name & Email & Designation */}
-          <div className="flex flex-col gap-1">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-              {fac.name}
-            </h3>
-            <p className="text-[13px] text-gray-400 dark:text-gray-505 font-medium truncate leading-none">{fac.email}</p>
-            <div className="mt-1">
-              <DesignationBadge designation={fac.designation || "Professor"} />
-            </div>
-          </div>
-
-          {/* Compact Info Chips */}
-          <div className="flex flex-wrap gap-1.5">
-            {fac.classes_handling?.length > 0 ? (
-              fac.classes_handling.map((cls) => (
-                <ClassChip key={cls} label={cls} variant="default" />
-              ))
-            ) : (
-              <span className="text-[11px] text-gray-400 dark:text-gray-505 italic">No classes</span>
-            )}
-            {fac.class_incharge_of && (
-              <ClassChip label={`IC: ${fac.class_incharge_of}`} variant="incharge" />
-            )}
-          </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="mt-3 pt-3 border-t border-dashed border-gray-150 dark:border-gray-700/60 flex items-center justify-start gap-1.5">
-          <FolderKanban className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-          <span className="text-[12px] font-bold text-gray-550 dark:text-gray-400">Projects</span>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${fac.project_count > 0
-              ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30"
-              : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 border border-slate-100 dark:border-gray-700/60"
-            }`}>
-            {fac.project_count || 0} Active
-          </span>
-        </div>
+      {/* Bottom Section */}
+      <div className="mt-[16px] flex items-center justify-start gap-1.5">
+        <FolderKanban className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+        <span className="text-[12px] font-bold text-gray-550 dark:text-gray-400">Projects</span>
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+          fac.project_count > 0 
+            ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30" 
+            : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 border border-slate-100 dark:border-gray-700/60"
+        }`}>
+          {fac.project_count || 0} Active
+        </span>
       </div>
     </div>
   );
@@ -257,15 +244,15 @@ export default function FacultyPage() {
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
 
-  const [assignModal, setAssignModal] = useState(null);
-  const [selectedClass, setSelectedClass] = useState("");
-  const [editModal, setEditModal] = useState(null);
-  const [editName, setEditName] = useState("");
-  const [editDesignation, setEditDesignation] = useState("Professor");
-  const [editClasses, setEditClasses] = useState([]);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [viewMode, setViewMode] = useState("grid");
-  const [openKebabId, setOpenKebabId] = useState(null);
+  const [assignModal,  setAssignModal]  = useState(null);
+  const [selectedClass,setSelectedClass]= useState("");
+  const [editModal,    setEditModal]    = useState(null);
+  const [editName,     setEditName]     = useState("");
+  const [editDesignation,setEditDesignation] = useState("Professor");
+  const [editClasses,  setEditClasses]  = useState([]);
+  const [deleteConfirm,setDeleteConfirm]= useState(null);
+  const [viewMode,     setViewMode]     = useState("grid");
+  const [openKebabId,  setOpenKebabId]  = useState(null);
 
   useEffect(() => {
     const handler = (e) => { if (!e.target.closest(".kebab-container-list")) setOpenKebabId(null); };
@@ -367,20 +354,22 @@ export default function FacultyPage() {
           <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-1 rounded-lg transition-all ${viewMode === "grid"
+              className={`p-1 rounded-lg transition-all ${
+                viewMode === "grid"
                   ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
                   : "text-gray-450 dark:text-gray-500 hover:text-gray-650"
-                }`}
+              }`}
               title="Grid View"
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-1 rounded-lg transition-all ${viewMode === "list"
+              className={`p-1 rounded-lg transition-all ${
+                viewMode === "list"
                   ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
                   : "text-gray-455 dark:text-gray-500 hover:text-gray-655"
-                }`}
+              }`}
               title="List View"
             >
               <List className="w-4 h-4" />
@@ -415,7 +404,7 @@ export default function FacultyPage() {
           </p>
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((fac) => (
             <FacultyCard
               key={fac.id}
@@ -446,8 +435,9 @@ export default function FacultyPage() {
             {filtered.map((fac) => (
               <div
                 key={fac.id}
-                className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 relative ${openKebabId === fac.id ? "z-30" : "z-10"
-                  }`}
+                className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 relative ${
+                  openKebabId === fac.id ? "z-30" : "z-10"
+                }`}
               >
                 {/* Col 1: Avatar + Name */}
                 <div className="flex items-center gap-3 min-w-0">
@@ -489,10 +479,11 @@ export default function FacultyPage() {
                 {/* Col 5: Projects count */}
                 <div className="flex items-center lg:justify-center">
                   <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Projects:</span>
-                  <span className={`text-sm font-extrabold px-2.5 py-0.5 rounded-full ${fac.project_count > 0
+                  <span className={`text-sm font-extrabold px-2.5 py-0.5 rounded-full ${
+                    fac.project_count > 0
                       ? "bg-indigo-50 dark:bg-indigo-955/30 text-indigo-600 dark:text-indigo-400"
                       : "text-gray-400 dark:text-gray-500"
-                    }`}>
+                  }`}>
                     {fac.project_count || 0}
                   </span>
                 </div>
@@ -506,7 +497,7 @@ export default function FacultyPage() {
                   >
                     <GmailIcon className="w-4 h-4" />
                   </a>
-                  {isHOD ? (
+                   {isHOD ? (
                     <div className="relative kebab-container-list">
                       <button
                         onClick={(e) => { e.stopPropagation(); setOpenKebabId(openKebabId === fac.id ? null : fac.id); }}
@@ -617,10 +608,11 @@ export default function FacultyPage() {
                     key={cls}
                     type="button"
                     onClick={() => setEditClasses((prev) => prev.includes(cls) ? prev.filter((c) => c !== cls) : [...prev, cls])}
-                    className={`py-2 px-3 text-xs font-semibold rounded-xl border text-center transition-all ${isSelected
+                    className={`py-2 px-3 text-xs font-semibold rounded-xl border text-center transition-all ${
+                      isSelected
                         ? "bg-primary-600 text-white border-primary-600 shadow-sm"
                         : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700"
-                      }`}
+                    }`}
                   >
                     {cls.replace("_", " ")}
                   </button>
