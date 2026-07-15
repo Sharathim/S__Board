@@ -226,3 +226,31 @@ def _serialize_user(user):
             "forum_role": forum_role,
         }
     return out
+
+
+@auth_bp.route("/debug-roll/<roll_number>", methods=["GET"])
+def debug_roll(roll_number):
+    from ..models.student import Student
+    from ..models.user import User
+    
+    student = Student.query.filter_by(roll_number=roll_number).first()
+    if not student:
+        return jsonify({"message": "No student found with this roll number"}), 200
+        
+    user = User.query.get(student.user_id) if student.user_id else None
+    
+    return jsonify({
+        "student": {
+            "id": student.id,
+            "user_id": student.user_id,
+            "roll_number": student.roll_number,
+            "register_number": student.register_number,
+            "class_name": student.class_name,
+        },
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role.value if user.role else None,
+        } if user else None
+    })
