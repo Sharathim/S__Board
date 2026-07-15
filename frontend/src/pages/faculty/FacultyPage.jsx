@@ -26,22 +26,6 @@ const CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", 
 const DESIGNATION_OPTIONS = ["Professor", "Associate Professor", "Assistant Professor"];
 
 // ─── Avatar helpers ───────────────────────────────────────────────────────────
-const AVATAR_PALETTES = [
-  { bg: "from-violet-500 to-purple-600",  ring: "ring-violet-200 dark:ring-violet-900" },
-  { bg: "from-blue-500 to-indigo-600",    ring: "ring-blue-200 dark:ring-blue-900"    },
-  { bg: "from-pink-500 to-rose-600",      ring: "ring-pink-200 dark:ring-pink-900"    },
-  { bg: "from-amber-500 to-orange-500",   ring: "ring-amber-200 dark:ring-amber-900"  },
-  { bg: "from-emerald-500 to-teal-600",   ring: "ring-emerald-200 dark:ring-emerald-900"},
-  { bg: "from-cyan-500 to-sky-600",       ring: "ring-cyan-200 dark:ring-cyan-900"    },
-];
-
-function getAvatarPalette(name) {
-  const safeName = name || "";
-  let sum = 0;
-  for (let i = 0; i < safeName.length; i++) sum += safeName.charCodeAt(i);
-  return AVATAR_PALETTES[sum % AVATAR_PALETTES.length];
-}
-
 function getInitials(name) {
   if (!name) return "?";
   const parts = name.trim().split(" ");
@@ -51,21 +35,21 @@ function getInitials(name) {
 }
 
 function Avatar({ fac, size = "lg", className = "" }) {
-  const palette = getAvatarPalette(fac.name);
   const sizeClass = size === "lg" ? "w-[52px] h-[52px] text-base" : "w-10 h-10 text-sm";
+  const ringClass = size === "lg" ? "ring-2 ring-[#5B5CEB] ring-offset-2 dark:ring-offset-gray-800" : "ring-1 ring-gray-200 dark:ring-gray-700";
 
   if (fac.profile_picture) {
     return (
       <img
         src={fac.profile_picture}
         alt={fac.name}
-        className={`${sizeClass} rounded-2xl object-cover ring-2 ring-offset-1 ${palette.ring} shrink-0 ${className}`}
+        className={`${sizeClass} rounded-2xl object-cover shrink-0 ${ringClass} ${className}`}
       />
     );
   }
 
   return (
-    <div className={`${sizeClass} rounded-2xl bg-gradient-to-br ${palette.bg} flex items-center justify-center font-bold text-white ring-2 ring-offset-1 ${palette.ring} shrink-0 ${className}`}>
+    <div className={`${sizeClass} rounded-2xl bg-[#5B5CEB] flex items-center justify-center font-bold text-white shrink-0 ${ringClass} ${className}`}>
       {getInitials(fac.name)}
     </div>
   );
@@ -91,33 +75,16 @@ function DesignationBadge({ designation }) {
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border ${style.color}`}>
-      <Icon className="w-3 h-3 opacity-90" />
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${style.color}`}>
+      <Icon className="w-2.5 h-2.5 opacity-90" />
       {designation}
     </span>
   );
 }
 
-// ─── Class Chip ───────────────────────────────────────────────────────────────
-function ClassChip({ label, variant = "default" }) {
-  const base = "inline-flex items-center justify-center px-2.5 h-[26px] rounded-full text-[11px] font-semibold border transition-colors shrink-0";
-  const variants = {
-    default: "bg-indigo-50/70 text-indigo-700 border-indigo-200/60 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-850/50",
-    incharge: "bg-emerald-50/70 text-emerald-700 border-emerald-200/60 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-850/50",
-  };
-  return <span className={`${base} ${variants[variant]}`}>{label.replace("_", " ")}</span>;
-}
-
-
-// ─── Invite Banner ────────────────────────────────────────────────────────────
-function InviteBanner() {
-  return null;
-}
-
-// ─── Faculty Card ─────────────────────────────────────────────────────────────
+// ─── Class Chip ───────────────────────────────────────────────────────────// ─── Faculty Card ─────────────────────────────────────────────────────────────
 function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const palette = getAvatarPalette(fac.name);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -127,126 +94,129 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
   }, [menuOpen]);
 
   return (
-    <div className={`group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_24px_rgba(99,102,241,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between h-full relative ${
+    <div className={`group bg-white dark:bg-gray-800/80 rounded-[18px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_28px_rgba(91,92,235,0.12)] hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px] transition-all duration-200 ease flex flex-col justify-between h-full relative p-[20px] ${
       menuOpen ? "z-30" : "z-10"
     }`}>
-      {/* Profile Header Banner */}
-      <div className={`h-[76px] w-full bg-gradient-to-r ${palette.bg} opacity-90 relative rounded-t-[20px]`}>
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:10px_10px] rounded-t-[20px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5 rounded-t-[20px]" />
-      </div>
+      <div className="flex flex-col flex-1 justify-between">
+        {/* Top Section */}
+        <div className="flex flex-col gap-[8px]">
+          {/* Top row: Avatar & Actions */}
+          <div className="flex items-center justify-between mb-[8px]">
+            {/* Avatar with thin purple ring */}
+            <Avatar fac={fac} size="lg" className="ring-2 ring-[#5B5CEB] ring-offset-2 dark:ring-offset-gray-800" />
+            
+            {/* Action buttons */}
+            <div className="flex items-center gap-2">
+              <a
+                href={`mailto:${fac.email}`}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-500 hover:text-red-550 hover:border-red-200 transition-all border border-[#E5E7EB] dark:border-gray-700 shadow-sm hover:shadow"
+                title={`Email ${fac.name}`}
+              >
+                <GmailIcon className="w-3.5 h-3.5" />
+              </a>
 
-      {/* Actions button strip in header */}
-      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
-        <a
-          href={`mailto:${fac.email}`}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-500 hover:text-red-655 transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
-          title={`Email ${fac.name}`}
-        >
-          <GmailIcon className="w-3.5 h-3.5" />
-        </a>
-
-        {isHOD ? (
-          <div className="relative kebab-container">
-            <button
-              onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-gray-450 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all border border-gray-200/40 dark:border-gray-700/40 shadow-sm backdrop-blur-sm hover:scale-105"
-            >
-              <MoreVertical className="w-3.5 h-3.5" />
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (fac.class_incharge_of) {
-                      onRemoveIncharge(fac);
-                    } else {
-                      onAssignIncharge(fac);
-                    }
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
-                >
-                  {fac.class_incharge_of
-                    ? <><UserX className="w-4 h-4" />Remove as Incharge</>
-                    : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
-                  }
-                </button>
-                <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    onDelete(fac);
-                    setMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Remove Faculty
-                </button>
-              </div>
-            )}
+              {isHOD ? (
+                <div className="relative kebab-container">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-gray-450 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all border border-[#E5E7EB] dark:border-gray-700 shadow-sm hover:shadow"
+                  >
+                    <MoreVertical className="w-3.5 h-3.5" />
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          if (fac.class_incharge_of) {
+                            onRemoveIncharge(fac);
+                          } else {
+                            onAssignIncharge(fac);
+                          }
+                          setMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
+                      >
+                        {fac.class_incharge_of
+                          ? <><UserX className="w-4 h-4" />Remove as Incharge</>
+                          : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
+                        }
+                      </button>
+                      <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          onDelete(fac);
+                          setMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Remove Faculty
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                userRole === "FACULTY" && userId === fac.user_id && (
+                  <button
+                    onClick={() => onEdit(fac)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 text-indigo-500 dark:text-indigo-400 hover:text-indigo-650 transition-all border border-[#E5E7EB] dark:border-gray-700 shadow-sm hover:shadow"
+                    title="Edit your profile"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                )
+              )}
+            </div>
           </div>
-        ) : (
-          userRole === "FACULTY" && userId === fac.user_id && (
-            <button
-              onClick={() => onEdit(fac)}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white dark:bg-gray-900/90 dark:hover:bg-gray-900 text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 border border-gray-200/40 dark:border-gray-700/40 transition-all shadow-sm backdrop-blur-sm hover:scale-105"
-              title="Edit your profile"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-          )
-        )}
-      </div>
-      
-      {/* Profile Details Block */}
-      <div className="px-[18px] pb-[18px] pt-0 flex-1 flex flex-col justify-between -mt-[26px] relative z-10">
-        <div className="flex flex-col gap-3">
-          {/* Avatar and Border */}
-          <Avatar fac={fac} size="lg" className="border-4 border-white dark:border-gray-800 shadow-sm" />
-          
+
           {/* Name & Email & Designation */}
-          <div className="flex flex-col gap-1">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+          <div className="flex flex-col">
+            <h3 className="text-[26px] font-bold text-[#1E293B] dark:text-white leading-tight tracking-tight">
               {fac.name}
             </h3>
-            <p className="text-[13px] text-gray-400 dark:text-gray-505 font-medium truncate leading-none">{fac.email}</p>
-            <div className="mt-1">
+            <p className="text-[14px] font-medium text-[#64748B] dark:text-gray-400 truncate mt-[8px]">
+              {fac.email}
+            </p>
+            <div className="mt-[10px]">
               <DesignationBadge designation={fac.designation || "Professor"} />
             </div>
           </div>
 
-          {/* Compact Info Chips */}
-          <div className="flex flex-wrap gap-1.5">
+          {/* Class Chips */}
+          <div className="flex flex-wrap gap-1.5 mt-[8px]">
             {fac.classes_handling?.length > 0 ? (
               fac.classes_handling.map((cls) => (
-                <ClassChip key={cls} label={cls} variant="default" />
+                <ClassChip key={cls} label={cls} />
               ))
             ) : (
-              <span className="text-[11px] text-gray-400 dark:text-gray-505 italic">No classes</span>
+              <span className="text-[11px] text-gray-400 dark:text-gray-500 italic">No classes</span>
             )}
             {fac.class_incharge_of && (
-              <ClassChip label={`IC: ${fac.class_incharge_of}`} variant="incharge" />
+              <ClassChip label={`IC: ${fac.class_incharge_of}`} />
             )}
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-3 pt-3 border-t border-dashed border-gray-150 dark:border-gray-700/60 flex items-center justify-start gap-1.5">
-          <FolderKanban className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-          <span className="text-[12px] font-bold text-gray-550 dark:text-gray-400">Projects</span>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-            fac.project_count > 0 
-              ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30" 
-              : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 border border-slate-100 dark:border-gray-700/60"
-          }`}>
-            {fac.project_count || 0} Active
-          </span>
+        <div className="flex flex-col mt-[18px]">
+          <div className="border-t border-[#EEF2F7] dark:border-gray-700/60 w-full mb-[16px]" />
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-1.5">
+              <FolderKanban className="w-3.5 h-3.5 text-[#5B5CEB] shrink-0" />
+              <span className="text-[12px] font-bold text-[#1E293B] dark:text-white">Projects</span>
+            </div>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+              fac.project_count > 0 
+                ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30" 
+                : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 border border-slate-100 dark:border-gray-700/60"
+            }`}>
+              {fac.project_count || 0} Active
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -419,7 +389,7 @@ export default function FacultyPage() {
           </p>
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((fac) => (
             <FacultyCard
               key={fac.id}
