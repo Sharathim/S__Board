@@ -96,7 +96,9 @@ def delete_faculty(faculty_id):
 
     faculty.class_incharge_of = None
 
-    db.session.delete(user)
+    db.session.delete(faculty)
+    if user:
+        db.session.delete(user)
     db.session.commit()
     return jsonify({"ok": True})
 

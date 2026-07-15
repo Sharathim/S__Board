@@ -172,10 +172,9 @@ def remove_student(class_name, student_id):
         db.session.delete(fm)
 
     user_to_delete = User.query.get(student.user_id)
+    db.session.delete(student)
     if user_to_delete:
         db.session.delete(user_to_delete)
-    else:
-        db.session.delete(student)
     db.session.commit()
 
     return jsonify({"ok": True})

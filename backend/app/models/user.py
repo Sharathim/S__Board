@@ -24,5 +24,5 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    faculty_profile = db.relationship("Faculty", backref="user", uselist=False, lazy="joined")
-    student_profile = db.relationship("Student", backref="user", uselist=False, lazy="joined")
+    faculty_profile = db.relationship("Faculty", backref="user", uselist=False, lazy="joined", cascade="all, delete-orphan")
+    student_profile = db.relationship("Student", backref="user", uselist=False, lazy="joined", cascade="all, delete-orphan")
