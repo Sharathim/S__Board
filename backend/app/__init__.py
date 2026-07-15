@@ -28,14 +28,20 @@ def create_app():
             from .models.user import User
 
             # Delete orphaned student records
-            orphaned_students = Student.query.filter(~Student.user_id.in_(db.session.query(User.id))).all()
+            orphaned_students = Student.query.filter(
+                (Student.user_id.is_(None)) |
+                (~Student.user_id.in_(db.session.query(User.id)))
+            ).all()
             if orphaned_students:
                 for s in orphaned_students:
                     db.session.delete(s)
                 print(f"Cleaned up {len(orphaned_students)} orphaned student records.")
 
             # Delete orphaned faculty records
-            orphaned_faculties = Faculty.query.filter(~Faculty.user_id.in_(db.session.query(User.id))).all()
+            orphaned_faculties = Faculty.query.filter(
+                (Faculty.user_id.is_(None)) |
+                (~Faculty.user_id.in_(db.session.query(User.id)))
+            ).all()
             if orphaned_faculties:
                 for f in orphaned_faculties:
                     db.session.delete(f)
