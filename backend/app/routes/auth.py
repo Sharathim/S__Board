@@ -150,21 +150,25 @@ def onboard_student():
     if not invite:
         return jsonify({"error": "New student registration is not currently accepted. Please contact HOD."}), 403
 
-    if User.query.filter_by(email=data["email"]).first():
+    email = str(data["email"]).strip().lower()
+    roll_number = str(data["roll_number"]).strip().upper()
+    register_number = str(data["register_number"]).strip().upper()
+
+    if User.query.filter(User.email.ilike(email)).first():
         return jsonify({"error": "Account already exists"}), 409
 
     errors = []
-    if Student.query.filter_by(register_number=data["register_number"]).first():
+    if Student.query.filter(Student.register_number.ilike(register_number)).first():
         errors.append("Register number already exists")
-    if Student.query.filter_by(roll_number=data["roll_number"]).first():
+    if Student.query.filter(Student.roll_number.ilike(roll_number)).first():
         errors.append("Roll number already exists")
     if errors:
         return jsonify({"error": " & ".join(errors)}), 409
 
     user = User(
         firebase_uid=data["uid"],
-        email=data["email"],
-        name=data["name"],
+        email=email,
+        name=data["name"].strip(),
         profile_picture=data.get("profile_picture", ""),
         role=UserRole.STUDENT,
     )
@@ -173,8 +177,8 @@ def onboard_student():
 
     student = Student(
         user_id=user.id,
-        roll_number=data["roll_number"],
-        register_number=data["register_number"],
+        roll_number=roll_number,
+        register_number=register_number,
         class_name=data["class_name"],
     )
     db.session.add(student)
