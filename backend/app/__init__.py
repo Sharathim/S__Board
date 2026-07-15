@@ -20,6 +20,31 @@ def create_app():
             print("Database tables initialized successfully via create_all() at startup.")
         except Exception as e:
             print(f"Database initialization at startup warning/error: {e}")
+
+        # Clean up legacy orphaned records from before the cascade delete bug was patched
+        try:
+            from .models.student import Student
+            from .models.faculty import Faculty
+            from .models.user import User
+
+            # Delete orphaned student records
+            orphaned_students = Student.query.filter(~Student.user_id.in_(db.session.query(User.id))).all()
+            if orphaned_students:
+                for s in orphaned_students:
+                    db.session.delete(s)
+                print(f"Cleaned up {len(orphaned_students)} orphaned student records.")
+
+            # Delete orphaned faculty records
+            orphaned_faculties = Faculty.query.filter(~Faculty.user_id.in_(db.session.query(User.id))).all()
+            if orphaned_faculties:
+                for f in orphaned_faculties:
+                    db.session.delete(f)
+                print(f"Cleaned up {len(orphaned_faculties)} orphaned faculty records.")
+
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Cleanup of legacy orphaned records warning/error: {e}")
     migrate.init_app(app, db)
     cors.init_app(app, resources={r"/api/*": {"origins": app.config["FRONTEND_URL"]}})
     socketio.init_app(
