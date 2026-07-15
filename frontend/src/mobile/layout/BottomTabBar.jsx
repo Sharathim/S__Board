@@ -1,15 +1,28 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, Megaphone, Menu } from "lucide-react";
+import { LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState, useEffect, useRef } from "react";
 import MoreSheet from "./MoreSheet";
 
-const TAB_ITEMS = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Home", roles: ["HOD"] },
-  { to: "/projects", icon: FolderKanban, label: "Projects", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/updates", icon: Megaphone, label: "Updates", roles: ["HOD", "FACULTY", "STUDENT"] },
-];
+const getTabItemsForRole = (role) => {
+  if (role === "HOD") {
+    return [
+      { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
+      { to: "/projects", icon: FolderKanban, label: "Projects" },
+      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
+      { to: "/classes", icon: BookOpen, label: "Classes" },
+    ];
+  } else {
+    // FACULTY or STUDENT
+    return [
+      { to: "/projects", icon: FolderKanban, label: "Projects" },
+      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
+      { to: "/classes", icon: BookOpen, label: "Classes" },
+      { to: "/updates", icon: Megaphone, label: "Updates" },
+    ];
+  }
+};
 
 export default function BottomTabBar() {
   const { user } = useAuth();
@@ -42,9 +55,7 @@ export default function BottomTabBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const filteredTabs = TAB_ITEMS.filter(
-    (item) => !item.roles || item.roles.includes(user?.role)
-  );
+  const filteredTabs = getTabItemsForRole(user?.role);
 
   // For non-HOD users who don't see Dashboard, default first route
   const isActive = (to) => location.pathname === to || location.pathname.startsWith(to + "/");

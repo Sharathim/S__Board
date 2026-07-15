@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import {
   GraduationCap, BookOpen, Settings, Bell, Sun, Moon,
-  LogOut, Monitor, ChevronRight, Sparkles
+  LogOut, Monitor, ChevronRight, Sparkles, Megaphone
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -10,12 +10,19 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import BottomSheet from "./BottomSheet";
 import { useState } from "react";
 
-const MORE_ITEMS = [
-  { icon: GraduationCap, label: "Faculty", to: "/faculty", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { icon: BookOpen, label: "Classes", to: "/classes", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { icon: Bell, label: "Notifications", to: "/notifications", roles: ["HOD", "FACULTY", "STUDENT"] },
-  { icon: Settings, label: "Settings", to: "/settings", roles: ["HOD", "FACULTY", "STUDENT"] },
-];
+const getMoreItemsForRole = (role) => {
+  if (role === "HOD") {
+    return [
+      { icon: Megaphone, label: "Updates", to: "/updates" },
+      { icon: Settings, label: "Settings", to: "/settings" },
+    ];
+  } else {
+    // FACULTY or STUDENT
+    return [
+      { icon: Settings, label: "Settings", to: "/settings" },
+    ];
+  }
+};
 
 export default function MoreSheet({ open, onClose }) {
   const { user, logout } = useAuth();
@@ -24,9 +31,7 @@ export default function MoreSheet({ open, onClose }) {
   const navigate = useNavigate();
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
-  const filteredItems = MORE_ITEMS.filter(
-    (item) => !item.roles || item.roles.includes(user?.role)
-  );
+  const filteredItems = getMoreItemsForRole(user?.role);
 
   const handleNav = (to) => {
     onClose();
