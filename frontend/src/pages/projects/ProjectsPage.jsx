@@ -238,27 +238,21 @@ export default function ProjectsPage() {
                     {/* Faculty Advisor */}
                     <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {facultyMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 dark:bg-indigo-950/20 text-[#6366F1] dark:text-[#818CF8] border border-indigo-100/30 w-fit max-w-[155px] truncate">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 dark:bg-indigo-950/20 text-[#6366F1] dark:text-[#818CF8] border border-indigo-100/30 w-fit">
                           <GraduationCap className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{facultyMembers[0].name}</span>
-                          {facultyMembers.length > 1 && (
-                            <span className="text-[10px] opacity-75 font-bold ml-1">+{facultyMembers.length - 1}</span>
-                          )}
+                          <span>{facultyMembers.map(m => m.name).join(", ")}</span>
                         </div>
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
 
-                    {/* Forum Coord. */}
+                    {/* Forum Coordinator */}
                     <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {forumMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 w-fit max-w-[155px] truncate">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 w-fit">
                           <MessageSquare className="w-3.5 h-3.5 shrink-0 animate-pulse" />
-                          <span className="truncate">{forumMembers[0].name}</span>
-                          {forumMembers.length > 1 && (
-                            <span className="text-[10px] opacity-75 font-bold ml-1">+{forumMembers.length - 1}</span>
-                          )}
+                          <span>{forumMembers.map(m => m.name).join(", ")}</span>
                         </div>
                       ) : (
                         <span className="text-gray-400">—</span>
@@ -268,12 +262,9 @@ export default function ProjectsPage() {
                     {/* Students Team */}
                     <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {studentMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 w-fit max-w-[165px] truncate">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 w-fit">
                           <Users className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{studentMembers[0].name}</span>
-                          {studentMembers.length > 1 && (
-                            <span className="text-[10px] opacity-75 font-bold ml-1">+{studentMembers.length - 1}</span>
-                          )}
+                          <span>{studentMembers.map(m => m.name).join(", ")}</span>
                         </div>
                       ) : (
                         <span className="text-gray-400">—</span>
