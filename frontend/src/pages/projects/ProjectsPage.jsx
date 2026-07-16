@@ -18,7 +18,7 @@ import {
   FolderKanban, Plus, Users, CheckCircle,
   MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap,
   X, FileText, Edit3, Sparkles, FolderPlus,
-  ChevronDown, Clock
+  ChevronDown, Clock, Search
 } from "lucide-react";
 import { format } from "date-fns";
 import { parseUTCDate } from "../../utils/dateUtils";
