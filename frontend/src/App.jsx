@@ -18,6 +18,7 @@ import ForumPage from "./pages/forum/ForumPage";
 import ForumPostDetailPage from "./pages/forum/ForumPostDetailPage";
 import ProjectsPage from "./pages/projects/ProjectsPage";
 import ProjectDetailPage from "./pages/projects/ProjectDetailPage";
+import ProjectWorkflowPage from "./pages/projects/ProjectWorkflowPage";
 import UpdatesPage from "./pages/updates/UpdatesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
@@ -81,6 +82,10 @@ export default function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/GOAT" element={<GoatPage />} />
         </Route>
+
+        {/* Full-page workflow canvas routes — no sidebar/topbar */}
+        <Route path="/projects/new" element={<ProtectedRoute><ProjectWorkflowPage /></ProtectedRoute>} />
+        <Route path="/projects/:id/workflow" element={<ProtectedRoute><ProjectWorkflowPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

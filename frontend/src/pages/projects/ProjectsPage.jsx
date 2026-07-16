@@ -3,26 +3,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../../context/TransitionContext";
 import {
-  listProjects, getProjectStats, createProject, updateProject, deleteProject,
+  listProjects, getProjectStats, deleteProject,
 } from "../../api/projects";
-import { listFaculty } from "../../api/faculty";
-import { listAllStudents } from "../../api/classes";
-import { listForumMembers } from "../../api/forum";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { SearchFilter, StatusFilter } from "../../components/shared/SearchFilter";
 import { Pagination } from "../../components/shared/Pagination";
 import {
-  FolderKanban, Plus, Users, CheckCircle,
+  FolderKanban, Plus, Users,
   MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap,
-  X, FileText, Edit3, Sparkles, FolderPlus,
-  ChevronDown, Clock, Search
+  Clock,
 } from "lucide-react";
 import { format } from "date-fns";
 import { parseUTCDate } from "../../utils/dateUtils";
-import { Modal } from "../../components/ui/Modal";
 import { Avatar } from "../../components/ui/Avatar";
 
 const statusOptions = [
@@ -40,10 +34,19 @@ const filterStatusOptions = [
 ];
 
 // ─── Kebab dropdown ──────────────────────────────────────────────────────────
-function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
+function ProjectKebab({ project, isHOD }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  const deleteMutation = useMutation({
+    mutationFn: deleteProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["project-stats"] });
+    },
+  });
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -52,38 +55,37 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
   }, []);
 
   return (
-    <div ref={ref} className="relative" style={{ overflow: "visible" }}>
+    <div ref={ref} className="relative">
       <button
-        onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
-        className="p-2 rounded-xl text-gray-400 hover:bg-gray-150 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-        aria-label="Project actions"
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
       >
-        <MoreVertical className="w-4.5 h-4.5" />
+        <MoreVertical className="w-4 h-4" />
       </button>
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 z-[100] w-44 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 animate-fade-in"
-          onClick={(e) => { e.stopPropagation(); setOpen(false); }}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute right-0 top-9 z-50 min-w-[168px] rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xl shadow-black/10 overflow-hidden py-1.5"
         >
           <button
-            onClick={() => navigate(`/projects/${project.id}`)}
+            onClick={() => { setOpen(false); navigate(`/projects/${project.id}`); }}
             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
           >
-            <ExternalLink className="w-4 h-4 text-[#F05A2B]" /> Open
+            <ExternalLink className="w-4 h-4 text-[#F05A2B]" /> View Details
           </button>
           {isHOD && (
             <>
               <button
-                onClick={() => onEdit(project)}
+                onClick={() => navigate(`/projects/${project.id}/workflow`)}
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
               >
                 <Pencil className="w-4 h-4 text-amber-555" /> Edit
               </button>
-              <div className="my-1 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+              <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
               <button
-                onClick={() => onDelete(project)}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                onClick={() => { setOpen(false); if (window.confirm(`Delete "${project.name}"?`)) deleteMutation.mutate(project.id); }}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               >
                 <Trash2 className="w-4 h-4" /> Delete
               </button>
@@ -119,47 +121,12 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
-  // Modals state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editProject, setEditProject] = useState(null); // null = create, object = edit
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const openCreate = () => navigate("/projects/new");
 
   const { data, isLoading } = useQuery({
     queryKey: ["projects", { page, search, status }],
     queryFn: () => listProjects({ page, search, status, per_page: 10 }).then(r => r.data),
   });
-
-  const createMutation = useMutation({
-    mutationFn: createProject,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["project-stats"] });
-      setModalOpen(false);
-      setEditProject(null);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => updateProject(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["project-stats"] });
-      setModalOpen(false);
-      setEditProject(null);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteProject,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
-      queryClient.invalidateQueries({ queryKey: ["project-stats"] });
-      setDeleteTarget(null);
-    },
-  });
-
-  const openCreate = () => { setEditProject(null); setModalOpen(true); };
-  const openEdit = (p) => { setEditProject(p); setModalOpen(true); };
 
   const canCreateProject = isHOD || (user?.role === "STUDENT" && user?.student?.forum_role?.toLowerCase() === "placement coordinator");
 
@@ -314,31 +281,6 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      {/* Create / Edit Modal */}
-      <ProjectModal
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditProject(null); }}
-        editProject={editProject}
-        onSubmit={(formData) => {
-          if (editProject) {
-            updateMutation.mutate({ id: editProject.id, data: formData });
-          } else {
-            createMutation.mutate(formData);
-          }
-        }}
-        loading={createMutation.isPending || updateMutation.isPending}
-      />
-
-      {/* Delete Confirm Dialog */}
-      <ConfirmDialog
-        open={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
-        title="Delete Project"
-        message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        danger
-      />
 
       {/* Floating Plus Button for Project Creation (Terracotta Orange themed) */}
       {canCreateProject && (
