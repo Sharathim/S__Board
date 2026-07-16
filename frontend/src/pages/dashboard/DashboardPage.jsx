@@ -11,7 +11,6 @@ import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { parseUpdateContent } from "../../utils/updateContent";
 import { parseUTCDate } from "../../utils/dateUtils";
-import MailComposerModal from "./MailComposerModal";
 import {
   FolderKanban, Users, CheckCircle,
   Megaphone, Mail, BookOpen,
@@ -59,7 +58,6 @@ export default function DashboardPage() {
     return <Navigate to={dest} replace />;
   }
 
-  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
   const { navigateWithTransition } = usePageTransition();
   const containerRef = useRef(null);
 
@@ -159,16 +157,6 @@ export default function DashboardPage() {
               Stay on top of your department tasks, monitor progress, and track status.
             </p>
           </div>
-
-          {(user?.role === "HOD" || user?.role === "FACULTY") && (
-            <button
-              onClick={() => setIsMailModalOpen(true)}
-              className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-[#F05A2B]/60 hover:text-[#F05A2B] transition-all shadow-sm"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              Compose Mail
-            </button>
-          )}
         </div>
 
         {/* ═══════════════════════════════════════════════════
@@ -429,8 +417,6 @@ export default function DashboardPage() {
         </div>
 
       </div>
-
-      <MailComposerModal isOpen={isMailModalOpen} onClose={() => setIsMailModalOpen(false)} />
     </>
   );
 }

@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
   Bell, Moon, Sun, LogOut, X, Sparkles, Settings, ChevronRight, Search, ChevronDown, Info,
-  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, MessageSquare, Megaphone
+  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, MessageSquare, Megaphone, Mail
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -11,6 +11,7 @@ import { useNotificationContext } from "../../context/NotificationContext";
 import { usePageTransition } from "../../context/TransitionContext";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import MailComposerModal from "../../pages/dashboard/MailComposerModal";
 
 function getInitials(name) {
   if (!name) return "?";
@@ -147,6 +148,7 @@ export function TopBar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const drawerRef = useRef(null);
@@ -241,6 +243,17 @@ export function TopBar() {
 
         {/* ── Right Actions: Neomorphic Notification Bell & Profile Card ── */}
         <div className="flex items-center gap-3">
+          {/* Neomorphic Tactile Compose Mail Button */}
+          {(user?.role === "HOD" || user?.role === "FACULTY") && (
+            <button
+              onClick={() => setIsMailModalOpen(true)}
+              className="neomorph-bell-btn"
+              title="Compose Mail"
+            >
+              <Mail className="w-[18px] h-[18px]" />
+            </button>
+          )}
+
           {/* Neomorphic Tactile Notification Bell Button */}
           <div className="relative flex items-center">
             <button
@@ -386,6 +399,8 @@ export function TopBar() {
         confirmText="Log Out"
         danger
       />
+
+      <MailComposerModal isOpen={isMailModalOpen} onClose={() => setIsMailModalOpen(false)} />
     </>
   );
 }
