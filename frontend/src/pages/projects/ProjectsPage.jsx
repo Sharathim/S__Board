@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../../context/TransitionContext";
 import {
   listProjects, getProjectStats, createProject, updateProject, deleteProject,
@@ -11,37 +11,31 @@ import { listForumMembers } from "../../api/forum";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { Button } from "../../components/ui/Button";
-import { Input, Textarea } from "../../components/ui/Input";
-import { Badge } from "../../components/ui/Badge";
-import { Avatar } from "../../components/ui/Avatar";
-import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { StatusBadge } from "../../components/shared/StatusBadge";
 import { SearchFilter, StatusFilter } from "../../components/shared/SearchFilter";
 import { Pagination } from "../../components/shared/Pagination";
-import { PageHeader } from "../../components/ui/PageHeader";
-import { StatTile } from "../../components/ui/StatTile";
 import {
-  TrendingUp, FolderKanban, Plus, Users, CheckCircle, AlertTriangle,
+  FolderKanban, Plus, Users, CheckCircle,
   MoreVertical, ExternalLink, Pencil, Trash2, MessageSquare, GraduationCap,
-  X, LayoutGrid, List, FileText, Edit3, Flag, Search, ChevronDown, Sparkles, FolderPlus,
-  Calendar
+  X, FileText, Edit3, Sparkles, FolderPlus,
+  ChevronDown, Clock
 } from "lucide-react";
 import { format } from "date-fns";
 import { parseUTCDate } from "../../utils/dateUtils";
+import { Modal } from "../../components/ui/Modal";
+import { Avatar } from "../../components/ui/Avatar";
 
 const statusOptions = [
-  { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
+  { value: "IN_PROGRESS", label: "In Progress", color: "#F05A2B" },
   { value: "NOT_STARTED", label: "Not Started", color: "#9ca3af" },
-  { value: "REVIEW", label: "Review", color: "#f97316" },
+  { value: "REVIEW", label: "Review", color: "#A855F7" },
   { value: "COMPLETED", label: "Completed", color: "#10b981" },
-  { value: "ON_HOLD", label: "On Hold", color: "#f59e0b" },
-  { value: "CANCELLED", label: "Cancelled", color: "#ef4444" },
+  { value: "ON_HOLD", label: "On Hold", color: "#F59E0B" },
+  { value: "CANCELLED", label: "Cancelled", color: "#EF4444" },
 ];
 
 const filterStatusOptions = [
-  { value: "IN_PROGRESS", label: "In Progress", color: "#3b82f6" },
+  { value: "IN_PROGRESS", label: "In Progress", color: "#F05A2B" },
   { value: "COMPLETED", label: "Completed", color: "#10b981" },
 ];
 
@@ -76,7 +70,7 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
             onClick={() => navigate(`/projects/${project.id}`)}
             className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
           >
-            <ExternalLink className="w-4 h-4 text-indigo-500" /> Open
+            <ExternalLink className="w-4 h-4 text-[#F05A2B]" /> Open
           </button>
           {isHOD && (
             <>
@@ -84,7 +78,7 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
                 onClick={() => onEdit(project)}
                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
               >
-                <Pencil className="w-4 h-4 text-amber-500" /> Edit
+                <Pencil className="w-4 h-4 text-amber-555" /> Edit
               </button>
               <div className="my-1 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
               <button
@@ -101,39 +95,19 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
   );
 }
 
-// ─── Compact avatar stack ────────────────────────────────────────────────────
-function MemberStack({ members, max = 3 }) {
-  if (!members || members.length === 0) return <span className="text-xs text-gray-400">—</span>;
-  const visible = members.slice(0, max);
-  const rest = members.length - max;
-  return (
-    <div className="flex -space-x-1.5 items-center">
-      {visible.map(m => (
-        <Avatar key={m.id} src={m.profile_picture} name={m.name} size="sm"
-          className="ring-2 ring-white dark:ring-gray-800" />
-      ))}
-      {rest > 0 && (
-        <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500 ring-2 ring-white dark:ring-gray-800">
-          +{rest}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const getStatusTheme = (status) => {
   const map = {
-    NOT_STARTED: { bg: "bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border-slate-200/60 dark:border-slate-700/50", dot: "bg-slate-400" },
-    IN_PROGRESS: { bg: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-indigo-100/50 dark:border-indigo-900/30", dot: "bg-indigo-500" },
-    REVIEW: { bg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-100/50 dark:border-amber-900/30", dot: "bg-amber-500" },
-    COMPLETED: { bg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-100/50 dark:border-emerald-900/30", dot: "bg-emerald-500" },
-    ON_HOLD: { bg: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-600 dark:text-yellow-400 border-yellow-100/50 dark:border-yellow-900/30", dot: "bg-yellow-500" },
-    CANCELLED: { bg: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100/50 dark:border-red-900/30", dot: "bg-red-500" },
+    NOT_STARTED: { bg: "bg-slate-50 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400 border-slate-200/60", dot: "bg-slate-400" },
+    IN_PROGRESS: { bg: "bg-orange-50 text-[#F05A2B] dark:bg-orange-950/30 dark:text-orange-450 border-orange-100 dark:border-orange-900/35", dot: "bg-[#F05A2B]" },
+    REVIEW: { bg: "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border-purple-100", dot: "bg-purple-500" },
+    COMPLETED: { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-450 border-emerald-100/50", dot: "bg-emerald-500" },
+    ON_HOLD: { bg: "bg-yellow-50 text-yellow-750 dark:bg-yellow-950/40 dark:text-yellow-405 border-yellow-100/50", dot: "bg-yellow-550" },
+    CANCELLED: { bg: "bg-red-50 text-red-750 dark:bg-red-950/40 dark:text-red-405 border-red-100/50", dot: "bg-red-550" },
   };
-  return map[status] || { bg: "bg-slate-100 text-slate-600 border-slate-200", dot: "bg-slate-400" };
+  return map[status] || { bg: "bg-slate-100 text-slate-650 border-slate-200", dot: "bg-slate-450" };
 };
 
-// ─── Main page ────────────────────────────────────────────────────────────────
+// ─── Main Page Component ──────────────────────────────────────────────────────
 export default function ProjectsPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
@@ -144,9 +118,8 @@ export default function ProjectsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
-  const [viewMode, setViewMode] = useState(() => localStorage.getItem("project_view_mode") || "grid");
 
-  // modals
+  // Modals state
   const [modalOpen, setModalOpen] = useState(false);
   const [editProject, setEditProject] = useState(null); // null = create, object = edit
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -154,11 +127,6 @@ export default function ProjectsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["projects", { page, search, status }],
     queryFn: () => listProjects({ page, search, status, per_page: 10 }).then(r => r.data),
-  });
-
-  const { data: stats } = useQuery({
-    queryKey: ["project-stats"],
-    queryFn: () => getProjectStats().then(r => r.data),
   });
 
   const createMutation = useMutation({
@@ -195,294 +163,148 @@ export default function ProjectsPage() {
 
   const canCreateProject = isHOD || (user?.role === "STUDENT" && user?.student?.forum_role?.toLowerCase() === "placement coordinator");
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
   const projects = data?.projects || [];
 
   return (
     <div className="space-y-6">
       {/* ─── Premium Header & Actions ─── */}
       <div className="flex flex-row items-center justify-between gap-4 mb-6 flex-wrap">
-        <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Projects</h1>
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Projects Directory</h1>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">Manage allocations, tracks milestone updates, and view status</p>
+        </div>
         
-        {/* Filters and switcher in one line */}
+        {/* Filters */}
         <div className="flex items-center gap-3">
-          <div className="w-32 sm:w-48">
-            <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search..." />
+          <div className="w-36 sm:w-56">
+            <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
           </div>
           <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
-
-          {/* Grid / List Switcher */}
-          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200/40 dark:border-gray-700/40 shrink-0 h-9">
-            <button
-              onClick={() => { setViewMode("grid"); localStorage.setItem("project_view_mode", "grid"); }}
-              className={`p-1 rounded-lg transition-all ${viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-400 hover:text-gray-650"
-                }`}
-              title="Grid View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => { setViewMode("list"); localStorage.setItem("project_view_mode", "list"); }}
-              className={`p-1 rounded-lg transition-all ${viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-400 hover:text-gray-650"
-                }`}
-              title="List View"
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       </div>
-      {/* ─── Projects Content ─── */}
+
+      {/* ─── Projects Table Container ─── */}
       {projects.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
           title="No projects found"
           description="Create a new project to get started."
         />
-      ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => {
-            const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
-            const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-            const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
+      ) : (
+        <div className="overflow-x-auto rounded-[24px] border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+          <table className="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr className="border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/35 text-[10px] font-extrabold text-gray-400 dark:text-gray-550 uppercase tracking-widest">
+                <th className="py-4.5 px-6">Project Name</th>
+                <th className="py-4.5 px-5">Faculty Advisor</th>
+                <th className="py-4.5 px-5">Forum Coord.</th>
+                <th className="py-4.5 px-5">Students Team</th>
+                <th className="py-4.5 px-5">Status</th>
+                <th className="py-4.5 px-5">Last Updated</th>
+                <th className="py-4.5 px-6 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-850">
+              {projects.map((project, idx) => {
+                const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
+                const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
+                const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
+                
+                const indexStr = `${(page - 1) * 10 + idx + 1}.`;
 
-            // Combine and sort members with role ring classes
-            const allMembers = [
-              ...facultyMembers.map(m => ({ ...m, ringClass: "ring-violet-500" })),
-              ...forumMembers.map(m => ({ ...m, ringClass: "ring-blue-500" })),
-              ...studentMembers.map(m => ({ ...m, ringClass: "ring-emerald-500" }))
-            ];
-            const visibleMembers = allMembers.slice(0, 4);
-            const restCount = allMembers.length - 4;
-
-            const isCompleted = project.status === "COMPLETED";
-            const borderAccent = isCompleted
-              ? "hover:border-emerald-500/40 hover:shadow-emerald-500/5"
-              : "hover:border-indigo-500/40 hover:shadow-indigo-500/5";
-
-            // Extract primary faculty mentor/advisor
-            const leadAdvisor = facultyMembers[0]?.name || "Unassigned Advisor";
-
-            return (
-              <div
-                key={project.id}
-                onClick={() => navigate(`/projects/${project.id}`)}
-                className={`group flex flex-col justify-between h-full bg-white dark:bg-gray-800/80 rounded-3xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(99,102,241,0.08)] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer ${borderAccent}`}
-              >
-                {/* Card Main Body */}
-                <div className="p-6 pb-0 space-y-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    {/* Header row: Icon & Status */}
-                    <div className="flex justify-between items-start">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/10">
-                        <FolderKanban className="w-5.5 h-5.5" />
-                      </div>
-
+                return (
+                  <tr
+                    key={project.id}
+                    onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
+                    className="hover:bg-slate-50/55 dark:hover:bg-slate-800/25 cursor-pointer transition-all duration-150"
+                  >
+                    {/* Project Name */}
+                    <td className="py-4 px-6 font-bold text-gray-900 dark:text-white group text-sm min-w-[200px]">
                       <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${getStatusTheme(project.status).dot}`} />
-                          {project.status.replace("_", " ")}
-                        </span>
-                        <div onClick={e => e.stopPropagation()}>
-                          <ProjectKebab
-                            project={project}
-                            isHOD={isHOD || canCreateProject}
-                            onEdit={openEdit}
-                            onDelete={setDeleteTarget}
-                          />
+                        <span className="text-gray-400 font-mono text-xs shrink-0">{indexStr}</span>
+                        <span className="hover:text-[#F05A2B] transition-colors line-clamp-1">{project.name}</span>
+                      </div>
+                    </td>
+
+                    {/* Faculty Advisor */}
+                    <td className="py-4 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-[150px]">
+                      {facultyMembers.length > 0 ? (
+                        <div className="flex items-center gap-1.5">
+                          <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                          <span className="truncate">{facultyMembers.map(m => m.name).join(", ")}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+
+                    {/* Forum Member */}
+                    <td className="py-4 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-[150px]">
+                      {forumMembers.length > 0 ? (
+                        <div className="flex items-center gap-1.5">
+                          <MessageSquare className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="truncate">{forumMembers.map(m => m.name).join(", ")}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+
+                    {/* Students Team */}
+                    <td className="py-4 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-[180px]">
+                      {studentMembers.length > 0 ? (
+                        <div className="flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span className="truncate">{studentMembers.map(m => m.name).join(", ")}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+
+                    {/* Status badge */}
+                    <td className="py-4 px-5">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${getStatusTheme(project.status).bg}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${getStatusTheme(project.status).dot}`} />
+                        {project.status.replace("_", " ")}
+                      </span>
+                    </td>
+
+                    {/* Last Updated */}
+                    <td className="py-4 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-gray-400" />
+                        <div>
+                          <div>{format(parseUTCDate(project.updated_at), "dd MMM, yyyy")}</div>
+                          <div className="text-[10px] font-medium text-gray-400 mt-0.5">{format(parseUTCDate(project.updated_at), "hh:mm a")}</div>
                         </div>
                       </div>
-                    </div>
+                    </td>
 
-                    {/* Title & Description */}
-                    <div className="space-y-2 mt-5">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary-650 dark:group-hover:text-primary-400 transition-colors tracking-tight line-clamp-1">
-                        {project.name}
-                      </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
-                        {project.description || "No description provided for this project."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Structured visual sub-grid info */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-1.5 mb-5">
-                    <div className="bg-slate-50/50 dark:bg-gray-900/50 border border-slate-100/60 dark:border-gray-700/50 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Lead Advisor</span>
-                      <span className="text-xs font-bold text-slate-700 dark:text-gray-200 truncate">{leadAdvisor}</span>
-                    </div>
-                    <div className="bg-slate-50/50 dark:bg-gray-900/50 border border-slate-100/60 dark:border-gray-700/50 p-3 rounded-2xl flex flex-col justify-between min-h-[58px]">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 tracking-wider uppercase">Team Size</span>
-                      <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                        {allMembers.length} {allMembers.length === 1 ? "Member" : "Members"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Footer - Members Grid by Role */}
-                <div className="px-6 pb-6 pt-4 border-t border-dashed border-gray-100 dark:border-gray-700/60 flex flex-col gap-3">
-                  <div className="grid grid-cols-3 gap-2">
-                    {/* Faculty */}
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Faculty</span>
-                      {facultyMembers.length > 0 ? (
-                        <span className="text-[11px] font-bold text-slate-700 dark:text-gray-250 truncate">
-                          {facultyMembers.map(m => m.name).join(", ")}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-400 italic">None</span>
-                      )}
-                    </div>
-
-                    {/* Forum */}
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Forum</span>
-                      {forumMembers.length > 0 ? (
-                        <span className="text-[11px] font-bold text-slate-700 dark:text-gray-250 truncate">
-                          {forumMembers.map(m => m.name).join(", ")}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-400 italic">None</span>
-                      )}
-                    </div>
-
-                    {/* Students */}
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider">Students</span>
-                      {studentMembers.length > 0 ? (
-                        <span className="text-[11px] font-bold text-slate-700 dark:text-gray-250 truncate">
-                          {studentMembers.map(m => m.name).join(", ")}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-400 italic">None</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-1 text-[10px] text-gray-455 dark:text-gray-500 font-semibold border-t border-slate-50 dark:border-slate-800/45 pt-2">
-                    <span>By: {project.created_by?.name || "Unknown"}</span>
-                    <span>Last updated: {format(parseUTCDate(project.updated_at), "MMM d, yyyy")}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {/* Header row for large screens to label columns */}
-          <div className="hidden lg:grid grid-cols-[minmax(220px,1.5fr)_1fr_1fr_1fr_120px_100px_40px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
-            <span>Projects</span>
-            <span>Faculty</span>
-            <span>Forum</span>
-            <span>Students</span>
-            <span>Status</span>
-            <span>Last Updated</span>
-            <span className="text-center">Action</span>
-          </div>
-
-          <div className="space-y-3">
-            {projects.map((project) => {
-              const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
-              const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
-              const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
-
-              return (
-                <div
-                  key={project.id}
-                  onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
-                  className="group grid grid-cols-1 lg:grid-cols-[minmax(220px,1.5fr)_1fr_1fr_1fr_120px_100px_40px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 cursor-pointer"
-                >
-                  {/* Col 1: Icon and Details */}
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-indigo-500/5">
-                      <FolderKanban className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-primary-650 transition-colors">
-                        {project.name}
-                      </h4>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">
-                        {project.description || "No description provided."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Col 2: Faculty */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Faculty:</span>
-                    {facultyMembers.length > 0 ? (
-                      <span className="text-xs font-semibold text-slate-755 dark:text-gray-200 truncate">
-                        {facultyMembers.map(m => m.name).join(", ")}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-400 italic">None</span>
-                    )}
-                  </div>
-
-                  {/* Col 3: Forum */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Forum:</span>
-                    {forumMembers.length > 0 ? (
-                      <span className="text-xs font-semibold text-slate-755 dark:text-gray-200 truncate">
-                        {forumMembers.map(m => m.name).join(", ")}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-400 italic">None</span>
-                    )}
-                  </div>
-
-                  {/* Col 4: Students */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Students:</span>
-                    {studentMembers.length > 0 ? (
-                      <span className="text-xs font-semibold text-slate-755 dark:text-gray-200 truncate">
-                        {studentMembers.map(m => m.name).join(", ")}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-400 italic">None</span>
-                    )}
-                  </div>
-
-                  {/* Col 5: Status */}
-                  <div className="flex items-center">
-                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Status:</span>
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border ${getStatusTheme(project.status).bg}`}>
-                      <span className={`w-1 h-1 rounded-full ${getStatusTheme(project.status).dot}`} />
-                      {project.status.replace("_", " ")}
-                    </span>
-                  </div>
-
-                  {/* Col 6: Activity / Updated */}
-                  <div className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Updated:</span>
-                    <span className="truncate">{format(parseUTCDate(project.updated_at), "MMM d")}</span>
-                  </div>
-
-                  {/* Col 7: Actions kebab */}
-                  <div className="flex justify-end lg:justify-center" onClick={e => e.stopPropagation()}>
-                    <ProjectKebab
-                      project={project}
-                      isHOD={isHOD || canCreateProject}
-                      onEdit={openEdit}
-                      onDelete={setDeleteTarget}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="pt-2">
-            <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
-          </div>
+                    {/* Actions Menu */}
+                    <td className="py-4 px-6 text-center" onClick={e => e.stopPropagation()}>
+                      <ProjectKebab
+                        project={project}
+                        isHOD={isHOD || canCreateProject}
+                        onEdit={openEdit}
+                        onDelete={setDeleteTarget}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
+      {/* Pagination */}
+      {projects.length > 0 && (
+        <div className="pt-2">
+          <Pagination page={data?.page || 1} pages={data?.pages || 1} onPageChange={setPage} />
+        </div>
+      )}
 
       {/* Create / Edit Modal */}
       <ProjectModal
@@ -510,11 +332,11 @@ export default function ProjectsPage() {
         danger
       />
 
-      {/* Floating Plus Button for Project Creation */}
+      {/* Floating Plus Button for Project Creation (Updated to Terracotta Orange theme) */}
       {canCreateProject && (
         <button
           onClick={openCreate}
-          className="fixed bottom-24 md:bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          className="fixed bottom-24 md:bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-[#F05A2B] to-[#C93D14] text-white flex items-center justify-center shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
           title="Create New Project"
         >
           <Plus className="w-6 h-6" />
@@ -554,7 +376,6 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
   // Dropdown UI states
   const [statusOpen, setStatusOpen] = useState(false);
-
   const statusRef = useRef(null);
 
   // Click away to close custom dropdowns
@@ -636,8 +457,6 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
   // Find label & color details of current status option
   const activeStatusOption = statusOptions.find(opt => opt.value === status) || statusOptions[0];
 
-
-
   return (
     <Modal open={open} onClose={onClose} size="xl" hideHeader={true}>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -645,14 +464,14 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
         {/* ─── Redesigned Custom Header ─── */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800/80">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-950/40 text-violet-650 dark:text-violet-400 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-950/40 text-[#F05A2B] flex items-center justify-center shrink-0">
               <FolderPlus className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
                 {editProject ? "Edit Project Details" : "Create New Project"}
               </h2>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-400 dark:text-gray-550 mt-0.5">
                 {editProject ? "Modify fields and update allocations below" : "Fill in the details to create a new project"}
               </p>
             </div>
@@ -675,7 +494,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Title</label>
               <div className="relative flex items-center">
-                <FileText className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-550" />
+                <FileText className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-555" />
                 <input
                   type="text"
                   value={name}
@@ -689,7 +508,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
             {/* Description Textarea */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description (Optional)</label>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Description (Optional)</label>
               <div className="relative">
                 <Edit3 className="absolute left-3.5 top-3 w-4 h-4 text-gray-400 dark:text-gray-555" />
                 <textarea
@@ -724,14 +543,13 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                   </button>
 
                   {statusOpen && (
-                    <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 dark:border-gray-755 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
+                    <div className="absolute z-35 left-0 right-0 mt-1.5 rounded-xl border border-gray-205 dark:border-gray-755 bg-white dark:bg-gray-800 shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
                       {statusOptions.map(opt => (
                         <button
                           key={opt.value}
                           type="button"
                           onClick={() => { setStatus(opt.value); setStatusOpen(false); }}
-                          className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""
-                            }`}
+                          className={`w-full flex items-center gap-2.5 px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${opt.value === status ? "bg-gray-50/50 dark:bg-gray-700/30 font-semibold" : ""}`}
                         >
                           <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: opt.color }} />
                           <span className="text-gray-800 dark:text-gray-200">{opt.label}</span>
@@ -746,18 +564,16 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
           {/* ─── Right Pane: Member Assignment ─── */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
-
-            {/* Header Title block */}
             <div className="flex flex-col">
               <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 tracking-tight">Assign Members</h3>
-              <p className="text-xs text-gray-400 dark:text-gray-500">Add faculty, students or Form members</p>
+              <p className="text-xs text-gray-400 dark:text-gray-505">Add faculty, students or forum coordinators</p>
             </div>
 
-            {/* Custom Tab Switcher with custom matched Icons */}
+            {/* Custom Tab Switcher */}
             <div className="flex p-1 rounded-xl bg-gray-150/60 dark:bg-gray-800/60 border border-gray-200/40 dark:border-gray-700/40 gap-1.5">
               {[
                 { id: "faculty", label: "Faculty", count: facultyPeople.length, icon: GraduationCap },
-                { id: "forum", label: "Form", count: forumPeople.length, icon: MessageSquare },
+                { id: "forum", label: "Forum", count: forumPeople.length, icon: MessageSquare },
                 { id: "student", label: "Students", count: studentPeople.length, icon: Users },
               ].map(tab => {
                 const isActive = activeTab === tab.id;
@@ -768,9 +584,9 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     type="button"
                     onClick={() => { setActiveTab(tab.id); setMemberSearch(""); }}
                     className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${isActive
-                        ? "bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm"
-                        : "text-gray-450 dark:text-gray-500 hover:text-gray-655 dark:hover:text-gray-400"
-                      }`}
+                      ? "bg-white dark:bg-gray-700 text-[#F05A2B] shadow-sm"
+                      : "text-gray-450 dark:text-gray-500 hover:text-gray-655"
+                    }`}
                   >
                     <TabIcon className="w-3.5 h-3.5" />
                     <span>{tab.label}</span>
@@ -780,19 +596,19 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
               })}
             </div>
 
-            {/* Member Search input with left Search Icon inside */}
+            {/* Member Search */}
             <div className="relative flex items-center">
               <Search className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-505" />
               <input
                 type="text"
-                placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "form"}...`}
+                placeholder={`Search ${activeTab === "faculty" ? "faculty" : activeTab === "student" ? "students" : "forum members"}...`}
                 value={memberSearch}
                 onChange={e => setMemberSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-250 dark:border-gray-755 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
               />
             </div>
 
-            {/* Members Selection List */}
+            {/* Selection list */}
             <div className="flex-1 min-h-[220px] max-h-[300px] overflow-y-auto border border-gray-100 dark:border-gray-800/60 rounded-2xl bg-white dark:bg-gray-900/10 p-2 space-y-1.5">
               {filteredPeople.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -806,9 +622,9 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                       key={p.user_id}
                       onClick={() => toggleMember(p.user_id, roleKey, p.name, p.profile_picture)}
                       className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer rounded-xl border transition-all duration-200 ${isSelected
-                          ? "border-primary-500/60 bg-primary-50/20 dark:bg-primary-950/10 shadow-sm"
-                          : "border-gray-100 dark:border-gray-800/40 hover:border-gray-200/60 dark:hover:border-gray-700 hover:bg-gray-50/30 dark:hover:bg-gray-800/20"
-                        }`}
+                        ? "border-primary-500/60 bg-primary-50/20 dark:bg-primary-950/10 shadow-sm"
+                        : "border-gray-100 dark:border-gray-800/40 hover:border-gray-200/60 dark:hover:border-gray-700 hover:bg-gray-50/30 dark:hover:bg-gray-800/20"
+                      }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <Avatar src={p.profile_picture} name={p.name} size="sm" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-755" />
@@ -821,9 +637,9 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                       <button
                         type="button"
                         className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-200 ${isSelected
-                            ? "bg-violet-600 border-violet-600 dark:bg-violet-500 dark:border-violet-500 text-white shadow-sm"
-                            : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-655 hover:border-gray-350 dark:hover:text-gray-300"
-                          }`}
+                          ? "bg-[#F05A2B] border-[#F05A2B] text-white shadow-sm"
+                          : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-655 hover:border-gray-350 dark:hover:text-gray-300"
+                        }`}
                       >
                         {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
                       </button>
@@ -854,7 +670,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a855f7] text-white hover:opacity-90 shadow-md hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#F05A2B] to-[#C93D14] text-white hover:opacity-90 shadow-md transition-all flex items-center justify-center gap-1.5"
           >
             {loading ? (
               <Spinner className="w-4.5 h-4.5 border-white" />
