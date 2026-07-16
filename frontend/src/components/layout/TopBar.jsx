@@ -231,7 +231,7 @@ export function TopBar() {
             <img
               src="/website-name-logo.png"
               alt="Hive Brand Logo"
-              className="h-10 sm:h-12 w-auto object-contain flex-shrink-0"
+              className="h-14 sm:h-16 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>
