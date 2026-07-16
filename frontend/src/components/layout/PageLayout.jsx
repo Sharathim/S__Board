@@ -29,7 +29,7 @@ export default function PageLayout() {
         {/* Main Content Area */}
         <main
           ref={pageContentRef}
-          className="flex-1 overflow-y-auto relative z-10 page-content-animated p-6 lg:pl-24"
+          className="flex-1 overflow-y-auto relative z-10 page-content-animated p-6 lg:pl-28"
         >
           <div className="page-content-container max-w-7xl mx-auto w-full">
             <ErrorBoundary>
