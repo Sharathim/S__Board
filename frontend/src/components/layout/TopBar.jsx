@@ -222,28 +222,16 @@ export function TopBar() {
   return (
     <>
       <header className="relative w-full py-4 px-4 sm:px-6 z-[99] flex items-center justify-between gap-4 transition-all duration-300">
-        {/* ── Left Capsule Pill: Official Hive Brand Logo & Side Drawer Trigger ── */}
-        <div className="capsule-pill px-4 py-2 flex items-center gap-3 select-none">
-          <button
-            id="navbar-hamburger-btn"
-            onClick={() => setDrawerOpen(true)}
-            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center"
-            title="Open Menu"
-          >
-            <div className="flex flex-col gap-1 justify-center items-center w-4 h-4">
-              <span className="w-4 h-[2px] bg-slate-800 dark:bg-slate-100 rounded-full" />
-              <span className="w-4 h-[2px] bg-slate-800 dark:bg-slate-100 rounded-full" />
-            </div>
-          </button>
-
+        {/* ── Left Capsule Pill: Official Hive Brand Logo ── */}
+        <div className="capsule-pill px-4.5 py-2.5 flex items-center select-none">
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-            className="flex items-center gap-2 cursor-pointer hover:scale-[1.03] transition-transform"
+            className="flex items-center cursor-pointer hover:scale-[1.03] transition-transform"
           >
             <img
               src="/website-name-logo.png"
               alt="Hive Logo"
-              className="h-10 sm:h-11 w-auto object-contain flex-shrink-0"
+              className="h-10 sm:h-12 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>
@@ -271,10 +259,11 @@ export function TopBar() {
             <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
           </div>
 
-          {/* Profile Card Pill with Highlighted Role Badge */}
+          {/* Profile Card Pill with Highlighted Role Badge (No Drawer Trigger) */}
           <div
-            onClick={() => setDrawerOpen(true)}
+            onClick={() => navigateWithTransition("/settings", "Settings", Settings)}
             className="capsule-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer hover:border-gray-300 dark:hover:border-slate-600 transition-all select-none"
+            title="Account Settings"
           >
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden flex-shrink-0"
