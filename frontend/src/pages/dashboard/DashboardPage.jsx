@@ -99,7 +99,7 @@ export default function DashboardPage() {
   }, [statsLoading]);
 
   if (statsLoading) {
-    return <div className="flex items-center justify-center" style={{ height: "calc(100vh - 128px)" }}><Spinner /></div>;
+    return <div className="flex items-center justify-center" style={{ height: "calc(100vh - 116px)" }}><Spinner /></div>;
   }
 
   /* Computed from real data */
@@ -135,7 +135,7 @@ export default function DashboardPage() {
       <div
         ref={containerRef}
         className="flex flex-col gap-3.5 select-none"
-        style={{ height: "calc(100vh - 128px)", overflow: "hidden" }}
+        style={{ height: "calc(100vh - 116px)", overflow: "hidden" }}
       >
 
         {/* ═══════════════════════════════════════════════════

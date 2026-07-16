@@ -221,9 +221,9 @@ export function TopBar() {
 
   return (
     <>
-      <header className="relative w-full py-4 px-4 sm:px-6 z-[99] flex items-center justify-between gap-4 transition-all duration-300">
+      <header className="absolute top-0 left-0 w-full h-20 px-4 lg:pl-[74px] lg:pr-4 z-[99] flex items-center justify-between gap-4 transition-all duration-300 bg-transparent pointer-events-none">
         {/* ── Left Brand Logo: Rendered directly without capsule card wrapper ── */}
-        <div className="select-none flex items-center pt-0.5">
+        <div className="select-none flex items-center pt-0.5 pointer-events-auto">
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
             className="cursor-pointer hover:scale-[1.02] transition-transform"
@@ -231,7 +231,7 @@ export function TopBar() {
             <img
               src="/website-name-logo.png"
               alt="Hive Brand Logo"
-              className="h-14 sm:h-16 w-auto object-contain flex-shrink-0"
+              className="h-11 sm:h-13 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>
@@ -240,7 +240,7 @@ export function TopBar() {
         <div className="flex-1" />
 
         {/* ── Right Actions: Neomorphic Notification Bell & Profile Card ── */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pointer-events-auto">
           {/* Neomorphic Tactile Notification Bell Button */}
           <div className="relative flex items-center">
             <button

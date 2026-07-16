@@ -29,9 +29,9 @@ export default function PageLayout() {
         {/* Main Content Area */}
         <main
           ref={pageContentRef}
-          className="flex-1 overflow-y-auto relative z-10 page-content-animated p-6 lg:pl-20"
+          className="flex-1 overflow-y-auto relative z-10 page-content-animated pt-20 pb-4 px-4 lg:pl-[74px] lg:pr-4"
         >
-          <div className="page-content-container max-w-none mx-auto w-full">
+          <div className="page-content-container max-w-none w-full">
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>

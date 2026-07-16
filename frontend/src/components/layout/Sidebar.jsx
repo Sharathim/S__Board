@@ -63,7 +63,7 @@ export function Sidebar() {
       {/* ── 1. Middle Main Routes Capsule Card (Vertically Centered with Clamp) ── */}
       <aside
         ref={sidebarRef}
-        className="fixed left-6 side-nav-centered z-40 hidden lg:flex flex-col select-none transition-all duration-300"
+        className="fixed left-3 side-nav-centered z-40 hidden lg:flex flex-col select-none transition-all duration-300"
       >
         <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
           {mainNavItems.map((item) => {
@@ -93,7 +93,7 @@ export function Sidebar() {
       </aside>
 
       {/* ── 2. Bottom Settings & Logout Capsule Card (Desktop Only) ── */}
-      <aside className="fixed left-6 bottom-6 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
+      <aside className="fixed left-3 bottom-6 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
         <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
           {/* Settings Navigation Item */}
           <NavLink
