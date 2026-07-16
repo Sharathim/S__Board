@@ -780,15 +780,17 @@ export default function ProjectWorkflowPage() {
       {/* ─── Top Nav Bar ─── */}
       <div
         style={{
-          height: 60,
+          height: "clamp(52px, 6.5vh, 64px)",
           background: "#fff",
           borderBottom: "1px solid rgba(0,0,0,0.07)",
           display: "flex",
           alignItems: "center",
-          padding: "0 20px",
-          gap: 14,
+          padding: "0 clamp(12px, 2vw, 24px)",
+          gap: "clamp(8px, 1.2vw, 16px)",
           flexShrink: 0,
           zIndex: 50,
+          flexWrap: "nowrap",
+          overflowX: "auto",
         }}
         className="dark:[background:#1e293b] dark:[border-color:rgba(255,255,255,0.06)]"
       >
@@ -796,10 +798,10 @@ export default function ProjectWorkflowPage() {
           onClick={() => navigate("/projects")}
           style={{
             display: "flex", alignItems: "center", gap: 6,
-            padding: "7px 12px", borderRadius: 10, border: "1.5px solid #e2e8f0",
-            background: "#fff", cursor: "pointer", fontSize: 13,
+            padding: "6px clamp(8px, 1vw, 14px)", borderRadius: 10, border: "1.5px solid #e2e8f0",
+            background: "#fff", cursor: "pointer", fontSize: "clamp(11px, 1.2vw, 13px)",
             fontWeight: 600, color: "#374151", fontFamily: "inherit",
-            transition: "all 0.2s",
+            transition: "all 0.2s", flexShrink: 0,
           }}
           className="dark:[background:#1e293b] dark:[border-color:rgba(255,255,255,0.08)] dark:text-gray-300 hover:border-[#F05A2B]/60 hover:text-[#F05A2B]"
         >
@@ -808,21 +810,22 @@ export default function ProjectWorkflowPage() {
         </button>
 
         {/* Breadcrumb */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 12, color: "#9ca3af" }}>Projects</span>
-          <ChevronRight style={{ width: 12, height: 12, color: "#d1d5db" }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }} className="dark:text-white">
+        <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+          <span style={{ fontSize: "clamp(10px, 1vw, 12px)", color: "#9ca3af" }}>Projects</span>
+          <ChevronRight style={{ width: 11, height: 11, color: "#d1d5db" }} />
+          <span style={{ fontSize: "clamp(11px, 1.1vw, 13px)", fontWeight: 700, color: "#111827" }} className="dark:text-white">
             {isEdit ? "Edit Project" : "New Project"}
           </span>
         </div>
 
-        {/* Badge */}
+        {/* Badge - hidden on small screens */}
         <div
+          className="hidden sm:block"
           style={{
-            padding: "3px 10px", borderRadius: 20,
+            padding: "3px clamp(6px, 0.8vw, 10px)", borderRadius: 20,
             background: "rgba(240,90,43,0.1)", border: "1px solid rgba(240,90,43,0.2)",
-            fontSize: 10, fontWeight: 700, color: "#F05A2B",
-            textTransform: "uppercase", letterSpacing: "0.06em",
+            fontSize: "clamp(9px, 0.8vw, 10px)", fontWeight: 700, color: "#F05A2B",
+            textTransform: "uppercase", letterSpacing: "0.06em", flexShrink: 0,
           }}
         >
           Workflow Canvas
@@ -830,14 +833,14 @@ export default function ProjectWorkflowPage() {
 
         <div style={{ flex: 1 }} />
 
-        {/* Hints */}
-        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+        {/* Hints — hidden on screens < 1024px */}
+        <div className="hidden lg:flex" style={{ gap: "clamp(8px, 1.5vw, 16px)", alignItems: "center" }}>
           {[
             "Drag nodes to arrange",
             "Click + to add next node",
             "Double-click to edit members",
           ].map((hint) => (
-            <span key={hint} style={{ fontSize: 11, color: "#9ca3af", fontStyle: "italic" }}>
+            <span key={hint} style={{ fontSize: "clamp(9px, 0.8vw, 11px)", color: "#9ca3af", fontStyle: "italic", whiteSpace: "nowrap" }}>
               {hint}
             </span>
           ))}
@@ -849,15 +852,16 @@ export default function ProjectWorkflowPage() {
           disabled={saving || saved}
           style={{
             display: "flex", alignItems: "center", gap: 7,
-            padding: "9px 20px", borderRadius: 12, border: "none",
+            padding: "clamp(7px, 1vw, 10px) clamp(12px, 1.8vw, 22px)",
+            borderRadius: 12, border: "none",
             background: saved
               ? "linear-gradient(135deg, #10b981, #059669)"
               : "linear-gradient(135deg, #F05A2B, #C93D14)",
-            color: "#fff", fontSize: 13, fontWeight: 700,
+            color: "#fff", fontSize: "clamp(11px, 1.1vw, 13px)", fontWeight: 700,
             cursor: saving || saved ? "not-allowed" : "pointer",
             fontFamily: "inherit", opacity: saving ? 0.8 : 1,
             boxShadow: "0 4px 14px rgba(240,90,43,0.35)",
-            transition: "all 0.3s",
+            transition: "all 0.3s", flexShrink: 0, whiteSpace: "nowrap",
           }}
         >
           {saving ? (
