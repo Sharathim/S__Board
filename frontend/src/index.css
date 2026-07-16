@@ -645,6 +645,94 @@ button {
   box-shadow: 0 14px 35px rgba(240, 90, 43, 0.35);
 }
 
+/* ─── Premium Dashboard Card Micro-interactions ─────────────────── */
+
+/* Smooth lift card hover — for white surface metric cards */
+.dash-metric-card {
+  background: #ffffff;
+  border: 1.5px solid #EBEBEB;
+  border-radius: 22px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.07);
+}
+
+.dark .dash-metric-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .dash-metric-card:hover {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* Bottom accent line on card hover */
+.dash-metric-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  border-radius: 0 0 22px 22px;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.dash-metric-card:hover::after {
+  opacity: 1;
+}
+
+.dash-metric-card.accent-emerald::after { background: linear-gradient(90deg, #34D399, #10B981); }
+.dash-metric-card.accent-indigo::after  { background: linear-gradient(90deg, #818CF8, #6366F1); }
+.dash-metric-card.accent-amber::after   { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+
+/* ─── Live feed row hover ────────────────────────────────────────── */
+.feed-row {
+  transition: all 0.15s ease;
+  border-radius: 14px;
+}
+
+.feed-row:hover {
+  background: #ffffff;
+  border-color: #E2E8F0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* ─── Dashboard grid layout responsive clamp ────────────────────── */
+.dash-bottom-grid {
+  display: grid;
+  gap: clamp(12px, 1.8vw, 20px);
+  grid-template-columns: clamp(220px, 28%, 300px) 1fr;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .dash-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Number count-up animation placeholder ─────────────────────── */
+@keyframes count-pop {
+  0%   { transform: scale(0.92); opacity: 0.4; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.dash-count-anim {
+  animation: count-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 .status-chip-completed {
   background: rgba(34, 197, 94, 0.12);
   color: #15803D;
