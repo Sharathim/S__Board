@@ -60,10 +60,10 @@ export function Sidebar() {
 
   return (
     <>
-      {/* ── 1. Middle Main Routes Capsule Card (Desktop Only) ── */}
+      {/* ── 1. Middle Main Routes Capsule Card (Vertically Centered with Clamp) ── */}
       <aside
         ref={sidebarRef}
-        className="fixed left-6 top-[96px] z-40 hidden lg:flex flex-col select-none transition-all duration-300"
+        className="fixed left-6 side-nav-centered z-40 hidden lg:flex flex-col select-none transition-all duration-300"
       >
         <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
           {mainNavItems.map((item) => {

@@ -603,6 +603,12 @@ button {
     0 2px 6px rgba(255, 255, 255, 0.15);
 }
 
+/* ── Clamped Responsive Vertical Centering for Navigation Panel ────── */
+.side-nav-centered {
+  top: clamp(140px, 50vh, 480px);
+  transform: translateY(-50%);
+}
+
 /* ── Sliding indicator styling ── */
 .nav-sliding-indicator {
   background: var(--indicator-gradient);
