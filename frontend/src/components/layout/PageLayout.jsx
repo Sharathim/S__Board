@@ -20,18 +20,18 @@ export default function PageLayout() {
     <TransitionProvider pageContentRef={pageContentRef}>
       <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--background)] transition-colors duration-300 relative">
 
-        {/* Top Floating Navbar */}
-        <TopBar />
-
         {/* Vertical Floating Left Navigation Capsules */}
         <Sidebar />
 
         {/* Main Content Area */}
         <main
           ref={pageContentRef}
-          className="flex-1 overflow-y-auto relative z-10 page-content-animated pt-20 pb-4 px-4 lg:pl-[74px] lg:pr-4"
+          className="flex-1 overflow-y-auto relative z-10 page-content-animated pt-1 pb-4 px-4 lg:pl-[74px] lg:pr-4"
         >
-          <div className="page-content-container max-w-none w-full">
+          <div className="page-content-container max-w-none w-full flex flex-col gap-1.5">
+            {/* Top Bar (inside main scrollable content area) */}
+            <TopBar />
+
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>
