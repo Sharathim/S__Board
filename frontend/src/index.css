@@ -83,6 +83,54 @@
   --navbar-icon-btn-hover-glow: rgba(23, 23, 23, 0.1);
   --navbar-icon-btn-hover-glow-sm: rgba(23, 23, 23, 0.06);
   --navbar-outline: rgba(23, 23, 23, 0.06);
+
+  --primary-650: #C93D14;
+
+  /* Global Theme Redirection: Map indigo to primary terracotta orange colors */
+  --indigo-50: var(--primary-50);
+  --indigo-100: var(--primary-100);
+  --indigo-200: var(--primary-200);
+  --indigo-300: var(--primary-300);
+  --indigo-400: var(--primary-400);
+  --indigo-505: var(--primary-500);
+  --indigo-500: var(--primary-500);
+  --indigo-600: var(--primary-600);
+  --indigo-605: var(--primary-600);
+  --indigo-625: var(--primary-600);
+  --indigo-650: var(--primary-650);
+  --indigo-655: var(--primary-650);
+  --indigo-700: var(--primary-700);
+  --indigo-800: var(--primary-800);
+  --indigo-900: var(--primary-900);
+  --indigo-950: var(--primary-900);
+
+  /* Global Theme Redirection: Map blue to primary terracotta orange colors */
+  --blue-50: var(--primary-50);
+  --blue-100: var(--primary-100);
+  --blue-200: var(--primary-200);
+  --blue-300: var(--primary-300);
+  --blue-405: var(--primary-400);
+  --blue-400: var(--primary-400);
+  --blue-500: var(--primary-500);
+  --blue-600: var(--primary-600);
+  --blue-700: var(--primary-700);
+  --blue-800: var(--primary-800);
+  --blue-900: var(--primary-900);
+  --blue-950: var(--primary-900);
+
+  /* Global Theme Redirection: Map violet to primary terracotta orange colors */
+  --violet-50: var(--primary-50);
+  --violet-100: var(--primary-100);
+  --violet-200: var(--primary-200);
+  --violet-300: var(--primary-300);
+  --violet-400: var(--primary-400);
+  --violet-500: var(--primary-500);
+  --violet-600: var(--primary-600);
+  --violet-650: var(--primary-650);
+  --violet-700: var(--primary-700);
+  --violet-800: var(--primary-800);
+  --violet-900: var(--primary-900);
+  --violet-950: var(--primary-900);
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */

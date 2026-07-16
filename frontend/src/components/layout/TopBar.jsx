@@ -27,8 +27,8 @@ function getRoleLabel(role) {
 
 function getRoleColor(role) {
   const map = {
-    HOD: { from: "#7C3AED", to: "#5B21B6", light: "#EDE9FE", text: "#6D28D9" },
-    FACULTY: { from: "#3B82F6", to: "#1D4ED8", light: "#DBEAFE", text: "#1D4ED8" },
+    HOD: { from: "#F05A2B", to: "#C93D14", light: "#FFEEE9", text: "#E04A1B" },
+    FACULTY: { from: "#FF8365", to: "#F05A2B", light: "#FFF5F2", text: "#B83610" },
     STUDENT: { from: "#10B981", to: "#059669", light: "#D1FAE5", text: "#059669" },
   };
   return map[role] || { from: "#6B7280", to: "#4B5563", light: "#F3F4F6", text: "#6B7280" };
