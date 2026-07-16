@@ -222,12 +222,12 @@ export function TopBar() {
   return (
     <>
       <header className="relative w-full py-4 px-4 sm:px-6 z-[99] flex items-center justify-between gap-4 transition-all duration-300">
-        {/* ── Left Capsule Pill: Brand Logo & Side Drawer Trigger ── */}
+        {/* ── Left Capsule Pill: Official Hive Brand Logo & Side Drawer Trigger ── */}
         <div className="capsule-pill px-4 py-2 flex items-center gap-3 select-none">
           <button
             id="navbar-hamburger-btn"
             onClick={() => setDrawerOpen(true)}
-            className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center"
+            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center"
             title="Open Menu"
           >
             <div className="flex flex-col gap-1 justify-center items-center w-4 h-4">
@@ -238,68 +238,46 @@ export function TopBar() {
 
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-            className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
           >
-            <div className="w-7 h-7 rounded-full bg-[#F05A2B] flex items-center justify-center text-white font-black text-xs shadow-sm flex-shrink-0">
-              S
-            </div>
-            <span className="font-extrabold text-sm text-slate-900 dark:text-slate-100 tracking-tight pr-1">
-              S-Board
-            </span>
+            <img
+              src="/website-name-logo.png"
+              alt="Hive Logo"
+              className="h-7 w-auto object-contain flex-shrink-0"
+            />
           </div>
         </div>
 
-        {/* ── Center Section: Empty whitespace (User Specified) ── */}
+        {/* ── Center Section: Empty whitespace ── */}
         <div className="flex-1" />
 
-        {/* ── Right Actions: Controls Pill & Profile Card Pill ── */}
+        {/* ── Right Actions: Neomorphic Notification Bell & Profile Card ── */}
         <div className="flex items-center gap-3">
-          {/* Controls Pill */}
-          <div className="capsule-pill px-2.5 py-1.5 flex items-center gap-1">
-            {/* Search Icon */}
+          {/* Neomorphic Tactile Notification Bell Button */}
+          <div className="relative flex items-center">
             <button
-              onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-              className="capsule-pill-btn"
-              title="Search"
+              id="navbar-notif-btn"
+              onClick={() => setNotifOpen(o => !o)}
+              className="neomorph-bell-btn"
+              title="Notifications"
             >
-              <Search className="w-4 h-4" />
+              <Bell className={`w-[18px] h-[18px] ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] rounded-full flex items-center justify-center text-white font-bold leading-none bg-[#F05A2B] text-[9px] px-1 shadow-md border-2 border-white dark:border-slate-900">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
             </button>
-
-            {/* Notification Bell Button */}
-            <div className="relative flex items-center">
-              <button
-                id="navbar-notif-btn"
-                onClick={() => setNotifOpen(o => !o)}
-                className="capsule-pill-btn relative"
-                title="Notifications"
-              >
-                <Bell className={`w-4 h-4 ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] rounded-full flex items-center justify-center text-white font-bold leading-none bg-[#F05A2B] text-[9px] px-1 shadow-sm border border-white dark:border-slate-900">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-              </button>
-              <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
-            </div>
-
-            {/* Info / Theme Switcher Button */}
-            <button
-              onClick={toggleTheme}
-              className="capsule-pill-btn"
-              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Info className="w-4 h-4" />}
-            </button>
+            <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
           </div>
 
-          {/* Profile Card Pill */}
+          {/* Profile Card Pill with Highlighted Role Badge */}
           <div
             onClick={() => setDrawerOpen(true)}
-            className="capsule-pill px-3 py-1.5 flex items-center gap-2.5 cursor-pointer hover:border-gray-300 dark:hover:border-slate-600 transition-all select-none"
+            className="capsule-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer hover:border-gray-300 dark:hover:border-slate-600 transition-all select-none"
           >
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden flex-shrink-0"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden flex-shrink-0"
               style={{
                 background: `linear-gradient(135deg, ${roleColors.from}, ${roleColors.to})`,
               }}
@@ -312,11 +290,18 @@ export function TopBar() {
             </div>
 
             <div className="hidden sm:flex flex-col text-left pr-1">
-              <span className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight">
-                {user?.name}
-              </span>
-              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 leading-tight">
-                {user?.email || badge.text}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
+                  {user?.name}
+                </span>
+                <span
+                  className={`inline-flex items-center text-[9px] font-black px-2 py-0.5 rounded-full font-mono uppercase tracking-wider leading-none ${badge.bg} ${badge.textClass} shadow-xs border border-current/10`}
+                >
+                  {badge.text}
+                </span>
+              </div>
+              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 leading-tight mt-0.5">
+                {user?.email || getRoleLabel(user?.role)}
               </span>
             </div>
 

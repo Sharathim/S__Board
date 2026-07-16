@@ -480,6 +480,57 @@ button {
   color: #FF8365;
 }
 
+/* ─── Neomorphic Tactile Notification Bell Button ───────────────────────── */
+.neomorph-bell-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #171717;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    3px 3px 8px rgba(0, 0, 0, 0.07),
+    -3px -3px 8px rgba(255, 255, 255, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.neomorph-bell-btn:hover {
+  color: #F05A2B;
+  transform: translateY(-1px);
+  box-shadow: 
+    4px 4px 12px rgba(240, 90, 43, 0.2),
+    -3px -3px 8px rgba(255, 255, 255, 1);
+}
+
+.neomorph-bell-btn:active {
+  transform: translateY(0) scale(0.94);
+  box-shadow: 
+    inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+}
+
+.dark .neomorph-bell-btn {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    3px 3px 8px rgba(0, 0, 0, 0.35),
+    -2px -2px 6px rgba(255, 255, 255, 0.03);
+}
+
+.dark .neomorph-bell-btn:hover {
+  color: #FF8365;
+  box-shadow: 
+    4px 4px 12px rgba(240, 90, 43, 0.3),
+    -2px -2px 6px rgba(255, 255, 255, 0.06);
+}
+
 /* ── Sliding indicator styling ── */
 .nav-sliding-indicator {
   background: var(--indicator-gradient);
