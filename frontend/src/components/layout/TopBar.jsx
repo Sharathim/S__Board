@@ -222,16 +222,28 @@ export function TopBar() {
   return (
     <>
       <header className="relative w-full py-4 px-4 sm:px-6 z-[99] flex items-center justify-between gap-4 transition-all duration-300">
-        {/* ── Left Capsule Pill: Official Hive Brand Logo ── */}
-        <div className="capsule-pill px-5 sm:px-6 py-2.5 sm:py-3 flex items-center select-none">
+        {/* ── Left Capsule Pill: Official Hive Brand Logo & Side Drawer Trigger ── */}
+        <div className="capsule-pill px-4 py-2 flex items-center gap-3 select-none">
+          <button
+            id="navbar-hamburger-btn"
+            onClick={() => setDrawerOpen(true)}
+            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center"
+            title="Open Menu"
+          >
+            <div className="flex flex-col gap-1 justify-center items-center w-4 h-4">
+              <span className="w-4 h-[2px] bg-slate-800 dark:bg-slate-100 rounded-full" />
+              <span className="w-4 h-[2px] bg-slate-800 dark:bg-slate-100 rounded-full" />
+            </div>
+          </button>
+
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-            className="flex items-center cursor-pointer hover:scale-[1.04] transition-transform"
+            className="flex items-center gap-2 cursor-pointer hover:scale-[1.03] transition-transform"
           >
             <img
               src="/website-name-logo.png"
               alt="Hive Logo"
-              className="h-11 sm:h-13 md:h-14 w-auto object-contain flex-shrink-0"
+              className="h-10 sm:h-11 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>
