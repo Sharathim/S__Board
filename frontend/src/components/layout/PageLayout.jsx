@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { TopBar } from "./TopBar";
+import { Sidebar } from "./Sidebar";
 import { ToastContainer } from "../ui/Toast";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
 import { TransitionProvider } from "../../context/TransitionContext";
@@ -19,13 +20,16 @@ export default function PageLayout() {
     <TransitionProvider pageContentRef={pageContentRef}>
       <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--background)] transition-colors duration-300 relative">
 
-        {/* Top Navbar */}
+        {/* Top Floating Navbar */}
         <TopBar />
 
-        {/* Main Content — inner scrollable */}
+        {/* Vertical Floating Left Navigation Capsules */}
+        <Sidebar />
+
+        {/* Main Content Area */}
         <main
           ref={pageContentRef}
-          className="flex-1 overflow-y-auto relative z-10 page-content-animated p-6"
+          className="flex-1 overflow-y-auto relative z-10 page-content-animated p-6 lg:pl-24"
         >
           <div className="page-content-container max-w-7xl mx-auto w-full">
             <ErrorBoundary>
