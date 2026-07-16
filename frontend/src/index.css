@@ -603,9 +603,9 @@ button {
     0 2px 6px rgba(255, 255, 255, 0.15);
 }
 
-/* ── Clamped Responsive Vertical Centering for Navigation Panel ────── */
+/* ── Clamped Responsive Vertical Positioning for Navigation Panel ────── */
 .side-nav-centered {
-  top: clamp(140px, 50vh, 480px);
+  top: clamp(105px, 40vh, 360px);
   transform: translateY(-50%);
 }
 
