@@ -452,9 +452,46 @@ def update_project(project_id):
 @require_hod
 def delete_project(project_id):
     project = Project.query.get_or_404(project_id)
-    db.session.delete(project)
-    db.session.commit()
-    return jsonify({"ok": True})
+    try:
+        # Clear members association explicitly
+        db.session.execute(
+            text("DELETE FROM project_members WHERE project_id = :pid"),
+            {"pid": project.id}
+        )
+
+        # Clear comment reactions for progress comments under project messages
+        db.session.execute(
+            text("DELETE FROM comment_reactions WHERE comment_id IN ("
+                 "  SELECT pc.id FROM progress_comments pc"
+                 "  JOIN project_messages pm ON pc.progress_post_id = pm.id"
+                 "  WHERE pm.project_id = :pid"
+                 ")"),
+            {"pid": project.id}
+        )
+
+        # Clear progress comments
+        db.session.execute(
+            text("DELETE FROM progress_comments WHERE progress_post_id IN ("
+                 "  SELECT pm.id FROM project_messages pm"
+                 "  WHERE pm.project_id = :pid"
+                 ")"),
+            {"pid": project.id}
+        )
+
+        # Clear project messages
+        db.session.execute(
+            text("DELETE FROM project_messages WHERE project_id = :pid"),
+            {"pid": project.id}
+        )
+
+        # Delete project itself
+        db.session.delete(project)
+        db.session.commit()
+        return jsonify({"ok": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 
 
 def _serialize_comment(comment, current_user=None):

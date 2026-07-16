@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, Save, Plus, X, FolderKanban, GraduationCap,
   MessageSquare, Users, Search, Check, ChevronRight, Sparkles,
-  ZoomIn, ZoomOut, Maximize2, Loader2
+  Loader2, GripVertical
 } from "lucide-react";
 import { listFaculty } from "../../api/faculty";
 import { listAllStudents } from "../../api/classes";
@@ -13,22 +13,22 @@ import { createProject, updateProject, getProject } from "../../api/projects";
 import { Avatar } from "../../components/ui/Avatar";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const NODE_W = 260;
-const NODE_H = 140;
-const GRID_GAP = 340;
-const CANVAS_H = 520;
+const NODE_W = 280;
+const NODE_H = 150;
+const GRID_GAP = 360;
+const CANVAS_H = 550;
 
 const NODE_CONFIGS = [
   {
     id: "project",
     type: "project",
-    label: "Project",
+    label: "Project Name",
     icon: FolderKanban,
     color: "#F05A2B",
     bg: "from-orange-500 to-red-500",
     lightBg: "#fff7f4",
     darkBg: "#1f1008",
-    description: "Name your project",
+    description: "Enter project title...",
   },
   {
     id: "faculty",
@@ -65,63 +65,67 @@ const NODE_CONFIGS = [
   },
 ];
 
-// ─── SVG Bezier Edge ──────────────────────────────────────────────────────────
-function WorkflowEdge({ fromNode, toNode, color = "#F05A2B", active }) {
+// ─── SVG Bezier Edge with Continuous Flow Animation ─────────────────────────
+function WorkflowEdge({ fromNode, toNode, color = "#F05A2B" }) {
   const x1 = fromNode.x + NODE_W;
   const y1 = fromNode.y + NODE_H / 2;
   const x2 = toNode.x;
   const y2 = toNode.y + NODE_H / 2;
-  const cx1 = x1 + (x2 - x1) * 0.5;
+  const cx1 = x1 + (x2 - x1) * 0.45;
   const cy1 = y1;
-  const cx2 = x1 + (x2 - x1) * 0.5;
+  const cx2 = x1 + (x2 - x1) * 0.55;
   const cy2 = y2;
 
   return (
     <g>
-      {/* Shadow/glow path */}
+      {/* Background glow path */}
       <path
         d={`M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`}
         fill="none"
         stroke={color}
-        strokeWidth="6"
-        strokeOpacity="0.12"
+        strokeWidth="7"
+        strokeOpacity="0.08"
         strokeLinecap="round"
       />
-      {/* Main edge */}
+      {/* Main dashed flow edge */}
       <path
         d={`M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`}
         fill="none"
         stroke={color}
         strokeWidth="2.5"
-        strokeOpacity={active ? "0.9" : "0.45"}
+        strokeOpacity="0.75"
         strokeLinecap="round"
-        strokeDasharray={active ? "none" : "6 4"}
-        style={{ transition: "stroke-opacity 0.3s" }}
-      />
-      {/* Animated flow dots */}
-      {active && (
-        <circle r="4" fill={color} opacity="0.85">
-          <animateMotion
-            dur="1.6s"
-            repeatCount="indefinite"
-            path={`M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`}
-          />
-        </circle>
-      )}
-      {/* Arrow at destination */}
+        strokeDasharray="6 5"
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="22;0"
+          dur="1.2s"
+          repeatCount="indefinite"
+        />
+      </path>
+      {/* Flowing particle dot */}
+      <circle r="4.5" fill={color} opacity="0.9">
+        <animateMotion
+          dur="1.5s"
+          repeatCount="indefinite"
+          path={`M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`}
+        />
+      </circle>
+      {/* Destination Arrow */}
       <polygon
         points={`${x2},${y2} ${x2 - 10},${y2 - 5} ${x2 - 10},${y2 + 5}`}
         fill={color}
-        opacity={active ? "0.9" : "0.45"}
+        opacity="0.8"
       />
     </g>
   );
 }
 
-// ─── Individual Workflow Node ──────────────────────────────────────────────────
+// ─── Individual Workflow Node Card ─────────────────────────────────────────────
 function WorkflowNode({
   config, position, isActive, isPlaced, members, onDragStart,
-  onAddNext, onDoubleClick, hasNext, isDragging, canAddNext,
+  onDoubleClick, hasNext, isDragging, canAddNext, onAddNext, onRemoveNode
 }) {
   const Icon = config.icon;
   const memberCount = members?.length || 0;
@@ -138,58 +142,57 @@ function WorkflowNode({
         userSelect: "none",
         zIndex: isActive ? 20 : 10,
         transition: isDragging ? "none" : "box-shadow 0.2s, transform 0.15s",
-        transform: isActive && !isDragging ? "scale(1.02)" : "scale(1)",
+        transform: isActive && !isDragging ? "scale(1.01)" : "scale(1)",
       }}
       onMouseDown={onDragStart}
       onDoubleClick={onDoubleClick}
     >
-      {/* Node Card */}
       <div
         style={{
           width: "100%",
           height: "100%",
-          borderRadius: 20,
+          borderRadius: 22,
           background: "#ffffff",
-          border: `2px solid ${isActive ? config.color : "rgba(0,0,0,0.08)"}`,
+          border: `2px solid ${isActive ? config.color : "rgba(0,0,0,0.06)"}`,
           boxShadow: isActive
-            ? `0 0 0 4px ${config.color}22, 0 16px 40px ${config.color}18`
-            : "0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
+            ? `0 12px 30px ${config.color}20, 0 2px 8px rgba(0,0,0,0.04)`
+            : "0 8px 24px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          position: "relative",
         }}
-        className="dark:[background:#1e293b] dark:[border-color:rgba(255,255,255,0.08)]"
+        className="dark:[background:#1e293b] dark:[border-color:rgba(255,255,255,0.06)]"
       >
-        {/* Top strip */}
+        {/* Node Header */}
         <div
           style={{
-            background: `linear-gradient(135deg, ${config.color}18, ${config.color}08)`,
-            borderBottom: `1px solid ${config.color}20`,
-            padding: "10px 14px 8px",
+            background: `linear-gradient(135deg, ${config.color}10, ${config.color}05)`,
+            borderBottom: "1px solid rgba(0,0,0,0.05)",
+            padding: "10px 14px",
             display: "flex",
             alignItems: "center",
             gap: 8,
           }}
+          className="dark:[border-color:rgba(255,255,255,0.04)]"
         >
           <div
             style={{
-              width: 28,
-              height: 28,
+              width: 26,
+              height: 26,
               borderRadius: 8,
-              background: `linear-gradient(135deg, ${config.color}22, ${config.color}44)`,
+              background: `linear-gradient(135deg, ${config.color}20, ${config.color}40)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}
           >
-            <Icon style={{ width: 14, height: 14, color: config.color }} />
+            <Icon style={{ width: 13, height: 13, color: config.color }} />
           </div>
           <span
             style={{
               fontSize: 11,
-              fontWeight: 700,
+              fontWeight: 800,
               color: config.color,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
@@ -197,130 +200,116 @@ function WorkflowNode({
           >
             {config.label}
           </span>
-          {isPlaced && (
-            <div
-              style={{
-                marginLeft: "auto",
-                background: config.color,
-                borderRadius: "50%",
-                width: 18,
-                height: 18,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+          
+          {/* Action indicator or clear node button */}
+          {config.type !== "project" && (
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onRemoveNode(); }}
+              className="ml-auto text-gray-300 hover:text-red-500 transition-colors p-1"
+              title="Remove Node"
             >
-              <Check style={{ width: 10, height: 10, color: "#fff" }} />
-            </div>
+              <X style={{ width: 14, height: 14 }} />
+            </button>
           )}
         </div>
 
-        {/* Body content */}
-        <div style={{ padding: "10px 14px", flex: 1 }}>
+        {/* Node Body */}
+        <div style={{ padding: "12px 14px", flex: 1, display: "flex", flexDirection: "column", justifyCenter: "center" }}>
           {config.type === "project" ? (
             <ProjectNameField color={config.color} />
           ) : (
             <div>
-              <p style={{ fontSize: 11, color: "#9ca3af", marginBottom: 4 }}>
-                {memberCount > 0
-                  ? `${memberCount} member${memberCount !== 1 ? "s" : ""} assigned`
-                  : config.description}
-              </p>
-              {memberCount > 0 && (
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
-                  {members.slice(0, 3).map((m) => (
-                    <span
-                      key={m.user_id}
-                      style={{
-                        fontSize: 10,
-                        background: `${config.color}14`,
-                        color: config.color,
-                        borderRadius: 20,
-                        padding: "2px 7px",
-                        fontWeight: 600,
-                        border: `1px solid ${config.color}25`,
-                      }}
-                    >
-                      {m.name?.split(" ")[0]}
+              {memberCount === 0 ? (
+                <div className="flex flex-col items-center justify-center py-2 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
+                  <p style={{ fontSize: 11, color: "#9ca3af" }}>
+                    Drag & Drop or Double-Click members to add
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div style={{ display: "flex", gap: -6, overflow: "visible" }} className="avatar-group flex flex-row">
+                    {members.slice(0, 4).map((m, idx) => (
+                      <Avatar
+                        key={m.user_id}
+                        src={m.profile_picture}
+                        name={m.name}
+                        size="xs"
+                        className="w-7 h-7 rounded-full ring-2 ring-white dark:ring-gray-900 shadow-sm"
+                        style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 5 - idx }}
+                      />
+                    ))}
+                    {memberCount > 4 && (
+                      <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-550 dark:text-gray-400 text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-gray-900 shadow-sm" style={{ marginLeft: -8, zIndex: 1 }}>
+                        +{memberCount - 4}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-gray-555 dark:text-gray-400 truncate max-w-[150px]">
+                      {members.map(m => m.name.split(" ")[0]).join(", ")}
                     </span>
-                  ))}
-                  {memberCount > 3 && (
-                    <span
-                      style={{
-                        fontSize: 10,
-                        background: "#f1f5f9",
-                        color: "#64748b",
-                        borderRadius: 20,
-                        padding: "2px 7px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      +{memberCount - 3}
+                    <span className="text-[10px] bg-slate-50 dark:bg-slate-800/80 px-2 py-0.5 rounded-md text-gray-400 font-bold border border-gray-100 dark:border-gray-700/50">
+                      {memberCount} Assigned
                     </span>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Hover hint */}
+        {/* Double click to edit hint */}
         {config.type !== "project" && (
-          <p
+          <div
             style={{
               fontSize: 9,
-              color: "#9ca3af",
+              color: "#94a3b8",
               textAlign: "center",
-              padding: "0 14px 8px",
+              paddingBottom: 8,
               fontStyle: "italic",
             }}
           >
-            double-click to edit members
-          </p>
+            double-click to edit members list
+          </div>
         )}
       </div>
 
-      {/* Add Next Node Button */}
-      {canAddNext && !hasNext && (
+      {/* Chain connector + button */}
+      {canAddNext && !hasNext && isPlaced && (
         <button
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); onAddNext(); }}
           style={{
             position: "absolute",
-            right: -18,
+            right: -16,
             top: "50%",
             transform: "translateY(-50%)",
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             borderRadius: "50%",
             background: config.color,
             border: "3px solid #fff",
-            boxShadow: `0 4px 12px ${config.color}40`,
+            boxShadow: `0 4px 10px ${config.color}35`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
             zIndex: 30,
-            transition: "transform 0.2s, box-shadow 0.2s",
+            transition: "all 0.2s",
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-50%) scale(1.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(-50%) scale(1)";
-          }}
+          className="hover:scale-110 active:scale-95"
           title={`Add ${NODE_CONFIGS[NODE_CONFIGS.findIndex((n) => n.type === config.type) + 1]?.label || ""}`}
         >
-          <Plus style={{ width: 16, height: 16, color: "#fff" }} />
+          <Plus style={{ width: 14, height: 14, color: "#fff" }} />
         </button>
       )}
     </div>
   );
 }
 
-// ─── Inline editable project name ────────────────────────────────────────────
+// ─── Project Name Field ────────────────────────────────────────────────────────
 function ProjectNameField({ color }) {
-  // Access from parent context via DOM query (simple approach)
   return (
     <input
       id="project-name-input"
@@ -343,41 +332,44 @@ function ProjectNameField({ color }) {
   );
 }
 
-// ─── Member Selection Panel ────────────────────────────────────────────────────
+// ─── Restricted Role Selection Panel ───────────────────────────────────────────
 function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
-  const [tab, setTab] = useState(nodeType || "faculty");
   const [search, setSearch] = useState("");
   const [localSelected, setLocalSelected] = useState(selected || []);
 
   const { data: facultyData } = useQuery({
     queryKey: ["faculty"],
     queryFn: () => listFaculty().then((r) => r.data.faculty),
+    enabled: nodeType === "faculty",
   });
   const { data: forumData } = useQuery({
     queryKey: ["forum-members"],
     queryFn: () => listForumMembers().then((r) => r.data.members),
+    enabled: nodeType === "forum",
   });
   const { data: studentsData } = useQuery({
     queryKey: ["all-students"],
     queryFn: () => listAllStudents().then((r) => r.data.students),
+    enabled: nodeType === "students",
   });
 
   useEffect(() => {
-    if (nodeType) setTab(nodeType);
     setLocalSelected(selected || []);
-  }, [nodeType, selected]);
+  }, [selected]);
 
   const getPeople = () => {
-    if (tab === "faculty")
+    if (nodeType === "faculty") {
       return (facultyData || []).map((f) => ({
         user_id: f.user_id, name: f.name, profile_picture: f.profile_picture,
         subtitle: f.designation, role: "faculty",
       }));
-    if (tab === "forum")
+    }
+    if (nodeType === "forum") {
       return (forumData || []).map((m) => ({
         user_id: m.user_id, name: m.name, profile_picture: m.profile_picture,
         subtitle: m.role, role: "forum_member",
       }));
+    }
     return (studentsData || []).map((s) => ({
       user_id: s.user_id, name: s.name, profile_picture: s.profile_picture,
       subtitle: s.class_name?.replace("_", " "), role: "student",
@@ -385,7 +377,7 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
   };
 
   const roleMap = { faculty: "faculty", forum: "forum_member", students: "student" };
-  const currentRole = roleMap[tab];
+  const currentRole = roleMap[nodeType];
   const people = getPeople().filter((p) =>
     !search || p.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -398,11 +390,13 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
     });
   };
 
-  const tabConfigs = [
-    { id: "faculty", label: "Faculty", icon: GraduationCap, color: "#6366F1" },
-    { id: "forum", label: "Forum", icon: MessageSquare, color: "#F59E0B" },
-    { id: "students", label: "Students", icon: Users, color: "#10B981" },
-  ];
+  const panelTitle = nodeType === "faculty" ? "Choose Faculty Panel"
+    : nodeType === "forum" ? "Choose Forum Panel"
+    : "Choose Students Panel";
+
+  const activeColor = nodeType === "faculty" ? "#6366F1"
+    : nodeType === "forum" ? "#F59E0B"
+    : "#10B981";
 
   return (
     <div
@@ -429,7 +423,7 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
         }
       `}</style>
 
-      {/* Panel Header */}
+      {/* Header */}
       <div
         style={{
           padding: "20px 20px 16px",
@@ -442,11 +436,11 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
         className="dark:[border-color:rgba(255,255,255,0.06)]"
       >
         <div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: "#111827", margin: 0 }} className="dark:text-white">
-            Assign Members
+          <h3 style={{ fontSize: 16, fontWeight: 800, color: "#111827", margin: 0 }} className="dark:text-white">
+            {panelTitle}
           </h3>
-          <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>
-            Click to select, confirm to save
+          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+            Drag member cards onto canvas or double click to assign.
           </p>
         </div>
         <button
@@ -454,52 +448,18 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
           style={{
             width: 32, height: 32, borderRadius: 10,
             background: "#f1f5f9", border: "none", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
+            display: "flex", alignItems: "center", justifyCenter: "center",
           }}
-          className="dark:[background:#334155]"
+          className="dark:[background:#334155] flex items-center justify-center"
         >
           <X style={{ width: 16, height: 16, color: "#64748b" }} />
         </button>
       </div>
 
-      {/* Tab Bar */}
-      <div
-        style={{
-          display: "flex",
-          gap: 4,
-          padding: "12px 16px",
-          borderBottom: "1px solid rgba(0,0,0,0.06)",
-          flexShrink: 0,
-        }}
-        className="dark:[border-color:rgba(255,255,255,0.06)]"
-      >
-        {tabConfigs.map((t) => {
-          const TIcon = t.icon;
-          const isActive = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => { setTab(t.id); setSearch(""); }}
-              style={{
-                flex: 1, padding: "7px 4px", borderRadius: 10, border: "none",
-                cursor: "pointer", fontSize: 11, fontWeight: 700,
-                background: isActive ? `${t.color}18` : "transparent",
-                color: isActive ? t.color : "#9ca3af",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-                transition: "all 0.2s",
-              }}
-            >
-              <TIcon style={{ width: 14, height: 14 }} />
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Search */}
-      <div style={{ padding: "12px 16px 8px", flexShrink: 0, position: "relative" }}>
+      <div style={{ padding: "16px", flexShrink: 0, position: "relative" }}>
         <Search style={{
-          position: "absolute", left: 28, top: "50%", transform: "translateY(-20%)",
+          position: "absolute", left: 28, top: "50%", transform: "translateY(-50%)",
           width: 14, height: 14, color: "#9ca3af",
         }} />
         <input
@@ -517,45 +477,52 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
         />
       </div>
 
-      {/* People List */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "4px 10px" }}>
+      {/* Member Cards List */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "4px 16px" }} className="space-y-2">
         {people.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px", color: "#9ca3af" }}>
-            <p style={{ fontSize: 13, fontWeight: 500 }}>No matches found</p>
+            <p style={{ fontSize: 13, fontWeight: 550 }}>No results found</p>
           </div>
         ) : (
           people.map((person) => {
             const isSelected = localSelected.some((s) => s.user_id === person.user_id);
-            const activeTab = tabConfigs.find((t) => t.id === tab);
             return (
               <div
                 key={person.user_id}
-                onClick={() => toggle(person)}
+                draggable={true}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", JSON.stringify({ person, nodeType }));
+                }}
+                onDoubleClick={() => toggle(person)}
                 style={{
                   display: "flex", alignItems: "center", gap: 10,
-                  padding: "10px 10px", borderRadius: 12, cursor: "pointer",
-                  marginBottom: 2, transition: "all 0.15s",
-                  background: isSelected ? `${activeTab?.color}10` : "transparent",
-                  border: `1.5px solid ${isSelected ? activeTab?.color + "30" : "transparent"}`,
+                  padding: "12px", borderRadius: 16, cursor: "grab",
+                  transition: "all 0.2s",
+                  background: isSelected ? `${activeColor}12` : "#fff",
+                  border: `2px solid ${isSelected ? activeColor : "rgba(0,0,0,0.04)"}`,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
                 }}
+                className="dark:bg-slate-800/40 dark:border-slate-800 hover:shadow-md active:cursor-grabbing hover:border-gray-200 dark:hover:border-slate-700"
               >
+                <GripVertical className="w-4 h-4 text-gray-300 shrink-0 cursor-grab" />
                 <Avatar src={person.profile_picture} name={person.name} size="sm"
-                  className="w-8 h-8 rounded-full shrink-0" />
+                  className="w-8 h-8 rounded-full shrink-0 ring-1 ring-black/5" />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "#111827", margin: 0, truncate: true }}
-                    className="dark:text-white">{person.name}</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0 }}
+                    className="dark:text-white truncate">{person.name}</p>
                   {person.subtitle && (
-                    <p style={{ fontSize: 11, color: "#9ca3af", margin: "1px 0 0" }}>{person.subtitle}</p>
+                    <p style={{ fontSize: 11, color: "#9ca3af", margin: "1px 0 0" }} className="truncate">{person.subtitle}</p>
                   )}
                 </div>
                 <div
                   style={{
                     width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
-                    border: `2px solid ${isSelected ? activeTab?.color : "#d1d5db"}`,
-                    background: isSelected ? activeTab?.color : "transparent",
-                    display: "flex", alignItems: "center", justifyContent: "center",
+                    border: `2px solid ${isSelected ? activeColor : "#d1d5db"}`,
+                    background: isSelected ? activeColor : "transparent",
+                    display: "flex", alignItems: "center", justifyCenter: "center",
                     transition: "all 0.2s",
                   }}
+                  className="flex items-center justify-center"
                 >
                   {isSelected && <Check style={{ width: 12, height: 12, color: "#fff" }} />}
                 </div>
@@ -588,10 +555,11 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
           onClick={() => onConfirm(localSelected)}
           style={{
             flex: 2, padding: "10px", borderRadius: 12, border: "none",
-            background: "linear-gradient(135deg, #F05A2B, #C93D14)",
+            background: `linear-gradient(135deg, ${activeColor}, ${activeColor}dd)`,
             fontSize: 13, fontWeight: 700, cursor: "pointer", color: "#fff",
             fontFamily: "inherit", display: "flex", alignItems: "center",
             justifyContent: "center", gap: 6,
+            boxShadow: `0 4px 12px ${activeColor}30`,
           }}
         >
           <Check style={{ width: 14, height: 14 }} />
@@ -602,32 +570,33 @@ function MemberPanel({ nodeType, selected, onClose, onConfirm }) {
   );
 }
 
-// ─── Main Workflow Page ────────────────────────────────────────────────────────
+// ─── Main Workflow Page Controller ─────────────────────────────────────────────
 export default function ProjectWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId } = useParams();
   const isEdit = Boolean(projectId);
   const queryClient = useQueryClient();
 
-  // Canvas state
+  // Canvas positions and placement state
   const canvasRef = useRef(null);
   const [projectName, setProjectName] = useState("");
-  const [placedNodes, setPlacedNodes] = useState(["project"]); // node type ids in order
+  const [placedNodes, setPlacedNodes] = useState(["project"]); // Only Project template card initially
   const [nodePositions, setNodePositions] = useState({
-    project: { x: 60, y: 190 },
+    project: { x: 80, y: 200 },
   });
   const [members, setMembers] = useState({
     faculty: [],
     forum: [],
     students: [],
   });
+  
   const [activeNode, setActiveNode] = useState("project");
   const [dragging, setDragging] = useState(null);
   const [panelOpen, setPanelOpen] = useState(null); // "faculty" | "forum" | "students"
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Load existing project in edit mode
+  // Load existing project details in edit mode
   const { data: existingProject } = useQuery({
     queryKey: ["project", projectId],
     queryFn: () => getProject(projectId).then((r) => r.data),
@@ -635,11 +604,13 @@ export default function ProjectWorkflowPage() {
   });
 
   useEffect(() => {
-    if (existingProject && isEdit) {
-      setProjectName(existingProject.name || "");
-      const facultyM = existingProject.members?.filter((m) => m.role_in_project === "faculty") || [];
-      const forumM = existingProject.members?.filter((m) => m.role_in_project === "forum_member") || [];
-      const studentM = existingProject.members?.filter((m) => m.role_in_project === "student") || [];
+    if (existingProject?.project && isEdit) {
+      const proj = existingProject.project;
+      setProjectName(proj.name || "");
+      
+      const facultyM = proj.members?.filter((m) => m.role_in_project === "faculty") || [];
+      const forumM = proj.members?.filter((m) => m.role_in_project === "forum_member") || [];
+      const studentM = proj.members?.filter((m) => m.role_in_project === "student") || [];
 
       const mapM = (arr, role) =>
         arr.map((m) => ({ user_id: m.id, name: m.name, profile_picture: m.profile_picture, role_in_project: role }));
@@ -650,26 +621,31 @@ export default function ProjectWorkflowPage() {
         students: mapM(studentM, "student"),
       });
 
-      // Place all existing nodes
+      // Place nodes representing loaded members
       const nPlaced = ["project"];
       if (facultyM.length > 0) nPlaced.push("faculty");
       if (forumM.length > 0) nPlaced.push("forum");
       if (studentM.length > 0) nPlaced.push("students");
 
       setPlacedNodes(nPlaced);
-      setNodePositions(buildDefaultPositions(nPlaced));
+      
+      const positions = { project: { x: 80, y: 200 } };
+      nPlaced.forEach((nodeType, i) => {
+        if (nodeType !== "project") {
+          positions[nodeType] = { x: 80 + i * GRID_GAP, y: 200 };
+        }
+      });
+      setNodePositions(positions);
     }
   }, [existingProject, isEdit]);
 
-  function buildDefaultPositions(placed) {
-    const positions = {};
-    placed.forEach((nodeType, i) => {
-      positions[nodeType] = { x: 60 + i * GRID_GAP, y: 190 };
-    });
-    return positions;
-  }
+  // Open faculty panel automatically when name is first entered
+  useEffect(() => {
+    if (projectName.trim().length > 0 && placedNodes.length === 1 && !panelOpen && !isEdit) {
+      setPanelOpen("faculty");
+    }
+  }, [projectName, isEdit]);
 
-  // Keep positions in sync when new nodes added
   const getNextNodeType = (currentType) => {
     const order = ["project", "faculty", "forum", "students"];
     const idx = order.indexOf(currentType);
@@ -679,28 +655,27 @@ export default function ProjectWorkflowPage() {
   const handleAddNext = (fromType) => {
     const nextType = getNextNodeType(fromType);
     if (!nextType || placedNodes.includes(nextType)) return;
-
-    const currentPos = nodePositions[fromType];
-    const newPos = { x: currentPos.x + GRID_GAP, y: currentPos.y };
-
-    setNodePositions((prev) => ({ ...prev, [nextType]: newPos }));
-    setPlacedNodes((prev) => [...prev, nextType]);
-    setActiveNode(nextType);
-
-    // Open the member panel immediately (unless it's project node)
-    if (nextType !== "project") {
-      setPanelOpen(nextType);
-    }
+    setPanelOpen(nextType);
   };
 
-  // Drag handling
+  const handleRemoveNode = (nodeType) => {
+    setPlacedNodes((prev) => prev.filter((n) => n !== nodeType));
+    const roleKey = nodeType === "faculty" ? "faculty" : nodeType === "forum" ? "forum" : "students";
+    setMembers((prev) => ({ ...prev, [roleKey]: [] }));
+  };
+
+  // Node Dragging logic on canvas
   const handleDragStart = useCallback((nodeType, e) => {
+    // Avoid dragging starting from input elements
+    if (e.target.tagName === "INPUT") return;
     e.preventDefault();
     setActiveNode(nodeType);
-    const startX = e.clientX - nodePositions[nodeType].x;
-    const startY = e.clientY - nodePositions[nodeType].y;
+    
+    const currentPos = nodePositions[nodeType] || { x: 80 + placedNodes.indexOf(nodeType) * GRID_GAP, y: 200 };
+    const startX = e.clientX - currentPos.x;
+    const startY = e.clientY - currentPos.y;
     setDragging({ nodeType, startX, startY });
-  }, [nodePositions]);
+  }, [nodePositions, placedNodes]);
 
   useEffect(() => {
     if (!dragging) return;
@@ -726,7 +701,52 @@ export default function ProjectWorkflowPage() {
     };
   }, [dragging]);
 
-  // Save project
+  // Drop member card onto canvas
+  const handleDropMember = (person, nodeType, position) => {
+    const roleKey = nodeType === "faculty" ? "faculty" : nodeType === "forum" ? "forum" : "students";
+    
+    setMembers((prev) => {
+      const current = prev[roleKey] || [];
+      if (current.some((m) => m.user_id === person.user_id)) return prev;
+      return { ...prev, [roleKey]: [...current, person] };
+    });
+
+    if (!placedNodes.includes(nodeType)) {
+      setPlacedNodes((prev) => [...prev, nodeType]);
+      setNodePositions((prev) => ({ ...prev, [nodeType]: position }));
+      
+      // Auto open next panel tab
+      const next = getNextNodeType(nodeType);
+      if (next) {
+        setTimeout(() => setPanelOpen(next), 400);
+      }
+    }
+  };
+
+  const handlePanelConfirm = (selectedList) => {
+    setMembers((prev) => ({ ...prev, [panelOpen]: selectedList }));
+    
+    // Instantiate node next to preceding node if not already placed
+    if (!placedNodes.includes(panelOpen) && selectedList.length > 0) {
+      const order = ["project", "faculty", "forum", "students"];
+      const currentIdx = order.indexOf(panelOpen);
+      const prevNodeType = order[currentIdx - 1];
+      const prevPos = nodePositions[prevNodeType] || { x: 80 + (currentIdx - 1) * GRID_GAP, y: 200 };
+      
+      const newPos = { x: prevPos.x + GRID_GAP, y: prevPos.y };
+      setPlacedNodes((prev) => [...prev, panelOpen]);
+      setNodePositions((prev) => ({ ...prev, [panelOpen]: newPos }));
+    }
+
+    const nextType = getNextNodeType(panelOpen);
+    setPanelOpen(null);
+    
+    // Automatically display choose panel for next stage
+    if (nextType && !placedNodes.includes(nextType) && selectedList.length > 0) {
+      setTimeout(() => setPanelOpen(nextType), 300);
+    }
+  };
+
   const handleSave = async () => {
     if (!projectName.trim()) {
       document.getElementById("project-name-input")?.focus();
@@ -742,9 +762,10 @@ export default function ProjectWorkflowPage() {
       const payload = {
         name: projectName.trim(),
         description: "",
-        status: existingProject?.status || "IN_PROGRESS",
+        status: existingProject?.project?.status || "IN_PROGRESS",
         members: allMembers,
       };
+
       if (isEdit) {
         await updateProject(projectId, payload);
       } else {
@@ -759,9 +780,6 @@ export default function ProjectWorkflowPage() {
       setSaving(false);
     }
   };
-
-  // Canvas dimensions responsive
-  const canvasWidth = canvasRef.current?.clientWidth || 1000;
 
   return (
     <div
@@ -818,7 +836,7 @@ export default function ProjectWorkflowPage() {
           </span>
         </div>
 
-        {/* Badge - hidden on small screens */}
+        {/* Badge */}
         <div
           className="hidden sm:block"
           style={{
@@ -832,19 +850,6 @@ export default function ProjectWorkflowPage() {
         </div>
 
         <div style={{ flex: 1 }} />
-
-        {/* Hints — hidden on screens < 1024px */}
-        <div className="hidden lg:flex" style={{ gap: "clamp(8px, 1.5vw, 16px)", alignItems: "center" }}>
-          {[
-            "Drag nodes to arrange",
-            "Click + to add next node",
-            "Double-click to edit members",
-          ].map((hint) => (
-            <span key={hint} style={{ fontSize: "clamp(9px, 0.8vw, 11px)", color: "#9ca3af", fontStyle: "italic", whiteSpace: "nowrap" }}>
-              {hint}
-            </span>
-          ))}
-        </div>
 
         {/* Save Button */}
         <button
@@ -888,43 +893,65 @@ export default function ProjectWorkflowPage() {
         }}
         className="dark:[background-image:radial-gradient(circle,rgba(255,255,255,0.05)_1px,transparent_1px)]"
         onClick={() => setActiveNode(null)}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          const rect = canvas.getBoundingClientRect();
+          const dropX = e.clientX - rect.left - NODE_W / 2;
+          const dropY = e.clientY - rect.top - NODE_H / 2;
+
+          try {
+            const dataStr = e.dataTransfer.getData("text/plain");
+            if (!dataStr) return;
+            const payload = JSON.parse(dataStr);
+            if (payload.person && payload.nodeType) {
+              handleDropMember(payload.person, payload.nodeType, { x: dropX, y: dropY });
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }}
       >
-        {/* SVG Edges */}
+        {/* SVG Bezier Edges */}
         <svg
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 5 }}
         >
           {placedNodes.slice(0, -1).map((nodeType, i) => {
             const fromConfig = NODE_CONFIGS.find((n) => n.type === nodeType);
             const toType = placedNodes[i + 1];
-            const toConfig = NODE_CONFIGS.find((n) => n.type === toType);
-            const fromPos = nodePositions[nodeType];
-            const toPos = nodePositions[toType];
-            if (!fromPos || !toPos) return null;
+            const fromPos = nodePositions[nodeType] || { x: 80 + i * GRID_GAP, y: 200 };
+            const toPos = nodePositions[toType] || { x: 80 + (i + 1) * GRID_GAP, y: 200 };
 
-            const isActive = activeNode === nodeType || activeNode === toType;
             return (
               <WorkflowEdge
                 key={`${nodeType}-${toType}`}
                 fromNode={{ x: fromPos.x, y: fromPos.y }}
                 toNode={{ x: toPos.x, y: toPos.y }}
                 color={fromConfig?.color || "#F05A2B"}
-                active={isActive}
               />
             );
           })}
         </svg>
 
-        {/* Nodes */}
-        {placedNodes.map((nodeType, idx) => {
+        {/* Render Draggable Nodes */}
+        {placedNodes.map((nodeType) => {
           const config = NODE_CONFIGS.find((n) => n.type === nodeType);
-          const position = nodePositions[nodeType] || { x: 60 + idx * GRID_GAP, y: 190 };
+          const idx = placedNodes.indexOf(nodeType);
+          const position = nodePositions[nodeType] || { x: 80 + idx * GRID_GAP, y: 200 };
           const nextType = getNextNodeType(nodeType);
           const hasNext = nextType ? placedNodes.includes(nextType) : true;
           const canAddNext = nextType !== null;
+          
           const nodeMembersKey = nodeType === "faculty" ? "faculty"
             : nodeType === "forum" ? "forum"
             : nodeType === "students" ? "students"
             : null;
+
+          const isNodePlaced = nodeType !== "project"
+            ? (nodeMembersKey ? members[nodeMembersKey].length > 0 : false)
+            : projectName.trim().length > 0;
 
           return (
             <WorkflowNode
@@ -932,15 +959,14 @@ export default function ProjectWorkflowPage() {
               config={config}
               position={position}
               isActive={activeNode === nodeType}
-              isPlaced={nodeType !== "project"
-                ? (nodeMembersKey ? members[nodeMembersKey].length > 0 : false)
-                : projectName.trim().length > 0}
+              isPlaced={isNodePlaced}
               members={nodeMembersKey ? members[nodeMembersKey] : []}
               isDragging={dragging?.nodeType === nodeType}
               hasNext={hasNext}
               canAddNext={canAddNext}
               onDragStart={(e) => handleDragStart(nodeType, e)}
               onAddNext={() => handleAddNext(nodeType)}
+              onRemoveNode={() => handleRemoveNode(nodeType)}
               onDoubleClick={() => {
                 if (nodeType !== "project") setPanelOpen(nodeType);
               }}
@@ -948,10 +974,10 @@ export default function ProjectWorkflowPage() {
           );
         })}
 
-        {/* Project Name Sync */}
+        {/* Sync input field with projectName */}
         <ProjectNameSync value={projectName} onChange={setProjectName} />
 
-        {/* Empty canvas hint */}
+        {/* Guide message */}
         {placedNodes.length === 1 && (
           <div
             style={{
@@ -964,26 +990,22 @@ export default function ProjectWorkflowPage() {
             }}
           >
             <p style={{ fontSize: 13, color: "#94a3b8", fontStyle: "italic" }}>
-              Name your project, then click the orange + to add Faculty → Forum → Students
+              Enter a project name to start. The member panel will open automatically to build your team.
             </p>
           </div>
         )}
       </div>
 
-      {/* ─── Right Member Panel ─── */}
+      {/* Right panel side drawer */}
       {panelOpen && (
         <MemberPanel
           nodeType={panelOpen}
           selected={members[panelOpen]}
           onClose={() => setPanelOpen(null)}
-          onConfirm={(selected) => {
-            setMembers((prev) => ({ ...prev, [panelOpen]: selected }));
-            setPanelOpen(null);
-          }}
+          onConfirm={handlePanelConfirm}
         />
       )}
 
-      {/* Spin keyframes */}
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
@@ -994,7 +1016,7 @@ export default function ProjectWorkflowPage() {
   );
 }
 
-// Bridge component: syncs the project name input (inside draggable node) with state
+// Sync input field value to state correctly
 function ProjectNameSync({ value, onChange }) {
   useEffect(() => {
     const input = document.getElementById("project-name-input");
