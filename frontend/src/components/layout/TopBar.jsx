@@ -238,12 +238,12 @@ export function TopBar() {
 
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-            className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 cursor-pointer hover:scale-[1.03] transition-transform"
           >
             <img
               src="/website-name-logo.png"
               alt="Hive Logo"
-              className="h-7 w-auto object-contain flex-shrink-0"
+              className="h-10 sm:h-11 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>
