@@ -609,6 +609,78 @@ button {
   transform: translateY(-50%);
 }
 
+/* ─── Finexy Dashboard Layout & Status Badge Utilities ───────────── */
+.finexy-card {
+  background: #ffffff;
+  border: 1px solid #EBEBEB;
+  border-radius: 22px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .finexy-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.finexy-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+.dark .finexy-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.finexy-orange-card {
+  background: linear-gradient(135deg, #F05A2B 0%, #E04818 100%);
+  color: #ffffff;
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(240, 90, 43, 0.25);
+  transition: all 0.25s ease;
+}
+
+.finexy-orange-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(240, 90, 43, 0.35);
+}
+
+.status-chip-completed {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803D;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.dark .status-chip-completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ADE80;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.status-chip-in-progress {
+  background: rgba(240, 90, 43, 0.12);
+  color: #C2410C;
+  border: 1px solid rgba(240, 90, 43, 0.2);
+}
+
+.dark .status-chip-in-progress {
+  background: rgba(240, 90, 43, 0.2);
+  color: #FF8365;
+  border-color: rgba(240, 90, 43, 0.3);
+}
+
+.status-chip-pending {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1D4ED8;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.dark .status-chip-pending {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
 /* ── Sliding indicator styling ── */
 .nav-sliding-indicator {
   background: var(--indicator-gradient);

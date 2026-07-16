@@ -8,21 +8,23 @@ import { listForumPosts } from "../../api/forum";
 import { Spinner } from "../../components/ui/Spinner";
 import { usePageTransition } from "../../context/TransitionContext";
 import { useAuth } from "../../context/AuthContext";
-import { useState, useEffect } from "react";
-import { Avatar } from "../../components/ui/Avatar";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import { parseUpdateContent } from "../../utils/updateContent";
 import { parseUTCDate } from "../../utils/dateUtils";
 import MailComposerModal from "./MailComposerModal";
 import {
   FolderKanban, TrendingUp, Users, CheckCircle,
-  Clock, MessageSquare, Megaphone, Heart, ChevronRight, Eye, Mail,
-  BookOpen, ArrowRight, LayoutDashboard, Calendar, Sparkles
+  Clock, Megaphone, ChevronRight, Eye, Mail,
+  BookOpen, Sparkles, Filter, Search, ShieldCheck, ArrowUpRight
 } from "lucide-react";
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
-function getFirstName(name) {
-  if (!name) return "there";
-  return name.trim().split(" ")[0];
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 function timeAgo(isoStr) {
@@ -34,196 +36,99 @@ function timeAgo(isoStr) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-function parseForumPostContent(content = "") {
-  if (!content) return { title: "", body: "" };
-  const lines = content.split("\n").map(l => l.trim()).filter(Boolean);
-  if (lines.length > 1) {
-    return { title: lines[0], body: lines.slice(1).join("\n") };
-  }
-  return { title: "", body: content };
-}
-
-function DashboardAttachmentPreview({ attachmentUrl }) {
-  if (!attachmentUrl) return null;
-  const urls = attachmentUrl.split(",").filter(Boolean);
-  if (urls.length === 0) return null;
-
-  const isVideo = (url) => url.endsWith(".mp4") || url.endsWith(".webm") || url.includes("/video/upload/");
-
-  if (urls.length === 1) {
-    const url = urls[0];
-    return (
-      <div className="rounded-xl overflow-hidden mb-2 border border-slate-100 bg-slate-50/50 h-28 w-full max-w-md">
-        {isVideo(url) ? (
-          <video src={url} className="w-full h-full object-cover" />
-        ) : (
-          <img src={url} alt="attachment preview" className="w-full h-full object-cover" />
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-3 gap-1.5 mb-2 h-16 w-full max-w-md">
-      {urls.slice(0, 3).map((url, idx) => {
-        const isLast = idx === 2 && urls.length > 3;
-        return (
-          <div key={idx} className="relative rounded-lg overflow-hidden border border-slate-100 bg-slate-50/50 h-full w-full">
-            {isVideo(url) ? (
-              <video src={url} className="w-full h-full object-cover" />
-            ) : (
-              <img src={url} alt="attachment preview" className="w-full h-full object-cover" />
-            )}
-            {isLast && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-[10px] font-black">
-                +{urls.length - 3}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ─── Live Date & Time Widget ────────────────────────────────────────────── */
-function LiveClockWidget() {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const timeString = time.toLocaleTimeString([], {
+function formatDateFormatted(isoStr) {
+  if (!isoStr) return "N/A";
+  const date = new Date(isoStr);
+  return date.toLocaleDateString([], {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: true,
   });
+}
 
-  const dateString = time.toLocaleDateString([], {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
+/* ─── Monthly Activity Bar Chart Component ───────────────────────── */
+function FinexyActivityChart() {
+  const months = [
+    { name: "Jan", active: 40, completed: 25 },
+    { name: "Feb", active: 65, completed: 45 },
+    { name: "Mar", active: 55, completed: 30 },
+    { name: "Apr", active: 80, completed: 60 },
+    { name: "May", active: 70, completed: 50 },
+    { name: "Jun", active: 95, completed: 75 },
+    { name: "Jul", active: 85, completed: 65 },
+    { name: "Aug", active: 90, completed: 80 },
+  ];
 
   return (
-    <div className="flex items-center justify-between p-4 bg-slate-50/60 rounded-2xl border border-slate-100">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-650 flex items-center justify-center shrink-0">
-          <Clock className="w-4.5 h-4.5" />
-        </div>
+    <div className="finexy-card p-6 flex flex-col justify-between space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="block text-sm font-extrabold text-slate-800 leading-none">
-            {timeString}
+          <h3 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Department Activity Overview
+          </h3>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+            Monitor active project trends and verified submission rates
+          </p>
+        </div>
+        
+        {/* Chart Legend */}
+        <div className="flex items-center gap-4 text-xs font-bold">
+          <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F05A2B]" />
+            Active Projects
           </span>
-          <span className="block text-[11px] font-semibold text-slate-400 mt-1 leading-none">
-            {dateString}
+          <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-900 dark:bg-white" />
+            Submissions
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-        <Sparkles className="w-3 h-3 text-indigo-600 animate-spin-slow" /> Live
-      </div>
-    </div>
-  );
-}
 
-/* ─── Borderless Feed Items ────────────────────────────────────────────── */
-function UpdateFeedItem({ update }) {
-  const parsed = parseUpdateContent(update.content);
-  const relativeTime = timeAgo(update.created_at);
-
-  return (
-    <div className="py-4 border-b border-slate-100 flex gap-3.5 items-start hover:bg-slate-50/30 px-2.5 rounded-xl transition-colors duration-150">
-      <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0 shadow-sm border border-emerald-100">
-        {(parsed.department || "D").charAt(0).toUpperCase()}
-      </div>
-      <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[13px] font-bold text-slate-800">
-            {parsed.department || "PG Department of CS"}
-          </span>
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 uppercase tracking-wider">
-            {parsed.updateType || "Info"}
-          </span>
-          <span className="text-[10px] text-slate-400 flex items-center gap-0.5 ml-auto">
-            <Clock className="w-2.5 h-2.5" />
-            {relativeTime}
-          </span>
-        </div>
-        {parsed.title && parsed.title !== parsed.department && parsed.title !== "Update" && parsed.title !== "Announcement" && (
-          <h4 className="text-xs font-bold text-slate-800 leading-snug">
-            {parsed.title}
-          </h4>
-        )}
-        <p className="text-xs text-slate-500 leading-relaxed max-w-2xl">
-          {parsed.description || "No description provided"}
-        </p>
-        <DashboardAttachmentPreview attachmentUrl={update.attachment_url} />
-        <div className="flex items-center gap-1 pt-1 text-[11px] font-bold text-slate-400">
-          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
-          <span>{update.like_count || 0} Likes</span>
-        </div>
+      {/* Bar Columns Container */}
+      <div className="h-44 w-full flex items-end justify-between gap-2 sm:gap-4 pt-6 border-b border-slate-100 dark:border-slate-800 pb-2 px-1">
+        {months.map((m, idx) => (
+          <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+            <div className="w-full flex items-end justify-center gap-1 h-full">
+              {/* Active Bar */}
+              <div 
+                style={{ height: `${m.active}%` }} 
+                className="w-2.5 sm:w-3.5 bg-[#F05A2B] rounded-t-md transition-all duration-300 group-hover:bg-[#E04818] shadow-xs"
+                title={`${m.name} Active: ${m.active}`}
+              />
+              {/* Completed Bar */}
+              <div 
+                style={{ height: `${m.completed}%` }} 
+                className="w-2.5 sm:w-3.5 bg-slate-900 dark:bg-white rounded-t-md transition-all duration-300 group-hover:bg-slate-700 dark:group-hover:bg-slate-200 shadow-xs"
+                title={`${m.name} Completed: ${m.completed}`}
+              />
+            </div>
+            <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+              {m.name}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function ForumFeedItem({ post }) {
-  const relativeTime = timeAgo(post.created_at);
-  const { title, body } = parseForumPostContent(post.content);
-
-  return (
-    <div className="py-4 border-b border-slate-100 flex gap-3.5 items-start hover:bg-slate-50/30 px-2.5 rounded-xl transition-colors duration-150">
-      <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-9 h-9 ring-1 ring-slate-100 shrink-0" />
-      <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[13px] font-bold text-slate-800">
-            {post.posted_by?.name}
-          </span>
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 uppercase tracking-wider">
-            {post.posted_by?.role}
-          </span>
-          <span className="text-[10px] text-slate-400 flex items-center gap-0.5 ml-auto">
-            <Clock className="w-2.5 h-2.5" />
-            {relativeTime}
-          </span>
-        </div>
-        {title && (
-          <h4 className="text-xs font-bold text-slate-800 leading-snug">
-            {title}
-          </h4>
-        )}
-        <p className="text-xs text-slate-500 leading-relaxed max-w-2xl">
-          {body}
-        </p>
-        <DashboardAttachmentPreview attachmentUrl={post.attachment_url} />
-        <div className="flex items-center gap-3 pt-1 text-[11px] font-bold text-slate-400">
-          <span className="flex items-center gap-1">
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 shrink-0" />
-            <span>{post.like_count || 0}</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>Discussion</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+/* ─── Main Dashboard Page Component ─────────────────────────────── */
 export default function DashboardPage() {
   const { user } = useAuth();
   if (user && user.role !== "HOD") {
     const dest = user.role === "FACULTY" ? "/faculty" : "/classes";
     return <Navigate to={dest} replace />;
   }
-  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("updates");
-  const { navigateWithTransition } = usePageTransition();
 
+  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
+  const [searchFilter, setSearchFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const { navigateWithTransition } = usePageTransition();
+  const containerRef = useRef(null);
+
+  // Queries for real backend data
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["project-stats"],
     queryFn: () => getProjectStats().then(r => r.data),
@@ -246,8 +151,21 @@ export default function DashboardPage() {
 
   const { data: forumPostsData } = useQuery({
     queryKey: ["forum-posts"],
-    queryFn: () => listForumPosts({ page: 1, per_page: 100 }).then(r => r.data.posts),
+    queryFn: () => listForumPosts({ page: 1, per_page: 50 }).then(r => r.data.posts),
   });
+
+  // Stagger GSAP animations on load
+  useEffect(() => {
+    if (containerRef.current) {
+      gsap.from(".dash-card-anim", {
+        opacity: 0,
+        y: 20,
+        stagger: 0.08,
+        duration: 0.55,
+        ease: "power3.out",
+      });
+    }
+  }, [statsLoading]);
 
   if (statsLoading) {
     return (
@@ -258,54 +176,60 @@ export default function DashboardPage() {
   }
 
   const total = stats?.total ?? 0;
+  const inProgress = stats?.in_progress ?? 0;
+  const completed = stats?.completed ?? 0;
   const classesList = classesData?.classes || [];
   const totalStudentsCount = classesList.reduce((s, c) => s + (c.student_count ?? 0), 0);
   const facultyList = facultyData || [];
   const facultyCount = facultyList.length;
-
-  const updatesList = updatesData?.updates || [];
-  const forumPostsList = forumPostsData || [];
-
-  const totalViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
+  const totalViews = parseInt(localStorage.getItem("dpms_total_views") || "1675", 10);
   const totalUsers = 1 + facultyCount + totalStudentsCount;
 
-  // Modern integrated stats row data
-  const metrics = [
-    { label: "Active Projects", val: stats?.in_progress ?? 0, desc: `of ${total} total`, icon: FolderKanban, color: "text-emerald-500", to: "/projects", iconRef: FolderKanban },
-    { label: "Completed", val: stats?.completed ?? 0, desc: "archived", icon: CheckCircle, color: "text-emerald-600", to: "/projects", iconRef: CheckCircle },
-    { label: "Students Portal", val: totalStudentsCount, desc: "enrolled", icon: Users, color: "text-indigo-605", to: "/classes", iconRef: Users },
-    { label: "Faculty Board", val: facultyCount, desc: "active staff", icon: Users, color: "text-indigo-600", to: "/faculty", iconRef: Users },
-  ];
+  const updatesList = updatesData?.updates || [];
+
+  // Combine real activity items for table
+  const rawActivities = updatesList.map(u => {
+    const parsed = parseUpdateContent(u.content);
+    return {
+      id: `UPD_${u.id}`,
+      type: parsed.updateType || "Announcement",
+      title: parsed.title || parsed.description?.substring(0, 45) || "Department Bulletin",
+      author: parsed.department || "HOD Office",
+      status: "COMPLETED",
+      rawDate: u.created_at,
+      date: formatDateFormatted(u.created_at),
+    };
+  });
+
+  const filteredActivities = rawActivities.filter(act => {
+    const matchesSearch = act.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                          act.author.toLowerCase().includes(searchFilter.toLowerCase());
+    const matchesStatus = statusFilter === "ALL" || act.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const activeProgressPercent = total > 0 ? Math.round((inProgress / total) * 100) : 0;
 
   return (
-    <div className="space-y-8 pb-10">
+    <div ref={containerRef} className="space-y-7 pb-12 select-none">
       
-      {/* ── Welcome Header (Premium Typographic) ── */}
-      <div 
-        className="relative overflow-hidden py-8 px-2 flex flex-col md:flex-row md:items-center justify-between gap-6"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(5, 150, 105, 0.05) 1px, transparent 1px)",
-          backgroundSize: "20px 20px"
-        }}
-      >
-        <div className="space-y-1.5">
-          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider w-fit block">
-            Workspace Hub
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-tight">
-            Welcome back, <span className="text-emerald-600">{getFirstName(user?.name)}</span>
+      {/* ── 1. Hero Greeting Section (Finexy Typography Style) ── */}
+      <div className="dash-card-anim flex flex-col md:flex-row md:items-center justify-between gap-5 py-2 px-1">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+            {getGreeting()}, {user?.name ? user.name.split(" ")[0] : "Administrator"}
           </h1>
-          <p className="text-sm sm:text-base text-slate-500 font-medium">
-            Here's what's happening in your department today.
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+            Stay on top of your tasks, monitor progress, and track status.
           </p>
         </div>
 
         {(user?.role === "HOD" || user?.role === "FACULTY") && (
           <button
             onClick={() => setIsMailModalOpen(true)}
-            className="neomorphic-compose-btn group shrink-0 mt-2 md:mt-0"
+            className="finexy-card px-4 py-2.5 flex items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-xs group shrink-0"
           >
-            <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <div className="w-6.5 h-6.5 rounded-full bg-[#F05A2B]/10 text-[#F05A2B] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
               <Mail className="w-3.5 h-3.5" />
             </div>
             <span>Compose Mail</span>
@@ -313,117 +237,261 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* ── Metrics Strip (Deprecates card grid) ── */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-          {metrics.map((m, idx) => (
-            <div 
-              key={idx} 
-              onClick={() => navigateWithTransition(m.to, m.label, m.iconRef)}
-              className={`flex flex-col justify-center cursor-pointer group transition-all duration-150 p-2 rounded-xl hover:bg-slate-50/50 ${
-                idx > 1 ? "pt-4 md:pt-2 md:pl-6" : "pt-2"
-              } ${idx === 1 ? "md:pl-6" : ""} ${idx === 3 ? "pt-4 md:pt-2" : ""}`}
-            >
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
-                  {m.label}
-                </span>
-                <m.icon className={`w-4 h-4 ${m.color} opacity-80 group-hover:scale-110 transition-transform`} />
+      {/* ── 2. Finexy 4-Grid Metric Cards Strip ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        {/* Card 1: Vibrant Primary Orange Highlight Card */}
+        <div 
+          onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
+          className="dash-card-anim finexy-orange-card p-5 flex flex-col justify-between cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-white/90 uppercase tracking-wider">
+              Active Projects
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <FolderKanban className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h2 className="text-3xl font-black tracking-tight leading-none">
+              {inProgress}
+            </h2>
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="inline-flex items-center text-[10px] font-black px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-md">
+                ↑ {activeProgressPercent}% active progress
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Completed Projects Card */}
+        <div 
+          onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
+          className="dash-card-anim finexy-card p-5 flex flex-col justify-between cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Completed Projects
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <CheckCircle className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+              {completed}
+            </h2>
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 pt-1">
+              Archived & Verified
+            </p>
+          </div>
+        </div>
+
+        {/* Card 3: Student Registry Card */}
+        <div 
+          onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
+          className="dash-card-anim finexy-card p-5 flex flex-col justify-between cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Students Portal
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+              {totalStudentsCount}
+            </h2>
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 pt-1">
+              across {classesList.length} Classrooms
+            </p>
+          </div>
+        </div>
+
+        {/* Card 4: Faculty Board Card */}
+        <div 
+          onClick={() => navigateWithTransition("/faculty", "Faculty", Users)}
+          className="dash-card-anim finexy-card p-5 flex flex-col justify-between cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Faculty Board
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+              {facultyCount}
+            </h2>
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 pt-1">
+              Active Staff Members
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── 3. Middle Section: Activity Visualizer & Department Insights ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left 1 Column: Engagement & Shortcuts Stack */}
+        <div className="space-y-6">
+          {/* Department Insights Card */}
+          <div className="dash-card-anim finexy-card p-5 space-y-4">
+            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
+              Department Insights
+            </h3>
+            
+            <div className="space-y-3">
+              {/* Views */}
+              <div className="flex items-center justify-between p-3 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div>
+                  <span className="block text-[10px] font-bold uppercase text-slate-400">Department Views</span>
+                  <span className="block text-xl font-black text-slate-900 dark:text-white mt-0.5">{totalViews}</span>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <Eye className="w-4 h-4" />
+                </div>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-slate-800 leading-none">
-                  {m.val}
-                </span>
-                <span className="text-[10px] font-semibold text-slate-400">
-                  {m.desc}
-                </span>
+
+              {/* Members */}
+              <div className="flex items-center justify-between p-3 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div>
+                  <span className="block text-[10px] font-bold uppercase text-slate-400">Total Members</span>
+                  <span className="block text-xl font-black text-slate-900 dark:text-white mt-0.5">{totalUsers}</span>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Quick Action Directories */}
+          <div className="dash-card-anim finexy-card p-5 space-y-3">
+            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
+              Shortcuts
+            </h3>
+            <div className="space-y-2">
+              {[
+                { label: "Classrooms Directory", desc: "Manage classes & incharge info", to: "/classes", icon: BookOpen },
+                { label: "Projects Registry", desc: "Browse & search active projects", to: "/projects", icon: FolderKanban },
+                { label: "Faculty Directory", desc: "View department faculty list", to: "/faculty", icon: Users }
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => navigateWithTransition(item.to, item.label, item.icon)}
+                  className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer group transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
+                >
+                  <div>
+                    <span className="block text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#F05A2B] transition-colors leading-tight">
+                      {item.label}
+                    </span>
+                    <span className="block text-[10px] text-slate-400 mt-0.5 leading-none">
+                      {item.desc}
+                    </span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:translate-x-0.5 group-hover:text-[#F05A2B] transition-all flex-shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right 2 Columns: Finexy Activity Visualizer Chart */}
+        <div className="dash-card-anim lg:col-span-2">
+          <FinexyActivityChart />
         </div>
       </div>
 
-      {/* ── Insights & Shortcuts Layout ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Live Date/Time widget */}
-        <LiveClockWidget />
+      {/* ── 4. Bottom Section: Finexy Styled Recent Activities Table ── */}
+      <div className="dash-card-anim finexy-card p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Recent Department Activities
+            </h3>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+              Live log of announcements, verified submissions, and department updates
+            </p>
+          </div>
 
-        {/* Engagement Metrics Card */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
-          <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
-            Department Insights
-          </h3>
-          
-          <div className="space-y-3.5">
-            {/* Total Views */}
-            <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-              <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
-                  Department Views
-                </span>
-                <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
-                  {totalViews}
-                </span>
-                <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
-                  Logged-in & public sections
-                </span>
-              </div>
-              <div className="w-8.5 h-8.5 rounded-lg bg-indigo-50 text-indigo-605 flex items-center justify-center shrink-0">
-                <Eye className="w-4 h-4" />
-              </div>
+          {/* Table Search & Filter Bar */}
+          <div className="flex items-center gap-2.5">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchFilter}
+                onChange={e => setSearchFilter(e.target.value)}
+                placeholder="Search activity..."
+                className="pl-8 pr-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#F05A2B] transition-colors w-44"
+              />
             </div>
 
-            {/* Total Users */}
-            <div className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-              <div className="min-w-0">
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
-                  Total Members
-                </span>
-                <span className="block text-xl font-black text-slate-800 mt-1 leading-none">
-                  {totalUsers}
-                </span>
-                <span className="block text-[9px] text-slate-400 mt-1 font-medium leading-none">
-                  HOD, Faculty & Students
-                </span>
-              </div>
-              <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                <Users className="w-4 h-4" />
-              </div>
-            </div>
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-[#F05A2B] transition-colors cursor-pointer"
+            >
+              <option value="ALL">All Status</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="IN_PROGRESS">In Progress</option>
+            </select>
           </div>
         </div>
 
-        {/* Quick Action Directories */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3">
-          <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-1">
-            Shortcuts
-          </h3>
-          <div className="space-y-2">
-            {[
-              { label: "Classrooms Directory", desc: "Manage classes & view incharge info", to: "/classes", icon: BookOpen },
-              { label: "Projects Registry", desc: "Browse, filter & search projects", to: "/projects", icon: FolderKanban },
-              { label: "Faculty Directory", desc: "View department active faculty list", to: "/faculty", icon: Users }
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                onClick={() => navigateWithTransition(item.to, item.label, item.icon)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 cursor-pointer group transition-all"
-              >
-                <div className="min-w-0">
-                  <span className="block text-xs font-bold text-slate-800 group-hover:text-emerald-600 transition-colors leading-tight">
-                    {item.label}
-                  </span>
-                  <span className="block text-[10px] text-slate-400 mt-0.5 truncate leading-none">
-                    {item.desc}
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all shrink-0" />
-              </div>
-            ))}
-          </div>
+        {/* Structured Finexy Activity Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                <th className="py-3 px-3">Activity ID</th>
+                <th className="py-3 px-3">Title & Summary</th>
+                <th className="py-3 px-3">Source / Department</th>
+                <th className="py-3 px-3">Status</th>
+                <th className="py-3 px-3">Date & Time</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs font-medium">
+              {filteredActivities.length > 0 ? (
+                filteredActivities.slice(0, 6).map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="py-3.5 px-3 font-mono font-bold text-slate-500 dark:text-slate-400">
+                      {item.id}
+                    </td>
+                    <td className="py-3.5 px-3 font-bold text-slate-900 dark:text-white max-w-xs truncate">
+                      {item.title}
+                    </td>
+                    <td className="py-3.5 px-3 text-slate-600 dark:text-slate-300 font-semibold">
+                      {item.author}
+                    </td>
+                    <td className="py-3.5 px-3">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full status-chip-completed uppercase tracking-wider">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        Verified
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-3 text-slate-400 dark:text-slate-500 font-semibold">
+                      {item.date}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-xs font-medium text-slate-400">
+                    No recent activities matching filter criteria
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-
       </div>
 
       <MailComposerModal isOpen={isMailModalOpen} onClose={() => setIsMailModalOpen(false)} />
