@@ -2338,4 +2338,36 @@ label, .form-label-standard {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
+}
+
+/* ─── Premium Neomorphic Input & Control Styles ─── */
+.neomorph-input {
+  background: #ffffff;
+  border: 1.5px solid #ebebeb;
+  box-shadow: 
+    3px 3px 8px rgba(0, 0, 0, 0.03),
+    -3px -3px 8px rgba(255, 255, 255, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark .neomorph-input {
+  background: #1e293b;
+  border: 1.5px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 
+    3px 3px 8px rgba(0, 0, 0, 0.22),
+    -3px -3px 8px rgba(255, 255, 255, 0.02);
+}
+.neomorph-input:focus {
+  border-color: rgba(240, 90, 43, 0.45);
+  box-shadow: 
+    inset 2px 2px 5px rgba(0, 0, 0, 0.02),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.45),
+    0 0 0 3px rgba(240, 90, 43, 0.12);
+}
+.dark .neomorph-input:focus {
+  border-color: rgba(240, 90, 43, 0.45);
+  box-shadow: 
+    inset 2px 2px 5px rgba(0, 0, 0, 0.18),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.01),
+    0 0 0 3px rgba(240, 90, 43, 0.12);
 }

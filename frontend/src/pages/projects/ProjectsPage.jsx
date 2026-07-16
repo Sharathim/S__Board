@@ -55,7 +55,7 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
     <div ref={ref} className="relative" style={{ overflow: "visible" }}>
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
-        className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        className="p-2 rounded-xl text-gray-400 hover:bg-gray-150 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         aria-label="Project actions"
       >
         <MoreVertical className="w-4.5 h-4.5" />
@@ -63,7 +63,7 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 z-[100] w-44 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200/80 dark:border-gray-700 py-1.5 animate-fade-in"
+          className="absolute right-0 top-full mt-2 z-[100] w-44 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 py-1.5 animate-fade-in"
           onClick={(e) => { e.stopPropagation(); setOpen(false); }}
         >
           <button
@@ -97,7 +97,7 @@ function ProjectKebab({ project, isHOD, onEdit, onDelete }) {
 
 const getStatusTheme = (status) => {
   const map = {
-    NOT_STARTED: { bg: "bg-slate-50 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400 border-slate-200/60", dot: "bg-slate-400" },
+    NOT_STARTED: { bg: "bg-slate-50 text-slate-650 dark:bg-slate-800/85 dark:text-slate-400 border-slate-200/60", dot: "bg-slate-400" },
     IN_PROGRESS: { bg: "bg-orange-50 text-[#F05A2B] dark:bg-orange-950/30 dark:text-orange-450 border-orange-100 dark:border-orange-900/35", dot: "bg-[#F05A2B]" },
     REVIEW: { bg: "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border-purple-100", dot: "bg-purple-500" },
     COMPLETED: { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-450 border-emerald-100/50", dot: "bg-emerald-500" },
@@ -167,24 +167,28 @@ export default function ProjectsPage() {
   const projects = data?.projects || [];
 
   return (
-    <div className="space-y-6">
-      {/* ─── Premium Header & Actions ─── */}
-      <div className="flex flex-row items-center justify-between gap-4 mb-6 flex-wrap">
+    <div className="space-y-5">
+      {/* ─── Premium Header & Actions (Using clamp padding & spacing) ─── */}
+      <div className="flex flex-row items-center justify-between gap-4 mb-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Projects Directory</h1>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">Manage allocations, tracks milestone updates, and view status</p>
+          <h1 className="font-black text-gray-900 dark:text-white tracking-tight leading-none" style={{ fontSize: "clamp(1.4rem, 2.5vw, 1.85rem)" }}>
+            Projects Registry
+          </h1>
+          <p className="text-gray-400 dark:text-gray-500 mt-1.5 font-medium" style={{ fontSize: "clamp(0.68rem, 1.1vw, 0.8rem)" }}>
+            Track allocations, status milestones, and latest department updates.
+          </p>
         </div>
         
         {/* Filters */}
         <div className="flex items-center gap-3">
-          <div className="w-36 sm:w-56">
+          <div className="w-40 sm:w-56">
             <SearchFilter value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search projects..." />
           </div>
           <StatusFilter value={status} onChange={v => { setStatus(v); setPage(1); }} options={filterStatusOptions} />
         </div>
       </div>
 
-      {/* ─── Projects Table Container ─── */}
+      {/* ─── Upgraded Projects Table ─── */}
       {projects.length === 0 ? (
         <EmptyState
           icon={FolderKanban}
@@ -192,17 +196,17 @@ export default function ProjectsPage() {
           description="Create a new project to get started."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[24px] border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
-          <table className="w-full text-left border-collapse min-w-[900px]">
+        <div className="overflow-x-auto rounded-[24px] border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_24px_rgba(0,0,0,0.015)]">
+          <table className="w-full text-left border-collapse min-w-[950px]">
             <thead>
-              <tr className="border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/35 text-[10px] font-extrabold text-gray-400 dark:text-gray-550 uppercase tracking-widest">
-                <th className="py-4.5 px-6">Project Name</th>
-                <th className="py-4.5 px-5">Faculty Advisor</th>
-                <th className="py-4.5 px-5">Forum Coord.</th>
-                <th className="py-4.5 px-5">Students Team</th>
-                <th className="py-4.5 px-5">Status</th>
-                <th className="py-4.5 px-5">Last Updated</th>
-                <th className="py-4.5 px-6 text-center">Action</th>
+              <tr className="border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/35 text-gray-400 dark:text-gray-500 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
+                <th className="py-4 px-6">Project Name</th>
+                <th className="py-4 px-5">Faculty Advisor</th>
+                <th className="py-4 px-5">Forum Coordinator</th>
+                <th className="py-4 px-5">Students Team</th>
+                <th className="py-4 px-5">Status</th>
+                <th className="py-4 px-5">Last Updated</th>
+                <th className="py-4 px-6 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-850">
@@ -211,40 +215,50 @@ export default function ProjectsPage() {
                 const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
                 const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
                 
-                const indexStr = `${(page - 1) * 10 + idx + 1}.`;
+                const indexVal = (page - 1) * 10 + idx + 1;
 
                 return (
                   <tr
                     key={project.id}
                     onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
-                    className="hover:bg-slate-50/55 dark:hover:bg-slate-800/25 cursor-pointer transition-all duration-150"
+                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/20 cursor-pointer transition-all duration-150"
                   >
-                    {/* Project Name */}
-                    <td className="py-4 px-6 font-bold text-gray-900 dark:text-white group text-sm min-w-[200px]">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-mono text-xs shrink-0">{indexStr}</span>
-                        <span className="hover:text-[#F05A2B] transition-colors line-clamp-1">{project.name}</span>
+                    {/* Project Name (Index styled as a rounded pill) */}
+                    <td className="px-6" style={{ paddingTop: "clamp(12px, 1.8vw, 17px)", paddingBottom: "clamp(12px, 1.8vw, 17px)" }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 text-[#F05A2B] flex items-center justify-center shrink-0 font-mono text-[11px] font-bold border border-orange-100/30">
+                          {indexVal}
+                        </div>
+                        <span className="font-bold text-gray-900 dark:text-white hover:text-[#F05A2B] transition-colors leading-tight line-clamp-1 max-w-[240px]" style={{ fontSize: "clamp(12.5px, 1.4vw, 14px)" }}>
+                          {project.name}
+                        </span>
                       </div>
                     </td>
 
                     {/* Faculty Advisor */}
-                    <td className="py-4 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-[150px]">
+                    <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {facultyMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5">
-                          <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                          <span className="truncate">{facultyMembers.map(m => m.name).join(", ")}</span>
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 dark:bg-indigo-950/20 text-[#6366F1] dark:text-[#818CF8] border border-indigo-100/30 w-fit max-w-[155px] truncate">
+                          <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{facultyMembers[0].name}</span>
+                          {facultyMembers.length > 1 && (
+                            <span className="text-[10px] opacity-75 font-bold ml-1">+{facultyMembers.length - 1}</span>
+                          )}
                         </div>
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
 
-                    {/* Forum Member */}
-                    <td className="py-4 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-[150px]">
+                    {/* Forum Coord. */}
+                    <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {forumMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5">
-                          <MessageSquare className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="truncate">{forumMembers.map(m => m.name).join(", ")}</span>
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 w-fit max-w-[155px] truncate">
+                          <MessageSquare className="w-3.5 h-3.5 shrink-0 animate-pulse" />
+                          <span className="truncate">{forumMembers[0].name}</span>
+                          {forumMembers.length > 1 && (
+                            <span className="text-[10px] opacity-75 font-bold ml-1">+{forumMembers.length - 1}</span>
+                          )}
                         </div>
                       ) : (
                         <span className="text-gray-400">—</span>
@@ -252,19 +266,22 @@ export default function ProjectsPage() {
                     </td>
 
                     {/* Students Team */}
-                    <td className="py-4 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 min-w-[180px]">
+                    <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {studentMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          <span className="truncate">{studentMembers.map(m => m.name).join(", ")}</span>
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 w-fit max-w-[165px] truncate">
+                          <Users className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{studentMembers[0].name}</span>
+                          {studentMembers.length > 1 && (
+                            <span className="text-[10px] opacity-75 font-bold ml-1">+{studentMembers.length - 1}</span>
+                          )}
                         </div>
                       ) : (
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
 
-                    {/* Status badge */}
-                    <td className="py-4 px-5">
+                    {/* Status Pill */}
+                    <td className="px-5">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${getStatusTheme(project.status).bg}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${getStatusTheme(project.status).dot}`} />
                         {project.status.replace("_", " ")}
@@ -272,18 +289,18 @@ export default function ProjectsPage() {
                     </td>
 
                     {/* Last Updated */}
-                    <td className="py-4 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
+                    <td className="px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-gray-400" />
                         <div>
-                          <div>{format(parseUTCDate(project.updated_at), "dd MMM, yyyy")}</div>
+                          <div className="font-bold text-gray-800 dark:text-gray-300">{format(parseUTCDate(project.updated_at), "dd MMM, yyyy")}</div>
                           <div className="text-[10px] font-medium text-gray-400 mt-0.5">{format(parseUTCDate(project.updated_at), "hh:mm a")}</div>
                         </div>
                       </div>
                     </td>
 
-                    {/* Actions Menu */}
-                    <td className="py-4 px-6 text-center" onClick={e => e.stopPropagation()}>
+                    {/* Action dropdown */}
+                    <td className="px-6 text-center" onClick={e => e.stopPropagation()}>
                       <ProjectKebab
                         project={project}
                         isHOD={isHOD || canCreateProject}
@@ -321,7 +338,7 @@ export default function ProjectsPage() {
         loading={createMutation.isPending || updateMutation.isPending}
       />
 
-      {/* Delete Confirm */}
+      {/* Delete Confirm Dialog */}
       <ConfirmDialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -332,7 +349,7 @@ export default function ProjectsPage() {
         danger
       />
 
-      {/* Floating Plus Button for Project Creation (Updated to Terracotta Orange theme) */}
+      {/* Floating Plus Button for Project Creation (Terracotta Orange themed) */}
       {canCreateProject && (
         <button
           onClick={openCreate}
@@ -471,7 +488,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
               <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
                 {editProject ? "Edit Project Details" : "Create New Project"}
               </h2>
-              <p className="text-xs text-gray-400 dark:text-gray-550 mt-0.5">
+              <p className="text-xs text-gray-400 dark:text-gray-555 mt-0.5">
                 {editProject ? "Modify fields and update allocations below" : "Fill in the details to create a new project"}
               </p>
             </div>
@@ -479,7 +496,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-gray-400 hover:text-gray-650 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            className="p-2 rounded-xl text-gray-400 hover:text-gray-655 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
           >
             <X className="w-5 h-5" />
           </button>
@@ -492,7 +509,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
 
             {/* Project Title Input */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Project Title</label>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Project Title</label>
               <div className="relative flex items-center">
                 <FileText className="absolute left-3.5 w-4 h-4 text-gray-400 dark:text-gray-555" />
                 <input
@@ -525,7 +542,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
               </div>
             </div>
 
-            {/* Custom Project Status Dropdown (Only visible on Edit) */}
+            {/* Custom Project Status Dropdown */}
             {editProject && (
               <div className="space-y-1.5" ref={statusRef}>
                 <label className="block text-xs font-bold text-gray-400 dark:text-gray-555 uppercase tracking-wider">Project Status</label>
@@ -585,7 +602,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                     onClick={() => { setActiveTab(tab.id); setMemberSearch(""); }}
                     className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${isActive
                       ? "bg-white dark:bg-gray-700 text-[#F05A2B] shadow-sm"
-                      : "text-gray-450 dark:text-gray-500 hover:text-gray-655"
+                      : "text-gray-450 dark:text-gray-505 hover:text-gray-655"
                     }`}
                   >
                     <TabIcon className="w-3.5 h-3.5" />
@@ -638,7 +655,7 @@ function ProjectModal({ open, onClose, editProject, onSubmit, loading }) {
                         type="button"
                         className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-200 ${isSelected
                           ? "bg-[#F05A2B] border-[#F05A2B] text-white shadow-sm"
-                          : "border-gray-250 dark:border-gray-750 text-gray-400 hover:text-gray-655 hover:border-gray-350 dark:hover:text-gray-300"
+                          : "border-gray-250 dark:border-gray-755 text-gray-450 hover:text-gray-655 hover:border-gray-350 dark:hover:text-gray-300"
                         }`}
                       >
                         {isSelected ? <Plus className="w-3.5 h-3.5 rotate-45" /> : <Plus className="w-3.5 h-3.5" />}
