@@ -223,7 +223,7 @@ export function TopBar() {
     <>
       <header className="relative w-full py-4 px-4 sm:px-6 z-[99] flex items-center justify-between gap-4 transition-all duration-300">
         {/* ── Left Capsule Pill: Official Hive Brand Logo ── */}
-        <div className="capsule-pill px-4.5 py-2.5 flex items-center select-none">
+        <div className="rounded-full px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex items-center select-none">
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
             className="flex items-center cursor-pointer hover:scale-[1.03] transition-transform"
@@ -231,7 +231,7 @@ export function TopBar() {
             <img
               src="/website-name-logo.png"
               alt="Hive Logo"
-              className="h-10 sm:h-12 w-auto object-contain flex-shrink-0"
+              className="h-9 sm:h-10 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>

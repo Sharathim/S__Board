@@ -60,13 +60,12 @@ export function Sidebar() {
 
   return (
     <>
-      {/* ── High Quality Glassmorphic Side Capsule Sidebar (Desktop Only) ── */}
+      {/* ── 1. Middle Main Routes Capsule Card (Desktop Only) ── */}
       <aside
         ref={sidebarRef}
-        className="fixed left-6 top-[92px] z-40 hidden lg:flex flex-col select-none transition-all duration-300"
+        className="fixed left-6 top-[96px] z-40 hidden lg:flex flex-col select-none transition-all duration-300"
       >
-        <div className="premium-side-panel py-3.5 px-1.5 flex flex-col items-center gap-2">
-          {/* Main Navigation Items */}
+        <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
           {mainNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.to;
@@ -82,18 +81,20 @@ export function Sidebar() {
               >
                 <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
 
-                {/* Glassmorphic Tooltip Popup */}
-                <div className="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-slate-900/90 dark:bg-white/95 text-white dark:text-slate-900 text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-xl z-50 backdrop-blur-md border border-slate-700/50 dark:border-slate-200/50">
+                {/* High Contrast Crystal Clear Tooltip */}
+                <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
                   {item.label}
-                  <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-slate-900/90 dark:bg-white/95" />
+                  <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
                 </div>
               </NavLink>
             );
           })}
+        </div>
+      </aside>
 
-          {/* Subtle Visual Divider Separator */}
-          <div className="w-6 h-[1px] bg-slate-200/80 dark:bg-slate-700/80 my-2 rounded-full" />
-
+      {/* ── 2. Bottom Settings & Logout Capsule Card (Desktop Only) ── */}
+      <aside className="fixed left-6 bottom-6 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
+        <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
           {/* Settings Navigation Item */}
           <NavLink
             to="/settings"
@@ -104,9 +105,9 @@ export function Sidebar() {
             title="Settings"
           >
             <Settings className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
-            <div className="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-slate-900/90 dark:bg-white/95 text-white dark:text-slate-900 text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-xl z-50 backdrop-blur-md border border-slate-700/50 dark:border-slate-200/50">
+            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
               Settings
-              <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-slate-900/90 dark:bg-white/95" />
+              <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
             </div>
           </NavLink>
 
@@ -120,9 +121,9 @@ export function Sidebar() {
             title="Sign Out"
           >
             <LogOut className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
-            <div className="absolute left-full ml-3.5 px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-xl z-50">
+            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100]">
               Sign Out
-              <span className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-2 h-2 rotate-45 bg-rose-600" />
+              <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-rose-600" />
             </div>
           </button>
         </div>
