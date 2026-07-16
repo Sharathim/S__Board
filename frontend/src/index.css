@@ -536,12 +536,12 @@ button {
   background: #ffffff;
   border: 1px solid #EBEBEB;
   border-radius: 9999px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 6px;
-  gap: 8px;
+  padding: 6px 4.5px;
+  gap: 5px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -555,8 +555,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   color: #7E7E82;
   transition: all 0.2s ease;
@@ -567,7 +567,6 @@ button {
 .side-pill-icon:hover {
   background: rgba(23, 23, 23, 0.05);
   color: #171717;
-  transform: scale(1.05);
 }
 
 .dark .side-pill-icon {
