@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Navigate } from "react-router-dom";
-import { getProjectStats } from "../../api/projects";
+import { getProjectStats, getRecentActivity } from "../../api/projects";
 import { listClasses } from "../../api/classes";
 import { listFaculty } from "../../api/faculty";
 import { listUpdates } from "../../api/updates";
@@ -16,7 +16,7 @@ import {
   FolderKanban, Users, CheckCircle,
   Megaphone, Mail, BookOpen,
   Zap, GraduationCap, Building2,
-  Clock, TrendingUp, BarChart3,
+  Clock, TrendingUp, BarChart3, MessageSquare,
 } from "lucide-react";
 
 /* ─── Helpers ───────────────────────────────────────────────────── */
@@ -80,6 +80,10 @@ export default function DashboardPage() {
     queryKey: ["updates"],
     queryFn: () => listUpdates().then(r => r.data),
   });
+  const { data: recentActivity } = useQuery({
+    queryKey: ["recent-activity-dashboard"],
+    queryFn: () => getRecentActivity(3).then(r => r.data.activities),
+  });
 
   /* GSAP entrance */
   useEffect(() => {
@@ -95,7 +99,7 @@ export default function DashboardPage() {
   }, [statsLoading]);
 
   if (statsLoading) {
-    return <div className="flex items-center justify-center" style={{ height: "calc(100vh - 90px)" }}><Spinner /></div>;
+    return <div className="flex items-center justify-center" style={{ height: "calc(100vh - 128px)" }}><Spinner /></div>;
   }
 
   /* Computed from real data */
@@ -111,16 +115,18 @@ export default function DashboardPage() {
   const updatesList    = updatesData?.updates || [];
   const activePercent  = total > 0 ? Math.round((inProgress / total) * 100) : 0;
 
-  /* Top 3 classrooms by student count */
-  const topClasses = [...classesList]
-    .sort((a, b) => (b.student_count ?? 0) - (a.student_count ?? 0))
-    .slice(0, 3);
-
   const TAG_COLORS = {
-    Notice:       "bg-blue-50 text-blue-700",
-    Announcement: "bg-amber-50 text-amber-700",
-    Event:        "bg-violet-50 text-violet-700",
-    Alert:        "bg-red-50 text-red-700",
+    Notice:       "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border-blue-100 dark:border-blue-900/40",
+    Announcement: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-100 dark:border-amber-900/40",
+    Event:        "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border-violet-100 dark:border-violet-900/40",
+    Alert:        "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400 border-red-100 dark:border-red-900/40",
+  };
+
+  const STATUS_CHIPS = {
+    "not started": "bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-100 dark:border-slate-800",
+    "in progress": "bg-orange-50 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border-orange-100 dark:border-orange-900/35",
+    "review":      "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border-purple-100 dark:border-purple-900/35",
+    "completed":   "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/35",
   };
 
   return (
@@ -129,7 +135,7 @@ export default function DashboardPage() {
       <div
         ref={containerRef}
         className="flex flex-col gap-3.5 select-none"
-        style={{ height: "calc(100vh - 90px)", overflow: "hidden" }}
+        style={{ height: "calc(100vh - 128px)", overflow: "hidden" }}
       >
 
         {/* ═══════════════════════════════════════════════════
@@ -137,18 +143,18 @@ export default function DashboardPage() {
            ═══════════════════════════════════════════════════ */}
         <div className="da flex items-end justify-between gap-4 shrink-0 pt-1">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-0.5 uppercase tracking-wider">
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
             </p>
             <h1
-              className="font-black text-slate-900 dark:text-white tracking-tight leading-none"
-              style={{ fontSize: "clamp(1.6rem, 2.8vw, 2.25rem)" }}
+              className="font-semibold text-slate-900 dark:text-white tracking-tight leading-none"
+              style={{ fontSize: "clamp(1.5rem, 2.6vw, 2.1rem)" }}
             >
               {getGreeting()}, {user?.name?.split(" ")[0] ?? "Administrator"}
             </h1>
             <p
-              className="text-slate-500 dark:text-slate-400 font-medium mt-2"
-              style={{ fontSize: "clamp(0.7rem, 1vw, 0.82rem)" }}
+              className="text-slate-500 dark:text-slate-400 font-medium mt-1.5"
+              style={{ fontSize: "clamp(0.7rem, 0.95vw, 0.8rem)" }}
             >
               Stay on top of your department tasks, monitor progress, and track status.
             </p>
@@ -157,7 +163,7 @@ export default function DashboardPage() {
           {(user?.role === "HOD" || user?.role === "FACULTY") && (
             <button
               onClick={() => setIsMailModalOpen(true)}
-              className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-[#F05A2B]/60 hover:text-[#F05A2B] transition-all shadow-sm"
+              className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-[#F05A2B]/60 hover:text-[#F05A2B] transition-all shadow-sm"
             >
               <Mail className="w-3.5 h-3.5" />
               Compose Mail
@@ -212,7 +218,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums">{completed}</p>
-            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-2.5">Archived &amp; Verified</p>
+            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-2.5 font-sans">Archived &amp; Verified</p>
           </div>
 
           {/* Card 3 — Students */}
@@ -255,10 +261,10 @@ export default function DashboardPage() {
            ═══════════════════════════════════════════════════ */}
         <div className="flex gap-3 flex-1 min-h-0">
 
-          {/* ── Left: Project Status Breakdown + Top Classrooms ── */}
-          <div className="flex flex-col gap-3 shrink-0" style={{ width: "clamp(220px, 27%, 280px)" }}>
+          {/* ── Left: Project Status Breakdown + Recent Project Activity ── */}
+          <div className="flex flex-col gap-3 shrink-0" style={{ width: "clamp(240px, 30%, 310px)" }}>
 
-            {/* Project Status Breakdown (useful — not duplicating the 4 cards) */}
+            {/* Project Status Breakdown */}
             <div
               className="da rounded-[20px] p-4 bg-white dark:bg-slate-900 shrink-0"
               style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
@@ -270,7 +276,7 @@ export default function DashboardPage() {
               <div className="space-y-2.5">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-[#F05A2B] inline-block" />
                       In Progress
                     </span>
@@ -279,7 +285,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
                       Completed
                     </span>
@@ -288,14 +294,14 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                    <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-slate-450 inline-block" />
                       Pending
                     </span>
                   </div>
                   <StatusBar value={pending} max={total} color="#94A3B8" />
                 </div>
-                <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">Total Projects</span>
                     <span className="text-xs font-black text-slate-900 dark:text-white tabular-nums">{total}</span>
@@ -304,46 +310,53 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Top Classrooms by Enrollment (real data, useful) */}
+            {/* Recent Project Activity (Replaced Top Classrooms section) */}
             <div
               className="da rounded-[20px] p-4 bg-white dark:bg-slate-900 flex-1 min-h-0 flex flex-col"
               style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
             >
               <div className="flex items-center justify-between mb-3 shrink-0">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Top Classrooms</span>
-                <TrendingUp className="w-3.5 h-3.5 text-indigo-500" />
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Recent Projects</span>
+                <MessageSquare className="w-3.5 h-3.5 text-[#F05A2B]" />
               </div>
-              {topClasses.length > 0 ? (
-                <div className="space-y-2 flex-1">
-                  {topClasses.map((cls, i) => {
-                    const pct = totalStudents > 0 ? Math.round(((cls.student_count ?? 0) / totalStudents) * 100) : 0;
+              
+              <div className="space-y-2.5 flex-1 overflow-hidden">
+                {recentActivity && recentActivity.length > 0 ? (
+                  recentActivity.map((act) => {
+                    const statusClass = STATUS_CHIPS[act.status.toLowerCase()] || "bg-slate-50 text-slate-600";
                     return (
                       <div
-                        key={cls.id || i}
-                        onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
-                        className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-all group"
+                        key={act.id}
+                        onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
+                        className="p-2 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100/60 dark:border-slate-800/80 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600/50 cursor-pointer transition-all duration-150 group"
                       >
-                        <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
-                          <span className="text-[9px] font-black text-indigo-700 dark:text-indigo-300">{i + 1}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#F05A2B] transition-colors truncate max-w-[130px]">
+                            {act.name}
+                          </span>
+                          <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border ${statusClass} uppercase`}>
+                            {act.status}
+                          </span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#F05A2B] transition-colors truncate">{cls.name || `Class ${i + 1}`}</span>
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 shrink-0 ml-1">{cls.student_count ?? 0}</span>
-                          </div>
-                          <div className="h-1 rounded-full bg-slate-100 dark:bg-slate-800 mt-1 overflow-hidden">
-                            <div className="h-full rounded-full bg-indigo-400" style={{ width: `${pct}%`, transition: "width 0.8s ease" }} />
-                          </div>
-                        </div>
+                        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate mt-1">
+                          {act.last_message ? (
+                            <>
+                              <span className="font-semibold text-slate-550 dark:text-slate-400">{act.last_message.sender_name}: </span>
+                              {act.last_message.content}
+                            </>
+                          ) : (
+                            "No messages logged yet."
+                          )}
+                        </p>
                       </div>
                     );
-                  })}
-                </div>
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">No classrooms yet</p>
-                </div>
-              )}
+                  })
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500">No project activity logged.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
           </div>
