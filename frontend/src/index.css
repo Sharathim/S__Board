@@ -440,6 +440,46 @@ button {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 
+/* ─── Finexy Floating Capsule Navbar Pills ─────────────────────────── */
+.capsule-pill {
+  background: #ffffff;
+  border: 1px solid #EBEBEB;
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .capsule-pill {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.capsule-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #171717;
+  transition: all 0.2s ease;
+}
+
+.capsule-pill-btn:hover {
+  background: rgba(23, 23, 23, 0.05);
+  color: #F05A2B;
+}
+
+.dark .capsule-pill-btn {
+  color: #f1f5f9;
+}
+
+.dark .capsule-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FF8365;
+}
+
 /* ── Sliding indicator styling ── */
 .nav-sliding-indicator {
   background: var(--indicator-gradient);
