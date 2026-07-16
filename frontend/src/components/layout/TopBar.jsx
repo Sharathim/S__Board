@@ -223,17 +223,17 @@ export function TopBar() {
     <>
       <header className="relative w-full py-4 px-4 sm:px-6 z-[99] flex items-center justify-between gap-4 transition-all duration-300">
         {/* ── Left Capsule Pill: High-Res Hive Brand Logo & Title ── */}
-        <div className="rounded-full px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_25px_rgba(0,0,0,0.07)] transition-all flex items-center select-none">
+        <div className="rounded-full px-7 sm:px-9 py-1.5 sm:py-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_6px_25px_rgba(0,0,0,0.06)] transition-all flex items-center select-none">
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
-            className="flex items-center gap-3 cursor-pointer hover:scale-[1.02] transition-transform"
+            className="flex items-center gap-2.5 cursor-pointer hover:scale-[1.02] transition-transform"
           >
             <img
               src="/logo-icon.png"
               alt="Hive Logo Icon"
-              className="h-8 w-8 sm:h-9 sm:w-9 object-contain flex-shrink-0"
+              className="h-6.5 w-6.5 sm:h-7 sm:w-7 object-contain flex-shrink-0"
             />
-            <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+            <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
               Hive
             </span>
           </div>
