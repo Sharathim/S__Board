@@ -223,9 +223,9 @@ export function TopBar() {
 
   return (
     <>
-      <header className="w-full h-20 px-4 lg:pl-[74px] lg:pr-4 z-[99] flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
+      <header className="w-full h-20 pl-0.5 pr-4 lg:pl-0.5 lg:pr-4 z-[99] flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
         {/* ── Left Brand Logo: Rendered directly without capsule card wrapper ── */}
-        <div className="select-none flex items-center pt-0.5">
+        <div className="select-none flex items-center">
           <div
             onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
             className="cursor-pointer hover:scale-[1.02] transition-transform"
@@ -233,7 +233,7 @@ export function TopBar() {
             <img
               src="/website-name-logo.png"
               alt="Hive Brand Logo"
-              className="h-16 sm:h-20 w-auto object-contain flex-shrink-0"
+              className="h-20 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>

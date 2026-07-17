@@ -71,7 +71,7 @@ export function PublicNavbar() {
 
   return (
     <nav className={navbarClasses}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full pl-0.5 pr-4 sm:pl-1 sm:pr-6 lg:pl-1 lg:pr-8">
         <div className="flex items-center justify-between h-[72px]">
 
           {/* ── Logo ── */}
