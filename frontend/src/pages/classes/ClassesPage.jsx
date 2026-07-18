@@ -490,70 +490,73 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
   const meta = CLASS_META[className];
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/15 p-4 animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 animate-fade-in" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-150 dark:border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden transition-all"
+        className="bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden transition-all"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`h-1.5 rounded-t-3xl bg-gradient-to-r ${meta?.gradient} shrink-0`} />
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/60 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${meta?.gradient} flex items-center justify-center`}>
-              <Crown className="w-4 h-4 text-white" />
+        {/* Header bar */}
+        <div className="h-1.5 rounded-t-3xl bg-gradient-to-r from-purple-500 via-indigo-500 to-emerald-500 shrink-0" />
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+              <Crown className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">Assign Incharge</h3>
-              <p className="text-xs text-gray-400 dark:text-gray-500">{meta?.label} class</p>
+              <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight">Assign Incharge</h3>
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-400 mt-0.5">{meta?.label || className} class</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-4 flex-1 overflow-y-auto min-h-0">
+        {/* Faculty list */}
+        <div className="p-4 flex-1 overflow-y-auto min-h-0 space-y-2">
           {eligibleFaculty.length === 0 ? (
             <div className="text-center py-10">
-              <UserCog className="w-10 h-10 text-gray-300 dark:text-gray-650 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">No eligible faculty</p>
-              <p className="text-xs text-gray-400 dark:text-gray-505 mt-1">All faculty are already assigned as class incharge.</p>
+              <UserCog className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+              <p className="text-sm font-bold text-slate-600 dark:text-slate-300">No eligible faculty</p>
+              <p className="text-xs font-medium text-slate-400 mt-1">All faculty are already assigned as class incharge.</p>
             </div>
           ) : (
-            <div className="space-y-2 pr-1">
-              {eligibleFaculty.map((f) => {
-                const isSelected = selectedFacultyId === f.id;
-                return (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setSelectedFacultyId(f.id)}
-                    disabled={isPending}
-                    className={`w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left disabled:opacity-50 group ${isSelected
-                        ? "border-primary-500 bg-primary-50/20 dark:bg-primary-950/15"
-                        : "border-gray-100 dark:border-gray-700/60 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-800/20"
-                      }`}
-                  >
-                    <Avatar src={f.profile_picture} name={f.name} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">{f.name}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{f.designation}</p>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${isSelected ? "border-primary-600 bg-primary-600 text-white" : "border-gray-350 dark:border-gray-600"
-                      }`}>
-                      {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+            eligibleFaculty.map((f) => {
+              const isSelected = selectedFacultyId === f.id;
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setSelectedFacultyId(f.id)}
+                  disabled={isPending}
+                  className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all text-left disabled:opacity-50 group cursor-pointer ${
+                    isSelected
+                      ? "border-purple-500 bg-purple-50/70 dark:bg-purple-950/40 shadow-sm shadow-purple-500/10 ring-1 ring-purple-500/30"
+                      : "border-slate-100 dark:border-slate-800/80 hover:border-purple-200 dark:hover:border-purple-800 hover:bg-purple-50/30 dark:hover:bg-purple-950/20"
+                  }`}
+                >
+                  <Avatar src={f.profile_picture} name={f.name} size="sm" className="w-9 h-9 ring-2 ring-purple-500/20 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{f.name}</p>
+                    <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">{f.designation}</p>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                    isSelected ? "border-purple-600 bg-purple-600 text-white" : "border-slate-300 dark:border-slate-600"
+                  }`}>
+                    {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
+                </button>
+              );
+            })
           )}
         </div>
 
-        <div className="px-6 pb-6 pt-4 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700/60 bg-gray-50/40 dark:bg-gray-800/40 shrink-0">
+        {/* Footer */}
+        <div className="px-6 py-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+            className="px-5 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </button>
@@ -561,7 +564,7 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
             type="button"
             disabled={!selectedFacultyId || isPending}
             onClick={() => onAssign({ className, facultyId: selectedFacultyId })}
-            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 text-sm font-bold transition-all shadow-md shadow-indigo-500/10"
+            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white disabled:opacity-50 text-xs font-black transition-all shadow-md shadow-purple-500/25 active:scale-95"
           >
             Confirm
           </button>
@@ -686,28 +689,30 @@ export default function ClassesPage() {
          ═══════════════════════════════════════════════════════════════════════ */}
       {viewMode === "coverflow" && (
         <div className="hidden md:block">
-          {/* Level Switcher Pill Buttons (Undergraduate / Postgraduate) */}
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <button
-              onClick={() => setLevelTab("UG")}
-              className={`px-6 py-2.5 rounded-full font-extrabold text-sm transition-all duration-300 shadow-sm ${
-                levelTab === "UG"
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-500/25 ring-2 ring-purple-400/20 scale-105"
-                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
-              }`}
-            >
-              Undergraduate ({ugList.length})
-            </button>
-            <button
-              onClick={() => setLevelTab("PG")}
-              className={`px-6 py-2.5 rounded-full font-extrabold text-sm transition-all duration-300 shadow-sm ${
-                levelTab === "PG"
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-500/25 ring-2 ring-purple-400/20 scale-105"
-                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
-              }`}
-            >
-              Postgraduate ({pgList.length})
-            </button>
+          {/* Level Switcher Pill Buttons inside unified Capsule Bar */}
+          <div className="flex items-center justify-center mb-2">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+              <button
+                onClick={() => setLevelTab("UG")}
+                className={`px-6 py-2.5 rounded-full font-black text-xs transition-all duration-300 ${
+                  levelTab === "UG"
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 ring-2 ring-purple-400/20 scale-105"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750"
+                }`}
+              >
+                Undergraduate ({ugList.length})
+              </button>
+              <button
+                onClick={() => setLevelTab("PG")}
+                className={`px-6 py-2.5 rounded-full font-black text-xs transition-all duration-300 ${
+                  levelTab === "PG"
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 ring-2 ring-purple-400/20 scale-105"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750"
+                }`}
+              >
+                Postgraduate ({pgList.length})
+              </button>
+            </div>
           </div>
 
           {/* GSAP 3D Carousel */}
