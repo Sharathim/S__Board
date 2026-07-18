@@ -140,16 +140,16 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
     label: c.class_name,
     level: c.class_name.startsWith("PG") ? "PG" : "UG",
     year: 1,
-    badgeBg: "bg-[#7C5CFC]",
-    ringColor: "#7C5CFC",
-    textAccent: "text-[#7C5CFC]",
-    inchargeBg: "bg-[#F7F6FF] dark:bg-purple-950/20",
-    glowShadow: "shadow-[0_22px_55px_rgba(124,92,252,0.22)]"
+    badgeBg: "bg-[#5B50EC]",
+    ringColor: "#5B50EC",
+    textAccent: "text-[#5B50EC]",
+    inchargeBg: "bg-[#F7F8FC] dark:bg-purple-950/20",
+    glowShadow: "shadow-[0_25px_60px_rgba(91,80,236,0.22)]"
   };
 
-  const ringStroke = activeMeta.ringColor || "#7C5CFC";
-  const badgeColor = activeMeta.badgeBg || "bg-[#7C5CFC]";
-  const textAccentColor = activeMeta.textAccent || "text-[#7C5CFC]";
+  const ringStroke = activeMeta.ringColor || "#5B50EC";
+  const badgeColor = activeMeta.badgeBg || "bg-[#5B50EC]";
+  const textAccentColor = activeMeta.textAccent || "text-[#5B50EC]";
 
   return (
     <div 
@@ -162,16 +162,16 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
           onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
         }
       }}
-      className={`w-[305px] h-[390px] p-6 flex flex-col justify-between select-none relative cursor-pointer rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 transition-all duration-300 ${
+      className={`w-[310px] h-[395px] p-6 flex flex-col justify-between select-none relative cursor-pointer rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 transition-all duration-300 ${
         isActive 
-          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-purple-400/40 border-purple-200 dark:border-purple-800/60` 
+          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-indigo-400/40 border-indigo-200 dark:border-indigo-800/60` 
           : "shadow-md hover:shadow-lg opacity-90 hover:opacity-100"
       }`}
     >
       {/* 1. Top Header Row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className={`w-[42px] h-[42px] rounded-[14px] ${badgeColor} flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-purple-500/20 shrink-0`}>
+          <div className={`w-[42px] h-[42px] rounded-[14px] ${badgeColor} flex items-center justify-center text-white font-black text-sm shadow-md shadow-indigo-500/20 shrink-0`}>
             {activeMeta.level}
           </div>
           <div className="min-w-0">
@@ -196,59 +196,60 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
         </button>
       </div>
 
-      {/* 2. Center Multi-Ring Circular Gauge & Statistics */}
+      {/* 2. Center Circular Gauge Graphic & Precise Typography (Matching Cropped Image) */}
       <div className="my-2 flex items-center justify-between px-1 relative">
-        {/* Left Side: Student Count */}
-        <div className="flex flex-col items-center justify-center text-center w-[62px]">
+        {/* Left Side: Students Count */}
+        <div className="flex flex-col items-center justify-center text-center w-[64px]">
           <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">
             {c.student_count ?? 0}
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
-            Students
+          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 tracking-[0.14em] uppercase mt-2">
+            STUDENTS
           </span>
         </div>
 
-        {/* Center Multi-Layer Translucent Ring Halo */}
-        <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-purple-100/50 via-purple-50/20 to-indigo-100/40 dark:from-purple-950/30 dark:to-indigo-950/30 border border-purple-200/50 dark:border-purple-800/40 p-2 flex items-center justify-center shadow-inner shrink-0">
-          
+        {/* Center Multi-Layer Translucent Ring Gauge */}
+        <div className="relative w-32 h-32 rounded-full bg-[#F5F2FE] dark:bg-purple-950/30 border border-purple-100/60 dark:border-purple-900/40 p-2 flex items-center justify-center shadow-inner shrink-0">
           {/* SVG Progress Arc */}
-          <svg className="w-full h-full transform -rotate-90 drop-shadow-xs" viewBox="0 0 100 100">
+          <svg className="w-full h-full transform -rotate-90 drop-shadow-xs relative z-10" viewBox="0 0 100 100">
             <circle
               cx="50"
               cy="50"
-              r="40"
-              stroke="currentColor"
+              r="38"
+              stroke="rgba(91, 80, 236, 0.12)"
               strokeWidth="6"
-              className="text-purple-100/80 dark:text-purple-950/60"
               fill="transparent"
             />
             <circle
               cx="50"
               cy="50"
-              r="40"
+              r="38"
               stroke={ringStroke}
               strokeWidth="7"
-              strokeDasharray="251.2"
-              strokeDashoffset="75"
+              strokeDasharray="238.7"
+              strokeDashoffset="65"
               strokeLinecap="round"
               className="transition-all duration-700"
               fill="transparent"
             />
           </svg>
 
-          {/* Center Glowing Icon Badge */}
-          <div className={`absolute inset-0 m-auto w-14 h-14 rounded-full ${badgeColor} text-white flex items-center justify-center shadow-lg shadow-purple-500/30 border-2 border-white dark:border-slate-900 transform transition-transform duration-300 ${isActive ? "scale-110" : ""}`}>
-            <Users className="w-6 h-6 text-white" />
+          {/* Inner White Gap Ring & Center Solid Icon Badge */}
+          <div className="absolute inset-0 m-auto w-[56px] h-[56px] rounded-full bg-white dark:bg-slate-900 p-1 shadow-md z-20 flex items-center justify-center">
+            <div className={`w-full h-full rounded-full ${badgeColor} text-white flex items-center justify-center shadow-md shadow-indigo-500/20 transform transition-transform duration-300 ${isActive ? "scale-105" : ""}`}>
+              <Users className="w-6 h-6 text-white" />
+            </div>
           </div>
         </div>
 
-        {/* Right Side: Year Indicator */}
-        <div className="flex flex-col items-center justify-center text-center w-[62px]">
-          <span className="text-xl font-black text-slate-900 dark:text-white leading-none">
-            {`Year ${activeMeta.year}`}
-          </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
-            Year
+        {/* Right Side: Stacked "Year" / "2" & "YEAR" Label (Exact Crop Match) */}
+        <div className="flex flex-col items-center justify-center text-center w-[64px]">
+          <div className="flex flex-col items-center justify-center leading-none">
+            <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Year</span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{activeMeta.year}</span>
+          </div>
+          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 tracking-[0.14em] uppercase mt-2">
+            YEAR
           </span>
         </div>
       </div>
@@ -261,14 +262,14 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
             onAssignIncharge(c.class_name);
           }
         }}
-        className={`flex items-center gap-3.5 h-13 ${activeMeta.inchargeBg || "bg-[#F7F6FF] dark:bg-purple-950/20"} rounded-2xl px-4 border border-slate-100 dark:border-slate-800/80 transition-all ${
+        className={`flex items-center gap-3.5 h-13 ${activeMeta.inchargeBg || "bg-[#F7F8FC] dark:bg-purple-950/20"} rounded-[18px] px-4 border border-slate-100 dark:border-slate-800/80 transition-all ${
           isHOD ? "cursor-pointer hover:brightness-95" : ""
         }`}
       >
         {hasIncharge ? (
-          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7.5 h-7.5 ring-2 ring-purple-500/20 shrink-0" />
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7.5 h-7.5 ring-2 ring-indigo-500/20 shrink-0" />
         ) : (
-          <div className="w-7.5 h-7.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-xs">
+          <div className="w-7.5 h-7.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-xs">
             <ShieldCheck className="w-4 h-4" />
           </div>
         )}
