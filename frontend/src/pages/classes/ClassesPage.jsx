@@ -9,10 +9,11 @@ import { Avatar } from "../../components/ui/Avatar";
 import { Switch } from "../../components/ui/Switch";
 import {
   GraduationCap, Users, ToggleLeft, ToggleRight, Crown,
-  Lock, ChevronRight, X, ShieldCheck, BookOpen, UserCog, Copy,
-  Layers, TrendingUp, LayoutGrid, List
+  Lock, ChevronRight, ChevronLeft, X, ShieldCheck, BookOpen, UserCog, Copy,
+  Layers, TrendingUp, LayoutGrid, List, MoreVertical, Send, Sparkles
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { gsap } from "gsap";
 
 // ─── Class display metadata ────────────────────────────────────────────────
 const CLASS_META = {
@@ -30,6 +31,7 @@ function StudentRegistrationBanner() {
   return null;
 }
 
+// ─── Standard Mobile & Grid Card Component ──────────────────────────────────
 function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
   const hasIncharge = !!c.incharge;
   const activeMeta = meta || {
@@ -45,11 +47,9 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
-          {/* Left Icon: Rounded square, 44x44, Radius: 12px, Text UG/PG 18px */}
-          <div className="w-11 h-11 rounded-[12px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0">
+          <div className="w-11 h-11 rounded-[12px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0 shadow-md shadow-indigo-500/20">
             {activeMeta.level}
           </div>
-          {/* Title & Subtitle */}
           <div className="min-w-0">
             <h3 className="text-[16px] font-[700] leading-[22px] text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate">
               {activeMeta.label}
@@ -96,7 +96,6 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
  
       {/* Statistics Block */}
       <div className="grid grid-cols-[1.15fr_0.85fr] gap-2.5">
-        {/* Students */}
         <div className="h-[52px] bg-[#fafafa] dark:bg-slate-950 border border-slate-100/50 dark:border-slate-700 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <Users className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
@@ -105,7 +104,6 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
           </div>
         </div>
  
-        {/* Year / Forum Members */}
         <div className="h-[52px] bg-[#fafafa] dark:bg-slate-950 border border-slate-100/50 dark:border-slate-700 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
@@ -135,6 +133,323 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
   return cardContent;
 }
 
+// ─── 3D Image 1 Replicated Class Card Component ─────────────────────────────
+function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, isActive, onClickCard }) {
+  const hasIncharge = !!c.incharge;
+  const activeMeta = meta || {
+    label: c.class_name,
+    level: c.class_name.startsWith("PG") ? "PG" : "UG",
+    year: 1
+  };
+
+  const isGreenTheme = activeMeta.label?.includes("3");
+  const themeBgGradient = isGreenTheme 
+    ? "from-emerald-500 to-emerald-600 shadow-emerald-500/25" 
+    : "from-indigo-600 to-violet-600 shadow-indigo-500/25";
+
+  const themeRingColor = isGreenTheme ? "text-emerald-500" : "text-indigo-500";
+  const themeBadgeBg = isGreenTheme ? "bg-emerald-500" : "bg-indigo-600";
+
+  return (
+    <div 
+      onClick={(e) => {
+        if (!isActive) {
+          e.preventDefault();
+          e.stopPropagation();
+          onClickCard();
+        } else if (c.can_view_details) {
+          onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
+        }
+      }}
+      className={`w-[clamp(280px,26vw,360px)] min-h-[clamp(350px,38vh,415px)] p-6 sm:p-7 flex flex-col justify-between select-none relative cursor-pointer coverflow-card-3d transition-all duration-300 ${
+        isActive ? "coverflow-card-active ring-2 ring-indigo-500/30" : "hover:brightness-105"
+      }`}
+    >
+      {/* 1. Header Row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className={`w-11 h-11 rounded-2xl ${themeBadgeBg} flex items-center justify-center text-white font-black text-base shadow-md shrink-0`}>
+            {activeMeta.level}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
+              {activeMeta.label}
+            </h3>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-400 mt-0.5">
+              {activeMeta.level === "UG" ? "Undergraduate" : "Postgraduate"}
+            </p>
+          </div>
+        </div>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (c.can_view_details) {
+              onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
+            }
+          }}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <MoreVertical className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* 2. Middle Circular Gauge & Statistics Graphic */}
+      <div className="my-5 flex items-center justify-between px-2 relative">
+        {/* Left Stats: Students Count */}
+        <div className="flex flex-col items-center justify-center text-center min-w-[65px]">
+          <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">
+            {c.student_count ?? 0}
+          </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+            Students
+          </span>
+        </div>
+
+        {/* Center Circular Progress Ring */}
+        <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center shrink-0">
+          <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              stroke="currentColor"
+              strokeWidth="6"
+              className="text-slate-100 dark:text-slate-800/80"
+              fill="transparent"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              stroke="currentColor"
+              strokeWidth="7"
+              strokeDasharray="251.2"
+              strokeDashoffset="75"
+              strokeLinecap="round"
+              className={`${themeRingColor} transition-all duration-700`}
+              fill="transparent"
+            />
+          </svg>
+
+          {/* Inner Floating Icon Box */}
+          <div className={`absolute inset-0 m-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br ${themeBgGradient} text-white flex items-center justify-center shadow-lg transform transition-transform duration-300 ${isActive ? "scale-110" : ""}`}>
+            <Users className="w-7 h-7 sm:w-8 sm:h-8" />
+          </div>
+        </div>
+
+        {/* Right Stats: Year */}
+        <div className="flex flex-col items-center justify-center text-center min-w-[65px]">
+          <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">
+            {`Year ${activeMeta.year}`}
+          </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+            Year
+          </span>
+        </div>
+      </div>
+
+      {/* 3. Class Incharge Info Pill Box */}
+      <div
+        onClick={(e) => {
+          if (isHOD) {
+            e.stopPropagation();
+            onAssignIncharge(c.class_name);
+          }
+        }}
+        className={`flex items-center gap-3.5 h-12 bg-slate-50/90 dark:bg-slate-900/80 border border-slate-100 dark:border-slate-800 rounded-2xl px-4 transition-all ${
+          isHOD ? "cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800" : ""
+        }`}
+      >
+        {hasIncharge ? (
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7 h-7 ring-2 ring-indigo-500/20 shrink-0" />
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/50 dark:border-indigo-800/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1 flex flex-col justify-center">
+          <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase leading-none">Class Incharge</span>
+          <span className={`text-xs font-bold leading-tight truncate mt-0.5 ${hasIncharge ? "text-slate-800 dark:text-slate-200" : "text-indigo-600 dark:text-indigo-400 italic"}`}>
+            {hasIncharge ? c.incharge.name : "Not Assigned"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 3D Coverflow Carousel Container (GSAP Powered) ───────────────────────
+function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const containerRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const dragDistance = useRef(0);
+
+  // Synchronize activeIndex if list size changes
+  useEffect(() => {
+    if (activeIndex >= list.length) {
+      setActiveIndex(Math.max(0, list.length - 1));
+    }
+  }, [list.length, activeIndex]);
+
+  // GSAP 3D Coverflow animation effect
+  useEffect(() => {
+    if (!list.length) return;
+    const n = list.length;
+
+    list.forEach((_, i) => {
+      const card = cardsRef.current[i];
+      if (!card) return;
+
+      // Infinite loop shortest index offset calculation
+      let diff = i - activeIndex;
+      if (n > 1) {
+        diff = ((diff % n) + n) % n;
+        if (diff > n / 2) diff -= n;
+      }
+
+      const isActive = diff === 0;
+      const absDiff = Math.abs(diff);
+
+      const spacing = window.innerWidth < 1400 ? 210 : 250;
+      const xPos = diff * spacing;
+      const rotateYVal = diff === 0 ? 0 : diff < 0 ? 28 : -28;
+      const scaleVal = diff === 0 ? 1.14 : Math.max(0.70, 0.85 - absDiff * 0.08);
+      const opacityVal = diff === 0 ? 1 : Math.max(0.25, 0.82 - absDiff * 0.2);
+      const zVal = diff === 0 ? 120 : -absDiff * 90;
+      const zIndexVal = 100 - absDiff * 10;
+
+      gsap.to(card, {
+        x: xPos,
+        rotateY: rotateYVal,
+        scale: scaleVal,
+        opacity: opacityVal,
+        z: zVal,
+        zIndex: zIndexVal,
+        duration: 0.6,
+        ease: "power3.out",
+        overwrite: "auto"
+      });
+    });
+  }, [activeIndex, list]);
+
+  const handleNext = () => {
+    if (list.length === 0) return;
+    setActiveIndex((prev) => (prev + 1) % list.length);
+  };
+
+  const handlePrev = () => {
+    if (list.length === 0) return;
+    setActiveIndex((prev) => (prev - 1 + list.length) % list.length);
+  };
+
+  // Pointer drag gestures
+  const onPointerDown = (e) => {
+    isDragging.current = true;
+    startX.current = e.clientX || e.touches?.[0]?.clientX || 0;
+    dragDistance.current = 0;
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging.current) return;
+    const currentX = e.clientX || e.touches?.[0]?.clientX || 0;
+    dragDistance.current = currentX - startX.current;
+  };
+
+  const onPointerUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (dragDistance.current < -40) {
+      handleNext();
+    } else if (dragDistance.current > 40) {
+      handlePrev();
+    }
+  };
+
+  if (!list.length) return null;
+
+  return (
+    <div className="w-full py-8 flex flex-col items-center select-none relative overflow-hidden">
+      
+      {/* 3D Coverflow Stage Area */}
+      <div 
+        ref={containerRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerUp}
+        className="relative w-full h-[460px] sm:h-[490px] flex items-center justify-center coverflow-stage cursor-grab active:cursor-grabbing"
+      >
+        {/* Floor Glow Reflection */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-24 rounded-full coverflow-floor-reflection pointer-events-none" />
+
+        {/* Floating Left / Right Nav Arrows */}
+        <button
+          onClick={handlePrev}
+          className="absolute left-4 lg:left-12 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-lg backdrop-blur-md hover:scale-110 active:scale-95 transition-all"
+          title="Previous Class"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+
+        <button
+          onClick={handleNext}
+          className="absolute right-4 lg:right-12 top-1/2 -translate-y-1/2 z-50 w-11 h-11 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-lg backdrop-blur-md hover:scale-110 active:scale-95 transition-all"
+          title="Next Class"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Render Cards */}
+        {list.map((c, i) => {
+          const meta = CLASS_META[c.class_name];
+          return (
+            <div
+              key={c.class_name}
+              ref={(el) => (cardsRef.current[i] = el)}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            >
+              <Coverflow3DClassCard
+                c={c}
+                meta={meta}
+                isHOD={isHOD}
+                onAssignIncharge={onAssignIncharge}
+                onNavigate={onNavigate}
+                isActive={i === activeIndex}
+                onClickCard={() => setActiveIndex(i)}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pagination Dots Indicator Bar */}
+      <div className="flex items-center gap-2 mt-4 z-20">
+        {list.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActiveIndex(i)}
+            className={`transition-all duration-300 rounded-full ${
+              i === activeIndex 
+                ? "w-8 h-2.5 bg-indigo-600 dark:bg-indigo-500 shadow-md shadow-indigo-500/30" 
+                : "w-2.5 h-2.5 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400"
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Decorative Paper Plane Helper Subtitle */}
+      <div className="flex items-center justify-center gap-2 mt-5 text-slate-400 dark:text-slate-500 text-xs font-bold tracking-wide">
+        <Send className="w-4 h-4 text-indigo-500 transform -rotate-12 animate-pulse" />
+        <span>Click on any class to view details</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Assign Incharge Modal ────────────────────────────────────────────────────
 function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, isPending }) {
   const [selectedFacultyId, setSelectedFacultyId] = useState(null);
@@ -147,7 +462,6 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
         className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-150 dark:border-gray-700 w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden transition-all"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className={`h-1.5 rounded-t-3xl bg-gradient-to-r ${meta?.gradient} shrink-0`} />
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/60 shrink-0">
           <div className="flex items-center gap-3">
@@ -164,7 +478,6 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
           </button>
         </div>
 
-        {/* Faculty list */}
         <div className="p-4 flex-1 overflow-y-auto min-h-0">
           {eligibleFaculty.length === 0 ? (
             <div className="text-center py-10">
@@ -203,7 +516,6 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-6 pb-6 pt-4 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700/60 bg-gray-50/40 dark:bg-gray-800/40 shrink-0">
           <button
             type="button"
@@ -227,31 +539,16 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Main Classes Page ────────────────────────────────────────────────────────
 export default function ClassesPage() {
   const { user } = useAuth();
   const isHOD = user?.role === "HOD";
   const queryClient = useQueryClient();
   const { navigateWithTransition } = usePageTransition();
 
-  const { data: invite } = useQuery({
-    queryKey: ["student-invite"],
-    queryFn: () => getStudentRegistration().then((r) => ({
-      ...r.data,
-      invite_link: `${window.location.origin}/invite/student/${r.data.token}`
-    })),
-    enabled: isHOD,
-  });
-
   const [inchargeModal, setInchargeModal] = useState(null);
-  const [viewMode, setViewMode] = useState("grid");
-  const [showLeaderboardPopup, setShowLeaderboardPopup] = useState(false);
-
-  useEffect(() => {
-    if (!showLeaderboardPopup) return;
-    const timer = setTimeout(() => setShowLeaderboardPopup(false), 2000);
-    return () => clearTimeout(timer);
-  }, [showLeaderboardPopup]);
+  const [viewMode, setViewMode] = useState("coverflow"); // Default to 3D Coverflow on desktop
+  const [levelTab, setLevelTab] = useState("UG"); // "UG" or "PG"
 
   const { data: raw, isLoading } = useQuery({
     queryKey: ["classes"],
@@ -287,20 +584,19 @@ export default function ClassesPage() {
 
   const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
   const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
+  const currentLevelList = levelTab === "UG" ? ugList : pgList;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in pb-8">
 
       {/* ── Page Header ── */}
-      <div className="flex flex-row items-center justify-between gap-2 mb-6">
-        <div className="flex items-center">
+      <div className="flex flex-row items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-3">
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
         </div>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-
-          {/* HOD only: Student registration toggle "Student Invite" */}
           {isHOD && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
               <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
@@ -313,8 +609,19 @@ export default function ClassesPage() {
             </div>
           )}
 
-          {/* Grid / List Switcher */}
+          {/* Desktop View Switchers */}
           <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+            <button
+              onClick={() => setViewMode("coverflow")}
+              className={`p-1 rounded-lg transition-all ${
+                viewMode === "coverflow"
+                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
+              }`}
+              title="3D Coverflow View"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
@@ -341,116 +648,160 @@ export default function ClassesPage() {
         </div>
       </div>
 
-      {viewMode === "grid" ? (
-        <>
-          {/* ── UG Classes ── */}
-          {ugList.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {ugList.map((c) => (
-                  <ClassCard
-                    key={c.class_name}
-                    c={c}
-                    meta={CLASS_META[c.class_name]}
-                    isHOD={isHOD}
-                    onAssignIncharge={setInchargeModal}
-                    onNavigate={navigateWithTransition}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── PG Classes ── */}
-          {pgList.length > 0 && (
-            <div className="space-y-4 pt-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {pgList.map((c) => (
-                  <ClassCard
-                    key={c.class_name}
-                    c={c}
-                    meta={CLASS_META[c.class_name]}
-                    isHOD={isHOD}
-                    onAssignIncharge={setInchargeModal}
-                    onNavigate={navigateWithTransition}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        /* List View */
-        <div className="space-y-4">
-          <div className="hidden lg:grid grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
-            <span>Class Name</span>
-            <span>Level</span>
-            <span>Class Incharge</span>
-            <span className="text-center">Students</span>
-            <span className="text-right">Action</span>
+      {/* ═══════════════════════════════════════════════════════════════════════
+          DESKTOP VIEW: 3D Coverflow Carousel with Level Tabs
+         ═══════════════════════════════════════════════════════════════════════ */}
+      {viewMode === "coverflow" && (
+        <div className="hidden md:block">
+          {/* Level Switcher Pill Buttons (Undergraduate / Postgraduate) */}
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <button
+              onClick={() => setLevelTab("UG")}
+              className={`px-6 py-2.5 rounded-full font-extrabold text-sm transition-all duration-300 shadow-sm ${
+                levelTab === "UG"
+                  ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-indigo-500/25 ring-2 ring-indigo-500/20 scale-105"
+                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
+              }`}
+            >
+              Undergraduate ({ugList.length})
+            </button>
+            <button
+              onClick={() => setLevelTab("PG")}
+              className={`px-6 py-2.5 rounded-full font-extrabold text-sm transition-all duration-300 shadow-sm ${
+                levelTab === "PG"
+                  ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-indigo-500/25 ring-2 ring-indigo-500/20 scale-105"
+                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750"
+              }`}
+            >
+              Postgraduate ({pgList.length})
+            </button>
           </div>
-          <div className="space-y-2.5">
-            {classes.map((c) => {
-              const meta = CLASS_META[c.class_name];
-              const hasIncharge = !!c.incharge;
-              return (
-                <div
-                  key={c.class_name}
-                  onClick={() => c.can_view_details && navigateWithTransition(`/classes/${c.class_name}`, meta?.label || c.class_name, BookOpen)}
-                  className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
-                    c.can_view_details ? "cursor-pointer" : "opacity-80"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
-                      {meta?.short || c.class_name}
-                    </div>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{meta?.label || c.class_name}</span>
-                  </div>
 
-                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    {meta?.level === "UG" ? "Undergraduate" : "Postgraduate"}
-                  </span>
-
-                  <div className="flex items-center gap-2">
-                    {hasIncharge ? (
-                      <>
-                        <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6.5 h-6.5 ring-2 ring-primary/10 shrink-0" />
-                        <span className="text-xs font-bold text-gray-800 dark:text-gray-250 truncate">{c.incharge.name}</span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-gray-400 italic">Not Assigned</span>
-                    )}
-                  </div>
-
-                  <span className="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">
-                    {c.student_count ?? 0} Students
-                  </span>
-
-                  <div className="text-right" onClick={(e) => e.stopPropagation()}>
-                    {isHOD ? (
-                      <button
-                        onClick={() => setInchargeModal(c.class_name)}
-                        className="text-xs font-bold text-indigo-600 hover:text-indigo-755 hover:underline bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 transition-all active:scale-95"
-                      >
-                        Assign Incharge
-                      </button>
-                    ) : (
-                      <span className="text-xs text-gray-400">—</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {/* GSAP 3D Carousel */}
+          <CoverflowCarousel
+            list={currentLevelList}
+            isHOD={isHOD}
+            onAssignIncharge={setInchargeModal}
+            onNavigate={navigateWithTransition}
+          />
         </div>
       )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          MOBILE VIEW + DESKTOP FALLBACK GRID/LIST VIEWS
+         ═══════════════════════════════════════════════════════════════════════ */}
+      <div className={viewMode === "coverflow" ? "block md:hidden" : "block"}>
+        {viewMode !== "list" ? (
+          <>
+            {/* UG Classes */}
+            {ugList.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {ugList.map((c) => (
+                    <ClassCard
+                      key={c.class_name}
+                      c={c}
+                      meta={CLASS_META[c.class_name]}
+                      isHOD={isHOD}
+                      onAssignIncharge={setInchargeModal}
+                      onNavigate={navigateWithTransition}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* PG Classes */}
+            {pgList.length > 0 && (
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {pgList.map((c) => (
+                    <ClassCard
+                      key={c.class_name}
+                      c={c}
+                      meta={CLASS_META[c.class_name]}
+                      isHOD={isHOD}
+                      onAssignIncharge={setInchargeModal}
+                      onNavigate={navigateWithTransition}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          /* List View */
+          <div className="space-y-4">
+            <div className="hidden lg:grid grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+              <span>Class Name</span>
+              <span>Level</span>
+              <span>Class Incharge</span>
+              <span className="text-center">Students</span>
+              <span className="text-right">Action</span>
+            </div>
+            <div className="space-y-2.5">
+              {classes.map((c) => {
+                const meta = CLASS_META[c.class_name];
+                const hasIncharge = !!c.incharge;
+                return (
+                  <div
+                    key={c.class_name}
+                    onClick={() => c.can_view_details && navigateWithTransition(`/classes/${c.class_name}`, meta?.label || c.class_name, BookOpen)}
+                    className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
+                      c.can_view_details ? "cursor-pointer" : "opacity-80"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
+                        {meta?.short || c.class_name}
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{meta?.label || c.class_name}</span>
+                    </div>
+
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                      {meta?.level === "UG" ? "Undergraduate" : "Postgraduate"}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      {hasIncharge ? (
+                        <>
+                          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6.5 h-6.5 ring-2 ring-primary/10 shrink-0" />
+                          <span className="text-xs font-bold text-gray-800 dark:text-gray-250 truncate">{c.incharge.name}</span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Not Assigned</span>
+                      )}
+                    </div>
+
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">
+                      {c.student_count ?? 0} Students
+                    </span>
+
+                    <div className="text-right" onClick={(e) => e.stopPropagation()}>
+                      {isHOD ? (
+                        <button
+                          onClick={() => setInchargeModal(c.class_name)}
+                          className="text-xs font-bold text-indigo-600 hover:text-indigo-755 hover:underline bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 transition-all active:scale-95"
+                        >
+                          Assign Incharge
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── Assign Incharge Modal ── */}
       <AssignInchargeModal
