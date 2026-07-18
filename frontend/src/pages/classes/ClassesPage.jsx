@@ -705,7 +705,22 @@ export default function ClassesPage() {
           DESKTOP VIEW: Unified 3D Coverflow Carousel (PG cards to the left of UG 1A)
          ═══════════════════════════════════════════════════════════════════════ */}
       {viewMode === "coverflow" && (
-        <div className="hidden md:block pt-2">
+        <div className="hidden md:block pt-1">
+          {/* Top Informative Level Indicator Text Badge */}
+          <div className="flex items-center justify-center mb-2">
+            <div className="inline-flex items-center gap-3.5 px-5 py-2 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 shadow-xs text-xs font-black tracking-wide">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#B83610] shadow-xs" />
+                <span className="text-slate-700 dark:text-slate-200">Postgraduate ({pgList.length})</span>
+              </div>
+              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F05A2B] shadow-xs" />
+                <span className="text-slate-700 dark:text-slate-200">Undergraduate ({ugList.length})</span>
+              </div>
+            </div>
+          </div>
+
           <CoverflowCarousel
             list={allClasses}
             isHOD={isHOD}
