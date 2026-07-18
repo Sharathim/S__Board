@@ -15,16 +15,16 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
-// ─── Class display metadata & Theme Palettes ─────────────────────────────
+// ─── Class display metadata & Theme Palettes (Terracotta Orange Theme) ───────
 const CLASS_META = {
-  UG_1A: { label: "UG 1A", short: "1A", level: "UG", year: 1, colorScheme: "purple", badgeBg: "bg-[#7C3AED]", ringColor: "#8B5CF6", textAccent: "text-[#7C3AED]", inchargeBg: "bg-[#F5F3FF] dark:bg-purple-950/30", glowShadow: "shadow-[0_20px_50px_rgba(124,58,237,0.22)] border-purple-300 dark:border-purple-800" },
-  UG_1B: { label: "UG 1B", short: "1B", level: "UG", year: 1, colorScheme: "purple", badgeBg: "bg-[#7C3AED]", ringColor: "#8B5CF6", textAccent: "text-[#7C3AED]", inchargeBg: "bg-[#F5F3FF] dark:bg-purple-950/30", glowShadow: "shadow-[0_20px_50px_rgba(124,58,237,0.22)] border-purple-300 dark:border-purple-800" },
-  UG_2A: { label: "UG 2A", short: "2A", level: "UG", year: 2, colorScheme: "indigo", badgeBg: "bg-[#4F46E5]", ringColor: "#6366F1", textAccent: "text-[#4F46E5]", inchargeBg: "bg-[#EEF2FF] dark:bg-indigo-950/30", glowShadow: "shadow-[0_20px_50px_rgba(99,102,241,0.25)] border-indigo-300 dark:border-indigo-800" },
-  UG_2B: { label: "UG 2B", short: "2B", level: "UG", year: 2, colorScheme: "indigo", badgeBg: "bg-[#4F46E5]", ringColor: "#6366F1", textAccent: "text-[#4F46E5]", inchargeBg: "bg-[#EEF2FF] dark:bg-indigo-950/30", glowShadow: "shadow-[0_20px_50px_rgba(99,102,241,0.25)] border-indigo-300 dark:border-indigo-800" },
-  UG_3A: { label: "UG 3A", short: "3A", level: "UG", year: 3, colorScheme: "emerald", badgeBg: "bg-[#10B981]", ringColor: "#10B981", textAccent: "text-[#059669]", inchargeBg: "bg-[#ECFDF5] dark:bg-emerald-950/30", glowShadow: "shadow-[0_20px_50px_rgba(16,185,129,0.22)] border-emerald-300 dark:border-emerald-800" },
-  UG_3B: { label: "UG 3B", short: "3B", level: "UG", year: 3, colorScheme: "emerald", badgeBg: "bg-[#10B981]", ringColor: "#10B981", textAccent: "text-[#059669]", inchargeBg: "bg-[#ECFDF5] dark:bg-emerald-950/30", glowShadow: "shadow-[0_20px_50px_rgba(16,185,129,0.22)] border-emerald-300 dark:border-emerald-800" },
-  PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, colorScheme: "fuchsia", badgeBg: "bg-[#D946EF]", ringColor: "#E879F9", textAccent: "text-[#C026D3]", inchargeBg: "bg-[#FDF4FF] dark:bg-fuchsia-950/30", glowShadow: "shadow-[0_20px_50px_rgba(217,70,239,0.22)] border-fuchsia-300 dark:border-fuchsia-800" },
-  PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, colorScheme: "indigo", badgeBg: "bg-[#4F46E5]", ringColor: "#6366F1", textAccent: "text-[#4F46E5]", inchargeBg: "bg-[#EEF2FF] dark:bg-indigo-950/30", glowShadow: "shadow-[0_20px_50px_rgba(99,102,241,0.25)] border-indigo-300 dark:border-indigo-800" },
+  UG_1A: { label: "UG 1A", short: "1A", level: "UG", year: 1, colorScheme: "orange", badgeBg: "bg-[#F05A2B]", ringColor: "#F05A2B", textAccent: "text-[#F05A2B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(240,90,43,0.28)] border-orange-300 dark:border-orange-800" },
+  UG_1B: { label: "UG 1B", short: "1B", level: "UG", year: 1, colorScheme: "orange", badgeBg: "bg-[#F05A2B]", ringColor: "#F05A2B", textAccent: "text-[#F05A2B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(240,90,43,0.28)] border-orange-300 dark:border-orange-800" },
+  UG_2A: { label: "UG 2A", short: "2A", level: "UG", year: 2, colorScheme: "terracotta", badgeBg: "bg-[#E04A1B]", ringColor: "#E04A1B", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(224,74,27,0.28)] border-orange-300 dark:border-orange-800" },
+  UG_2B: { label: "UG 2B", short: "2B", level: "UG", year: 2, colorScheme: "terracotta", badgeBg: "bg-[#E04A1B]", ringColor: "#E04A1B", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(224,74,27,0.28)] border-orange-300 dark:border-orange-800" },
+  UG_3A: { label: "UG 3A", short: "3A", level: "UG", year: 3, colorScheme: "coral", badgeBg: "bg-[#FF8365]", ringColor: "#FF8365", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(255,131,101,0.28)] border-orange-300 dark:border-orange-800" },
+  UG_3B: { label: "UG 3B", short: "3B", level: "UG", year: 3, colorScheme: "coral", badgeBg: "bg-[#FF8365]", ringColor: "#FF8365", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(255,131,101,0.28)] border-orange-300 dark:border-orange-800" },
+  PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, colorScheme: "rose", badgeBg: "bg-[#B83610]", ringColor: "#B83610", textAccent: "text-[#B83610]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(184,54,16,0.28)] border-orange-300 dark:border-orange-800" },
+  PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, colorScheme: "rose", badgeBg: "bg-[#B83610]", ringColor: "#B83610", textAccent: "text-[#B83610]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(184,54,16,0.28)] border-orange-300 dark:border-orange-800" },
 };
 
 function StudentRegistrationBanner() {
@@ -47,7 +47,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-11 h-11 rounded-[12px] bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[18px] shrink-0 shadow-md shadow-indigo-500/20">
+          <div className="w-11 h-11 rounded-[12px] bg-gradient-to-br from-[#FF8365] to-[#F05A2B] flex items-center justify-center text-white font-bold text-[18px] shrink-0 shadow-md shadow-orange-500/20">
             {activeMeta.level}
           </div>
           <div className="min-w-0">
@@ -140,16 +140,16 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
     label: c.class_name,
     level: c.class_name.startsWith("PG") ? "PG" : "UG",
     year: 1,
-    badgeBg: "bg-[#5B50EC]",
-    ringColor: "#5B50EC",
-    textAccent: "text-[#5B50EC]",
-    inchargeBg: "bg-[#F7F8FC] dark:bg-purple-950/20",
-    glowShadow: "shadow-[0_25px_60px_rgba(91,80,236,0.22)]"
+    badgeBg: "bg-[#F05A2B]",
+    ringColor: "#F05A2B",
+    textAccent: "text-[#F05A2B]",
+    inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20",
+    glowShadow: "shadow-[0_25px_60px_rgba(240,90,43,0.28)]"
   };
 
-  const ringStroke = activeMeta.ringColor || "#5B50EC";
-  const badgeColor = activeMeta.badgeBg || "bg-[#5B50EC]";
-  const textAccentColor = activeMeta.textAccent || "text-[#5B50EC]";
+  const ringStroke = activeMeta.ringColor || "#F05A2B";
+  const badgeColor = activeMeta.badgeBg || "bg-[#F05A2B]";
+  const textAccentColor = activeMeta.textAccent || "text-[#F05A2B]";
 
   return (
     <div 
@@ -164,14 +164,14 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
       }}
       className={`w-[310px] h-[395px] p-6 flex flex-col justify-between select-none relative cursor-pointer rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 transition-all duration-300 ${
         isActive 
-          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-indigo-400/40 border-indigo-200 dark:border-indigo-800/60` 
+          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-[#F05A2B]/40 border-orange-200 dark:border-orange-900/60` 
           : "shadow-md hover:shadow-lg opacity-90 hover:opacity-100"
       }`}
     >
       {/* 1. Top Header Row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className={`w-[42px] h-[42px] rounded-[14px] ${badgeColor} flex items-center justify-center text-white font-black text-sm shadow-md shadow-indigo-500/20 shrink-0`}>
+          <div className={`w-[42px] h-[42px] rounded-[14px] ${badgeColor} flex items-center justify-center text-white font-black text-sm shadow-md shadow-orange-500/20 shrink-0`}>
             {activeMeta.level}
           </div>
           <div className="min-w-0">
@@ -196,7 +196,7 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
         </button>
       </div>
 
-      {/* 2. Center Circular Gauge Graphic & Precise Typography (Matching Cropped Image) */}
+      {/* 2. Center Circular Gauge Graphic & Precise Typography */}
       <div className="my-2 flex items-center justify-between px-1 relative">
         {/* Left Side: Students Count */}
         <div className="flex flex-col items-center justify-center text-center w-[64px]">
@@ -209,14 +209,14 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
         </div>
 
         {/* Center Multi-Layer Translucent Ring Gauge */}
-        <div className="relative w-32 h-32 rounded-full bg-[#F5F2FE] dark:bg-purple-950/30 border border-purple-100/60 dark:border-purple-900/40 p-2 flex items-center justify-center shadow-inner shrink-0">
+        <div className="relative w-32 h-32 rounded-full bg-[#FFF5F2] dark:bg-orange-950/30 border border-orange-100/60 dark:border-orange-900/40 p-2 flex items-center justify-center shadow-inner shrink-0">
           {/* SVG Progress Arc */}
           <svg className="w-full h-full transform -rotate-90 drop-shadow-xs relative z-10" viewBox="0 0 100 100">
             <circle
               cx="50"
               cy="50"
               r="38"
-              stroke="rgba(91, 80, 236, 0.12)"
+              stroke="rgba(240, 90, 43, 0.12)"
               strokeWidth="6"
               fill="transparent"
             />
@@ -236,13 +236,13 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
 
           {/* Inner White Gap Ring & Center Solid Icon Badge */}
           <div className="absolute inset-0 m-auto w-[56px] h-[56px] rounded-full bg-white dark:bg-slate-900 p-1 shadow-md z-20 flex items-center justify-center">
-            <div className={`w-full h-full rounded-full ${badgeColor} text-white flex items-center justify-center shadow-md shadow-indigo-500/20 transform transition-transform duration-300 ${isActive ? "scale-105" : ""}`}>
+            <div className={`w-full h-full rounded-full ${badgeColor} text-white flex items-center justify-center shadow-md shadow-orange-500/20 transform transition-transform duration-300 ${isActive ? "scale-105" : ""}`}>
               <Users className="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
 
-        {/* Right Side: Stacked "Year" / "2" & "YEAR" Label (Exact Crop Match) */}
+        {/* Right Side: Stacked "Year" / "2" & "YEAR" Label */}
         <div className="flex flex-col items-center justify-center text-center w-[64px]">
           <div className="flex flex-col items-center justify-center leading-none">
             <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Year</span>
@@ -262,14 +262,14 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
             onAssignIncharge(c.class_name);
           }
         }}
-        className={`flex items-center gap-3.5 h-13 ${activeMeta.inchargeBg || "bg-[#F7F8FC] dark:bg-purple-950/20"} rounded-[18px] px-4 border border-slate-100 dark:border-slate-800/80 transition-all ${
+        className={`flex items-center gap-3.5 h-13 ${activeMeta.inchargeBg || "bg-[#FFF5F2] dark:bg-orange-950/20"} rounded-[18px] px-4 border border-slate-100 dark:border-slate-800/80 transition-all ${
           isHOD ? "cursor-pointer hover:brightness-95" : ""
         }`}
       >
         {hasIncharge ? (
-          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7.5 h-7.5 ring-2 ring-indigo-500/20 shrink-0" />
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7.5 h-7.5 ring-2 ring-orange-500/20 shrink-0" />
         ) : (
-          <div className="w-7.5 h-7.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-xs">
+          <div className="w-7.5 h-7.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-[#F05A2B] shrink-0 shadow-xs">
             <ShieldCheck className="w-4 h-4" />
           </div>
         )}
@@ -285,15 +285,22 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
 }
 
 // ─── 3D Coverflow Carousel Container (GSAP Powered) ───────────────────────
-function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate, initialClassIndex = 0 }) {
+  const [activeIndex, setActiveIndex] = useState(initialClassIndex);
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
-  const prevActiveIndexRef = useRef(0);
+  const prevActiveIndexRef = useRef(initialClassIndex);
 
   const isDragging = useRef(false);
   const startX = useRef(0);
   const dragDistance = useRef(0);
+
+  // Set initial activeIndex to UG 1A when list loads
+  useEffect(() => {
+    if (initialClassIndex >= 0 && initialClassIndex < list.length) {
+      setActiveIndex(initialClassIndex);
+    }
+  }, [initialClassIndex, list.length]);
 
   // Synchronize activeIndex if list size changes
   useEffect(() => {
@@ -467,7 +474,7 @@ function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate }) {
             onClick={() => setActiveIndex(i)}
             className={`transition-all duration-300 rounded-full ${
               i === activeIndex 
-                ? "w-7 h-2 bg-purple-600 dark:bg-purple-500 shadow-md shadow-purple-500/30" 
+                ? "w-7 h-2 bg-[#F05A2B] dark:bg-[#FF8365] shadow-md shadow-orange-500/30" 
                 : "w-2 h-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400"
             }`}
           />
@@ -476,7 +483,7 @@ function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate }) {
 
       {/* Decorative Paper Plane Helper Subtitle */}
       <div className="flex items-center justify-center gap-2 mt-4 text-slate-400 dark:text-slate-500 text-xs font-semibold tracking-wide">
-        <Send className="w-3.5 h-3.5 text-purple-500 transform -rotate-12 animate-pulse" />
+        <Send className="w-3.5 h-3.5 text-[#F05A2B] transform -rotate-12 animate-pulse" />
         <span>Click on any class to view details</span>
       </div>
     </div>
@@ -496,10 +503,10 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header bar */}
-        <div className="h-1.5 rounded-t-3xl bg-gradient-to-r from-purple-500 via-indigo-500 to-emerald-500 shrink-0" />
+        <div className="h-1.5 rounded-t-3xl bg-gradient-to-r from-[#FF8365] via-[#F05A2B] to-[#E04A1B] shrink-0" />
         <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#FF8365] to-[#F05A2B] text-white flex items-center justify-center shadow-md shadow-orange-500/20">
               <Crown className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -531,17 +538,17 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
                   disabled={isPending}
                   className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all text-left disabled:opacity-50 group cursor-pointer ${
                     isSelected
-                      ? "border-purple-500 bg-purple-50/70 dark:bg-purple-950/40 shadow-sm shadow-purple-500/10 ring-1 ring-purple-500/30"
-                      : "border-slate-100 dark:border-slate-800/80 hover:border-purple-200 dark:hover:border-purple-800 hover:bg-purple-50/30 dark:hover:bg-purple-950/20"
+                      ? "border-[#F05A2B] bg-[#FFF5F2] dark:bg-orange-950/40 shadow-sm shadow-orange-500/10 ring-1 ring-[#F05A2B]/30"
+                      : "border-slate-100 dark:border-slate-800/80 hover:border-orange-200 dark:hover:border-orange-800 hover:bg-orange-50/30 dark:hover:bg-orange-950/20"
                   }`}
                 >
-                  <Avatar src={f.profile_picture} name={f.name} size="sm" className="w-9 h-9 ring-2 ring-purple-500/20 shrink-0" />
+                  <Avatar src={f.profile_picture} name={f.name} size="sm" className="w-9 h-9 ring-2 ring-orange-500/20 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{f.name}</p>
+                    <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate group-hover:text-[#F05A2B] dark:group-hover:text-[#FF8365] transition-colors">{f.name}</p>
                     <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">{f.designation}</p>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    isSelected ? "border-purple-600 bg-purple-600 text-white" : "border-slate-300 dark:border-slate-600"
+                    isSelected ? "border-[#F05A2B] bg-[#F05A2B] text-white" : "border-slate-300 dark:border-slate-600"
                   }`}>
                     {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
                   </div>
@@ -564,7 +571,7 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
             type="button"
             disabled={!selectedFacultyId || isPending}
             onClick={() => onAssign({ className, facultyId: selectedFacultyId })}
-            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white disabled:opacity-50 text-xs font-black transition-all shadow-md shadow-purple-500/25 active:scale-95"
+            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#FF8365] via-[#F05A2B] to-[#E04A1B] hover:brightness-110 text-white disabled:opacity-50 text-xs font-black transition-all shadow-md shadow-orange-500/25 active:scale-95"
           >
             Confirm
           </button>
@@ -584,7 +591,6 @@ export default function ClassesPage() {
 
   const [inchargeModal, setInchargeModal] = useState(null);
   const [viewMode, setViewMode] = useState("coverflow"); // Default to 3D Coverflow on desktop
-  const [levelTab, setLevelTab] = useState("UG"); // "UG" or "PG"
 
   const { data: raw, isLoading } = useQuery({
     queryKey: ["classes"],
@@ -620,7 +626,15 @@ export default function ClassesPage() {
 
   const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
   const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
-  const currentLevelList = levelTab === "UG" ? ugList : pgList;
+
+  // Combine PG and UG classes into one single Coverflow list with PG classes placed before UG 1A
+  const allClasses = [...pgList, ...ugList];
+  
+  // Calculate initial active index to center UG 1A on page load
+  const ug1aIndex = allClasses.findIndex(
+    (c) => c.class_name === "UG_1A" || c.class_name === "UG 1A" || c.class_name.startsWith("UG 1")
+  );
+  const initialClassIndex = ug1aIndex !== -1 ? ug1aIndex : (pgList.length > 0 ? pgList.length : 0);
 
   return (
     <div className="space-y-4 animate-fade-in pb-8">
@@ -629,6 +643,9 @@ export default function ClassesPage() {
       <div className="flex flex-row items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
+          <span className="hidden sm:inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFF5F2] dark:bg-orange-950/40 text-[#F05A2B] border border-orange-200/50 dark:border-orange-900/40">
+            {allClasses.length} Classes Total
+          </span>
         </div>
 
         {/* Right side actions */}
@@ -651,7 +668,7 @@ export default function ClassesPage() {
               onClick={() => setViewMode("coverflow")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "coverflow"
-                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
                   : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
               }`}
               title="3D Coverflow View"
@@ -662,7 +679,7 @@ export default function ClassesPage() {
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
                   : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
               }`}
               title="Grid View"
@@ -673,7 +690,7 @@ export default function ClassesPage() {
               onClick={() => setViewMode("list")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-indigo-650 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
                   : "text-gray-455 dark:text-gray-500 hover:text-gray-655"
               }`}
               title="List View"
@@ -685,42 +702,16 @@ export default function ClassesPage() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          DESKTOP VIEW: 3D Coverflow Carousel with Level Tabs
+          DESKTOP VIEW: Unified 3D Coverflow Carousel (PG cards to the left of UG 1A)
          ═══════════════════════════════════════════════════════════════════════ */}
       {viewMode === "coverflow" && (
-        <div className="hidden md:block space-y-4 pt-1">
-          {/* Level Switcher Pill Buttons inside unified Capsule Bar */}
-          <div className="flex items-center justify-center mb-4">
-            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-md">
-              <button
-                onClick={() => setLevelTab("UG")}
-                className={`px-6 py-2.5 rounded-full font-black text-xs transition-all duration-300 ${
-                  levelTab === "UG"
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 ring-2 ring-purple-400/20 scale-105"
-                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750"
-                }`}
-              >
-                Undergraduate ({ugList.length})
-              </button>
-              <button
-                onClick={() => setLevelTab("PG")}
-                className={`px-6 py-2.5 rounded-full font-black text-xs transition-all duration-300 ${
-                  levelTab === "PG"
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 ring-2 ring-purple-400/20 scale-105"
-                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750"
-                }`}
-              >
-                Postgraduate ({pgList.length})
-              </button>
-            </div>
-          </div>
-
-          {/* GSAP 3D Carousel */}
+        <div className="hidden md:block pt-2">
           <CoverflowCarousel
-            list={currentLevelList}
+            list={allClasses}
             isHOD={isHOD}
             onAssignIncharge={setInchargeModal}
             onNavigate={navigateWithTransition}
+            initialClassIndex={initialClassIndex}
           />
         </div>
       )}
