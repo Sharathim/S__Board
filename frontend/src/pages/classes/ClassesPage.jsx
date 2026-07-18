@@ -140,12 +140,16 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
     label: c.class_name,
     level: c.class_name.startsWith("PG") ? "PG" : "UG",
     year: 1,
-    badgeBg: "bg-purple-600",
-    ringColor: "#7C3AED",
-    textAccent: "text-purple-600",
-    inchargeBg: "bg-purple-50",
-    glowShadow: "shadow-[0_20px_50px_rgba(124,58,237,0.22)]"
+    badgeBg: "bg-[#7C5CFC]",
+    ringColor: "#7C5CFC",
+    textAccent: "text-[#7C5CFC]",
+    inchargeBg: "bg-[#F7F6FF] dark:bg-purple-950/20",
+    glowShadow: "shadow-[0_22px_55px_rgba(124,92,252,0.22)]"
   };
+
+  const ringStroke = activeMeta.ringColor || "#7C5CFC";
+  const badgeColor = activeMeta.badgeBg || "bg-[#7C5CFC]";
+  const textAccentColor = activeMeta.textAccent || "text-[#7C5CFC]";
 
   return (
     <div 
@@ -158,20 +162,20 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
           onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
         }
       }}
-      className={`w-[290px] h-[375px] p-6 flex flex-col justify-between select-none relative cursor-pointer rounded-[28px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 transition-all duration-300 ${
+      className={`w-[305px] h-[390px] p-6 flex flex-col justify-between select-none relative cursor-pointer rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 transition-all duration-300 ${
         isActive 
-          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-offset-2 ring-purple-400/30 dark:ring-offset-slate-950` 
-          : "shadow-lg hover:shadow-xl opacity-90 hover:opacity-100"
+          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-purple-400/40 border-purple-200 dark:border-purple-800/60` 
+          : "shadow-md hover:shadow-lg opacity-90 hover:opacity-100"
       }`}
     >
       {/* 1. Top Header Row */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className={`w-10 h-10 rounded-xl ${activeMeta.badgeBg || "bg-purple-600"} flex items-center justify-center text-white font-extrabold text-sm shadow-md shrink-0`}>
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className={`w-[42px] h-[42px] rounded-[14px] ${badgeColor} flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-purple-500/20 shrink-0`}>
             {activeMeta.level}
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-black text-slate-900 dark:text-white tracking-tight truncate">
+            <h3 className="text-base font-black text-slate-900 dark:text-white tracking-tight truncate leading-tight">
               {activeMeta.label}
             </h3>
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 mt-0.5">
@@ -186,62 +190,64 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
               onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
             }
           }}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <MoreVertical className="w-4 h-4" />
         </button>
       </div>
 
-      {/* 2. Center Circular Graphic & Statistics */}
-      <div className="my-3 flex items-center justify-between px-1 relative">
+      {/* 2. Center Multi-Ring Circular Gauge & Statistics */}
+      <div className="my-2 flex items-center justify-between px-1 relative">
         {/* Left Side: Student Count */}
-        <div className="flex flex-col items-center justify-center text-center w-[60px]">
-          <span className="text-xl font-black text-slate-900 dark:text-white leading-none">
+        <div className="flex flex-col items-center justify-center text-center w-[62px]">
+          <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">
             {c.student_count ?? 0}
           </span>
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
             Students
           </span>
         </div>
 
-        {/* Center Ring Graphic */}
-        <div className="relative w-28 h-28 flex items-center justify-center shrink-0">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+        {/* Center Multi-Layer Translucent Ring Halo */}
+        <div className="relative w-32 h-32 rounded-full bg-gradient-to-br from-purple-100/50 via-purple-50/20 to-indigo-100/40 dark:from-purple-950/30 dark:to-indigo-950/30 border border-purple-200/50 dark:border-purple-800/40 p-2 flex items-center justify-center shadow-inner shrink-0">
+          
+          {/* SVG Progress Arc */}
+          <svg className="w-full h-full transform -rotate-90 drop-shadow-xs" viewBox="0 0 100 100">
             <circle
               cx="50"
               cy="50"
               r="40"
               stroke="currentColor"
-              strokeWidth="5"
-              className="text-slate-100 dark:text-slate-800/80"
+              strokeWidth="6"
+              className="text-purple-100/80 dark:text-purple-950/60"
               fill="transparent"
             />
             <circle
               cx="50"
               cy="50"
               r="40"
-              stroke={activeMeta.ringColor || "#7C3AED"}
-              strokeWidth="6"
+              stroke={ringStroke}
+              strokeWidth="7"
               strokeDasharray="251.2"
-              strokeDashoffset="65"
+              strokeDashoffset="75"
               strokeLinecap="round"
               className="transition-all duration-700"
               fill="transparent"
             />
           </svg>
 
-          {/* Center Group Icon */}
-          <div className={`absolute inset-0 m-auto w-13 h-13 rounded-full ${activeMeta.badgeBg || "bg-purple-600"} text-white flex items-center justify-center shadow-lg shadow-purple-500/20 transform transition-transform duration-300 ${isActive ? "scale-105" : ""}`}>
+          {/* Center Glowing Icon Badge */}
+          <div className={`absolute inset-0 m-auto w-14 h-14 rounded-full ${badgeColor} text-white flex items-center justify-center shadow-lg shadow-purple-500/30 border-2 border-white dark:border-slate-900 transform transition-transform duration-300 ${isActive ? "scale-110" : ""}`}>
             <Users className="w-6 h-6 text-white" />
           </div>
         </div>
 
         {/* Right Side: Year Indicator */}
-        <div className="flex flex-col items-center justify-center text-center w-[60px]">
+        <div className="flex flex-col items-center justify-center text-center w-[62px]">
           <span className="text-xl font-black text-slate-900 dark:text-white leading-none">
             {`Year ${activeMeta.year}`}
           </span>
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
             Year
           </span>
         </div>
@@ -255,20 +261,20 @@ function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, is
             onAssignIncharge(c.class_name);
           }
         }}
-        className={`flex items-center gap-3 h-12 ${activeMeta.inchargeBg || "bg-purple-50 dark:bg-purple-950/20"} rounded-2xl px-3.5 border border-slate-100/50 dark:border-slate-800/60 transition-all ${
+        className={`flex items-center gap-3.5 h-13 ${activeMeta.inchargeBg || "bg-[#F7F6FF] dark:bg-purple-950/20"} rounded-2xl px-4 border border-slate-100 dark:border-slate-800/80 transition-all ${
           isHOD ? "cursor-pointer hover:brightness-95" : ""
         }`}
       >
         {hasIncharge ? (
-          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7 h-7 ring-2 ring-purple-500/20 shrink-0" />
+          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7.5 h-7.5 ring-2 ring-purple-500/20 shrink-0" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 shrink-0 shadow-xs">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="w-7.5 h-7.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-xs">
+            <ShieldCheck className="w-4 h-4" />
           </div>
         )}
         <div className="min-w-0 flex-1 flex flex-col justify-center">
-          <span className="text-[9px] font-bold tracking-wider text-slate-400 uppercase leading-none">Class Incharge</span>
-          <span className={`text-xs font-extrabold leading-tight truncate mt-0.5 ${hasIncharge ? "text-slate-800 dark:text-slate-200" : `${activeMeta.textAccent || "text-purple-600"} italic`}`}>
+          <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase leading-none">Class Incharge</span>
+          <span className={`text-xs font-black leading-tight truncate mt-0.5 ${hasIncharge ? "text-slate-900 dark:text-slate-100" : `${textAccentColor} italic font-bold`}`}>
             {hasIncharge ? c.incharge.name : "Not Assigned"}
           </span>
         </div>
@@ -282,6 +288,7 @@ function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
+  const prevActiveIndexRef = useRef(0);
 
   const isDragging = useRef(false);
   const startX = useRef(0);
@@ -294,45 +301,70 @@ function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate }) {
     }
   }, [list.length, activeIndex]);
 
-  // GSAP 3D Coverflow animation effect with proper spacing and subtle rotation
+  // GSAP 3D Coverflow animation effect with clean wrap-around suppression
   useEffect(() => {
     if (!list.length) return;
     const n = list.length;
+    const prevActiveIndex = prevActiveIndexRef.current;
+    prevActiveIndexRef.current = activeIndex;
 
     list.forEach((_, i) => {
       const card = cardsRef.current[i];
       if (!card) return;
 
-      // Calculate shortest distance in modulo n for infinite loop
+      // Current shortest distance in modulo n
       let diff = i - activeIndex;
       if (n > 1) {
         diff = ((diff % n) + n) % n;
         if (diff > n / 2) diff -= n;
       }
 
-      const isActive = diff === 0;
-      const absDiff = Math.abs(diff);
+      // Previous shortest distance in modulo n
+      let prevDiff = i - prevActiveIndex;
+      if (n > 1) {
+        prevDiff = ((prevDiff % n) + n) % n;
+        if (prevDiff > n / 2) prevDiff -= n;
+      }
 
-      // Spacing set to 320px so cards fan out across screen cleanly without heavy overlap
+      const absDiff = Math.abs(diff);
+      const isVisible = absDiff <= 2;
+
       const spacing = 320;
       const xPos = diff * spacing;
       const rotateYVal = diff === 0 ? 0 : diff < 0 ? 18 : -18;
-      const scaleVal = diff === 0 ? 1.08 : Math.max(0.78, 0.88 - absDiff * 0.04);
-      const opacityVal = diff === 0 ? 1 : Math.max(0.55, 0.90 - absDiff * 0.12);
-      const zVal = diff === 0 ? 60 : -absDiff * 50;
+      const scaleVal = diff === 0 ? 1.08 : Math.max(0.76, 0.86 - absDiff * 0.05);
+      const opacityVal = diff === 0 ? 1 : absDiff === 1 ? 0.88 : absDiff === 2 ? 0.55 : 0;
+      const zVal = diff === 0 ? 80 : -absDiff * 50;
       const zIndexVal = 100 - absDiff * 10;
 
-      gsap.to(card, {
-        x: xPos,
-        rotateY: rotateYVal,
-        scale: scaleVal,
-        opacity: opacityVal,
-        z: zVal,
-        zIndex: zIndexVal,
-        duration: 0.55,
-        ease: "power2.out",
-        overwrite: "auto"
-      });
+      // Detect wrap-around flip (e.g., card moved from leftmost to rightmost or vice versa)
+      const didWrapAround = (diff > 0 && prevDiff < 0) || (diff < 0 && prevDiff > 0);
+
+      if (didWrapAround || !isVisible) {
+        // Instantly position without animation so card doesn't fly across screen
+        gsap.set(card, {
+          x: xPos,
+          rotateY: rotateYVal,
+          scale: scaleVal,
+          opacity: isVisible ? opacityVal : 0,
+          z: zVal,
+          zIndex: zIndexVal,
+          display: isVisible ? "block" : "none"
+        });
+      } else {
+        gsap.to(card, {
+          x: xPos,
+          rotateY: rotateYVal,
+          scale: scaleVal,
+          opacity: opacityVal,
+          z: zVal,
+          zIndex: zIndexVal,
+          display: "block",
+          duration: 0.45,
+          ease: "power2.out",
+          overwrite: "auto"
+        });
+      }
     });
   }, [activeIndex, list]);
 
