@@ -490,9 +490,9 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
   const meta = CLASS_META[className];
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/50 backdrop-blur-md p-4 pt-16 animate-fade-in" onClick={onClose}>
       <div
-        className="bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden transition-all"
+        className="bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-md max-h-[78vh] flex flex-col overflow-hidden transition-all shadow-[0_25px_80px_rgba(0,0,0,0.35)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header bar */}
@@ -688,10 +688,10 @@ export default function ClassesPage() {
           DESKTOP VIEW: 3D Coverflow Carousel with Level Tabs
          ═══════════════════════════════════════════════════════════════════════ */}
       {viewMode === "coverflow" && (
-        <div className="hidden md:block">
+        <div className="hidden md:block space-y-4 pt-1">
           {/* Level Switcher Pill Buttons inside unified Capsule Bar */}
-          <div className="flex items-center justify-center mb-2">
-            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+          <div className="flex items-center justify-center mb-4">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-md">
               <button
                 onClick={() => setLevelTab("UG")}
                 className={`px-6 py-2.5 rounded-full font-black text-xs transition-all duration-300 ${
