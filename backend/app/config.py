@@ -33,3 +33,7 @@ class Config:
     SMTP_SENDER = os.environ.get("SMTP_SENDER", os.environ.get("SMTP_USER"))
     SMTP_USE_TLS = os.environ.get("SMTP_USE_TLS", "True").lower() == "true"
 
+    # AI API Keys for Notes Ingestion
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+

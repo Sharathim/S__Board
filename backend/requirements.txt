@@ -14,3 +14,4 @@ Werkzeug==3.0.1
 requests==2.31.0
 APScheduler==3.10.4
 openpyxl==3.1.2
+google-generativeai>=0.7.0

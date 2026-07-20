@@ -104,6 +104,7 @@ def _serialize_subject(s):
         "id": s.id,
         "name": s.name,
         "academic_year": s.academic_year,
+        "semester": s.semester,  # 1, 2, or None (legacy/unsorted)
         "is_archived": s.is_archived,
         "created_by": {
             "id": s.creator.id,
@@ -140,9 +141,18 @@ def create_subject(class_name):
     data = request.get_json() or {}
     name = data.get("name", "").strip()
     academic_year = data.get("academic_year", "").strip()
+    semester = data.get("semester")  # 1, 2, or None
 
     if not name or not academic_year:
         return jsonify({"error": "Subject name and Academic year are required"}), 400
+
+    if semester is not None:
+        try:
+            semester = int(semester)
+            if semester not in (1, 2):
+                return jsonify({"error": "Semester must be 1 or 2"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid semester value"}), 400
 
     # Note: duplicate subjects are allowed but must have different academic year or be distinct
     # The prompt says: "there can be duplicate subjects but with different academic year"
@@ -154,6 +164,7 @@ def create_subject(class_name):
         class_name=class_name,
         name=name,
         academic_year=academic_year,
+        semester=semester,
         created_by=user.id
     )
     db.session.add(subject)
@@ -165,7 +176,7 @@ def create_subject(class_name):
         target_type="subject",
         target_name=name,
         performed_by=user.id,
-        details={"academic_year": academic_year, "subject_id": subject.id}
+        details={"academic_year": academic_year, "semester": semester, "subject_id": subject.id}
     )
 
     return jsonify({"subject": _serialize_subject(subject)})
