@@ -1,6 +1,6 @@
 # S-DESK (Hive Board) - Project Documentation
 
-S-DESK (also referred to as Hive Board) is a premium, real-time Academic Department Portal and Project Management System designed to streamline collaboration, documentation sharing, and academic management between students, faculty members, and the Head of Department (HOD).
+S-DESK  (also referred to as Hive Board) is a premium, real-time Academic Department Portal and Project Management System designed to streamline collaboration, documentation sharing, and academic management between students, faculty members, and the Head of Department (HOD).
 
 ---
 
