@@ -1,6 +1,6 @@
 # Walkthrough - HIVE Improvements & Redesigns
 
-This walkthrough details the changes made to the HIVE academic collaboration platform, covering frontend improvements, backend permission and serialization changes, a database schema migration, and a complete design overhaul of the Forum Post Detail page.
+This walkthrough details the changes made to the HIVE academics collaboration platform, covering frontend improvements, backend permission and serialization changes, a database schema migration, and a complete design overhaul of the Forum Post Detail page.
 
 ## Changes Made
 
