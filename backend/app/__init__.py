@@ -75,7 +75,6 @@ def create_app():
     from .routes.faculty import faculty_bp
     from .routes.classes import classes_bp
     from .routes.notes import notes_bp
-    from .routes.ai_notes import ai_notes_bp
     from .routes.student_forms import student_forms_bp
     from .routes.forum import forum_bp
     from .routes.projects import projects_bp
@@ -89,7 +88,6 @@ def create_app():
     app.register_blueprint(faculty_bp, url_prefix="/api/faculty")
     app.register_blueprint(classes_bp, url_prefix="/api/classes")
     app.register_blueprint(notes_bp, url_prefix="/api/classes")
-    app.register_blueprint(ai_notes_bp, url_prefix="/api/classes")
     app.register_blueprint(student_forms_bp, url_prefix="/api/classes")
     app.register_blueprint(forum_bp, url_prefix="/api/forum")
     app.register_blueprint(projects_bp, url_prefix="/api/projects")

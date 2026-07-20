@@ -48,22 +48,6 @@ export const deleteFile = (className, subjectId, unitId, fileId) =>
 export const getNotesLogs = (className, page = 1) =>
   api.get(`/classes/${className}/notes/logs`, { params: { page } });
 
-// ─── AI Notes Ingestion ─────────────────────────────────────────────────────
-// Step 1: Preview — sends prompt + files, gets AI plan back without executing
-export const aiIngestPreview = (className, formData, onUploadProgress) =>
-  api.post(`/classes/${className}/notes/ai-ingest`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    onUploadProgress,
-  });
-
-// Step 2: Execute — sends confirmed plan + original files, executes all DB + Cloudinary operations
-export const aiIngestExecute = (className, formData, onUploadProgress) =>
-  api.post(`/classes/${className}/notes/ai-ingest/execute`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    onUploadProgress,
-  });
-
-
 // ─── Student Forms & Data Endpoints ─────────────────────────────────────
 export const getStudentDetails = (className, studentId) =>
   api.get(`/classes/${className}/students/${studentId}/details`);
