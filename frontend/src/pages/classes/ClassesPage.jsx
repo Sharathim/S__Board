@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { Avatar } from "../../components/ui/Avatar";
 import { Switch } from "../../components/ui/Switch";
+import ForumMembersModal from "./ForumMembersModal";
 import {
   GraduationCap, Users, ToggleLeft, ToggleRight, Crown,
   Lock, ChevronRight, ChevronLeft, X, ShieldCheck, BookOpen, UserCog, Copy,
@@ -590,6 +591,7 @@ export default function ClassesPage() {
   const { navigateWithTransition } = usePageTransition();
 
   const [inchargeModal, setInchargeModal] = useState(null);
+  const [showForumModal, setShowForumModal] = useState(false);
   const [viewMode, setViewMode] = useState("coverflow"); // Default to 3D Coverflow on desktop
 
   const { data: raw, isLoading } = useQuery({
@@ -650,6 +652,13 @@ export default function ClassesPage() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={() => setShowForumModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-[#F05A2B] hover:brightness-105 active:scale-95 text-white text-xs font-black transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 shrink-0 h-9"
+          >
+            <Users className="w-4 h-4 text-white" /> FORUM
+          </button>
+
           {isHOD && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
               <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
@@ -854,6 +863,12 @@ export default function ClassesPage() {
         onAssign={(payload) => assignInchargeMutation.mutate(payload)}
         onClose={() => setInchargeModal(null)}
         isPending={assignInchargeMutation.isPending}
+      />
+
+      {/* ── Forum Members Modal ── */}
+      <ForumMembersModal
+        open={showForumModal}
+        onClose={() => setShowForumModal(false)}
       />
     </div>
   );
