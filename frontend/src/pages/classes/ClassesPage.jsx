@@ -622,12 +622,6 @@ export default function ClassesPage() {
   const classes = raw?.classes || [];
   const regOpen = raw?.student_registration_open || false;
   const facultyList = facultyData || [];
-  const eligibleFaculty = facultyList.filter((f) => !f.class_incharge_of);
-
-  const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
-  const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
-  const allClasses = [...pgList, ...ugList];
-
   return (
     <div className="space-y-4 animate-fade-in pb-8">
 
