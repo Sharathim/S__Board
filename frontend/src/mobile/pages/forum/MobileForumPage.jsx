@@ -564,7 +564,7 @@ export default function MobileForumPage() {
       )}
 
       {/* ── Members Directory Modal (Mobile View) ── */}
-      {showMembersModal && createPortal(
+      {showMembersModal && (
         <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory">
           <div className="space-y-4 pt-1">
             {/* Member Search */}
@@ -633,8 +633,7 @@ export default function MobileForumPage() {
               )}
             </div>
           </div>
-        </Modal>,
-        document.body
+        </Modal>
       )}
 
     </div>

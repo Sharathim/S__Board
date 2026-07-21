@@ -55,4 +55,6 @@ export function Modal({ open, onClose, title, children, size = "md", hideHeader 
   );
 }
 
+export default Modal;
+
 
