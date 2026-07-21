@@ -7,12 +7,22 @@ import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { Avatar } from "../../components/ui/Avatar";
 import { Switch } from "../../components/ui/Switch";
+import { SearchPicker } from "../../components/shared/SearchPicker";
+import { Modal } from "../../components/ui/Modal";
+import {
+  listForumMembers,
+  listEligibleStudents,
+  assignForumMember,
+  removeForumMember,
+  toggleForumCoordinator
+} from "../../api/forum";
 import {
   GraduationCap, Users, ToggleLeft, ToggleRight, Crown,
   Lock, ChevronRight, ChevronLeft, X, ShieldCheck, BookOpen, UserCog, Copy,
-  Layers, TrendingUp, LayoutGrid, List, MoreVertical, Send, Sparkles
+  Layers, TrendingUp, LayoutGrid, List, MoreVertical, Send, Sparkles,
+  Plus, Search, Trash2, UserPlus, AlertCircle, CheckCircle2
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
 // ─── Class display metadata & Theme Palettes (Terracotta Orange Theme) ───────
@@ -133,362 +143,14 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
   return cardContent;
 }
 
-// ─── 3D Image 1 Replicated Class Card Component ─────────────────────────────
-function Coverflow3DClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate, isActive, onClickCard }) {
-  const hasIncharge = !!c.incharge;
-  const activeMeta = meta || {
-    label: c.class_name,
-    level: c.class_name.startsWith("PG") ? "PG" : "UG",
-    year: 1,
-    badgeBg: "bg-[#F05A2B]",
-    ringColor: "#F05A2B",
-    textAccent: "text-[#F05A2B]",
-    inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20",
-    glowShadow: "shadow-[0_25px_60px_rgba(240,90,43,0.28)]"
-  };
-
-  const ringStroke = activeMeta.ringColor || "#F05A2B";
-  const badgeColor = activeMeta.badgeBg || "bg-[#F05A2B]";
-  const textAccentColor = activeMeta.textAccent || "text-[#F05A2B]";
-
-  return (
-    <div 
-      onClick={(e) => {
-        if (!isActive) {
-          e.preventDefault();
-          e.stopPropagation();
-          onClickCard();
-        } else if (c.can_view_details) {
-          onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
-        }
-      }}
-      className={`w-[310px] h-[395px] p-6 flex flex-col justify-between select-none relative cursor-pointer rounded-[32px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 transition-all duration-300 ${
-        isActive 
-          ? `coverflow-card-active ${activeMeta.glowShadow || "shadow-2xl"} ring-2 ring-[#F05A2B]/40 border-orange-200 dark:border-orange-900/60` 
-          : "shadow-md hover:shadow-lg opacity-90 hover:opacity-100"
-      }`}
-    >
-      {/* 1. Top Header Row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className={`w-[42px] h-[42px] rounded-[14px] ${badgeColor} flex items-center justify-center text-white font-black text-sm shadow-md shadow-orange-500/20 shrink-0`}>
-            {activeMeta.level}
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-base font-black text-slate-900 dark:text-white tracking-tight truncate leading-tight">
-              {activeMeta.label}
-            </h3>
-            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-400 mt-0.5">
-              {activeMeta.level === "UG" ? "Undergraduate" : "Postgraduate"}
-            </p>
-          </div>
-        </div>
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            if (c.can_view_details) {
-              onNavigate(`/classes/${c.class_name}`, activeMeta.label || c.class_name, BookOpen);
-            }
-          }}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-        >
-          <MoreVertical className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* 2. Center Circular Gauge Graphic & Precise Typography */}
-      <div className="my-2 flex items-center justify-between px-1 relative">
-        {/* Left Side: Students Count */}
-        <div className="flex flex-col items-center justify-center text-center w-[64px]">
-          <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">
-            {c.student_count ?? 0}
-          </span>
-          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 tracking-[0.14em] uppercase mt-2">
-            STUDENTS
-          </span>
-        </div>
-
-        {/* Center Multi-Layer Translucent Ring Gauge */}
-        <div className="relative w-32 h-32 rounded-full bg-[#FFF5F2] dark:bg-orange-950/30 border border-orange-100/60 dark:border-orange-900/40 p-2 flex items-center justify-center shadow-inner shrink-0">
-          {/* SVG Progress Arc */}
-          <svg className="w-full h-full transform -rotate-90 drop-shadow-xs relative z-10" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="38"
-              stroke="rgba(240, 90, 43, 0.12)"
-              strokeWidth="6"
-              fill="transparent"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="38"
-              stroke={ringStroke}
-              strokeWidth="7"
-              strokeDasharray="238.7"
-              strokeDashoffset="65"
-              strokeLinecap="round"
-              className="transition-all duration-700"
-              fill="transparent"
-            />
-          </svg>
-
-          {/* Inner White Gap Ring & Center Solid Icon Badge */}
-          <div className="absolute inset-0 m-auto w-[56px] h-[56px] rounded-full bg-white dark:bg-slate-900 p-1 shadow-md z-20 flex items-center justify-center">
-            <div className={`w-full h-full rounded-full ${badgeColor} text-white flex items-center justify-center shadow-md shadow-orange-500/20 transform transition-transform duration-300 ${isActive ? "scale-105" : ""}`}>
-              <Users className="w-6 h-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Stacked "Year" / "2" & "YEAR" Label */}
-        <div className="flex flex-col items-center justify-center text-center w-[64px]">
-          <div className="flex flex-col items-center justify-center leading-none">
-            <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Year</span>
-            <span className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{activeMeta.year}</span>
-          </div>
-          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-400 tracking-[0.14em] uppercase mt-2">
-            YEAR
-          </span>
-        </div>
-      </div>
-
-      {/* 3. Bottom Class Incharge Info Pill Box */}
-      <div
-        onClick={(e) => {
-          if (isHOD) {
-            e.stopPropagation();
-            onAssignIncharge(c.class_name);
-          }
-        }}
-        className={`flex items-center gap-3.5 h-13 ${activeMeta.inchargeBg || "bg-[#FFF5F2] dark:bg-orange-950/20"} rounded-[18px] px-4 border border-slate-100 dark:border-slate-800/80 transition-all ${
-          isHOD ? "cursor-pointer hover:brightness-95" : ""
-        }`}
-      >
-        {hasIncharge ? (
-          <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-7.5 h-7.5 ring-2 ring-orange-500/20 shrink-0" />
-        ) : (
-          <div className="w-7.5 h-7.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-[#F05A2B] shrink-0 shadow-xs">
-            <ShieldCheck className="w-4 h-4" />
-          </div>
-        )}
-        <div className="min-w-0 flex-1 flex flex-col justify-center">
-          <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase leading-none">Class Incharge</span>
-          <span className={`text-xs font-black leading-tight truncate mt-0.5 ${hasIncharge ? "text-slate-900 dark:text-slate-100" : `${textAccentColor} italic font-bold`}`}>
-            {hasIncharge ? c.incharge.name : "Not Assigned"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── 3D Coverflow Carousel Container (GSAP Powered) ───────────────────────
-function CoverflowCarousel({ list, isHOD, onAssignIncharge, onNavigate, initialClassIndex = 0 }) {
-  const [activeIndex, setActiveIndex] = useState(initialClassIndex);
-  const containerRef = useRef(null);
-  const cardsRef = useRef([]);
-  const prevActiveIndexRef = useRef(initialClassIndex);
-
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const dragDistance = useRef(0);
-
-  // Set initial activeIndex to UG 1A when list loads
-  useEffect(() => {
-    if (initialClassIndex >= 0 && initialClassIndex < list.length) {
-      setActiveIndex(initialClassIndex);
-    }
-  }, [initialClassIndex, list.length]);
-
-  // Synchronize activeIndex if list size changes
-  useEffect(() => {
-    if (activeIndex >= list.length) {
-      setActiveIndex(Math.max(0, list.length - 1));
-    }
-  }, [list.length, activeIndex]);
-
-  // GSAP 3D Coverflow animation effect with clean wrap-around suppression
-  useEffect(() => {
-    if (!list.length) return;
-    const n = list.length;
-    const prevActiveIndex = prevActiveIndexRef.current;
-    prevActiveIndexRef.current = activeIndex;
-
-    list.forEach((_, i) => {
-      const card = cardsRef.current[i];
-      if (!card) return;
-
-      // Current shortest distance in modulo n
-      let diff = i - activeIndex;
-      if (n > 1) {
-        diff = ((diff % n) + n) % n;
-        if (diff > n / 2) diff -= n;
-      }
-
-      // Previous shortest distance in modulo n
-      let prevDiff = i - prevActiveIndex;
-      if (n > 1) {
-        prevDiff = ((prevDiff % n) + n) % n;
-        if (prevDiff > n / 2) prevDiff -= n;
-      }
-
-      const absDiff = Math.abs(diff);
-      const isVisible = absDiff <= 2;
-
-      const spacing = 320;
-      const xPos = diff * spacing;
-      const rotateYVal = diff === 0 ? 0 : diff < 0 ? 18 : -18;
-      const scaleVal = diff === 0 ? 1.08 : Math.max(0.76, 0.86 - absDiff * 0.05);
-      const opacityVal = diff === 0 ? 1 : absDiff === 1 ? 0.88 : absDiff === 2 ? 0.55 : 0;
-      const zVal = diff === 0 ? 80 : -absDiff * 50;
-      const zIndexVal = 100 - absDiff * 10;
-
-      // Detect wrap-around flip (e.g., card moved from leftmost to rightmost or vice versa)
-      const didWrapAround = (diff > 0 && prevDiff < 0) || (diff < 0 && prevDiff > 0);
-
-      if (didWrapAround || !isVisible) {
-        // Instantly position without animation so card doesn't fly across screen
-        gsap.set(card, {
-          x: xPos,
-          rotateY: rotateYVal,
-          scale: scaleVal,
-          opacity: isVisible ? opacityVal : 0,
-          z: zVal,
-          zIndex: zIndexVal,
-          display: isVisible ? "block" : "none"
-        });
-      } else {
-        gsap.to(card, {
-          x: xPos,
-          rotateY: rotateYVal,
-          scale: scaleVal,
-          opacity: opacityVal,
-          z: zVal,
-          zIndex: zIndexVal,
-          display: "block",
-          duration: 0.45,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-      }
-    });
-  }, [activeIndex, list]);
-
-  const handleNext = () => {
-    if (list.length === 0) return;
-    setActiveIndex((prev) => (prev + 1) % list.length);
-  };
-
-  const handlePrev = () => {
-    if (list.length === 0) return;
-    setActiveIndex((prev) => (prev - 1 + list.length) % list.length);
-  };
-
-  // Pointer drag gestures
-  const onPointerDown = (e) => {
-    isDragging.current = true;
-    startX.current = e.clientX || e.touches?.[0]?.clientX || 0;
-    dragDistance.current = 0;
-  };
-
-  const onPointerMove = (e) => {
-    if (!isDragging.current) return;
-    const currentX = e.clientX || e.touches?.[0]?.clientX || 0;
-    dragDistance.current = currentX - startX.current;
-  };
-
-  const onPointerUp = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    if (dragDistance.current < -40) {
-      handleNext();
-    } else if (dragDistance.current > 40) {
-      handlePrev();
-    }
-  };
-
-  if (!list.length) return null;
-
-  return (
-    <div className="w-full py-4 flex flex-col items-center select-none relative overflow-hidden">
-      
-      {/* 3D Coverflow Stage Area */}
-      <div 
-        ref={containerRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerUp}
-        className="relative w-full h-[420px] sm:h-[450px] flex items-center justify-center coverflow-stage cursor-grab active:cursor-grabbing overflow-visible"
-      >
-        {/* Floor Glow Reflection */}
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4/5 h-20 rounded-full coverflow-floor-reflection pointer-events-none opacity-60" />
-
-        {/* Floating Left / Right Nav Arrows */}
-        <button
-          onClick={handlePrev}
-          className="absolute left-2 lg:left-8 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-md backdrop-blur-md hover:scale-110 active:scale-95 transition-all"
-          title="Previous Class"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          onClick={handleNext}
-          className="absolute right-2 lg:right-8 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-md backdrop-blur-md hover:scale-110 active:scale-95 transition-all"
-          title="Next Class"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-
-        {/* Render Cards */}
-        {list.map((c, i) => {
-          const meta = CLASS_META[c.class_name];
-          return (
-            <div
-              key={c.class_name}
-              ref={(el) => (cardsRef.current[i] = el)}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            >
-              <Coverflow3DClassCard
-                c={c}
-                meta={meta}
-                isHOD={isHOD}
-                onAssignIncharge={onAssignIncharge}
-                onNavigate={onNavigate}
-                isActive={i === activeIndex}
-                onClickCard={() => setActiveIndex(i)}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Pagination Dots Indicator Bar */}
-      <div className="flex items-center gap-2 mt-2 z-20">
-        {list.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveIndex(i)}
-            className={`transition-all duration-300 rounded-full ${
-              i === activeIndex 
-                ? "w-7 h-2 bg-[#F05A2B] dark:bg-[#FF8365] shadow-md shadow-orange-500/30" 
-                : "w-2 h-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400"
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Decorative Paper Plane Helper Subtitle */}
-      <div className="flex items-center justify-center gap-2 mt-4 text-slate-400 dark:text-slate-500 text-xs font-semibold tracking-wide">
-        <Send className="w-3.5 h-3.5 text-[#F05A2B] transform -rotate-12 animate-pulse" />
-        <span>Click on any class to view details</span>
-      </div>
-    </div>
-  );
-}
+const FORUM_ROLE_META = {
+  President: { color: "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-350", dot: "bg-orange-500" },
+  "Vice President": { color: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-355", dot: "bg-amber-500" },
+  Secretary: { color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-355", dot: "bg-emerald-500" },
+  "Joint Secretary": { color: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-355", dot: "bg-teal-500" },
+  Treasurer: { color: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-355", dot: "bg-rose-500" },
+  Member: { color: "bg-slate-100 text-slate-650 dark:bg-slate-800 dark:text-slate-355", dot: "bg-slate-400" },
+};
 
 // ─── Assign Incharge Modal ────────────────────────────────────────────────────
 function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, isPending }) {
@@ -590,7 +252,20 @@ export default function ClassesPage() {
   const { navigateWithTransition } = usePageTransition();
 
   const [inchargeModal, setInchargeModal] = useState(null);
-  const [viewMode, setViewMode] = useState("coverflow"); // Default to 3D Coverflow on desktop
+  const [viewMode, setViewMode] = useState("grid"); // Default to Grid view on desktop
+
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pendingStudent, setPendingStudent] = useState(null);
+  const [rolePreset, setRolePreset] = useState("President");
+  const [customRole, setCustomRole] = useState("");
+  const [showMembersModal, setShowMembersModal] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
+
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const showSuccess = (msg) => { setSuccessMessage(msg); setTimeout(() => setSuccessMessage(""), 3500); };
+  const showError = (msg) => { setErrorMessage(msg); setTimeout(() => setErrorMessage(""), 4000); };
 
   const { data: raw, isLoading } = useQuery({
     queryKey: ["classes"],
@@ -601,6 +276,11 @@ export default function ClassesPage() {
     queryKey: ["faculty"],
     queryFn: () => listFaculty().then((r) => r.data.faculty),
     enabled: isHOD,
+  });
+
+  const { data: forumMembers } = useQuery({
+    queryKey: ["forum-members"],
+    queryFn: () => listForumMembers().then((r) => r.data.members),
   });
 
   const toggleRegMutation = useMutation({
@@ -617,6 +297,36 @@ export default function ClassesPage() {
     },
   });
 
+  const removeMutation = useMutation({
+    mutationFn: removeForumMember,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["forum-members"] });
+      showSuccess("Member removed from Forum.");
+    },
+    onError: () => showError("Failed to remove member."),
+  });
+
+  const coordMutation = useMutation({
+    mutationFn: toggleForumCoordinator,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["forum-members"] });
+      showSuccess("Coordinator role updated.");
+    },
+    onError: () => showError("Failed to update coordinator role."),
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: ({ studentId, role }) => assignForumMember(studentId, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["forum-members"] });
+      setPendingStudent(null);
+      setRolePreset("President");
+      setCustomRole("");
+      showSuccess("Forum member assigned successfully.");
+    },
+    onError: (err) => showError(err.response?.data?.error || "Failed to assign member."),
+  });
+
   if (isLoading) return <Spinner />;
 
   const classes = raw?.classes || [];
@@ -627,14 +337,16 @@ export default function ClassesPage() {
   const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
   const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
 
-  // Combine PG and UG classes into one single Coverflow list with PG classes placed before UG 1A
-  const allClasses = [...pgList, ...ugList];
-  
-  // Calculate initial active index to center UG 1A on page load
-  const ug1aIndex = allClasses.findIndex(
-    (c) => c.class_name === "UG_1A" || c.class_name === "UG 1A" || c.class_name.startsWith("UG 1")
-  );
-  const initialClassIndex = ug1aIndex !== -1 ? ug1aIndex : (pgList.length > 0 ? pgList.length : 0);
+  const memberList = forumMembers || [];
+  const filteredMembers = useMemo(() => {
+    if (!memberSearchQuery.trim()) return memberList;
+    const q = memberSearchQuery.toLowerCase();
+    return memberList.filter(m =>
+      m.name?.toLowerCase().includes(q) ||
+      m.role?.toLowerCase().includes(q) ||
+      m.class_name?.toLowerCase().includes(q)
+    );
+  }, [memberList, memberSearchQuery]);
 
   return (
     <div className="space-y-4 animate-fade-in pb-8">
@@ -644,12 +356,58 @@ export default function ClassesPage() {
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
           <span className="hidden sm:inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFF5F2] dark:bg-orange-950/40 text-[#F05A2B] border border-orange-200/50 dark:border-orange-900/40">
-            {allClasses.length} Classes Total
+            {classes.length} Classes Total
           </span>
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+          {/* Forum Members display space */}
+          <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 p-1.5 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
+            <button
+              onClick={() => setShowMembersModal(true)}
+              className="flex items-center gap-1.5 hover:opacity-85 transition-opacity"
+              title="View Forum Members Roster"
+            >
+              <Users className="w-3.5 h-3.5 text-[#F05A2B] shrink-0" />
+              <div className="flex -space-x-1.5 overflow-hidden">
+                {memberList.slice(0, 4).map((member) => (
+                  <div key={member.id} className="relative group/avatar">
+                    <Avatar
+                      src={member.profile_picture}
+                      name={member.name}
+                      size="sm"
+                      className="w-5.5 h-5.5 border border-white dark:border-gray-800 rounded-full shrink-0"
+                    />
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none z-[100] border border-slate-800 dark:border-slate-200">
+                      {member.name} ({member.role})
+                    </div>
+                  </div>
+                ))}
+                {memberList.length > 4 && (
+                  <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-slate-700 border border-white dark:border-gray-800 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-slate-355 shrink-0">
+                    +{memberList.length - 4}
+                  </div>
+                )}
+                {memberList.length === 0 && (
+                  <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 px-1">No Members</span>
+                )}
+              </div>
+            </button>
+
+            {/* "+" Button for HOD alone to appoint/manage forum members */}
+            {isHOD && (
+              <button
+                onClick={() => setPickerOpen(true)}
+                className="w-5.5 h-5.5 rounded-full bg-gradient-to-r from-[#FF8365] to-[#F05A2B] hover:brightness-110 text-white flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0"
+                title="Appoint Forum Member"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
           {isHOD && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
               <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
@@ -664,17 +422,6 @@ export default function ClassesPage() {
 
           {/* Desktop View Switchers */}
           <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
-            <button
-              onClick={() => setViewMode("coverflow")}
-              className={`p-1 rounded-lg transition-all ${
-                viewMode === "coverflow"
-                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
-                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
-              }`}
-              title="3D Coverflow View"
-            >
-              <Sparkles className="w-4 h-4" />
-            </button>
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
@@ -701,24 +448,6 @@ export default function ClassesPage() {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          DESKTOP VIEW: Unified 3D Coverflow Carousel (PG cards to the left of UG 1A)
-         ═══════════════════════════════════════════════════════════════════════ */}
-      {viewMode === "coverflow" && (
-        <div className="hidden md:block pt-1">
-          {/* Top Informative Level Indicator Text Badge */}
-          <div className="flex items-center justify-center mb-2">
-            <div className="inline-flex items-center gap-3.5 px-5 py-2 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 shadow-xs text-xs font-black tracking-wide">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#B83610] shadow-xs" />
-                <span className="text-slate-700 dark:text-slate-200">Postgraduate ({pgList.length})</span>
-              </div>
-              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#F05A2B] shadow-xs" />
-                <span className="text-slate-700 dark:text-slate-200">Undergraduate ({ugList.length})</span>
-              </div>
-            </div>
           </div>
 
           <CoverflowCarousel
@@ -855,6 +584,205 @@ export default function ClassesPage() {
         onClose={() => setInchargeModal(null)}
         isPending={assignInchargeMutation.isPending}
       />
+
+      {/* Toast Notifications */}
+      {successMessage && (
+        <div className="fixed top-5 right-5 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-2xl shadow-emerald-500/30 border border-emerald-400/20 animate-slide-in">
+          <CheckCircle2 className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-bold">{successMessage}</p>
+        </div>
+      )}
+      {errorMessage && (
+        <div className="fixed top-5 right-5 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-2xl shadow-red-500/30 border border-red-400/20 animate-slide-in">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <p className="text-sm font-bold">{errorMessage}</p>
+        </div>
+      )}
+
+      {/* ── Add Member Picker ── */}
+      <SearchPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        title="Add Forum Member"
+        queryKey="eligible-students"
+        fetchFn={(search) => listEligibleStudents(search).then(r => r.data.students)}
+        onPick={(student) => { setPendingStudent(student); setPickerOpen(false); }}
+        placeholder="Search students by name, email, roll…"
+        emptyText="No eligible students found."
+      />
+
+      {/* ── Role Selection Modal ── */}
+      {pendingStudent && (
+        <Modal open={!!pendingStudent} onClose={() => setPendingStudent(null)} title="Assign Forum Role">
+          <div className="space-y-4 pt-1">
+            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-orange-50 to-orange-100/50 dark:from-orange-950/20 dark:to-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20">
+              <Avatar src={pendingStudent.profile_picture} name={pendingStudent.name} size="md" />
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{pendingStudent.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                  {pendingStudent.class_name?.replace("_", " ")} · {pendingStudent.email}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Select Preset Role</label>
+              <select
+                value={rolePreset}
+                onChange={(e) => {
+                  setRolePreset(e.target.value);
+                  if (e.target.value !== "Custom") {
+                    setCustomRole("");
+                  }
+                }}
+                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
+              >
+                <option value="President">President</option>
+                <option value="Vice President">Vice President</option>
+                <option value="Secretary">Secretary</option>
+                <option value="Joint Secretary">Joint Secretary</option>
+                <option value="Media Secretary">Media Secretary</option>
+                <option value="Technical Head">Technical Head</option>
+                <option value="Technical Coordinator">Technical Coordinator</option>
+                <option value="Cultural Secretary">Cultural Secretary</option>
+                <option value="Sports Secretary">Sports Secretary</option>
+                <option value="Treasurer">Treasurer</option>
+                <option value="Executive Member">Executive Member</option>
+                <option value="Discipline Coordinator">Discipline Coordinator</option>
+                <option value="Placement Coordinator">Placement Coordinator</option>
+                <option value="Custom">Custom Role...</option>
+              </select>
+            </div>
+
+            {rolePreset === "Custom" && (
+              <div className="animate-fade-in">
+                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Custom Designation</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Vice Secretary, Creative Head"
+                  value={customRole}
+                  onChange={(e) => setCustomRole(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setPendingStudent(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const finalRole = rolePreset === "Custom" ? customRole.trim() : rolePreset;
+                  if (!finalRole) {
+                    showError("Please enter a custom designation.");
+                    return;
+                  }
+                  assignMutation.mutate({ studentId: pendingStudent.id, role: finalRole });
+                }}
+                disabled={assignMutation.isPending}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] hover:brightness-110 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
+              >
+                {assignMutation.isPending ? "Adding…" : `Add as ${rolePreset === "Custom" && customRole ? customRole : rolePreset}`}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── Members Directory Modal ── */}
+      <Modal open={showMembersModal} onClose={() => setShowMembersModal(false)} title="Forum Directory" size="lg">
+        <div className="space-y-5 pt-1">
+          {/* Member Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search members by name, role or class..."
+              value={memberSearchQuery}
+              onChange={(e) => setMemberSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-gray-55/50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 transition-all"
+            />
+            {memberSearchQuery && (
+              <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Members List (Fancy Grid) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-1">
+            {filteredMembers.length === 0 ? (
+              <div className="col-span-2 text-center py-10">
+                <p className="text-xs text-gray-400 italic">No matching members found</p>
+              </div>
+            ) : (
+              filteredMembers.map(m => {
+                const isLeader = m.role?.toLowerCase() === "president" || m.role?.toLowerCase() === "vice president";
+                const roleMeta = FORUM_ROLE_META[m.role] || { color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", dot: "bg-slate-400" };
+                return (
+                  <div
+                    key={m.id}
+                    className={`relative flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-white to-gray-50/30 dark:from-gray-800 dark:to-gray-800/60 border border-gray-150 dark:border-gray-700/60 shadow-sm hover:shadow-md hover:border-orange-300 dark:hover:border-orange-900/40 transition-all ${
+                      isLeader ? "ring-2 ring-orange-500/20" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative">
+                        <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-orange-500/10 shrink-0" />
+                        {isLeader && (
+                          <div className="absolute -top-1.5 -left-1.5 bg-amber-500 text-white rounded-full p-0.5 shadow-sm">
+                            <Crown className="w-2.5 h-2.5" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight flex items-center gap-1.5">
+                          {m.name}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border border-current/10 ${roleMeta.color}`}>
+                            {m.role}
+                          </span>
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700/80 text-gray-550 dark:text-gray-300">
+                            {m.class_name?.replace("_", " ")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {isHOD && (
+                      <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className="text-[8px] text-gray-450 dark:text-gray-500 font-bold uppercase">Coord</span>
+                          <Switch
+                            checked={m.is_update_coordinator}
+                            onChange={() => coordMutation.mutate(m.id)}
+                            loading={coordMutation.isPending}
+                            size="sm"
+                          />
+                        </div>
+                        <button
+                          onClick={() => removeMutation.mutate(m.id)}
+                          disabled={removeMutation.isPending}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          title="Remove member"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
