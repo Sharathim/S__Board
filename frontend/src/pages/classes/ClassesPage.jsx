@@ -448,22 +448,8 @@ export default function ClassesPage() {
         </div>
       </div>
 
-          </div>
-
-          <CoverflowCarousel
-            list={allClasses}
-            isHOD={isHOD}
-            onAssignIncharge={setInchargeModal}
-            onNavigate={navigateWithTransition}
-            initialClassIndex={initialClassIndex}
-          />
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          MOBILE VIEW + DESKTOP FALLBACK GRID/LIST VIEWS
-         ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={viewMode === "coverflow" ? "block md:hidden" : "block"}>
+      {/* ─── MOBILE VIEW + DESKTOP FALLBACK GRID/LIST VIEWS ─── */}
+      <div className="block">
         {viewMode !== "list" ? (
           <>
             {/* UG Classes */}
