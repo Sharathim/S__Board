@@ -227,7 +227,12 @@ export function TopBar() {
         {/* ── Left Brand Logo: Rendered directly without capsule card wrapper ── */}
         <div className="select-none flex items-center">
           <div
-            onClick={() => navigateWithTransition("/dashboard", "Dashboard", LayoutDashboard)}
+            onClick={() => {
+              const brandDest = user?.role === "HOD" ? "/dashboard" : user?.role === "FACULTY" ? "/faculty" : "/classes";
+              const brandLabel = user?.role === "HOD" ? "Dashboard" : user?.role === "FACULTY" ? "Faculty" : "Classes";
+              const brandIcon = user?.role === "HOD" ? LayoutDashboard : user?.role === "FACULTY" ? GraduationCap : BookOpen;
+              navigateWithTransition(brandDest, brandLabel, brandIcon);
+            }}
             className="cursor-pointer hover:scale-[1.02] transition-transform"
           >
             <img

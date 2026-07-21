@@ -16,7 +16,7 @@ const mainNavItems = [
 ];
 
 export function Sidebar() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -66,8 +66,10 @@ export function Sidebar() {
         className="fixed left-3 side-nav-centered z-40 hidden lg:flex flex-col select-none transition-all duration-300"
       >
         <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
-          {mainNavItems.map((item) => {
-            const Icon = item.icon;
+          {mainNavItems
+            .filter((item) => item.to !== "/dashboard" || user?.role === "HOD")
+            .map((item) => {
+              const Icon = item.icon;
             const isActive = location.pathname === item.to;
 
             return (
