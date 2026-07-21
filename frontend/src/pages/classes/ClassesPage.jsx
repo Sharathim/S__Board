@@ -626,7 +626,15 @@ export default function ClassesPage() {
 
   const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
   const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
+
+  // Combine PG and UG classes into one single Coverflow list with PG classes placed before UG 1A
   const allClasses = [...pgList, ...ugList];
+  
+  // Calculate initial active index to center UG 1A on page load
+  const ug1aIndex = allClasses.findIndex(
+    (c) => c.class_name === "UG_1A" || c.class_name === "UG 1A" || c.class_name.startsWith("UG 1")
+  );
+  const initialClassIndex = ug1aIndex !== -1 ? ug1aIndex : (pgList.length > 0 ? pgList.length : 0);
 
   return (
     <div className="space-y-4 animate-fade-in pb-8">
@@ -642,15 +650,6 @@ export default function ClassesPage() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Forum button */}
-          <button
-            onClick={() => setShowForumRoster(true)}
-            className="inline-flex items-center gap-2 px-3.5 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-755 dark:text-gray-200 text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0 cursor-pointer"
-          >
-            <Users className="w-4 h-4 text-[#F05A2B]" />
-            <span>Forum</span>
-          </button>
-
           {isHOD && (
             <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
               <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
@@ -665,6 +664,17 @@ export default function ClassesPage() {
 
           {/* Desktop View Switchers */}
           <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+            <button
+              onClick={() => setViewMode("coverflow")}
+              className={`p-1 rounded-lg transition-all ${
+                viewMode === "coverflow"
+                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
+                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
+              }`}
+              title="3D Coverflow View"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
@@ -692,16 +702,46 @@ export default function ClassesPage() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          CLASSES GRID/LIST VIEWS
+          DESKTOP VIEW: Unified 3D Coverflow Carousel (PG cards to the left of UG 1A)
          ═══════════════════════════════════════════════════════════════════════ */}
-      <div className="block">
+      {viewMode === "coverflow" && (
+        <div className="hidden md:block pt-1">
+          {/* Top Informative Level Indicator Text Badge */}
+          <div className="flex items-center justify-center mb-2">
+            <div className="inline-flex items-center gap-3.5 px-5 py-2 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/70 dark:border-slate-700/70 shadow-xs text-xs font-black tracking-wide">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#B83610] shadow-xs" />
+                <span className="text-slate-700 dark:text-slate-200">Postgraduate ({pgList.length})</span>
+              </div>
+              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F05A2B] shadow-xs" />
+                <span className="text-slate-700 dark:text-slate-200">Undergraduate ({ugList.length})</span>
+              </div>
+            </div>
+          </div>
+
+          <CoverflowCarousel
+            list={allClasses}
+            isHOD={isHOD}
+            onAssignIncharge={setInchargeModal}
+            onNavigate={navigateWithTransition}
+            initialClassIndex={initialClassIndex}
+          />
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          MOBILE VIEW + DESKTOP FALLBACK GRID/LIST VIEWS
+         ═══════════════════════════════════════════════════════════════════════ */}
+      <div className={viewMode === "coverflow" ? "block md:hidden" : "block"}>
         {viewMode !== "list" ? (
           <>
             {/* UG Classes */}
             {ugList.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-550 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
+                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {ugList.map((c) => (
@@ -722,7 +762,7 @@ export default function ClassesPage() {
             {pgList.length > 0 && (
               <div className="space-y-4 pt-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-550 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
+                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {pgList.map((c) => (
@@ -762,7 +802,7 @@ export default function ClassesPage() {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-55 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
                         {meta?.short || c.class_name}
                       </div>
                       <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{meta?.label || c.class_name}</span>
@@ -783,7 +823,7 @@ export default function ClassesPage() {
                       )}
                     </div>
 
-                    <span className="text-xs font-bold text-gray-700 dark:text-gray-350 text-center">
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">
                       {c.student_count ?? 0} Students
                     </span>
 
@@ -791,7 +831,7 @@ export default function ClassesPage() {
                       {isHOD ? (
                         <button
                           onClick={() => setInchargeModal(c.class_name)}
-                          className="text-xs font-bold text-indigo-600 hover:text-[#F05A2B] hover:underline bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 transition-all active:scale-95"
+                          className="text-xs font-bold text-indigo-600 hover:text-indigo-755 hover:underline bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 transition-all active:scale-95"
                         >
                           Assign Incharge
                         </button>
@@ -815,192 +855,6 @@ export default function ClassesPage() {
         onClose={() => setInchargeModal(null)}
         isPending={assignInchargeMutation.isPending}
       />
-
-      {/* ── Forum Directory Modal ── */}
-      <Modal open={showForumRoster} onClose={() => setShowForumRoster(false)} title="Forum Directory" size="lg">
-        <div className="space-y-5 pt-1">
-          {/* Header of roster space inside modal */}
-          <div className="flex items-center justify-between border-b pb-3 border-gray-100 dark:border-gray-800">
-            <span className="text-xs font-extrabold text-gray-400 dark:text-gray-555 uppercase tracking-widest">
-              {forumMembers?.length || 0} Members Total
-            </span>
-            {isHOD && (
-              <button
-                onClick={() => setPickerOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF5F2] dark:bg-orange-950/40 text-[#F05A2B] border border-orange-200/50 dark:border-orange-900/40 text-xs font-extrabold transition-all shadow-xs hover:bg-[#FFEAE5] active:scale-95 cursor-pointer shrink-0"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Member</span>
-              </button>
-            )}
-          </div>
-
-          {/* Members List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-1 scrollbar-thin">
-            {forumMembersLoading ? (
-              <div className="col-span-2 text-center py-8">
-                <Spinner />
-              </div>
-            ) : !forumMembers || forumMembers.length === 0 ? (
-              <div className="col-span-2 text-center py-10">
-                <p className="text-xs text-gray-450 italic">No forum members appointed yet.</p>
-              </div>
-            ) : (
-              forumMembers.map((m) => {
-                return (
-                  <div
-                    key={m.id}
-                    className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 border border-gray-150 dark:border-gray-700/65 shadow-xs hover:border-orange-300 dark:hover:border-orange-900/40 transition-all"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-2 ring-orange-500/10 shrink-0" />
-                      <div className="min-w-0 leading-tight">
-                        <p className="text-sm font-extrabold text-gray-900 dark:text-white truncate">{m.name}</p>
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 dark:bg-orange-950/40 text-[#F05A2B] border border-orange-100/30 dark:border-orange-900/20">
-                            {m.role}
-                          </span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-305">
-                            {m.class_name?.replace("_", " ")}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    {isHOD && (
-                      <button
-                        onClick={() => setDeleteForumMemberTarget(m)}
-                        className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all shrink-0 cursor-pointer"
-                        title="Remove Member"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </Modal>
-
-      {/* ── Add Member Picker ── */}
-      <SearchPicker
-        open={pickerOpen}
-        onClose={() => setPickerOpen(false)}
-        title="Add Forum Member"
-        queryKey="eligible-students"
-        fetchFn={(search) => listEligibleStudents(search).then(r => r.data.students)}
-        onPick={(student) => { setPendingStudent(student); setPickerOpen(false); }}
-        placeholder="Search students by name, email, roll…"
-        emptyText="No eligible students found."
-      />
-
-      {/* ── Role Selection Modal ── */}
-      {pendingStudent && (
-        <Modal open={!!pendingStudent} onClose={() => setPendingStudent(null)} title="Assign Forum Role">
-          <div className="space-y-4 pt-1">
-            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-orange-55 to-orange-100/30 dark:from-orange-950/20 dark:to-orange-950/30 rounded-2xl border border-orange-200/30 dark:border-orange-900/30">
-              <Avatar src={pendingStudent.profile_picture} name={pendingStudent.name} size="md" />
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{pendingStudent.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                  {pendingStudent.class_name?.replace("_", " ")} · {pendingStudent.email}
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Select Preset Role</label>
-              <select
-                value={rolePreset}
-                onChange={(e) => {
-                  setRolePreset(e.target.value);
-                  if (e.target.value !== "Custom") {
-                    setCustomRole("");
-                  }
-                }}
-                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20"
-              >
-                <option value="President">President</option>
-                <option value="Vice President">Vice President</option>
-                <option value="Secretary">Secretary</option>
-                <option value="Joint Secretary">Joint Secretary</option>
-                <option value="Media Secretary">Media Secretary</option>
-                <option value="Technical Head">Technical Head</option>
-                <option value="Technical Coordinator">Technical Coordinator</option>
-                <option value="Cultural Secretary">Cultural Secretary</option>
-                <option value="Sports Secretary">Sports Secretary</option>
-                <option value="Treasurer">Treasurer</option>
-                <option value="Executive Member">Executive Member</option>
-                <option value="Discipline Coordinator">Discipline Coordinator</option>
-                <option value="Placement Coordinator">Placement Coordinator</option>
-                <option value="Custom">Custom Role...</option>
-              </select>
-            </div>
-
-            {rolePreset === "Custom" && (
-              <div className="animate-fade-in">
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Custom Designation</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Vice Secretary, Creative Head"
-                  value={customRole}
-                  onChange={(e) => setCustomRole(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20"
-                />
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-1">
-              <button
-                type="button"
-                onClick={() => setPendingStudent(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-755 text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const finalRole = rolePreset === "Custom" ? customRole.trim() : rolePreset;
-                  if (!finalRole) {
-                    showError("Please enter a custom designation.");
-                    return;
-                  }
-                  assignForumMemberMutation.mutate({ studentId: pendingStudent.id, role: finalRole });
-                }}
-                disabled={assignForumMemberMutation.isPending}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] hover:brightness-110 text-white text-sm font-bold transition-all shadow-md disabled:opacity-60"
-              >
-                {assignForumMemberMutation.isPending ? "Adding…" : `Add as ${rolePreset === "Custom" && customRole ? customRole : rolePreset}`}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* ── Remove Member Confirmation ── */}
-      <ConfirmDialog
-        open={!!deleteForumMemberTarget}
-        onClose={() => setDeleteForumMemberTarget(null)}
-        onConfirm={() => removeForumMemberMutation.mutate(deleteForumMemberTarget.id)}
-        title="Remove Forum Member"
-        message={`Are you sure you want to remove ${deleteForumMemberTarget?.name} from the forum members?`}
-        confirmText={removeForumMemberMutation.isPending ? "Removing..." : "Remove"}
-        danger
-      />
-
-      {/* Toast Notifications */}
-      {successMessage && (
-        <div className="fixed top-5 right-5 z-[99999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-2xl shadow-emerald-500/30 border border-emerald-400/20 animate-slide-in">
-          <span className="text-sm font-bold">{successMessage}</span>
-        </div>
-      )}
-      {errorMessage && (
-        <div className="fixed top-5 right-5 z-[99999] flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-2xl shadow-red-500/30 border border-red-400/20 animate-slide-in">
-          <span className="text-sm font-bold">{errorMessage}</span>
-        </div>
-      )}
     </div>
   );
 }
