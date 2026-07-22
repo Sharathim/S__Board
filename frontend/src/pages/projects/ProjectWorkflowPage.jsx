@@ -15,7 +15,7 @@ import { Button } from "../../components/ui/Button";
 /**
  * Reusable clean card-based project creation & edit form component.
  */
-export function ProjectFormCard({ projectId, onSuccess, onCancel }) {
+export function ProjectFormCard({ projectId, onSuccess, onCancel, className = "" }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isEdit = Boolean(projectId);
@@ -217,7 +217,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel }) {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-3xl shadow-xl overflow-hidden transition-colors">
+    <div className={`w-full max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-3xl shadow-xl overflow-hidden transition-colors ${className}`}>
       {/* Form Header */}
       <div className="px-6 py-5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/30">
         <div className="flex items-center gap-3">

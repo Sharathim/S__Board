@@ -18,6 +18,8 @@ import {
 import { format } from "date-fns";
 import { parseUTCDate } from "../../utils/dateUtils";
 import { Avatar } from "../../components/ui/Avatar";
+import BottomSheet from "../../mobile/layout/BottomSheet";
+import { ProjectFormCard } from "./ProjectWorkflowPage";
 
 const statusOptions = [
   { value: "IN_PROGRESS", label: "In Progress", color: "#F05A2B" },
@@ -120,8 +122,15 @@ export default function ProjectsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [createSheetOpen, setCreateSheetOpen] = useState(false);
 
-  const openCreate = () => navigate("/projects/new");
+  const openCreate = () => {
+    if (window.innerWidth < 768) {
+      setCreateSheetOpen(true);
+    } else {
+      navigate("/projects/new");
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ["projects", { page, search, status }],
@@ -290,6 +299,17 @@ export default function ProjectsPage() {
           <Plus className="w-6 h-6" />
         </button>
       )}
+
+      {/* Mobile Project Creation Bottom Sheet */}
+      <BottomSheet
+        open={createSheetOpen}
+        onClose={() => setCreateSheetOpen(false)}
+      >
+        <ProjectFormCard
+          onSuccess={() => setCreateSheetOpen(false)}
+          onCancel={() => setCreateSheetOpen(false)}
+        />
+      </BottomSheet>
     </div>
   );
 }
