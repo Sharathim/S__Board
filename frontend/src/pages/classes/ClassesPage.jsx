@@ -362,45 +362,22 @@ export default function ClassesPage() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
-          {/* Forum Members display space */}
-          <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 p-1.5 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
+          {/* Forum Members button */}
+          <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
             <button
               onClick={() => setShowMembersModal(true)}
-              className="flex items-center gap-1.5 hover:opacity-85 transition-opacity"
-              title="View Forum Members Roster"
+              className="flex items-center gap-1.5 hover:opacity-85 transition-opacity text-xs font-bold text-gray-800 dark:text-gray-200"
+              title="View Forum Members"
             >
               <Users className="w-3.5 h-3.5 text-[#F05A2B] shrink-0" />
-              <div className="flex -space-x-1.5 overflow-hidden">
-                {memberList.slice(0, 4).map((member) => (
-                  <div key={member.id} className="relative group/avatar">
-                    <Avatar
-                      src={member.profile_picture}
-                      name={member.name}
-                      size="sm"
-                      className="w-5.5 h-5.5 border border-white dark:border-gray-800 rounded-full shrink-0"
-                    />
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap shadow-md pointer-events-none z-[100] border border-slate-800 dark:border-slate-200">
-                      {member.name} ({member.role})
-                    </div>
-                  </div>
-                ))}
-                {memberList.length > 4 && (
-                  <div className="w-5.5 h-5.5 rounded-full bg-slate-100 dark:bg-slate-700 border border-white dark:border-gray-800 flex items-center justify-center text-[9px] font-black text-slate-500 dark:text-slate-355 shrink-0">
-                    +{memberList.length - 4}
-                  </div>
-                )}
-                {memberList.length === 0 && (
-                  <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500 px-1">No Members</span>
-                )}
-              </div>
+              <span>Forum</span>
             </button>
 
             {/* "+" Button for HOD alone to appoint/manage forum members */}
             {isHOD && (
               <button
                 onClick={() => setPickerOpen(true)}
-                className="w-5.5 h-5.5 rounded-full bg-gradient-to-r from-[#FF8365] to-[#F05A2B] hover:brightness-110 text-white flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0"
+                className="w-5.5 h-5.5 rounded-full bg-gradient-to-r from-[#FF8365] to-[#F05A2B] hover:brightness-110 text-white flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0 ml-1"
                 title="Appoint Forum Member"
               >
                 <Plus className="w-3 h-3" />
@@ -743,15 +720,6 @@ export default function ClassesPage() {
                     </div>
                     {isHOD && (
                       <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
-                        <div className="flex flex-col items-center gap-0.5">
-                          <span className="text-[8px] text-gray-450 dark:text-gray-500 font-bold uppercase">Coord</span>
-                          <Switch
-                            checked={m.is_update_coordinator}
-                            onChange={() => coordMutation.mutate(m.id)}
-                            loading={coordMutation.isPending}
-                            size="sm"
-                          />
-                        </div>
                         <button
                           onClick={() => removeMutation.mutate(m.id)}
                           disabled={removeMutation.isPending}
