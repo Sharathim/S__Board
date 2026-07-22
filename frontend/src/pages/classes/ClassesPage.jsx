@@ -327,16 +327,6 @@ export default function ClassesPage() {
     onError: (err) => showError(err.response?.data?.error || "Failed to assign member."),
   });
 
-  if (isLoading) return <Spinner />;
-
-  const classes = raw?.classes || [];
-  const regOpen = raw?.student_registration_open || false;
-  const facultyList = facultyData || [];
-  const eligibleFaculty = facultyList.filter((f) => !f.class_incharge_of);
-
-  const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
-  const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
-
   const memberList = forumMembers || [];
   const filteredMembers = useMemo(() => {
     if (!memberSearchQuery.trim()) return memberList;
@@ -347,6 +337,16 @@ export default function ClassesPage() {
       m.class_name?.toLowerCase().includes(q)
     );
   }, [memberList, memberSearchQuery]);
+
+  if (isLoading) return <Spinner />;
+
+  const classes = raw?.classes || [];
+  const regOpen = raw?.student_registration_open || false;
+  const facultyList = facultyData || [];
+  const eligibleFaculty = facultyList.filter((f) => !f.class_incharge_of);
+
+  const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
+  const pgList = classes.filter((c) => c.class_name.startsWith("PG"));
 
   return (
     <div className="space-y-4 animate-fade-in pb-8">
