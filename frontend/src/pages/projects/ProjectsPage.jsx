@@ -168,9 +168,9 @@ export default function ProjectsPage() {
             <thead>
               <tr className="border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/35 text-gray-400 dark:text-gray-500 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
                 <th className="py-4 px-6">Project Name</th>
-                <th className="py-4 px-5">Faculty Advisor</th>
-                <th className="py-4 px-5">Forum Coordinator</th>
-                <th className="py-4 px-5">Students Team</th>
+                <th className="py-4 px-5">Faculty</th>
+                <th className="py-4 px-5">Forum Member</th>
+                <th className="py-4 px-5">Students</th>
                 <th className="py-4 px-5">Status</th>
                 <th className="py-4 px-5">Last Updated</th>
                 <th className="py-4 px-6 text-center">Action</th>

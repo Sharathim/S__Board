@@ -220,13 +220,13 @@ def create_project():
     if not members_data:
         return jsonify({"error": "At least one member is required"}), 400
 
-    status_val = data.get("status")
+    status_val = data.get("status", "IN_PROGRESS")
     project = Project(name=name, description=description, created_by=g.current_user.id)
-    if status_val:
-        try:
-            project.status = ProjectStatus(status_val)
-        except ValueError:
-            pass
+    try:
+        project.status = ProjectStatus(status_val)
+    except (ValueError, TypeError):
+        project.status = ProjectStatus.IN_PROGRESS
+
     db.session.add(project)
     db.session.flush()
 
@@ -251,6 +251,51 @@ def create_project():
         )
 
     return jsonify({"project": _serialize_project(project)}), 201
+
+
+@projects_bp.route("/<int:project_id>", methods=["PUT"])
+@require_auth
+def update_project(project_id):
+    user = g.current_user
+    project = Project.query.get_or_404(project_id)
+
+    if user.role != UserRole.HOD and project.created_by != user.id:
+        return jsonify({"error": "Unauthorized to edit this project"}), 403
+
+    data = request.get_json() or {}
+    name = data.get("name", "").strip()
+    description = data.get("description", "").strip()
+    members_data = data.get("members", None)
+    status_val = data.get("status")
+
+    if name:
+        project.name = name
+    if description is not None:
+        project.description = description
+    if status_val:
+        try:
+            project.status = ProjectStatus(status_val)
+        except (ValueError, TypeError):
+            pass
+
+    if members_data is not None:
+        db.session.execute(
+            text("DELETE FROM project_members WHERE project_id = :pid"),
+            {"pid": project.id}
+        )
+        for m in members_data:
+            db.session.execute(
+                project_members.insert().values(
+                    project_id=project.id,
+                    user_id=m["user_id"],
+                    role_in_project=m["role_in_project"]
+                )
+            )
+
+    project.updated_at = datetime.utcnow()
+    db.session.commit()
+
+    return jsonify({"project": _serialize_project(project)})
 
 
 @projects_bp.route("/<int:project_id>", methods=["GET"])

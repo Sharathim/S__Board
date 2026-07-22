@@ -81,15 +81,28 @@ function AvatarCircle({ name = "?", picture, size = "md", colorSeed }) {
   );
 }
 
+import { ProjectFormCard } from "./ProjectWorkflowPage";
+
 function RoleBadge({ role }) {
   const map = {
     HOD: "bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800/50",
     FACULTY: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50",
     STUDENT: "bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50",
+    faculty: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50",
+    forum_member: "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50",
+    student: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50",
+  };
+  const labelMap = {
+    HOD: "HOD",
+    FACULTY: "Faculty",
+    STUDENT: "Student",
+    faculty: "Faculty",
+    forum_member: "Forum Member",
+    student: "Students",
   };
   return (
     <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border leading-none ${map[role] || map.STUDENT}`}>
-      {role}
+      {labelMap[role] || role}
     </span>
   );
 }
@@ -983,32 +996,12 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* ── Edit Project Modal ── */}
-      <Modal open={editProjectModalOpen} onClose={() => setEditProjectModalOpen(false)} title="Edit Project">
-        <form onSubmit={handleEditProjectSubmit} className="space-y-4">
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Project Name</label>
-            <input
-              type="text"
-              value={editProjectName}
-              onChange={e => setEditProjectName(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              required
-            />
-          </div>
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Description</label>
-            <textarea
-              value={editProjectDesc}
-              onChange={e => setEditProjectDesc(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              rows={4}
-            />
-          </div>
-          <div className="flex justify-end gap-2.5 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setEditProjectModalOpen(false)}>Cancel</Button>
-            <Button type="submit">Save Changes</Button>
-          </div>
-        </form>
+      <Modal open={editProjectModalOpen} onClose={() => setEditProjectModalOpen(false)}>
+        <ProjectFormCard
+          projectId={id}
+          onCancel={() => setEditProjectModalOpen(false)}
+          onSuccess={() => setEditProjectModalOpen(false)}
+        />
       </Modal>
 
       {/* ── Post / Edit Progress Modal (Students only) ── */}
