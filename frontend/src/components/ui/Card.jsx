@@ -9,7 +9,7 @@ export function Card({ children, className, padded = true, hover = false, ...pro
   return (
     <div
       className={clsx(
-        "bg-white dark:bg-gray-800 rounded-[22px] border border-[#EBEBEB] dark:border-gray-700 shadow-finexy",
+        "bg-white dark:bg-slate-900 rounded-[22px] border border-gray-200/80 dark:border-slate-800/80 shadow-finexy",
         padded && "p-5",
         hover && "transition-all duration-200 hover:shadow-card-hover",
         className

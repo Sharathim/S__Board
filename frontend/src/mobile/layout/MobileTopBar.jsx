@@ -44,7 +44,7 @@ export default function MobileTopBar({ title: titleProp }) {
   return (
     <>
       <header
-        className="relative w-full shrink-0 z-[100] mobile-glass border-b flex items-center justify-between px-4"
+        className="relative w-full shrink-0 z-30 mobile-glass border-b border-gray-200/60 dark:border-slate-800/80 flex items-center justify-between px-3 select-none"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         {/* Left */}
@@ -52,7 +52,7 @@ export default function MobileTopBar({ title: titleProp }) {
           {isDetail ? (
             <button
               onClick={() => navigate(-1)}
-              className="mobile-tappable w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              className="mobile-tappable w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             </button>
@@ -75,7 +75,7 @@ export default function MobileTopBar({ title: titleProp }) {
           {/* Bell */}
           <button
             onClick={() => navigate("/notifications")}
-            className="mobile-tappable relative w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            className="mobile-tappable relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Bell className={`w-5 h-5 text-gray-500 dark:text-gray-400 ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`} />
             {unreadCount > 0 && (
@@ -88,7 +88,7 @@ export default function MobileTopBar({ title: titleProp }) {
           {/* Avatar */}
           <button
             onClick={() => navigate("/settings")}
-            className="mobile-tappable w-8 h-8 rounded-xl overflow-hidden shrink-0"
+            className="mobile-tappable w-9 h-9 rounded-xl overflow-hidden shrink-0 flex items-center justify-center"
           >
             {user?.profile_picture ? (
               <img src={user.profile_picture} alt={user?.name} className="w-full h-full object-cover" />

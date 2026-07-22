@@ -49,10 +49,10 @@ export default function MobilePublicShell() {
   ];
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
+    <div className="h-[100dvh] min-h-screen w-full flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
       {/* Top Bar */}
       <header
-        className="relative w-full shrink-0 z-[100] bg-[#FFFFFF]/95 dark:bg-[#000000]/95 backdrop-blur-lg border-b border-gray-150 flex items-center justify-between px-4"
+        className="relative w-full shrink-0 z-30 bg-[#FFFFFF]/95 dark:bg-[#000000]/95 backdrop-blur-lg border-b border-gray-200/60 dark:border-slate-800/80 flex items-center justify-between px-4 select-none"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
@@ -63,7 +63,7 @@ export default function MobilePublicShell() {
         {/* Redesigned Premium Glassmorphic Login Button */}
         <button
           onClick={() => setLoginOpen(true)}
-          className="mobile-tappable px-4 py-1.5 rounded-full font-bold text-xs transition-all
+          className="mobile-tappable min-h-[36px] px-4 py-1.5 rounded-full font-bold text-xs transition-all
             bg-violet-50/80 hover:bg-violet-100/80 border border-violet-200 text-violet-700 hover:shadow-sm
             dark:bg-slate-900/60 dark:hover:bg-violet-500/10 dark:border-violet-500/30 dark:hover:border-violet-500/50 dark:text-violet-400 dark:shadow-none"
         >
@@ -73,16 +73,16 @@ export default function MobilePublicShell() {
 
       {/* Content — inner scrollable */}
       <main
-        className="flex-1 overflow-y-auto w-full mobile-page-enter"
+        className="flex-1 overflow-y-auto w-full mobile-page-enter mobile-hide-scrollbar overscroll-y-contain pb-[calc(60px+env(safe-area-inset-bottom,0px))]"
       >
-        <div className="px-4 py-4">
+        <div className="px-4 py-3">
           <Outlet />
         </div>
       </main>
 
       {/* Public Bottom Navigation Bar */}
       <nav
-        className="relative w-full shrink-0 z-[100] mobile-glass border-t flex items-center justify-around px-2"
+        className="fixed bottom-0 left-0 right-0 z-40 mobile-glass border-t border-gray-200/60 dark:border-slate-800/80 flex items-center justify-around px-2 select-none"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           borderRadius: "20px 20px 0 0",
@@ -96,20 +96,23 @@ export default function MobilePublicShell() {
             <button
               key={item.to}
               onClick={() => navigate(item.to)}
-              className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${active ? "mobile-tab-active" : ""
-                }`}
+              className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
+                active ? "mobile-tab-active" : ""
+              }`}
             >
               <Icon
-                className={`w-5 h-5 transition-colors ${active
+                className={`w-5 h-5 transition-colors ${
+                  active
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-gray-400 dark:text-gray-500"
-                  }`}
+                }`}
               />
               <span
-                className={`text-[10px] font-semibold transition-colors ${active
+                className={`text-[10px] font-semibold tracking-tight transition-colors ${
+                  active
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-gray-400 dark:text-gray-500"
-                  }`}
+                }`}
               >
                 {item.label}
               </span>

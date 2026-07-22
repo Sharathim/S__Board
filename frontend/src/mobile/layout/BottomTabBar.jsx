@@ -63,7 +63,7 @@ export default function BottomTabBar() {
   return (
     <>
       <nav
-        className="relative w-full z-[100] mobile-glass border-t shrink-0"
+        className="fixed bottom-0 left-0 right-0 z-40 mobile-glass border-t border-gray-200/60 dark:border-slate-800/80 shrink-0 select-none"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           borderRadius: "20px 20px 0 0",
@@ -80,7 +80,7 @@ export default function BottomTabBar() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
+                className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
                   active ? "mobile-tab-active" : ""
                 }`}
               >
@@ -99,7 +99,7 @@ export default function BottomTabBar() {
                   )}
                 </div>
                 <span
-                  className={`text-[10px] font-semibold transition-colors ${
+                  className={`text-[10px] font-semibold tracking-tight transition-colors ${
                     active
                       ? "text-primary-600 dark:text-primary-400"
                       : "text-gray-400 dark:text-gray-500"
@@ -114,7 +114,7 @@ export default function BottomTabBar() {
           {/* More tab button */}
           <button
             onClick={() => setIsMoreOpen(true)}
-            className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all relative ${
+            className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
               isMoreOpen ? "mobile-tab-active" : ""
             }`}
           >
@@ -126,7 +126,7 @@ export default function BottomTabBar() {
               }`}
             />
             <span
-              className={`text-[10px] font-semibold transition-colors ${
+              className={`text-[10px] font-semibold tracking-tight transition-colors ${
                 isMoreOpen
                   ? "text-primary-600 dark:text-primary-400"
                   : "text-gray-400 dark:text-gray-500"
