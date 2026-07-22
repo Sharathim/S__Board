@@ -2,7 +2,7 @@ import { useLocation, NavLink } from "react-router-dom";
 import { LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import MoreSheet from "./MoreSheet";
 
 const getTabItemsForRole = (role) => {
@@ -29,31 +29,7 @@ export default function BottomTabBar() {
   const { unreadCount } = useNotificationContext();
   const location = useLocation();
 
-  const [visible, setVisible] = useState(true);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // If close to top (scrollY < 10), always show
-      if (currentScrollY < 10) {
-        setVisible(true);
-      } else if (currentScrollY > lastScrollY.current) {
-        // Scrolling down
-        setVisible(false);
-      } else {
-        // Scrolling up
-        setVisible(true);
-      }
-      
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const filteredTabs = getTabItemsForRole(user?.role);
 

@@ -181,7 +181,6 @@ body,
   overscroll-behavior-y: contain;
 }
 
-/* Permit text selection for input elements to preserve copy-paste/cursor operations */
 input,
 textarea,
 select,
@@ -191,3 +190,77 @@ select,
   -ms-user-select: text;
   user-select: text;
 }
+
+/* ─── Notes & Docs Tab Mobile Container ─── */
+/* Prevents desktop-sized NotesDocsTab from overflowing on mobile */
+.mobile-notes-container {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-notes-container * {
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.mobile-notes-container table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-notes-container .grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+/* ─── Skeleton Loading Animation ─── */
+@keyframes mobile-skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.mobile-skeleton {
+  background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
+  background-size: 200% 100%;
+  animation: mobile-skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+.dark .mobile-skeleton {
+  background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+  background-size: 200% 100%;
+}
+
+/* ─── Better Active States for Cards ─── */
+.mobile-tappable:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease-out;
+}
+
+/* Prevent transform on static elements like settings rows */
+.mobile-tappable[data-static]:active {
+  transform: none;
+}
+
+/* ─── Status Dot Animation ─── */
+@keyframes mobile-status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.mobile-status-active {
+  animation: mobile-status-pulse 2s ease-in-out infinite;
+}
+
+/* ─── Smooth scroll containers ─── */
+.mobile-scroll-snap {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-scroll-snap > * {
+  scroll-snap-align: start;
+}
