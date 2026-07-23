@@ -5,18 +5,28 @@ import { ToastContainer } from "../../components/ui/Toast";
 import { ErrorBoundary } from "../../components/ui/ErrorBoundary";
 import { TransitionProvider } from "../../context/TransitionContext";
 import PageTransitionOverlay from "../../components/transitions/PageTransitionOverlay";
-import { useEffect, useRef } from "react";
+import PullToRefresh from "../components/PullToRefresh";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useCallback } from "react";
 
 /**
  * Authenticated mobile shell: top app bar + scrollable content + bottom tab bar.
  */
 export default function MobileShell() {
   const pageContentRef = useRef(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const currentViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
     localStorage.setItem("dpms_total_views", (currentViews + 1).toString());
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    // Invalidate all active queries — each page's useQuery hooks will refetch
+    await queryClient.invalidateQueries();
+    // Small delay to let spinners show
+    await new Promise((r) => setTimeout(r, 400));
+  }, [queryClient]);
 
   return (
     <TransitionProvider pageContentRef={pageContentRef}>
@@ -29,9 +39,11 @@ export default function MobileShell() {
           className="flex-1 overflow-y-auto w-full mobile-page-enter page-content-animated relative z-10 mobile-hide-scrollbar overscroll-y-contain pb-[calc(60px+env(safe-area-inset-bottom,0px))]"
         >
           <div className="px-4 py-3 page-content-container">
-            <ErrorBoundary>
-              <Outlet />
-            </ErrorBoundary>
+            <PullToRefresh onRefresh={handleRefresh}>
+              <ErrorBoundary>
+                <Outlet />
+              </ErrorBoundary>
+            </PullToRefresh>
           </div>
         </main>
 

@@ -578,9 +578,34 @@ function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
 function StudentsDataTab({ className, stats, students, forms, onEditStudent, refetch }) {
   const queryClient = useQueryClient();
   const [createFormOpen, setCreateFormOpen] = useState(false);
+  const [exportSheetOpen, setExportSheetOpen] = useState(false);
+  const [viewResponsesForm, setViewResponsesForm] = useState(null);
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formFields, setFormFields] = useState([{ name: "", label: "", type: "text", required: false }]);
+
+  // Export column selection
+  const [selectedCols, setSelectedCols] = useState({});
+
+  useEffect(() => {
+    if (exportSheetOpen) {
+      const defaultSel = { roll_number: true, name: true, register_number: true };
+      STUDENT_CORE_FIELDS.forEach(f => { defaultSel[f.name] = true; });
+      setSelectedCols(defaultSel);
+    }
+  }, [exportSheetOpen]);
+
+  const handleSelectAll = () => {
+    const updated = { roll_number: true, name: true, register_number: true };
+    STUDENT_CORE_FIELDS.forEach(f => { updated[f.name] = true; });
+    setSelectedCols(updated);
+  };
+
+  const handleSelectNone = () => {
+    const updated = { roll_number: false, name: false, register_number: false };
+    STUDENT_CORE_FIELDS.forEach(f => { updated[f.name] = false; });
+    setSelectedCols(updated);
+  };
 
   const createFormMutation = useMutation({
     mutationFn: (data) => createForm(className, data),
@@ -593,18 +618,39 @@ function StudentsDataTab({ className, stats, students, forms, onEditStudent, ref
   });
 
   const handleExport = async () => {
+    const activeCols = Object.keys(selectedCols).filter(k => selectedCols[k]);
+    if (activeCols.length === 0) return;
     try {
-      const response = await api.get(`/classes/${className}/export-students-data`, { responseType: "blob" });
+      const response = await api.get(`/classes/${className}/export-students-data`, {
+        params: { columns: activeCols.join(",") },
+        responseType: "blob",
+      });
       const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${className}_students_data.xlsx`;
+      link.download = `${className}_students_data_${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      setExportSheetOpen(false);
     } catch (err) { console.error("Export failed", err); }
+  };
+
+  const handleExportFormResponses = async (form) => {
+    try {
+      const response = await api.get(`/classes/${className}/forms/${form.id}/export`, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${className}_${form.title.replace(/\s+/g, '_')}_responses.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) { console.error("Export form responses failed", err); }
   };
 
   return (
@@ -619,7 +665,7 @@ function StudentsDataTab({ className, stats, students, forms, onEditStudent, ref
 
       {/* Actions */}
       <div className="flex gap-2 flex-wrap">
-        <button onClick={handleExport} className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300">
+        <button onClick={() => setExportSheetOpen(true)} className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300">
           <Download className="w-3.5 h-3.5" /> Export Excel
         </button>
         <button onClick={() => setCreateFormOpen(true)} className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300">
@@ -635,14 +681,24 @@ function StudentsDataTab({ className, stats, students, forms, onEditStudent, ref
             {forms.map(form => (
               <MobileCard key={form.id}>
                 <div className="flex items-center justify-between">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{form.title}</h4>
                     <p className="text-[10px] text-gray-400">{form.response_count || 0} responses</p>
                   </div>
-                  <button onClick={() => { if (window.confirm("Delete this form?")) deleteFormMutation.mutate(form.id); }}
-                    className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-red-500">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => setViewResponsesForm(form)}
+                      className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-blue-500">
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => handleExportFormResponses(form)}
+                      className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-green-500">
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => { if (window.confirm("Delete this form?")) deleteFormMutation.mutate(form.id); }}
+                      className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-red-500">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </MobileCard>
             ))}
@@ -670,6 +726,45 @@ function StudentsDataTab({ className, stats, students, forms, onEditStudent, ref
           ))}
         </div>
       </div>
+
+      {/* Export Columns Sheet */}
+      <BottomSheet open={exportSheetOpen} onClose={() => setExportSheetOpen(false)} title="Configure Export Columns">
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+          <div className="flex gap-2">
+            <button onClick={handleSelectAll} className="mobile-tappable px-3 py-1.5 text-[10px] font-bold border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300">
+              Select All
+            </button>
+            <button onClick={handleSelectNone} className="mobile-tappable px-3 py-1.5 text-[10px] font-bold border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300">
+              Deselect All
+            </button>
+          </div>
+
+          <div className="space-y-1 border-t border-b border-gray-100 dark:border-slate-800 py-3">
+            {[{ name: "roll_number", label: "Roll Number" }, { name: "name", label: "Name" }, { name: "register_number", label: "Register Number" },
+              ...STUDENT_CORE_FIELDS.map(f => ({ name: f.name, label: f.label }))
+            ].map(col => (
+              <label key={col.name} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/40">
+                <input
+                  type="checkbox"
+                  checked={!!selectedCols[col.name]}
+                  onChange={() => setSelectedCols(prev => ({ ...prev, [col.name]: !prev[col.name] }))}
+                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{col.label}</span>
+              </label>
+            ))}
+          </div>
+
+          <button onClick={handleExport}
+            disabled={Object.values(selectedCols).filter(Boolean).length === 0}
+            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50 sticky bottom-0">
+            Export ({Object.values(selectedCols).filter(Boolean).length} columns)
+          </button>
+        </div>
+      </BottomSheet>
+
+      {/* View Responses Sheet */}
+      <ViewResponsesSheet form={viewResponsesForm} className={className} onClose={() => setViewResponsesForm(null)} />
 
       {/* Create Form Sheet */}
       <BottomSheet open={createFormOpen} onClose={() => setCreateFormOpen(false)} title="Create Form">
@@ -705,3 +800,51 @@ function StudentsDataTab({ className, stats, students, forms, onEditStudent, ref
     </div>
   );
 }
+
+// ─── View Responses Sheet ───────────────────────────────────────────────────────
+
+function ViewResponsesSheet({ form, className, onClose }) {
+  const { data: responsesData } = useQuery({
+    queryKey: ["responses", className, form?.id],
+    queryFn: () => getFormResponses(className, form?.id).then(r => r.data.responses),
+    enabled: !!form?.id,
+  });
+
+  if (!form) return null;
+
+  const responses = responsesData || [];
+  const fields = form.metadata?.fields || [];
+
+  return (
+    <BottomSheet open={!!form} onClose={onClose} title={`Responses — ${form.title}`}>
+      <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+        <p className="text-xs text-gray-400">{responses.length} submission{responses.length !== 1 ? "s" : ""}</p>
+
+        {responses.length === 0 ? (
+          <MobileEmptyState icon={FileText} title="No submissions" description="No students have submitted this form yet." />
+        ) : (
+          responses.map((resp, idx) => (
+            <MobileCard key={idx}>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-slate-800">
+                  <Avatar src={resp.profile_picture} name={resp.student_name} size="sm" className="w-7 h-7 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{resp.student_name}</p>
+                    <p className="text-[10px] text-gray-400">{resp.roll_number}</p>
+                  </div>
+                </div>
+                {fields.map(field => (
+                  <div key={field.name}>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{field.label || field.name}</span>
+                    <p className="text-xs text-gray-700 dark:text-gray-300 mt-0.5">{resp.data?.[field.name] || "—"}</p>
+                  </div>
+                ))}
+              </div>
+            </MobileCard>
+          ))
+        )}
+      </div>
+    </BottomSheet>
+  );
+}
+

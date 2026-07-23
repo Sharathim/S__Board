@@ -15,7 +15,7 @@ import { ProjectFormCard } from "../../../pages/projects/ProjectWorkflowPage";
 import {
   FolderKanban, Clock, Users, GraduationCap,
   MessageSquare, MoreVertical, Trash2, Eye,
-  Plus, ChevronRight,
+  Plus, ChevronRight, Pencil,
 } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -225,6 +225,17 @@ export default function MobileProjectsPage() {
               </div>
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">View Details</span>
             </button>
+            {isHOD && (
+              <button
+                onClick={() => { setActionSheet(null); navigate(`/projects/${actionSheet.id}/workflow`); }}
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-500">
+                  <Pencil className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Edit Project</span>
+              </button>
+            )}
             {isHOD && (
               <button
                 onClick={() => {
