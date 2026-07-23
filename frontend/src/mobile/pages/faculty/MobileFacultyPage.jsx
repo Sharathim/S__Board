@@ -1,12 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  listFaculty, deleteFaculty, getFacultyInvite, toggleFacultyInvite, updateFaculty,
+  listFaculty, deleteFaculty, getFacultyInvite, toggleFacultyInvite,
 } from "../../../api/faculty";
-import { assignIncharge } from "../../../api/classes";
 import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../components/ui/Spinner";
 import { Avatar } from "../../../components/ui/Avatar";
-import { Switch } from "../../../components/ui/Switch";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import MobileSearchBar from "../../components/MobileSearchBar";
 import MobileCard from "../../components/MobileCard";
@@ -17,11 +15,9 @@ import {
   Users, Mail, GraduationCap, BookOpen,
   FolderKanban, Search, Copy, CheckCheck,
   Star, TrendingUp, MoreVertical, Trash2,
-  ChevronRight, ShieldCheck, Link2, X, UserCheck, UserX,
+  ChevronRight, ShieldCheck, Link2, X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-
-const CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"];
 
 function DesignationBadge({ designation }) {
   const map = {
@@ -46,7 +42,6 @@ export default function MobileFacultyPage() {
 
   const [search, setSearch] = useState("");
   const [actionSheet, setActionSheet] = useState(null);
-  const [inchargeSheet, setInchargeSheet] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [inviteCopied, setInviteCopied] = useState(false);
 
@@ -64,15 +59,6 @@ export default function MobileFacultyPage() {
   const toggleInviteMutation = useMutation({
     mutationFn: toggleFacultyInvite,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["faculty-invite"] }),
-  });
-
-  const assignInchargeMutation = useMutation({
-    mutationFn: ({ id, className }) => assignIncharge(id, className),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["faculty"] });
-      setInchargeSheet(null);
-      setActionSheet(null);
-    },
   });
 
   const deleteMutation = useMutation({
@@ -115,51 +101,25 @@ export default function MobileFacultyPage() {
 
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
-      {/* HOD Registration Toggle & Invite Banner */}
-      {isHOD && inviteData && (
-        <div className="space-y-2">
-          {/* Allow New Faculty Registration Switch */}
-          <MobileCard className="!bg-white dark:!bg-slate-900">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                  <UserCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">Allow New Faculty Registration</p>
-                  <p className="text-[10px] text-gray-400">Enable self-registration via invite link</p>
-                </div>
-              </div>
-              <Switch
-                checked={!!inviteData.is_active}
-                onChange={() => toggleInviteMutation.mutate()}
-                loading={toggleInviteMutation.isPending}
-                size="sm"
-              />
+      {/* HOD Invite Banner */}
+      {isHOD && inviteData?.invite_link && inviteData?.is_active && (
+        <MobileCard className="!bg-indigo-50 dark:!bg-indigo-950/20 !border-indigo-200/60 dark:!border-indigo-800/40">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
+              <Link2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             </div>
-          </MobileCard>
-
-          {/* Active Invite Link Copy Banner */}
-          {inviteData.is_active && inviteData.invite_link && (
-            <MobileCard className="!bg-indigo-50 dark:!bg-indigo-950/20 !border-indigo-200/60 dark:!border-indigo-800/40">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
-                  <Link2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">Faculty Invite Link Active</p>
-                  <p className="text-[10px] text-indigo-500 dark:text-indigo-400 truncate mt-0.5">{inviteData.invite_link}</p>
-                </div>
-                <button
-                  onClick={copyInviteLink}
-                  className="mobile-tappable p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 shrink-0"
-                >
-                  {inviteCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-            </MobileCard>
-          )}
-        </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">Faculty Invite Link Active</p>
+              <p className="text-[10px] text-indigo-500 dark:text-indigo-400 truncate mt-0.5">{inviteData.invite_link}</p>
+            </div>
+            <button
+              onClick={copyInviteLink}
+              className="mobile-tappable p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
+            >
+              {inviteCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+          </div>
+        </MobileCard>
       )}
 
       {/* Search */}
@@ -210,14 +170,14 @@ export default function MobileFacultyPage() {
                   )}
 
                   {/* Email */}
-                  <p className="text-[11px] text-gray-400 dark:text-gray-505 mt-1 truncate">{fac.email}</p>
+                  <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 truncate">{fac.email}</p>
 
                   {/* Stats */}
                   <div className="flex items-center gap-3 mt-2 flex-wrap">
                     {fac.class_incharge_of && (
                       <div className="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 px-2 py-0.5 rounded-full">
                         <ShieldCheck className="w-3 h-3" />
-                        Incharge: {fac.class_incharge_of.replace("_", " ")}
+                        {fac.class_incharge_of.replace("_", " ")}
                       </div>
                     )}
                     {fac.project_count > 0 && (
@@ -257,63 +217,18 @@ export default function MobileFacultyPage() {
               </div>
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Send Email</span>
             </a>
-
-            {isHOD && (
-              <button
-                onClick={() => {
-                  const target = actionSheet;
-                  if (target.class_incharge_of) {
-                    assignInchargeMutation.mutate({ id: target.id, className: "" });
-                  } else {
-                    setActionSheet(null);
-                    setInchargeSheet(target);
-                  }
-                }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
-              >
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-500">
-                  {actionSheet.class_incharge_of ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                </div>
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  {actionSheet.class_incharge_of ? "Remove Class Incharge" : "Assign Class Incharge"}
-                </span>
-              </button>
-            )}
-
-            {isHOD && (
-              <button
-                onClick={() => {
-                  setActionSheet(null);
-                  setTimeout(() => setDeleteConfirm(actionSheet), 300);
-                }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-              >
-                <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500">
-                  <Trash2 className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-semibold text-red-600 dark:text-red-400">Remove Faculty</span>
-              </button>
-            )}
-          </div>
-        )}
-      </BottomSheet>
-
-      {/* Assign Incharge Class Selection Bottom Sheet */}
-      <BottomSheet open={!!inchargeSheet} onClose={() => setInchargeSheet(null)} title={`Assign Incharge: ${inchargeSheet?.name}`}>
-        {inchargeSheet && (
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-            <p className="text-xs text-gray-400 mb-2">Select a class to assign {inchargeSheet.name} as Class Incharge:</p>
-            {CLASSES.map((cls) => (
-              <button
-                key={cls}
-                onClick={() => assignInchargeMutation.mutate({ id: inchargeSheet.id, className: cls })}
-                disabled={assignInchargeMutation.isPending}
-                className="mobile-tappable w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold text-gray-900 dark:text-white hover:border-primary-500 transition-colors"
-              >
-                <span>{cls.replace("_", " ")}</span>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </button>
-            ))}
+            <button
+              onClick={() => {
+                setActionSheet(null);
+                setTimeout(() => setDeleteConfirm(actionSheet), 300);
+              }}
+              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500">
+                <Trash2 className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-semibold text-red-600 dark:text-red-400">Remove Faculty</span>
+            </button>
           </div>
         )}
       </BottomSheet>
@@ -330,4 +245,3 @@ export default function MobileFacultyPage() {
     </div>
   );
 }
-

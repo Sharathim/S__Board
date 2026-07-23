@@ -1,16 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-// Mobile media query: portrait phones (< 768px), landscape phones (height <= 500px), or touch devices <= 1024px
-const MOBILE_QUERY = "(max-width: 767px), (max-height: 500px) and (max-width: 1024px), (pointer: coarse) and (max-width: 1024px)";
+const MOBILE_QUERY = "(max-width: 767px)";
 const STORAGE_KEY = "hive_force_view";
 
 /**
- * Detects mobile viewport (portrait or landscape phone) with live switching.
+ * Detects mobile viewport (< 768px) with an optional manual override.
+ * Override stored in localStorage as "mobile" | "desktop" | null.
+ * Uses matchMedia 'change' event (not resize) for live switching.
  */
 export function useIsMobile() {
   const [matchesMedia, setMatchesMedia] = useState(() => {
     if (typeof window === "undefined") return false;
     
+    // Proactively clear any legacy override from localStorage
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch (e) {}
@@ -27,4 +29,3 @@ export function useIsMobile() {
 
   return { isMobile: matchesMedia };
 }
-

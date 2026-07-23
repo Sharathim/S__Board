@@ -263,22 +263,4 @@ select,
 
 .mobile-scroll-snap > * {
   scroll-snap-align: start;
-}
-
-/* ─── Landscape Mode Optimizations ─── */
-@media (max-height: 500px) and (orientation: landscape) {
-  main.page-content-animated {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  nav.mobile-glass {
-    height: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  nav.mobile-glass > div {
-    height: 50px !important;
-  }
-}
-
+}

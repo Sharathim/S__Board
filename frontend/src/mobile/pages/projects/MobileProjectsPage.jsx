@@ -48,7 +48,6 @@ export default function MobileProjectsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [createSheetOpen, setCreateSheetOpen] = useState(false);
-  const [editSheetTarget, setEditSheetTarget] = useState(null);
   const [actionSheet, setActionSheet] = useState(null);
 
   const { data, isLoading } = useQuery({
@@ -79,37 +78,31 @@ export default function MobileProjectsPage() {
 
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
-      {/* Search Bar */}
+      {/* Search */}
       <MobileSearchBar
         value={search}
-        onChange={(val) => { setSearch(val); setPage(1); }}
-        placeholder="Search projects by name..."
+        onChange={(v) => { setSearch(v); setPage(1); }}
+        placeholder="Search projects..."
       />
 
       {/* Status Filter Chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto mobile-hide-scrollbar pb-1 -mx-1 px-1">
-        {STATUS_OPTIONS.map((opt) => {
-          const active = status === opt.value;
-          return (
-            <button
-              key={opt.value}
-              onClick={() => { setStatus(opt.value); setPage(1); }}
-              className={`mobile-tappable flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                active
-                  ? "bg-primary-600 text-white shadow-sm"
-                  : "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400"
-              }`}
-            >
-              {opt.color && (
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: active ? "#FFFFFF" : opt.color }}
-                />
-              )}
-              {opt.label}
-            </button>
-          );
-        })}
+      <div className="flex gap-2 overflow-x-auto mobile-hide-scrollbar pb-1 -mx-1 px-1">
+        {STATUS_OPTIONS.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => { setStatus(opt.value); setPage(1); }}
+            className={`mobile-tappable whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 ${
+              status === opt.value
+                ? "bg-[#F05A2B] text-white border-[#F05A2B] shadow-sm"
+                : "bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-800"
+            }`}
+          >
+            {opt.color && status !== opt.value && (
+              <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5" style={{ background: opt.color }} />
+            )}
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {/* Projects List */}
@@ -117,80 +110,65 @@ export default function MobileProjectsPage() {
         <MobileEmptyState
           icon={FolderKanban}
           title="No projects found"
-          description={
-            search || status
-              ? "Try adjusting your search or filters"
-              : "No projects have been created yet."
-          }
+          description={search ? "Try a different search term" : "Create a new project to get started."}
         />
       ) : (
-        <div className="space-y-3">
-          {projects.map((proj) => {
-            const st = getStatusTheme(proj.status);
-            const totalMembers =
-              (proj.faculty_members?.length || 0) +
-              (proj.student_members?.length || 0) +
-              (proj.forum_members?.length || 0);
+        <div className="space-y-2.5">
+          {projects.map((project) => {
+            const st = getStatusTheme(project.status);
+            const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
+            const studentMembers = project.members?.filter(m => m.role_in_project === "student") || [];
 
             return (
               <MobileCard
-                key={proj.id}
-                onClick={() => navigate(`/projects/${proj.id}`)}
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.id}`)}
               >
-                <div className="space-y-2.5">
-                  {/* Top row: Status dot + Date + Kebab */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${st.bg} ${st.text}`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
-                      {proj.status.replace("_", " ")}
-                    </span>
-
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-medium text-gray-400">
-                        {format(parseUTCDate(proj.updated_at), "MMM d")}
-                      </span>
-                      {isHOD && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActionSheet(proj);
-                          }}
-                          className="mobile-tappable p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Title & Description */}
-                  <div>
-                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors line-clamp-1">
-                      {proj.name}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+                      {project.name}
                     </h3>
-                    {proj.description && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-0.5 leading-relaxed">
-                        {proj.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Footer: Member avatars count */}
-                  <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-slate-800 text-xs text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                        {totalMembers} member{totalMembers !== 1 ? "s" : ""}
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${st.bg} ${st.text}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+                        {project.status.replace("_", " ")}
                       </span>
                     </div>
-
-                    <div className="flex items-center gap-1 font-bold text-primary-600 text-[11px]">
-                      View details
-                      <ChevronRight className="w-3 h-3" />
-                    </div>
                   </div>
+                  {(isHOD || canCreateProject) && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setActionSheet(project); }}
+                      className="mobile-tappable p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Members */}
+                <div className="flex items-center gap-4 mt-3 text-[11px] text-gray-500 dark:text-gray-400">
+                  {facultyMembers.length > 0 && (
+                    <div className="flex items-center gap-1 truncate">
+                      <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                      <span className="truncate">{facultyMembers.map(m => m.name).join(", ")}</span>
+                    </div>
+                  )}
+                  {studentMembers.length > 0 && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Users className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>{studentMembers.length}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100 dark:border-slate-800/60">
+                  <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+                    <Clock className="w-3 h-3" />
+                    {format(parseUTCDate(project.updated_at), "dd MMM, yyyy")}
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-600" />
                 </div>
               </MobileCard>
             );
@@ -199,11 +177,11 @@ export default function MobileProjectsPage() {
       )}
 
       {/* Pagination */}
-      {data && data.pages > 1 && (
-        <div className="flex items-center justify-between pt-2">
+      {projects.length > 0 && data?.pages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
           <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page <= 1}
             className="mobile-tappable px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-600 dark:text-gray-300 disabled:opacity-40"
           >
             Previous
@@ -212,7 +190,7 @@ export default function MobileProjectsPage() {
             {page} / {data.pages}
           </span>
           <button
-            onClick={() => setPage((p) => Math.min(data.pages, p + 1))}
+            onClick={() => setPage(p => Math.min(data.pages, p + 1))}
             disabled={page >= data.pages}
             className="mobile-tappable px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-600 dark:text-gray-300 disabled:opacity-40"
           >
@@ -227,28 +205,11 @@ export default function MobileProjectsPage() {
       )}
 
       {/* Create Project Bottom Sheet */}
-      <BottomSheet open={createSheetOpen} onClose={() => setCreateSheetOpen(false)} title="Create New Project">
+      <BottomSheet open={createSheetOpen} onClose={() => setCreateSheetOpen(false)}>
         <ProjectFormCard
-          onSuccess={() => {
-            setCreateSheetOpen(false);
-            queryClient.invalidateQueries({ queryKey: ["projects"] });
-          }}
+          onSuccess={() => setCreateSheetOpen(false)}
           onCancel={() => setCreateSheetOpen(false)}
         />
-      </BottomSheet>
-
-      {/* Edit Project Bottom Sheet */}
-      <BottomSheet open={!!editSheetTarget} onClose={() => setEditSheetTarget(null)} title="Edit Project">
-        {editSheetTarget && (
-          <ProjectFormCard
-            projectId={editSheetTarget.id}
-            onSuccess={() => {
-              setEditSheetTarget(null);
-              queryClient.invalidateQueries({ queryKey: ["projects"] });
-            }}
-            onCancel={() => setEditSheetTarget(null)}
-          />
-        )}
       </BottomSheet>
 
       {/* Action Bottom Sheet */}
@@ -266,11 +227,7 @@ export default function MobileProjectsPage() {
             </button>
             {isHOD && (
               <button
-                onClick={() => {
-                  const target = actionSheet;
-                  setActionSheet(null);
-                  setEditSheetTarget(target);
-                }}
+                onClick={() => { setActionSheet(null); navigate(`/projects/${actionSheet.id}/workflow`); }}
                 className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
               >
                 <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-500">
