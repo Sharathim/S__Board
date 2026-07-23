@@ -52,12 +52,12 @@ export default function MobilePublicShell() {
     <div className="h-[100dvh] min-h-screen w-full flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
       {/* Top Bar */}
       <header
-        className="relative w-full shrink-0 z-30 bg-[#FFFFFF]/95 dark:bg-[#000000]/95 backdrop-blur-lg border-b border-gray-200/60 dark:border-slate-800/80 flex items-center justify-between px-4 select-none"
+        className="relative w-full shrink-0 z-30 bg-[#FFFFFF] dark:bg-[#000000] flex items-center justify-between px-4 select-none"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
-          <img src="/logo-icon.png" alt="Hive" className="w-9 h-9 object-contain" />
-          <span className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">Hive</span>
+          <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-base text-gray-900 dark:text-white tracking-tight">Hive</span>
         </div>
 
         {/* Redesigned Premium Glassmorphic Login Button */}
@@ -82,10 +82,9 @@ export default function MobilePublicShell() {
 
       {/* Public Bottom Navigation Bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 mobile-glass border-t border-gray-200/60 dark:border-slate-800/80 flex items-center justify-around px-2 select-none"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] dark:bg-[#000000] flex items-center justify-around px-2 select-none"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
-          borderRadius: "20px 20px 0 0",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >

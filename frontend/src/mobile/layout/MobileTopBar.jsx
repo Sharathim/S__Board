@@ -36,39 +36,34 @@ export default function MobileTopBar({ title: titleProp }) {
   const isDetail = DETAIL_PATTERNS.some((p) => location.pathname.startsWith(p) && location.pathname !== p.slice(0, -1));
   const rc = getRoleColor(user?.role);
 
-  // Determine title
-  let pageTitle = titleProp || ROUTE_TITLES[location.pathname] || "";
-  if (!pageTitle && location.pathname.startsWith("/projects/")) pageTitle = "Project";
-  if (!pageTitle && location.pathname.startsWith("/classes/")) pageTitle = "Class";
-
   return (
     <>
       <header
-        className="relative w-full shrink-0 z-30 mobile-glass border-b border-gray-200/60 dark:border-slate-800/80 flex items-center justify-between px-3 select-none"
+        className="relative w-full shrink-0 z-30 bg-[#FFFFFF] dark:bg-[#000000] flex items-center justify-between px-3 select-none"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        {/* Left */}
+        {/* Left: Back button (if detail) + Logo + "Hive" */}
         <div className="flex items-center gap-2 min-w-0">
-          {isDetail ? (
+          {isDetail && (
             <button
               onClick={() => navigate(-1)}
-              className="mobile-tappable w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              className="mobile-tappable w-9 h-9 rounded-xl flex items-center justify-center hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+              aria-label="Go back"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             </button>
-          ) : (
+          )}
+          <div className="flex items-center gap-2">
             <img
               src="/logo-icon.png"
               alt="Hive"
-              className="w-9 h-9 object-contain shrink-0"
+              className="w-8 h-8 object-contain shrink-0"
             />
-          )}
+            <span className="font-bold text-base text-gray-900 dark:text-white tracking-tight">
+              Hive
+            </span>
+          </div>
         </div>
-
-        {/* Center title */}
-        <h1 className="text-base font-bold text-gray-900 dark:text-white tracking-tight truncate absolute left-1/2 -translate-x-1/2 max-w-[50%] text-center">
-          {pageTitle}
-        </h1>
 
         {/* Right */}
         <div className="flex items-center gap-1">

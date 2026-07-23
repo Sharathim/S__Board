@@ -39,10 +39,9 @@ export default function BottomTabBar() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 mobile-glass border-t border-gray-200/60 dark:border-slate-800/80 shrink-0 select-none"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] dark:bg-[#000000] shrink-0 select-none"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
-          borderRadius: "20px 20px 0 0",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
