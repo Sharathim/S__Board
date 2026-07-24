@@ -27,6 +27,7 @@ import MobileProjectDetailPage from "./pages/projects/MobileProjectDetailPage";
 import MobileUpdatesPage from "./pages/updates/MobileUpdatesPage";
 import MobileNotificationsPage from "./pages/notifications/MobileNotificationsPage";
 import MobileSettingsPage from "./pages/settings/MobileSettingsPage";
+import MobileFacultyNotesPage from "./pages/notes/MobileFacultyNotesPage";
 
 // Stylesheet
 import "./mobile.css";
@@ -85,6 +86,7 @@ export default function MobileApp() {
           <Route path="/updates" element={<MobileUpdatesPage />} />
           <Route path="/notifications" element={<MobileNotificationsPage />} />
           <Route path="/settings" element={<MobileSettingsPage />} />
+          <Route path="/notes" element={<MobileFacultyNotesPage />} />
         </Route>
 
         {/* Catch-all redirects to Home */}

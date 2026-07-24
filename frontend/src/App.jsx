@@ -23,6 +23,7 @@ import UpdatesPage from "./pages/updates/UpdatesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import GoatPage from "./pages/developer/GoatPage";
+import FacultyNotesPage from "./pages/notes/FacultyNotesPage";
 
 import NotFoundPage from "./pages/public/NotFoundPage";
 
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/updates" element={<UpdatesPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/notes" element={<FacultyNotesPage />} />
           <Route path="/GOAT" element={<GoatPage />} />
         </Route>
 

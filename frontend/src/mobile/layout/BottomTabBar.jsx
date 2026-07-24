@@ -1,5 +1,5 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Menu } from "lucide-react";
+import { LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Menu, FileText } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState } from "react";
@@ -13,8 +13,15 @@ const getTabItemsForRole = (role) => {
       { to: "/faculty", icon: GraduationCap, label: "Faculty" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
     ];
+  } else if (role === "FACULTY") {
+    return [
+      { to: "/projects", icon: FolderKanban, label: "Projects" },
+      { to: "/notes", icon: FileText, label: "Notes" },
+      { to: "/classes", icon: BookOpen, label: "Classes" },
+      { to: "/updates", icon: Megaphone, label: "Updates" },
+    ];
   } else {
-    // FACULTY or STUDENT
+    // STUDENT
     return [
       { to: "/projects", icon: FolderKanban, label: "Projects" },
       { to: "/faculty", icon: GraduationCap, label: "Faculty" },

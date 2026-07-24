@@ -9,6 +9,7 @@ class Subject(db.Model):
     class_name = db.Column(db.String(20), nullable=False, index=True)
     name = db.Column(db.String(200), nullable=False)
     academic_year = db.Column(db.String(20), nullable=False)
+    semester = db.Column(db.Integer, nullable=False, default=1)  # 1 or 2
     is_archived = db.Column(db.Boolean, default=False)
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

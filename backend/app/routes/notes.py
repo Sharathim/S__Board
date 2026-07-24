@@ -96,6 +96,15 @@ def _serialize_unit(u):
         "created_at": u.created_at.isoformat()
     }
 
+def _serialize_unit_no_files(u):
+    return {
+        "id": u.id,
+        "name": u.name,
+        "order_index": u.order_index,
+        "file_count": u.files.count(),
+        "created_at": u.created_at.isoformat()
+    }
+
 def _serialize_subject(s):
     # Calculate counts
     unit_count = s.units.count()
@@ -104,6 +113,7 @@ def _serialize_subject(s):
         "id": s.id,
         "name": s.name,
         "academic_year": s.academic_year,
+        "semester": s.semester,
         "is_archived": s.is_archived,
         "created_by": {
             "id": s.creator.id,
@@ -115,6 +125,89 @@ def _serialize_subject(s):
         "created_at": s.created_at.isoformat()
     }
 
+# ─── Faculty Notes Hub — aggregated view across all handled classes ────────────
+
+@notes_bp.route("/notes/faculty/my-classes-subjects", methods=["GET"])
+@require_auth
+def get_faculty_notes_hub():
+    """
+    Returns all subjects grouped by class → academic_year → semester for the
+    logged-in faculty member. Only accessible by FACULTY role.
+    Optionally filter by ?class_name=UG_3A, ?academic_year=2024-25, ?semester=1
+    """
+    user = g.current_user
+    if user.role not in (UserRole.FACULTY, UserRole.HOD):
+        return jsonify({"error": "Only faculty can access this endpoint"}), 403
+
+    fp = user.faculty_profile
+    if not fp and user.role == UserRole.FACULTY:
+        return jsonify({"classes": []})
+
+    # Build the list of classes this faculty member can access
+    if user.role == UserRole.HOD:
+        # HOD can see all classes — but this page is faculty-only in the UI
+        handled_classes = []
+        incharge_class = None
+    else:
+        handled_classes = list(fp.classes_handling or [])
+        incharge_class = fp.class_incharge_of
+
+    all_classes = list(set(handled_classes + ([incharge_class] if incharge_class else [])))
+    all_classes.sort()
+
+    # Optional filters from query params
+    filter_class = request.args.get("class_name")
+    filter_year = request.args.get("academic_year")
+    filter_semester = request.args.get("semester", type=int)
+    include_archived = request.args.get("archived", "false").lower() == "true"
+
+    if filter_class and filter_class in all_classes:
+        all_classes = [filter_class]
+    elif filter_class:
+        return jsonify({"error": "Access denied to this class"}), 403
+
+    result = []
+    for class_name in all_classes:
+        q = Subject.query.filter_by(class_name=class_name, is_archived=include_archived)
+        if filter_year:
+            q = q.filter_by(academic_year=filter_year)
+        if filter_semester:
+            q = q.filter_by(semester=filter_semester)
+
+        subjects = q.order_by(Subject.academic_year.desc(), Subject.semester, Subject.name).all()
+
+        # Group by academic_year → semester
+        grouped = {}
+        for subj in subjects:
+            yr = subj.academic_year
+            sem = subj.semester
+            if yr not in grouped:
+                grouped[yr] = {}
+            if sem not in grouped[yr]:
+                grouped[yr][sem] = []
+            grouped[yr][sem].append(_serialize_subject(subj))
+
+        result.append({
+            "class_name": class_name,
+            "is_incharge": incharge_class == class_name,
+            "academic_years": [
+                {
+                    "year": yr,
+                    "semesters": [
+                        {
+                            "semester": sem,
+                            "subjects": grouped[yr][sem]
+                        }
+                        for sem in sorted(grouped[yr].keys())
+                    ]
+                }
+                for yr in sorted(grouped.keys(), reverse=True)
+            ]
+        })
+
+    return jsonify({"classes": result})
+
+
 # ─── Subjects routes ────────────────────────────────────────────────────────
 
 @notes_bp.route("/<class_name>/notes/subjects", methods=["GET"])
@@ -125,7 +218,12 @@ def get_subjects(class_name):
         return jsonify({"error": "Access denied"}), 403
 
     archived = request.args.get("archived", "false").lower() == "true"
-    subjects = Subject.query.filter_by(class_name=class_name, is_archived=archived).order_by(Subject.created_at.desc()).all()
+    semester = request.args.get("semester", type=int)
+
+    q = Subject.query.filter_by(class_name=class_name, is_archived=archived)
+    if semester in (1, 2):
+        q = q.filter_by(semester=semester)
+    subjects = q.order_by(Subject.academic_year.desc(), Subject.semester, Subject.created_at.desc()).all()
     return jsonify({"subjects": [_serialize_subject(s) for s in subjects]})
 
 @notes_bp.route("/<class_name>/notes/subjects", methods=["POST"])
@@ -140,20 +238,26 @@ def create_subject(class_name):
     data = request.get_json() or {}
     name = data.get("name", "").strip()
     academic_year = data.get("academic_year", "").strip()
+    semester = data.get("semester", 1)
 
     if not name or not academic_year:
         return jsonify({"error": "Subject name and Academic year are required"}), 400
 
-    # Note: duplicate subjects are allowed but must have different academic year or be distinct
-    # The prompt says: "there can be duplicate subjects but with different academic year"
-    existing = Subject.query.filter_by(class_name=class_name, name=name, academic_year=academic_year).first()
+    if semester not in (1, 2):
+        return jsonify({"error": "Semester must be 1 or 2"}), 400
+
+    # Duplicate check: same name, academic year, AND semester
+    existing = Subject.query.filter_by(
+        class_name=class_name, name=name, academic_year=academic_year, semester=semester
+    ).first()
     if existing:
-        return jsonify({"error": "Subject with the same name and academic year already exists in this class"}), 400
+        return jsonify({"error": "Subject with the same name, academic year and semester already exists in this class"}), 400
 
     subject = Subject(
         class_name=class_name,
         name=name,
         academic_year=academic_year,
+        semester=semester,
         created_by=user.id
     )
     db.session.add(subject)
@@ -165,7 +269,7 @@ def create_subject(class_name):
         target_type="subject",
         target_name=name,
         performed_by=user.id,
-        details={"academic_year": academic_year, "subject_id": subject.id}
+        details={"academic_year": academic_year, "semester": semester, "subject_id": subject.id}
     )
 
     return jsonify({"subject": _serialize_subject(subject)})
@@ -185,33 +289,45 @@ def edit_subject(class_name, subject_id):
     data = request.get_json() or {}
     name = data.get("name", "").strip()
     academic_year = data.get("academic_year", "").strip()
+    semester = data.get("semester")
 
     changes = {}
+
+    if semester is not None:
+        if semester not in (1, 2):
+            return jsonify({"error": "Semester must be 1 or 2"}), 400
+        changes["old_semester"] = subject.semester
+        changes["new_semester"] = semester
+        subject.semester = semester
+
     if name:
-        # Check uniqueness with academic_year
         current_year = academic_year or subject.academic_year
+        current_sem = semester if semester is not None else subject.semester
         existing = Subject.query.filter(
             Subject.class_name == class_name,
             Subject.name == name,
             Subject.academic_year == current_year,
+            Subject.semester == current_sem,
             Subject.id != subject_id
         ).first()
         if existing:
-            return jsonify({"error": "Another subject with same name and academic year exists"}), 400
+            return jsonify({"error": "Another subject with same name, academic year and semester exists"}), 400
         changes["old_name"] = subject.name
         changes["new_name"] = name
         subject.name = name
 
     if academic_year:
         current_name = name or subject.name
+        current_sem = semester if semester is not None else subject.semester
         existing = Subject.query.filter(
             Subject.class_name == class_name,
             Subject.name == current_name,
             Subject.academic_year == academic_year,
+            Subject.semester == current_sem,
             Subject.id != subject_id
         ).first()
         if existing:
-            return jsonify({"error": "Another subject with same name and academic year exists"}), 400
+            return jsonify({"error": "Another subject with same name, academic year and semester exists"}), 400
         changes["old_academic_year"] = subject.academic_year
         changes["new_academic_year"] = academic_year
         subject.academic_year = academic_year
@@ -275,7 +391,6 @@ def archive_subject_route(class_name, subject_id):
     if subject.class_name != class_name:
         return jsonify({"error": "Invalid subject or class"}), 400
 
-    # Faculty can archive their respective subjects, or class incharge, or HOD
     if not _can_modify_resource(user, class_name, subject.created_by):
         return jsonify({"error": "Unauthorized to archive this subject"}), 403
 
@@ -475,7 +590,6 @@ def upload_unit_files(class_name, subject_id, unit_id):
         # Get extension
         ext = file.filename.split(".")[-1].lower() if "." in file.filename else ""
         if ext not in ["pdf", "ppt", "pptx", "doc", "docx"]:
-            # Cloudinary handles auto resource types, but let's restrict on API level
             return jsonify({"error": f"Unsupported file type: .{ext}. Allowed: PDF, PPT, PPTX, DOC, DOCX"}), 400
 
         try:
@@ -488,7 +602,7 @@ def upload_unit_files(class_name, subject_id, unit_id):
                     file_name=res["name"],
                     file_url=res["url"],
                     file_type=ext,
-                    file_size=0, # If we can't tell, default to 0 or we can check file object length
+                    file_size=0,
                     cloudinary_public_id=res["public_id"],
                     uploaded_by=user.id
                 )

@@ -2428,4 +2428,312 @@ label, .form-label-standard {
 .dark .coverflow-floor-reflection {
   background: radial-gradient(ellipse 70% 30% at 50% 50%, rgba(240, 90, 43, 0.25) 0%, rgba(255, 131, 101, 0.08) 50%, transparent 80%);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Faculty Notes & Docs Page — Premium Design System
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Page Root ─────────────────────────────────────────────────────────── */
+.notes-page-root {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem 0;
+  min-height: calc(100vh - 80px);
+}
+
+/* ─── Page Header ───────────────────────────────────────────────────────── */
+.notes-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ─── Two-Panel Layout ──────────────────────────────────────────────────── */
+.notes-two-panel-layout {
+  display: flex;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  min-height: 520px;
+  flex: 1;
+}
+
+/* ─── Left Navigation Panel ─────────────────────────────────────────────── */
+.notes-left-panel {
+  width: 220px;
+  min-width: 200px;
+  max-width: 240px;
+  padding: 1.25rem 1rem;
+  border-right: 1px solid var(--border);
+  background: var(--surface-secondary);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* ─── Panel Divider ─────────────────────────────────────────────────────── */
+.notes-panel-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ─── Right Subject Panel ───────────────────────────────────────────────── */
+.notes-right-panel {
+  flex: 1;
+  min-width: 0;
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ─── Subject Card ──────────────────────────────────────────────────────── */
+.notes-subject-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem 1.125rem;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: default;
+}
+
+.notes-subject-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: var(--border-medium);
+}
+
+/* ─── Unit Row ──────────────────────────────────────────────────────────── */
+.notes-unit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.625rem 0.75rem;
+  border-radius: 12px;
+  background: var(--surface-secondary);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notes-unit-row > .flex {
+  /* Direct flex child — the header row of unit items */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notes-unit-row-drag {
+  border-color: var(--primary) !important;
+  background: var(--primary-light) !important;
+  box-shadow: 0 0 0 3px rgba(240, 90, 43, 0.15) !important;
+}
+
+/* ─── File Row ──────────────────────────────────────────────────────────── */
+.notes-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.notes-file-row:hover {
+  background: var(--surface-hover);
+}
+
+/* ─── Inline Input ──────────────────────────────────────────────────────── */
+.notes-inline-input {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.notes-inline-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(240, 90, 43, 0.12);
+}
+
+.notes-inline-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ─── Add Button ────────────────────────────────────────────────────────── */
+.notes-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba(240, 90, 43, 0.3);
+}
+
+.notes-add-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240, 90, 43, 0.4);
+}
+
+.notes-add-btn:active {
+  transform: translateY(0);
+}
+
+/* ─── Upload Button (small, per-unit) ──────────────────────────────────── */
+.notes-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.625rem;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.notes-upload-btn:hover {
+  background: var(--primary-soft);
+}
+
+/* ─── Upload Progress Bar (floating bottom-right overlay) ───────────────── */
+.notes-upload-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Toast Notifications ───────────────────────────────────────────────── */
+.notes-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  animation: notes-slide-in 0.25s ease;
+}
+
+.notes-toast-success {
+  background: #10b981;
+  color: white;
+}
+
+.notes-toast-error {
+  background: #ef4444;
+  color: white;
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────── */
+@keyframes notes-slide-in {
+  from { transform: translateX(20px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes animate-slide-up-fade {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes animate-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up-fade { animation: animate-slide-up-fade 0.3s ease; }
+.animate-fade-in       { animation: animate-fade-in 0.2s ease; }
+
+/* ─── Dark Mode overrides ───────────────────────────────────────────────── */
+.dark .notes-page-header,
+.dark .notes-two-panel-layout,
+.dark .notes-subject-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark .notes-left-panel {
+  background: var(--surface-secondary);
+}
+
+.dark .notes-unit-row {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .notes-file-row {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dark .notes-inline-input {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.dark .notes-inline-input:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .notes-upload-bar {
+  background: var(--surface);
+}
+
+/* ─── Responsive: stack panels on medium screens ────────────────────────── */
+@media (max-width: 900px) {
+  .notes-two-panel-layout {
+    flex-direction: column;
+    min-height: unset;
+  }
+
+  .notes-left-panel {
+    width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+  }
+
+  .notes-panel-divider {
+    display: none;
+  }
+}
+
+/* ─── Scrollbar hide utility (mobile horizontal scrolls) ────────────────── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
-  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut
+  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
@@ -13,6 +13,11 @@ const mainNavItems = [
   { to: "/faculty", label: "Faculty Directory", icon: GraduationCap },
   { to: "/classes", label: "Classrooms", icon: BookOpen },
   { to: "/updates", label: "Announcements", icon: Megaphone },
+];
+
+// Extra nav items only for specific roles
+const facultyNavItems = [
+  { to: "/notes", label: "Notes & Docs", icon: FileText },
 ];
 
 export function Sidebar() {
@@ -84,6 +89,27 @@ export function Sidebar() {
                 <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
 
                 {/* High Contrast Crystal Clear Tooltip */}
+                <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                  {item.label}
+                  <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                </div>
+              </NavLink>
+            );
+          })}
+          {/* Faculty-only extra nav items */}
+          {user?.role === "FACULTY" && facultyNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onMouseDown={handleMouseDown}
+                className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
                 <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
                   {item.label}
                   <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
