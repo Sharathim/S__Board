@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  BookMarked, ChevronDown, ChevronRight, Plus, Upload, Trash2,
-  FileText, File, Presentation, X, Check, Loader2, Archive,
-  ArchiveRestore, FolderOpen, BookOpen, Layers, AlertCircle,
-  UploadCloud, BookPlus, Sparkles, Download, RefreshCw
+  BookMarked, ChevronDown, Plus, Upload, Trash2,
+  FileText, File, Presentation, X, Check, Loader2,
+  Archive, ArchiveRestore, FolderOpen, BookOpen, Layers,
+  RefreshCw, Download, AlertCircle, Sparkles, UploadCloud, BookPlus
 } from "lucide-react";
 import {
-  getFacultyNotesHub, createSubject, createUnit,
+  getFacultyNotesHub, createSubject, createUnit, listUnits,
   uploadFiles, deleteFile, deleteSubject, deleteUnit,
-  archiveSubject, unarchiveSubject, listUnits
+  archiveSubject, unarchiveSubject
 } from "../../../api/notes";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -19,57 +19,51 @@ const CURRENT_ACADEMIC_YEAR = (() => {
   return now.getMonth() >= 5 ? `${y}-${y + 1}` : `${y - 1}-${y}`;
 })();
 
-function formatBytes(bytes) {
-  if (!bytes || bytes === 0) return "";
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
-}
+const CLASS_PALETTE = [
+  "from-violet-500 to-purple-600",
+  "from-blue-500 to-cyan-500",
+  "from-emerald-500 to-teal-500",
+  "from-rose-500 to-pink-500",
+  "from-amber-500 to-orange-500",
+  "from-indigo-500 to-blue-600",
+];
 
 function getFileIcon(type) {
-  if (type === "pdf") return <FileText className="w-3.5 h-3.5 text-red-500" />;
-  if (type === "ppt" || type === "pptx") return <Presentation className="w-3.5 h-3.5 text-orange-500" />;
-  return <File className="w-3.5 h-3.5 text-blue-500" />;
+  if (type === "pdf") return <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />;
+  if (["ppt", "pptx"].includes(type)) return <Presentation className="w-3.5 h-3.5 text-orange-500 shrink-0" />;
+  return <File className="w-3.5 h-3.5 text-blue-500 shrink-0" />;
 }
 
+// ─── Toast ────────────────────────────────────────────────────────────────────
 function useToast() {
   const [toasts, setToasts] = useState([]);
   const add = useCallback((msg, type = "success") => {
-    const id = Math.random().toString(36).slice(2);
+    const id = Date.now().toString(36);
     setToasts(p => [...p, { id, msg, type }]);
     setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000);
   }, []);
   return { toasts, add };
 }
 
-// ─── Mobile Inline Input ──────────────────────────────────────────────────────
-function MobileInlineInput({ placeholder, onSave, onCancel }) {
+// ─── Inline Input ─────────────────────────────────────────────────────────────
+function MobileInput({ placeholder, onSave, onCancel }) {
   const [val, setVal] = useState("");
-  const inputRef = useRef(null);
-  useEffect(() => { inputRef.current?.focus(); }, []);
-
+  const ref = useRef(null);
+  useEffect(() => { ref.current?.focus(); }, []);
   return (
-    <div className="flex gap-2 items-center mt-2">
+    <div className="mnd-inline-row">
       <input
-        ref={inputRef}
+        ref={ref}
         value={val}
         onChange={e => setVal(e.target.value)}
-        onKeyDown={e => {
-          if (e.key === "Enter" && val.trim()) { onSave(val.trim()); }
-          if (e.key === "Escape") onCancel();
-        }}
+        onKeyDown={e => { if (e.key === "Enter" && val.trim()) onSave(val.trim()); if (e.key === "Escape") onCancel(); }}
         placeholder={placeholder}
-        className="flex-1 text-sm px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary-light)] transition-all"
+        className="mnd-input flex-1"
       />
-      <button
-        onClick={() => val.trim() && onSave(val.trim())}
-        className="w-9 h-9 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shrink-0"
-      >
+      <button onClick={() => val.trim() && onSave(val.trim())} className="mnd-icon-btn mnd-icon-confirm">
         <Check className="w-4 h-4" />
       </button>
-      <button
-        onClick={onCancel}
-        className="w-9 h-9 rounded-xl bg-[var(--border)] text-[var(--text-secondary)] flex items-center justify-center shrink-0"
-      >
+      <button onClick={onCancel} className="mnd-icon-btn mnd-icon-cancel">
         <X className="w-4 h-4" />
       </button>
     </div>
@@ -77,120 +71,104 @@ function MobileInlineInput({ placeholder, onSave, onCancel }) {
 }
 
 // ─── Mobile Unit Item ─────────────────────────────────────────────────────────
-function MobileUnitItem({ unit, className: cn, subjectId, onDelete, addToast, onUploadDone }) {
+function MobileUnitItem({ unit, className: cls, subjectId, onDelete, addToast, onRefresh }) {
   const [expanded, setExpanded] = useState(false);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadPct, setUploadPct] = useState(0);
-  const fileInputRef = useRef(null);
+  const fileRef = useRef(null);
 
   const loadFiles = useCallback(async () => {
     if (!expanded) return;
     setLoading(true);
     try {
-      const res = await listUnits(cn, subjectId);
+      const res = await listUnits(cls, subjectId);
       const found = (res.data.units || []).find(u => u.id === unit.id);
       setFiles(found?.files || []);
     } finally { setLoading(false); }
-  }, [cn, subjectId, unit.id, expanded]);
+  }, [cls, subjectId, unit.id, expanded]);
 
   useEffect(() => { loadFiles(); }, [loadFiles]);
 
   const doUpload = async (fileList) => {
-    const valid = Array.from(fileList).filter(f => {
-      const ext = f.name.split(".").pop().toLowerCase();
-      return ["pdf", "ppt", "pptx", "doc", "docx"].includes(ext);
-    });
-    if (!valid.length) { addToast("Only PDF, PPT, PPTX, DOC, DOCX allowed.", "error"); return; }
+    const valid = Array.from(fileList).filter(f =>
+      ["pdf", "ppt", "pptx", "doc", "docx"].includes(f.name.split(".").pop().toLowerCase())
+    );
+    if (!valid.length) { addToast("Only PDF, PPT, PPTX, DOC, DOCX.", "error"); return; }
     const fd = new FormData();
     valid.forEach(f => fd.append("files", f));
     setUploading(true); setUploadPct(0);
     try {
-      await uploadFiles(cn, subjectId, unit.id, fd, (evt) => {
+      await uploadFiles(cls, subjectId, unit.id, fd, evt => {
         if (evt.total) setUploadPct(Math.round(evt.loaded / evt.total * 100));
       });
       addToast(`${valid.length} file(s) uploaded!`);
       setExpanded(true);
-      loadFiles();
-      onUploadDone?.();
+      onRefresh?.();
+      await loadFiles();
     } catch { addToast("Upload failed.", "error"); }
     finally { setUploading(false); }
   };
 
   const handleDeleteFile = async (fileId) => {
     try {
-      await deleteFile(cn, subjectId, unit.id, fileId);
-      setFiles(prev => prev.filter(f => f.id !== fileId));
-      addToast("File removed.");
-    } catch { addToast("Failed to remove file.", "error"); }
+      await deleteFile(cls, subjectId, unit.id, fileId);
+      setFiles(p => p.filter(f => f.id !== fileId));
+    } catch { addToast("Failed.", "error"); }
   };
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
-      {/* Unit header row */}
-      <div className="flex items-center gap-2 px-3 py-2.5">
-        <Layers className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
-        <button
-          onClick={() => setExpanded(v => !v)}
-          className="flex-1 text-left text-sm font-semibold text-[var(--text-primary)] truncate"
-        >
-          {unit.name}
+    <div className="mnd-unit-card">
+      {/* Header */}
+      <div className="mnd-unit-header">
+        <button className="mnd-unit-toggle" onClick={() => setExpanded(v => !v)}>
+          <Layers className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
+          <span className="mnd-unit-name">{unit.name}</span>
+          <span className="mnd-unit-count">{unit.file_count ?? files.length}</span>
+          <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 transition-transform${expanded ? " rotate-180" : ""}`} />
         </button>
-        <span className="text-[10px] text-[var(--text-muted)] shrink-0">{unit.file_count ?? files.length}f</span>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="mobile-tappable w-8 h-8 rounded-lg bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center shrink-0"
-          title="Upload"
-        >
+        <button onClick={() => fileRef.current?.click()} className="mnd-icon-btn mnd-icon-upload" title="Upload">
           <Upload className="w-3.5 h-3.5" />
         </button>
-        <button
-          onClick={() => { if (window.confirm("Delete this unit?")) onDelete(); }}
-          className="mobile-tappable w-8 h-8 rounded-lg text-[var(--text-muted)] hover:bg-red-50 hover:text-red-500 flex items-center justify-center shrink-0"
-        >
+        <button onClick={() => { if (window.confirm("Delete unit?")) onDelete(); }} className="mnd-icon-btn mnd-icon-danger">
           <Trash2 className="w-3.5 h-3.5" />
         </button>
-        <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] transition-transform shrink-0 ${expanded ? "rotate-180" : ""}`} />
-        <input ref={fileInputRef} type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx" className="hidden"
+        <input ref={fileRef} type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx" className="hidden"
           onChange={e => { doUpload(e.target.files); e.target.value = ""; }} />
       </div>
 
       {/* Upload progress */}
       {uploading && (
-        <div className="px-3 pb-2">
-          <div className="flex justify-between text-[10px] font-semibold text-[var(--primary)] mb-1">
-            <span>Uploading…</span><span>{uploadPct}%</span>
+        <div className="mnd-progress-wrap">
+          <div className="mnd-progress-label">
+            <span>Uploading…</span><span className="font-bold text-[var(--primary)]">{uploadPct}%</span>
           </div>
-          <div className="h-1.5 bg-[var(--primary-light)] rounded-full overflow-hidden">
-            <div className="h-full bg-[var(--primary)] rounded-full transition-all" style={{ width: `${uploadPct}%` }} />
+          <div className="mnd-progress-track">
+            <div className="mnd-progress-fill" style={{ width: `${uploadPct}%` }} />
           </div>
         </div>
       )}
 
-      {/* Files list */}
+      {/* Files */}
       {expanded && (
-        <div className="border-t border-[var(--border)] bg-[var(--surface-secondary)]">
+        <div className="mnd-files-wrap">
           {loading ? (
-            <div className="flex items-center gap-2 p-3 text-xs text-[var(--text-muted)]">
-              <Loader2 className="w-3 h-3 animate-spin" /> Loading…
-            </div>
+            <div className="mnd-loading"><Loader2 className="w-3 h-3 animate-spin" /><span>Loading…</span></div>
           ) : files.length === 0 ? (
-            <div className="p-3 text-xs text-[var(--text-muted)]">No files yet.</div>
-          ) : (
-            files.map(f => (
-              <div key={f.id} className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border)] last:border-b-0">
-                {getFileIcon(f.file_type)}
-                <span className="flex-1 text-xs font-medium text-[var(--text-primary)] truncate">{f.file_name}</span>
-                <a href={f.file_url} target="_blank" rel="noreferrer" className="mobile-tappable w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--primary)]">
-                  <Download className="w-3.5 h-3.5" />
-                </a>
-                <button onClick={() => handleDeleteFile(f.id)} className="mobile-tappable w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))
-          )}
+            <p className="mnd-empty-files">No files yet — tap Upload above</p>
+          ) : files.map(f => (
+            <div key={f.id} className="mnd-file-row">
+              {getFileIcon(f.file_type)}
+              <span className="mnd-file-name">{f.file_name}</span>
+              <a href={f.file_url} target="_blank" rel="noreferrer" className="mnd-icon-btn">
+                <Download className="w-3 h-3" />
+              </a>
+              <button onClick={() => handleDeleteFile(f.id)} className="mnd-icon-btn mnd-icon-danger">
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -198,7 +176,7 @@ function MobileUnitItem({ unit, className: cn, subjectId, onDelete, addToast, on
 }
 
 // ─── Mobile Subject Card ──────────────────────────────────────────────────────
-function MobileSubjectCard({ subject, className: cn, onDelete, onArchive, addToast, refetchHub }) {
+function MobileSubjectCard({ subject, className: cls, colorIdx, onDelete, onArchive, addToast, refetch }) {
   const [expanded, setExpanded] = useState(false);
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -208,98 +186,167 @@ function MobileSubjectCard({ subject, className: cn, onDelete, onArchive, addToa
     if (!expanded) return;
     setLoading(true);
     try {
-      const res = await listUnits(cn, subject.id);
+      const res = await listUnits(cls, subject.id);
       setUnits(res.data.units || []);
     } finally { setLoading(false); }
-  }, [cn, subject.id, expanded]);
+  }, [cls, subject.id, expanded]);
 
   useEffect(() => { loadUnits(); }, [loadUnits]);
 
   const handleAddUnit = async (name) => {
     try {
-      const res = await createUnit(cn, subject.id, { name });
+      const res = await createUnit(cls, subject.id, { name });
       setUnits(p => [...p, res.data.unit]);
       setAddingUnit(false);
       addToast(`Unit "${name}" created!`);
-    } catch { addToast("Failed to create unit.", "error"); }
+    } catch { addToast("Failed.", "error"); }
   };
 
   const handleDeleteUnit = async (unitId) => {
     try {
-      await deleteUnit(cn, subject.id, unitId);
+      await deleteUnit(cls, subject.id, unitId);
       setUnits(p => p.filter(u => u.id !== unitId));
-      addToast("Unit deleted.");
-      refetchHub();
-    } catch { addToast("Failed to delete unit.", "error"); }
+      refetch();
+    } catch { addToast("Failed.", "error"); }
   };
 
+  const grad = CLASS_PALETTE[colorIdx % CLASS_PALETTE.length];
+
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-sm">
+    <div className="mnd-subject-card">
       {/* Header */}
-      <div
-        className="mobile-tappable flex items-center gap-3 px-4 py-3.5 cursor-pointer"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--primary)] to-orange-400 flex items-center justify-center text-white shrink-0 shadow-sm">
-          <BookOpen className="w-4 h-4" />
+      <div className="mnd-subject-header" onClick={() => setExpanded(v => !v)}>
+        <div className={`mnd-subject-icon bg-gradient-to-br ${grad}`}>
+          <BookOpen className="w-4 h-4 text-white" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[var(--text-primary)] truncate">{subject.name}</p>
-          <p className="text-xs text-[var(--text-muted)]">{subject.unit_count} units · {subject.file_count} files</p>
+        <div className="mnd-subject-info">
+          <p className="mnd-subject-name">{subject.name}</p>
+          <p className="mnd-subject-meta">{subject.unit_count} units · {subject.file_count} files</p>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button onClick={e => { e.stopPropagation(); onArchive(subject.id, subject.is_archived); }}
-            className="mobile-tappable w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)]">
+        <div className="mnd-subject-actions" onClick={e => e.stopPropagation()}>
+          <button className="mnd-icon-btn" onClick={() => onArchive(subject.id, subject.is_archived)}>
             {subject.is_archived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
           </button>
-          <button onClick={e => { e.stopPropagation(); if (window.confirm("Delete subject?")) onDelete(subject.id); }}
-            className="mobile-tappable w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-red-500">
+          <button className="mnd-icon-btn mnd-icon-danger" onClick={() => { if (window.confirm(`Delete "${subject.name}"?`)) onDelete(subject.id); }}>
             <Trash2 className="w-3.5 h-3.5" />
           </button>
-          <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] transition-transform ${expanded ? "rotate-180" : ""}`} />
         </div>
+        <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform${expanded ? " rotate-180" : ""}`} />
       </div>
 
-      {/* Expanded units */}
+      {/* Body */}
       {expanded && (
-        <div className="border-t border-[var(--border)] px-3 py-3 space-y-2 bg-[var(--surface-secondary)]">
+        <div className="mnd-subject-body">
           {loading ? (
-            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] p-1">
-              <Loader2 className="w-3 h-3 animate-spin" /> Loading units…
-            </div>
+            <div className="mnd-loading"><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Loading units…</span></div>
           ) : (
-            units.map(unit => (
-              <MobileUnitItem
-                key={unit.id}
-                unit={unit}
-                className={cn}
-                subjectId={subject.id}
-                onDelete={() => handleDeleteUnit(unit.id)}
-                addToast={addToast}
-                onUploadDone={refetchHub}
-              />
-            ))
-          )}
-          {units.length === 0 && !loading && !addingUnit && (
-            <p className="text-xs text-[var(--text-muted)] px-1">No units yet.</p>
-          )}
-          {addingUnit ? (
-            <MobileInlineInput
-              placeholder="Unit name…"
-              onSave={handleAddUnit}
-              onCancel={() => setAddingUnit(false)}
-            />
-          ) : (
-            <button
-              onClick={() => setAddingUnit(true)}
-              className="mobile-tappable flex items-center gap-2 text-xs font-bold text-[var(--primary)] px-1 py-1.5 rounded-lg hover:bg-[var(--primary-light)] w-full"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add unit
-            </button>
+            <>
+              {units.length === 0 && !addingUnit && (
+                <p className="mnd-empty-units">No units yet.</p>
+              )}
+              {units.map(u => (
+                <MobileUnitItem
+                  key={u.id}
+                  unit={u}
+                  className={cls}
+                  subjectId={subject.id}
+                  onDelete={() => handleDeleteUnit(u.id)}
+                  addToast={addToast}
+                  onRefresh={refetch}
+                />
+              ))}
+              {addingUnit ? (
+                <MobileInput
+                  placeholder="Unit name…"
+                  onSave={handleAddUnit}
+                  onCancel={() => setAddingUnit(false)}
+                />
+              ) : (
+                <button className="mnd-add-unit-btn" onClick={() => setAddingUnit(true)}>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add unit</span>
+                </button>
+              )}
+            </>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+// ─── New Subject Sheet (slide up) ────────────────────────────────────────────
+function NewSubjectSheet({ className: cls, defaultYear, defaultSem, onDone, onCancel, addToast }) {
+  const [name, setName] = useState("");
+  const [year, setYear] = useState(defaultYear || CURRENT_ACADEMIC_YEAR);
+  const [sem, setSem] = useState(defaultSem || 1);
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef(null);
+  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 300); }, []);
+
+  const handleSave = async () => {
+    if (!name.trim()) { addToast("Enter a subject name.", "error"); return; }
+    setSaving(true);
+    try {
+      await createSubject(cls, { name: name.trim(), academic_year: year, semester: sem });
+      addToast(`"${name.trim()}" created!`);
+      onDone();
+    } catch (e) {
+      addToast(e?.response?.data?.error || "Failed.", "error");
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="mnd-sheet-backdrop" onClick={onCancel} />
+      {/* Sheet */}
+      <div className="mnd-sheet">
+        <div className="mnd-sheet-handle" />
+        <div className="mnd-sheet-header">
+          <BookPlus className="w-5 h-5 text-[var(--primary)]" />
+          <h2 className="mnd-sheet-title">New Subject</h2>
+          <button onClick={onCancel} className="mnd-icon-btn ml-auto"><X className="w-4 h-4" /></button>
+        </div>
+
+        <div className="mnd-sheet-body">
+          <div className="mnd-field">
+            <label className="mnd-label">Academic Year</label>
+            <input value={year} onChange={e => setYear(e.target.value)}
+              placeholder="e.g. 2025-26" className="mnd-input" />
+          </div>
+          <div className="mnd-field">
+            <label className="mnd-label">Semester</label>
+            <div className="mnd-sem-row">
+              {[1, 2].map(s => (
+                <button key={s} onClick={() => setSem(s)}
+                  className={`mnd-sem-btn${sem === s ? " mnd-sem-btn-active" : ""}`}>
+                  Semester {s}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mnd-field">
+            <label className="mnd-label">Subject Name</label>
+            <input
+              ref={inputRef}
+              value={name}
+              onChange={e => setName(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleSave(); }}
+              placeholder="e.g. Software Engineering"
+              className="mnd-input"
+            />
+          </div>
+          <div className="mnd-sheet-actions">
+            <button onClick={onCancel} className="mnd-btn-outline flex-1">Cancel</button>
+            <button onClick={handleSave} disabled={saving} className="mnd-btn-primary flex-1">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              {saving ? "Saving…" : "Create"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -310,8 +357,6 @@ export default function MobileFacultyNotesPage() {
   const [selectedYear, setSelectedYear] = useState(CURRENT_ACADEMIC_YEAR);
   const [selectedSem, setSelectedSem] = useState(1);
   const [addingSubject, setAddingSubject] = useState(false);
-  const [newSubjectYear, setNewSubjectYear] = useState(CURRENT_ACADEMIC_YEAR);
-  const [newSubjectSem, setNewSubjectSem] = useState(1);
   const { toasts, add: addToast } = useToast();
 
   const { data: classes = [], isLoading, isError, refetch } = useQuery({
@@ -325,35 +370,34 @@ export default function MobileFacultyNotesPage() {
     if (classes.length && !selectedClass) {
       const first = classes[0];
       setSelectedClass(first.class_name);
-      if (first.academic_years?.[0]) {
-        setSelectedYear(first.academic_years[0].year);
-        setSelectedSem(first.academic_years[0].semesters?.[0]?.semester || 1);
-      }
+      const yr = first.academic_years?.[0];
+      if (yr) { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }
     }
   }, [classes, selectedClass]);
 
   const classData = classes.find(c => c.class_name === selectedClass);
-  const yearData = classData?.academic_years.find(y => y.year === selectedYear);
+  const allYears = classData?.academic_years || [];
+  const yearData = allYears.find(y => y.year === selectedYear);
+  const bothSems = yearData
+    ? [1, 2].map(s => ({ sem: s, count: yearData.semesters.find(x => x.semester === s)?.subjects.length || 0 }))
+    : [{ sem: 1, count: 0 }, { sem: 2, count: 0 }];
   const semData = yearData?.semesters.find(s => s.semester === selectedSem);
   const subjects = semData?.subjects || [];
 
-  const handleAddSubject = async (name) => {
-    try {
-      await createSubject(selectedClass, { name, academic_year: newSubjectYear, semester: newSubjectSem });
-      setAddingSubject(false);
-      addToast(`Subject "${name}" created!`);
-      refetch();
-    } catch (e) {
-      addToast(e?.response?.data?.error || "Failed.", "error");
-    }
+  const handleSelectClass = (cn) => {
+    setSelectedClass(cn);
+    setAddingSubject(false);
+    const cd = classes.find(c => c.class_name === cn);
+    const yr = cd?.academic_years?.[0];
+    if (yr) { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteSubject = async (id) => {
     try { await deleteSubject(selectedClass, id); addToast("Deleted."); refetch(); }
-    catch { addToast("Failed to delete.", "error"); }
+    catch { addToast("Failed.", "error"); }
   };
 
-  const handleArchive = async (id, isArchived) => {
+  const handleArchiveSubject = async (id, isArchived) => {
     try {
       if (isArchived) { await unarchiveSubject(selectedClass, id); addToast("Restored."); }
       else { await archiveSubject(selectedClass, id); addToast("Archived."); }
@@ -363,88 +407,77 @@ export default function MobileFacultyNotesPage() {
 
   if (user?.role !== "FACULTY") {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] text-center px-6">
-        <div>
-          <BookMarked className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-3" />
-          <p className="text-sm font-bold text-[var(--text-primary)]">Faculty Only</p>
-        </div>
+      <div className="mnd-guard">
+        <BookMarked className="w-10 h-10 text-[var(--text-muted)]" />
+        <p>Faculty only</p>
       </div>
     );
   }
 
   return (
-    <div className="pb-8">
-      {/* Page title */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--primary)] to-orange-400 flex items-center justify-center text-white shadow-sm">
-            <BookMarked className="w-4.5 h-4.5" />
+    <div className="mnd-root">
+
+      {/* ── Header ── */}
+      <div className="mnd-header">
+        <div className="mnd-header-left">
+          <div className="mnd-header-icon">
+            <BookMarked className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-black text-[var(--text-primary)]">Notes & Docs</h1>
-            <p className="text-[11px] text-[var(--text-muted)]">Manage class resources</p>
+            <h1 className="mnd-header-title">Notes & Docs</h1>
+            <p className="mnd-header-sub">Manage class resources</p>
           </div>
         </div>
-        <button onClick={() => refetch()} className="mobile-tappable w-8 h-8 rounded-xl flex items-center justify-center text-[var(--text-muted)] bg-[var(--border)]">
+        <button onClick={() => refetch()} className="mnd-icon-btn">
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center min-h-[200px] gap-3">
-          <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" />
-          <p className="text-sm text-[var(--text-muted)]">Loading…</p>
+        <div className="mnd-state">
+          <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
+          <p>Loading…</p>
         </div>
       ) : isError ? (
-        <div className="text-center py-10">
-          <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-          <p className="text-sm font-semibold text-[var(--text-primary)]">Failed to load</p>
-          <button onClick={() => refetch()} className="text-xs text-[var(--primary)] mt-1">Retry</button>
+        <div className="mnd-state">
+          <AlertCircle className="w-8 h-8 text-red-400" />
+          <p>Failed to load</p>
+          <button onClick={() => refetch()} className="mnd-btn-primary mnd-btn-sm">Retry</button>
         </div>
       ) : classes.length === 0 ? (
-        <div className="text-center py-10">
-          <Sparkles className="w-10 h-10 text-[var(--primary)] mx-auto mb-2 opacity-60" />
-          <p className="text-sm font-bold text-[var(--text-primary)]">No classes assigned</p>
-          <p className="text-xs text-[var(--text-muted)] mt-1">Ask the HOD to assign you.</p>
+        <div className="mnd-state">
+          <Sparkles className="w-10 h-10 text-[var(--primary)] opacity-50" />
+          <p className="font-semibold">No classes assigned</p>
         </div>
       ) : (
         <>
-          {/* Horizontal class chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 mb-4 -mx-4 px-4 scrollbar-hide">
-            {classes.map((cls) => (
-              <button
-                key={cls.class_name}
-                onClick={() => {
-                  setSelectedClass(cls.class_name);
-                  if (cls.academic_years?.[0]) {
-                    setSelectedYear(cls.academic_years[0].year);
-                    setSelectedSem(cls.academic_years[0].semesters?.[0]?.semester || 1);
-                  }
-                }}
-                className={`mobile-tappable shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  selectedClass === cls.class_name
-                    ? "bg-[var(--text-primary)] text-white shadow-sm"
-                    : "bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)]"
-                }`}
-              >
-                {cls.class_name.replace("_", " ")}
-                {cls.is_incharge && <span className="ml-1 text-[9px] opacity-70">★</span>}
-              </button>
-            ))}
+          {/* Class chips */}
+          <div className="mnd-chip-scroll">
+            {classes.map((cls, idx) => {
+              const grad = CLASS_PALETTE[idx % CLASS_PALETTE.length];
+              const active = cls.class_name === selectedClass;
+              return (
+                <button
+                  key={cls.class_name}
+                  onClick={() => handleSelectClass(cls.class_name)}
+                  className={`mnd-class-chip${active ? " mnd-class-chip-active" : ""}`}
+                >
+                  <span className={`mnd-chip-dot bg-gradient-to-br ${grad}`} />
+                  {cls.class_name.replace("_", " ")}
+                  {cls.is_incharge && <span className="mnd-chip-star">★</span>}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Year selector */}
-          {classData && classData.academic_years.length > 0 && (
-            <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3 -mx-4 px-4 scrollbar-hide">
-              {classData.academic_years.map(yr => (
+          {/* Year tabs */}
+          {allYears.length > 0 && (
+            <div className="mnd-year-scroll">
+              {allYears.map(yr => (
                 <button
                   key={yr.year}
                   onClick={() => { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }}
-                  className={`mobile-tappable shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    selectedYear === yr.year
-                      ? "bg-[var(--primary-light)] text-[var(--primary)] border border-[var(--primary)]"
-                      : "bg-[var(--border)] text-[var(--text-secondary)]"
-                  }`}
+                  className={`mnd-year-chip${selectedYear === yr.year ? " mnd-year-chip-active" : ""}`}
                 >
                   {yr.year}
                 </button>
@@ -453,86 +486,44 @@ export default function MobileFacultyNotesPage() {
           )}
 
           {/* Semester toggle */}
-          {yearData && (
-            <div className="flex gap-2 mb-4">
-              {[1, 2].map(sem => (
-                <button
-                  key={sem}
-                  onClick={() => setSelectedSem(sem)}
-                  className={`mobile-tappable flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                    selectedSem === sem
-                      ? "bg-[var(--primary)] text-white shadow-sm"
-                      : "bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)]"
-                  }`}
-                >
-                  Semester {sem}
-                  {yearData.semesters.find(s => s.semester === sem) && (
-                    <span className="ml-1 text-[11px] opacity-70">
-                      ({yearData.semesters.find(s => s.semester === sem)?.subjects.length || 0})
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="mnd-sem-toggle-row">
+            {bothSems.map(({ sem, count }) => (
+              <button
+                key={sem}
+                onClick={() => setSelectedSem(sem)}
+                className={`mnd-sem-tile${selectedSem === sem ? " mnd-sem-tile-active" : ""}`}
+              >
+                <span className="mnd-sem-label">Semester {sem}</span>
+                <span className="mnd-sem-badge">{count} subjects</span>
+              </button>
+            ))}
+          </div>
 
-          {/* Add Subject button */}
-          <button
-            onClick={() => setAddingSubject(true)}
-            className="mobile-tappable w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-[var(--primary)] text-[var(--primary)] text-sm font-bold bg-[var(--primary-light)] mb-4 hover:bg-[var(--primary-soft)] transition-colors"
-          >
-            <BookPlus className="w-4 h-4" /> New Subject
+          {/* Add subject button */}
+          <button className="mnd-add-subject-btn" onClick={() => setAddingSubject(true)}>
+            <BookPlus className="w-4 h-4" />
+            <span>New Subject</span>
           </button>
 
-          {/* Add subject form */}
-          {addingSubject && (
-            <div className="rounded-2xl border-2 border-[var(--primary)] bg-[var(--primary-light)] p-4 mb-4 space-y-3 animate-fade-in">
-              <p className="text-xs font-bold text-[var(--primary)]">New Subject</p>
-              <input
-                value={newSubjectYear}
-                onChange={e => setNewSubjectYear(e.target.value)}
-                placeholder="Academic Year (2025-26)"
-                className="w-full text-sm px-3 py-2 rounded-xl border border-[var(--border)] bg-white dark:bg-slate-900 text-[var(--text-primary)] outline-none"
-              />
-              <div className="flex gap-2">
-                {[1, 2].map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setNewSubjectSem(s)}
-                    className={`mobile-tappable flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
-                      newSubjectSem === s ? "bg-[var(--primary)] text-white" : "bg-white dark:bg-slate-900 border border-[var(--border)] text-[var(--text-secondary)]"
-                    }`}
-                  >
-                    Sem {s}
-                  </button>
-                ))}
-              </div>
-              <MobileInlineInput
-                placeholder="Subject name…"
-                onSave={handleAddSubject}
-                onCancel={() => setAddingSubject(false)}
-              />
-            </div>
-          )}
-
-          {/* Subjects list */}
+          {/* Subject list */}
           {subjects.length === 0 ? (
-            <div className="text-center py-8">
-              <FolderOpen className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-2 opacity-60" />
-              <p className="text-sm font-semibold text-[var(--text-primary)]">No subjects for Sem {selectedSem}</p>
-              <p className="text-xs text-[var(--text-muted)] mt-1">Tap "New Subject" to add one.</p>
+            <div className="mnd-empty">
+              <FolderOpen className="w-10 h-10 text-[var(--text-muted)] opacity-40" />
+              <p className="font-semibold text-[var(--text-primary)]">No subjects for Semester {selectedSem}</p>
+              <p className="text-sm text-[var(--text-muted)]">Tap "New Subject" above.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {subjects.map(subj => (
+            <div className="mnd-subject-list">
+              {subjects.map((s, idx) => (
                 <MobileSubjectCard
-                  key={subj.id}
-                  subject={subj}
+                  key={s.id}
+                  subject={s}
                   className={selectedClass}
-                  onDelete={handleDelete}
-                  onArchive={handleArchive}
+                  colorIdx={idx}
+                  onDelete={handleDeleteSubject}
+                  onArchive={handleArchiveSubject}
                   addToast={addToast}
-                  refetchHub={refetch}
+                  refetch={refetch}
                 />
               ))}
             </div>
@@ -540,12 +531,24 @@ export default function MobileFacultyNotesPage() {
         </>
       )}
 
-      {/* Toast */}
-      <div className="fixed bottom-24 left-4 right-4 z-[300] flex flex-col gap-2 pointer-events-none">
+      {/* New Subject Sheet */}
+      {addingSubject && (
+        <NewSubjectSheet
+          className={selectedClass}
+          defaultYear={selectedYear}
+          defaultSem={selectedSem}
+          addToast={addToast}
+          onDone={() => { setAddingSubject(false); refetch(); }}
+          onCancel={() => setAddingSubject(false)}
+        />
+      )}
+
+      {/* Toasts — fixed above bottom tab bar */}
+      <div className="mnd-toast-stack">
         {toasts.map(t => (
-          <div key={t.id} className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-white text-xs font-semibold ${t.type === "error" ? "bg-red-500" : "bg-emerald-500"}`}>
-            {t.type === "error" ? <AlertCircle className="w-3.5 h-3.5 shrink-0" /> : <Check className="w-3.5 h-3.5 shrink-0" />}
-            {t.msg}
+          <div key={t.id} className={`mnd-toast${t.type === "error" ? " mnd-toast-error" : " mnd-toast-success"}`}>
+            {t.type === "success" ? <Check className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
+            <span>{t.msg}</span>
           </div>
         ))}
       </div>
