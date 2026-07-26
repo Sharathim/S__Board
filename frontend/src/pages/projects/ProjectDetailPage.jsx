@@ -458,70 +458,99 @@ function ProgressPostItem({
 
 const ISLAND_MIN_SLOTS = 5;
 
-function IslandNode({ node, index, isCompleted, isSelected, onClick }) {
+function IslandNode({ node, index, isCompleted, isActive, onClick, onHoverChange }) {
   return (
     <button
       type="button"
       onClick={() => isCompleted && onClick(node)}
+      onMouseEnter={() => isCompleted && onHoverChange(node.id)}
+      onMouseLeave={() => isCompleted && onHoverChange(null)}
       disabled={!isCompleted}
       className={`group relative flex flex-col items-center shrink-0 focus:outline-none ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"}`}
-      style={{ width: 128 }}
+      style={{ width: 176 }}
     >
       {/* Number badge */}
       <span
-        className={`mb-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm border ${
+        className={`mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black shadow-sm border transition-colors ${
           isCompleted
-            ? isSelected
+            ? isActive
               ? "bg-indigo-600 text-white border-indigo-600"
               : "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
             : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
         }`}
       >
         {index + 1}
-        {isCompleted && <span className="uppercase tracking-wider">{isSelected ? "Viewing" : "Completed"}</span>}
+        {isCompleted && <span className="uppercase tracking-wider">{isActive ? "Viewing" : "Completed"}</span>}
       </span>
 
       {/* Island illustration */}
       <div
-        className={`relative w-32 h-32 flex items-center justify-center transition-transform duration-300 ${
-          isCompleted ? "group-hover:-translate-y-1.5 group-active:translate-y-0" : ""
+        className={`relative w-44 h-44 flex items-center justify-center transition-transform duration-300 ${
+          isCompleted ? "group-hover:-translate-y-2 group-active:translate-y-0" : ""
         }`}
       >
         {isCompleted && (
-          <span className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 blur-2xl scale-75" />
+          <span className={`absolute inset-0 rounded-full bg-emerald-500 blur-2xl scale-75 transition-opacity duration-300 ${isActive ? "opacity-40" : "opacity-20"}`} />
         )}
         <img
           src="/island.png"
           alt={isCompleted ? node.title || "Completed milestone" : "Locked milestone"}
           draggable={false}
           className={`relative w-full h-full object-contain select-none transition-all duration-300 ${
-            isCompleted
-              ? isSelected
-                ? "drop-shadow-[0_0_18px_rgba(99,102,241,0.45)]"
-                : "drop-shadow-lg"
-              : "grayscale opacity-50 brightness-90"
+            isCompleted ? "drop-shadow-lg" : "grayscale contrast-75 brightness-95"
           }`}
         />
         {!isCompleted && (
-          <span className="absolute w-9 h-9 rounded-full bg-slate-700/85 dark:bg-slate-900/85 flex items-center justify-center shadow-md">
-            <Lock className="w-4 h-4 text-slate-200" />
-          </span>
+          <>
+            {/* Solid cap over the flag/checkmark so locked islands read as plain stone */}
+            <span className="absolute top-[18%] w-20 h-20 rounded-full bg-slate-300/90 dark:bg-slate-700/90 backdrop-blur-[1px]" />
+            <span className="absolute top-[18%] w-14 h-14 rounded-full bg-slate-500/90 dark:bg-slate-800/90 flex items-center justify-center shadow-md ring-4 ring-white/60 dark:ring-slate-900/60">
+              <Lock className="w-6 h-6 text-slate-100" />
+            </span>
+          </>
         )}
       </div>
     </button>
   );
 }
 
+function MilestoneDetailCard({ node }) {
+  if (!node) return null;
+  return (
+    <div className="w-full max-w-sm p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-lg shadow-slate-900/5 space-y-1.5">
+      <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+        {format(parseUTCDate(node.dateRaw), "MMM d, h:mm a")}
+      </p>
+      {node.title && (
+        <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{node.title}</h4>
+      )}
+      {node.accomplishment && (
+        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+          {node.accomplishment}
+        </p>
+      )}
+      <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+        <Users className="w-3.5 h-3.5" />
+        {(node.comments || []).length} Update{(node.comments || []).length !== 1 ? "s" : ""}
+      </div>
+    </div>
+  );
+}
+
 function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   const scrollRef = useRef(null);
+  const [hoveredId, setHoveredId] = useState(null);
   // timelineNodes is newest-first; the roadmap must read oldest -> newest (island 1 = first milestone achieved).
   const chronological = [...timelineNodes].reverse();
   const totalSlots = Math.max(ISLAND_MIN_SLOTS, chronological.length);
   const slots = Array.from({ length: totalSlots }, (_, i) => chronological[i] || null);
-  const activeNode = chronological.find((n) => n.id === selectedId) || chronological[chronological.length - 1];
+  const latestNode = chronological[chronological.length - 1];
+  // Hovering always wins; otherwise fall back to the latest milestone (never "stuck" on an old click).
+  const activeNode = (hoveredId ? chronological.find((n) => n.id === hoveredId) : null) || latestNode;
+  const activeIslandIndex = slots.findIndex((n) => n && n.id === activeNode?.id);
 
   const scrollBy = (dir) => {
-    scrollRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir * 360, behavior: "smooth" });
   };
 
   if (timelineNodes.length === 0) {
@@ -551,11 +580,11 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
       </div>
 
       {/* Island path */}
-      <div className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-8 pb-6 overflow-hidden">
+      <div className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-10 pb-8 overflow-hidden">
         {/* Decorative background clouds */}
         <div className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20">
-          <div className="absolute top-6 left-16 w-16 h-6 rounded-full bg-white dark:bg-slate-700 blur-sm" />
-          <div className="absolute bottom-10 right-24 w-20 h-7 rounded-full bg-white dark:bg-slate-700 blur-sm" />
+          <div className="absolute top-8 left-20 w-20 h-7 rounded-full bg-white dark:bg-slate-700 blur-sm" />
+          <div className="absolute bottom-16 right-28 w-24 h-8 rounded-full bg-white dark:bg-slate-700 blur-sm" />
         </div>
 
         {/* Nav arrows */}
@@ -564,44 +593,46 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
             <button
               type="button"
               onClick={() => scrollBy(1)}
-              className="absolute right-3 top-[4.5rem] z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
+              className="absolute right-4 top-24 z-10 w-11 h-11 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
               aria-label="Scroll roadmap forward"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => scrollBy(-1)}
-              className="absolute left-3 top-[4.5rem] z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
+              className="absolute left-4 top-24 z-10 w-11 h-11 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
               aria-label="Scroll roadmap backward"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
           </>
         )}
 
         <div
           ref={scrollRef}
-          className="relative flex items-start gap-2 overflow-x-auto scrollbar-premium scroll-smooth px-4 py-2"
+          className="relative flex items-start gap-1 overflow-x-auto scrollbar-premium scroll-smooth px-6 py-2"
+          onMouseLeave={() => setHoveredId(null)}
         >
           {slots.map((node, idx) => {
             const isCompleted = !!node;
-            const isSelected = isCompleted && node.id === selectedId;
+            const isActive = isCompleted && node.id === activeNode?.id;
             return (
               <div key={node ? node.id : `locked-${idx}`} className="flex items-start shrink-0">
                 <IslandNode
                   node={node}
                   index={idx}
                   isCompleted={isCompleted}
-                  isSelected={isSelected}
+                  isActive={isActive}
                   onClick={onSelectMilestone}
+                  onHoverChange={setHoveredId}
                 />
                 {idx < slots.length - 1 && (
-                  <div className="flex items-center h-32 -mx-1">
-                    <svg width="56" height="16" viewBox="0 0 56 16" className="text-slate-300 dark:text-slate-700">
-                      <line x1="2" y1="8" x2="54" y2="8" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
-                      <circle cx="19" cy="8" r="2.5" fill="currentColor" />
-                      <circle cx="37" cy="8" r="2.5" fill="currentColor" />
+                  <div className="flex items-center h-44 -mx-1">
+                    <svg width="64" height="16" viewBox="0 0 64 16" className="text-slate-300 dark:text-slate-700">
+                      <line x1="2" y1="8" x2="62" y2="8" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
+                      <circle cx="22" cy="8" r="2.5" fill="currentColor" />
+                      <circle cx="42" cy="8" r="2.5" fill="currentColor" />
                     </svg>
                   </div>
                 )}
@@ -610,24 +641,14 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
           })}
         </div>
 
-        {/* Detail card for the active/selected milestone */}
-        {activeNode && (
-          <div className="mt-2 max-w-sm mx-auto md:mx-0 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-lg shadow-slate-900/5 space-y-1.5">
-            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
-              {format(parseUTCDate(activeNode.dateRaw), "MMM d, h:mm a")}
-            </p>
-            {activeNode.title && (
-              <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{activeNode.title}</h4>
-            )}
-            {activeNode.accomplishment && (
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
-                {activeNode.accomplishment}
-              </p>
-            )}
-            <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
-              <Users className="w-3.5 h-3.5" />
-              {(activeNode.comments || []).length} Update{(activeNode.comments || []).length !== 1 ? "s" : ""}
-            </div>
+        {/* Detail card for the hovered milestone (falls back to the latest) — visually tethered to its island */}
+        {activeNode && activeIslandIndex >= 0 && (
+          <div
+            className="relative mt-1 transition-all duration-200"
+            style={{ marginLeft: activeIslandIndex * 180 + 24 }}
+          >
+            <div className="w-0.5 h-4 bg-slate-300 dark:bg-slate-700 ml-6" />
+            <MilestoneDetailCard node={activeNode} />
           </div>
         )}
       </div>

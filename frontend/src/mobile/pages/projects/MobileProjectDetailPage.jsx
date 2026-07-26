@@ -313,7 +313,7 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
               type="button"
               onClick={() => isCompleted && onSelectMilestone(node)}
               disabled={!isCompleted}
-              className="relative w-32 h-32 flex items-center justify-center"
+              className="relative w-40 h-40 flex items-center justify-center"
             >
               {isCompleted && <span className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 blur-2xl scale-75" />}
               <img
@@ -321,13 +321,16 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
                 alt={isCompleted ? node.title || "Completed milestone" : "Locked milestone"}
                 draggable={false}
                 className={`relative w-full h-full object-contain select-none ${
-                  isCompleted ? "drop-shadow-lg" : "grayscale opacity-50 brightness-90"
+                  isCompleted ? "drop-shadow-lg" : "grayscale contrast-75 brightness-95"
                 }`}
               />
               {!isCompleted && (
-                <span className="absolute w-9 h-9 rounded-full bg-slate-700/85 dark:bg-slate-900/85 flex items-center justify-center shadow-md">
-                  <Lock className="w-4 h-4 text-slate-200" />
-                </span>
+                <>
+                  <span className="absolute top-[18%] w-16 h-16 rounded-full bg-slate-300/90 dark:bg-slate-700/90 backdrop-blur-[1px]" />
+                  <span className="absolute top-[18%] w-11 h-11 rounded-full bg-slate-500/90 dark:bg-slate-800/90 flex items-center justify-center shadow-md ring-4 ring-white/60 dark:ring-slate-900/60">
+                    <Lock className="w-5 h-5 text-slate-100" />
+                  </span>
+                </>
               )}
             </button>
 
