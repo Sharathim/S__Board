@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -10,10 +10,8 @@ import { useAuth } from "../../../context/AuthContext";
 import { useSocket } from "../../../hooks/useSocket";
 import { Spinner } from "../../../components/ui/Spinner";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
-import { ProjectFormCard } from "../../../pages/projects/ProjectWorkflowPage";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
-import MobileSectionHeader from "../../components/MobileSectionHeader";
 import MobileFAB from "../../components/MobileFAB";
 import BottomSheet from "../../layout/BottomSheet";
 import {
@@ -21,7 +19,9 @@ import {
   FolderKanban, Users, GraduationCap, MessageSquare,
   CheckCircle, Paperclip, FileText, Image, File,
   Download, ChevronDown, ChevronUp, MoreVertical,
-  Clock, X, Map, ExternalLink, Eye, Check,
+  Clock, X, Map, ExternalLink, Eye, Check, ChevronLeft, ChevronRight,
+  Flag, Trees, Sparkles, Shield, Zap, Crown, Rocket, Star,
+  Lock, Compass, Hourglass, Award,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -42,6 +42,22 @@ function isImageExt(ext) {
 
 function isPdfExt(ext) {
   return ext === "pdf";
+}
+
+function getMilestoneIcon(index, isLastReal, isFuture) {
+  if (isFuture) return <Lock className="w-4 h-4 text-slate-400" />;
+  if (isLastReal) return <Award className="w-5 h-5 text-amber-500" />;
+  
+  const iconList = [
+    <Flag className="w-4 h-4 text-indigo-500" />,
+    <Sparkles className="w-4 h-4 text-emerald-500" />,
+    <Shield className="w-4 h-4 text-blue-500" />,
+    <Zap className="w-4 h-4 text-amber-500" />,
+    <Crown className="w-4 h-4 text-purple-500" />,
+    <Rocket className="w-4 h-4 text-rose-500" />,
+    <Star className="w-4 h-4 text-cyan-500" />,
+  ];
+  return iconList[index % iconList.length];
 }
 
 const ROLE_COLORS = {
@@ -89,11 +105,11 @@ function AttachmentPreviewSheet({ attachment, onClose }) {
       <div className="space-y-3 pb-2">
         {isImage && (
           <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-black/5 flex items-center justify-center">
-            <img src={attachment.url} alt={attachment.name} className="w-full max-h-[55vh] object-contain" />
+            <img src={attachment.url} alt={attachment.name} className="w-full max-h-[50vh] object-contain" />
           </div>
         )}
         {isPdf && (
-          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 h-[55vh]">
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 h-[50vh]">
             <iframe src={attachment.url} title={attachment.name} className="w-full h-full border-none" />
           </div>
         )}
@@ -128,7 +144,7 @@ function AttachmentPreviewSheet({ attachment, onClose }) {
   );
 }
 
-// ─── Mobile Attachment List with Eye & Download Icons ─────────────────────────
+// ─── Mobile Attachment List ───────────────────────────────────────────────────
 
 function MobileAttachmentList({ attachments, onPreview }) {
   if (!attachments || attachments.length === 0) return null;
@@ -166,7 +182,6 @@ function MobileAttachmentList({ attachments, onPreview }) {
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
-                {/* Eye Icon for Preview */}
                 <button
                   type="button"
                   onClick={() => onPreview(att)}
@@ -175,7 +190,6 @@ function MobileAttachmentList({ attachments, onPreview }) {
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </button>
-                {/* Download Icon */}
                 <a
                   href={att.url}
                   download={att.name || true}
@@ -195,74 +209,111 @@ function MobileAttachmentList({ attachments, onPreview }) {
   );
 }
 
-// ─── Mobile Roadmap View ──────────────────────────────────────────────────────
+// ─── Mobile Interactive Journey Map ───────────────────────────────────────────
 
-function MobileRoadmapView({ timelineNodes, onPreviewAttachment }) {
-  if (timelineNodes.length === 0) {
-    return (
-      <MobileEmptyState
-        icon={Map}
-        title="No Roadmap Generated"
-        description="Progress updates will build the roadmap automatically."
-      />
-    );
-  }
+function MobileJourneyMap({
+  allMapNodes,
+  selectedIndex,
+  onSelectIndex,
+  isCompleted,
+}) {
+  const containerRef = useRef(null);
+  const nodeRefs = useRef([]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const targetNode = nodeRefs.current[selectedIndex];
+    if (container && targetNode) {
+      const containerWidth = container.clientWidth;
+      const targetLeft = targetNode.offsetLeft;
+      const targetWidth = targetNode.offsetWidth;
+      const scrollToLeft = targetLeft - containerWidth / 2 + targetWidth / 2;
+      container.scrollTo({ left: Math.max(0, scrollToLeft), behavior: "smooth" });
+    }
+  }, [selectedIndex, allMapNodes.length]);
 
   return (
-    <div className="space-y-3 mt-2">
-      <div className="flex items-center gap-2 px-1">
-        <Map className="w-4 h-4 text-indigo-500" />
-        <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Project Roadmap</span>
-        <span className="text-[10px] font-bold text-gray-400 ml-auto">{timelineNodes.length} milestones</span>
-      </div>
+    <div className="relative py-4 bg-slate-900 text-white rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+      <div ref={containerRef} className="jm-scroll-container px-12 py-5 relative">
+        <div className="flex items-center min-w-max gap-12 relative z-10 px-4">
+          
+          {/* Winding Connecting SVG Line */}
+          <svg className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-8 pointer-events-none z-0 overflow-visible">
+            <path
+              d="M 0,16 Q 150,2 300,16 T 600,16 T 900,16 T 1200,16"
+              fill="none"
+              stroke="#334155"
+              strokeWidth="3"
+              className="jm-path-dash"
+            />
+          </svg>
 
-      <div className="relative pl-7 space-y-4">
-        {/* Vertical line */}
-        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 via-indigo-300 to-gray-200 dark:via-indigo-800 dark:to-slate-800" />
-
-        {timelineNodes.map((node, idx) => {
-          const isLatest = idx === 0;
-          return (
-            <div key={node.id} className="relative pb-1">
-              {/* Dot */}
+          {allMapNodes.map((node, idx) => {
+            const isActive = idx === selectedIndex;
+            const isFuture = node.isFuture;
+            const isLastReal = !isFuture && idx === allMapNodes.length - (isCompleted ? 1 : 2);
+            
+            return (
               <div
-                className={`absolute -left-[20px] top-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                  isLatest
-                    ? "border-indigo-600 bg-indigo-600 text-white"
-                    : "border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900"
-                }`}
+                key={node.id || idx}
+                ref={(el) => (nodeRefs.current[idx] = el)}
+                onClick={() => onSelectIndex(idx)}
+                className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                  isActive ? "jm-active-node scale-110" : "opacity-80"
+                } ${isFuture ? "opacity-45" : ""}`}
               >
-                {isLatest && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-              </div>
-
-              <MobileCard>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <AvatarCircle name={node.author} picture={node.avatar} size={5} />
-                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{node.author}</span>
-                  </div>
-                  <span className="text-[9px] font-semibold text-gray-400 shrink-0">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy")}</span>
+                <div className="mb-2 text-center">
+                  <h4 className={`text-[11px] font-black truncate max-w-[100px] ${
+                    isActive ? "text-white" : "text-slate-300"
+                  }`}>
+                    {node.title}
+                  </h4>
                 </div>
 
-                {node.title && (
-                  <h4 className="text-xs font-black text-gray-900 dark:text-white leading-snug mb-1">{node.title}</h4>
-                )}
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center border-2 transition-all shadow-md relative ${
+                    isActive
+                      ? "bg-gradient-to-br from-[#F05A2B] to-[#E04A1B] border-white text-white ring-2 ring-[#F05A2B]/40"
+                      : isFuture
+                      ? "bg-slate-800/80 border-slate-700/80 text-slate-500 border-dashed"
+                      : "bg-slate-800 border-slate-700 text-slate-200"
+                  }`}
+                >
+                  {getMilestoneIcon(idx, isLastReal, isFuture)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-                {node.accomplishment && (
-                  <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">{node.accomplishment}</p>
-                )}
+      {/* Navigation Controls */}
+      <div className="flex items-center justify-between px-4 pt-2 border-t border-slate-800/80">
+        <button
+          onClick={() => onSelectIndex(Math.max(0, selectedIndex - 1))}
+          disabled={selectedIndex === 0}
+          className="mobile-tappable flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 disabled:opacity-30 text-[11px] font-bold text-white"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" /> Prev
+        </button>
 
-                <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
-              </MobileCard>
-            </div>
-          );
-        })}
+        <span className="text-[11px] font-bold text-slate-300">
+          <span className="text-[#F05A2B] font-black">{selectedIndex + 1}</span> / {allMapNodes.length}
+        </span>
+
+        <button
+          onClick={() => onSelectIndex(Math.min(allMapNodes.length - 1, selectedIndex + 1))}
+          disabled={selectedIndex === allMapNodes.length - 1}
+          className="mobile-tappable flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 disabled:opacity-30 text-[11px] font-bold text-white"
+        >
+          Next <ChevronRight className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Main Mobile Component ────────────────────────────────────────────────────
 
 export default function MobileProjectDetailPage() {
   const { id } = useParams();
@@ -279,7 +330,7 @@ export default function MobileProjectDetailPage() {
   const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [editProjectSheetOpen, setEditProjectSheetOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("progress"); // "progress" | "roadmap"
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [previewAttachment, setPreviewAttachment] = useState(null);
 
   // Progress form
@@ -302,7 +353,59 @@ export default function MobileProjectDetailPage() {
   });
 
   const messages = messagesData?.messages || [];
-  const reversedMessages = [...messages].reverse();
+  const chronologicalMessages = [...messages].filter(msg => !msg.is_deleted);
+
+  const timelineNodes = chronologicalMessages.map(msg => {
+    let title = msg.title || "";
+    let accomplishment = "";
+    try {
+      const parsed = JSON.parse(msg.content);
+      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
+      if (!title && parsed.title) title = parsed.title;
+    } catch {
+      accomplishment = msg.content || "";
+    }
+    if (!title && accomplishment) {
+      const firstLine = accomplishment.split('\n')[0];
+      title = firstLine.length > 50 ? firstLine.substring(0, 47) + "..." : firstLine;
+    }
+
+    let attachments = [];
+    if (msg.attachments?.length > 0) attachments = msg.attachments;
+    else if (msg.attachment_url) attachments = [{ url: msg.attachment_url, type: msg.attachment_type, name: msg.attachment_name }];
+
+    return {
+      id: msg.id, dateRaw: msg.created_at,
+      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
+      author: msg.sender?.name || "Unknown", role: msg.sender?.role || "STUDENT",
+      avatar: msg.sender?.profile_picture, title, accomplishment, attachments,
+      comments: msg.comments || [], is_edited: msg.is_edited,
+      isOwn: msg.sender?.id === user?.id, canEdit: msg.can_edit && msg.sender?.id === user?.id,
+      isFuture: false,
+    };
+  });
+
+  const isCompleted = project?.status === "COMPLETED";
+  const allMapNodes = [...timelineNodes];
+  if (!isCompleted) {
+    allMapNodes.push({
+      id: "future-node",
+      title: "Waiting for next update",
+      dateStr: "Next Milestone",
+      isFuture: true,
+      accomplishment: "The project team hasn't submitted this milestone yet. Students can post the next update using the button below.",
+      attachments: [],
+      comments: [],
+    });
+  }
+
+  useEffect(() => {
+    if (timelineNodes.length > 0) {
+      setSelectedIndex(timelineNodes.length - 1);
+    } else if (!isCompleted) {
+      setSelectedIndex(0);
+    }
+  }, [messages.length, isCompleted]);
 
   useEffect(() => {
     if (project) {
@@ -351,7 +454,15 @@ export default function MobileProjectDetailPage() {
   // Mutations
   const sendMutation = useMutation({
     mutationFn: (formData) => postMessage(id, formData),
-    onSuccess: () => { refetchMessages(); setFormTitle(""); setFormText(""); setFormFiles([]); setAddSheetOpen(false); queryClient.invalidateQueries({ queryKey: ["project", id] }); },
+    onSuccess: () => {
+      refetchMessages();
+      setFormTitle("");
+      setFormText("");
+      setFormFiles([]);
+      setAddSheetOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["project", id] });
+      setTimeout(() => { setSelectedIndex(timelineNodes.length); }, 200);
+    },
   });
 
   const editMutation = useMutation({
@@ -407,46 +518,17 @@ export default function MobileProjectDetailPage() {
 
   const st = STATUS_MAP[project.status] || STATUS_MAP.IN_PROGRESS;
   const allMembers = project.members || [];
-
-  // Parse messages into timeline nodes
-  const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
-    let title = msg.title || "";
-    let accomplishment = "";
-    try {
-      const parsed = JSON.parse(msg.content);
-      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
-      if (!title && parsed.title) title = parsed.title;
-    } catch {
-      accomplishment = msg.content || "";
-    }
-    if (!title && accomplishment) {
-      const firstLine = accomplishment.split('\n')[0];
-      title = firstLine.length > 60 ? firstLine.substring(0, 57) + "..." : firstLine;
-    }
-
-    let attachments = [];
-    if (msg.attachments?.length > 0) attachments = msg.attachments;
-    else if (msg.attachment_url) attachments = [{ url: msg.attachment_url, type: msg.attachment_type, name: msg.attachment_name }];
-
-    return {
-      id: msg.id, dateRaw: msg.created_at,
-      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
-      author: msg.sender?.name || "Unknown", role: msg.sender?.role || "STUDENT",
-      avatar: msg.sender?.profile_picture, title, accomplishment, attachments,
-      comments: msg.comments || [], is_edited: msg.is_edited,
-      isOwn: msg.sender?.id === user?.id, canEdit: msg.can_edit && msg.sender?.id === user?.id,
-    };
-  });
+  const selectedNode = allMapNodes[selectedIndex] || allMapNodes[0];
 
   return (
-    <div className="mobile-fade-in pb-6 space-y-4">
-      {/* Back + Title */}
+    <div className="mobile-fade-in pb-12 space-y-4">
+      {/* Back + Title Header */}
       <div className="flex items-center gap-3">
         <button onClick={() => navigate("/projects")} className="mobile-tappable p-2 -ml-2 rounded-xl">
           <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Project</p>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Progress Journey</p>
           <h1 className="text-base font-black text-gray-900 dark:text-white truncate leading-tight">{project.name}</h1>
         </div>
         {isHOD && (
@@ -456,9 +538,9 @@ export default function MobileProjectDetailPage() {
         )}
       </div>
 
-      {/* Status + Description Summary */}
+      {/* Project Status Summary Card */}
       <MobileCard>
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-1.5">
           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${st.bg} ${st.text}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
             {st.label}
@@ -471,8 +553,7 @@ export default function MobileProjectDetailPage() {
         {project.description && (
           <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">{project.description}</p>
         )}
-        {/* Team avatars row */}
-        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+        <div className="flex items-center gap-2 mt-2.5 pt-2 border-t border-gray-100 dark:border-slate-800">
           <Users className="w-3.5 h-3.5 text-gray-400" />
           <div className="flex -space-x-1.5">
             {allMembers.slice(0, 5).map(m => (
@@ -483,62 +564,144 @@ export default function MobileProjectDetailPage() {
         </div>
       </MobileCard>
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800/60 rounded-xl p-1">
-        <button
-          onClick={() => setActiveTab("progress")}
-          className={`pm-tab flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-            activeTab === "progress"
-              ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
-              : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          Progress ({timelineNodes.length})
-        </button>
-        <button
-          onClick={() => setActiveTab("roadmap")}
-          className={`pm-tab flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-            activeTab === "roadmap"
-              ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
-              : "text-gray-500 dark:text-gray-400"
-          }`}
-        >
-          <span className="flex items-center justify-center gap-1"><Map className="w-3.5 h-3.5" /> Roadmap</span>
-        </button>
-      </div>
+      {/* ── Journey Map Section ── */}
+      <MobileJourneyMap
+        allMapNodes={allMapNodes}
+        selectedIndex={selectedIndex}
+        onSelectIndex={setSelectedIndex}
+        isCompleted={isCompleted}
+      />
 
-      {/* Tab content */}
-      {activeTab === "progress" ? (
-        timelineNodes.length === 0 ? (
-          <MobileEmptyState
-            icon={FileText}
-            title="No progress updates yet"
-            description={isStudent ? "Post your first update to get started." : "Students haven't posted any updates yet."}
-          />
-        ) : (
-          <div className="space-y-3">
-            {timelineNodes.map((node, idx) => (
-              <ProgressCard
-                key={node.id}
-                node={node}
-                projectId={id}
-                isStudent={isStudent}
-                isFaculty={isFaculty}
-                isHOD={isHOD}
-                currentUserId={user?.id}
-                isLatest={idx === 0}
-                onEdit={(n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddSheetOpen(true); }}
-                onDelete={(msgId) => setDeleteTarget(msgId)}
-                onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
-                onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
-                onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
-                onPreviewAttachment={setPreviewAttachment}
-              />
-            ))}
+      {/* ── Selected Checkpoint Details Section (Below Map) ── */}
+      {selectedNode && !selectedNode.isFuture ? (
+        <MobileCard className="space-y-3">
+          {/* Author row */}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AvatarCircle name={selectedNode.author} picture={selectedNode.avatar} size={7} />
+              <div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-gray-900 dark:text-white">{selectedNode.author}</span>
+                  <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${ROLE_COLORS[selectedNode.role] || ROLE_COLORS.STUDENT}`}>
+                    {selectedNode.role === "faculty" ? "Faculty" : selectedNode.role}
+                  </span>
+                </div>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                  {selectedNode.dateStr}
+                  {selectedNode.is_edited && <span className="italic ml-1">(edited)</span>}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1">
+              {selectedNode.isOwn && selectedNode.canEdit && (
+                <button
+                  onClick={() => {
+                    setEditingMsg({ id: selectedNode.id, title: selectedNode.title, content: selectedNode.accomplishment, created_at: selectedNode.dateRaw });
+                    setAddSheetOpen(true);
+                  }}
+                  className="mobile-tappable p-1 text-gray-400 hover:text-indigo-600"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+              {(selectedNode.isOwn || isHOD) && (
+                <button onClick={() => setDeleteTarget(selectedNode.id)} className="mobile-tappable p-1 text-gray-400 hover:text-red-500">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
-        )
+
+          {/* Title */}
+          {selectedNode.title && (
+            <h3 className="text-xs font-black text-gray-900 dark:text-white leading-snug">{selectedNode.title}</h3>
+          )}
+
+          {/* Description */}
+          {selectedNode.accomplishment && (
+            <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap font-medium">{selectedNode.accomplishment}</p>
+          )}
+
+          {/* Attachments */}
+          <MobileAttachmentList attachments={selectedNode.attachments} onPreview={setPreviewAttachment} />
+
+          {/* Faculty Comments */}
+          <div className="border-t border-gray-100 dark:border-slate-800 pt-2.5 space-y-2">
+            <div className="flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Faculty Feedback {selectedNode.comments.length > 0 && `(${selectedNode.comments.length})`}
+              </span>
+            </div>
+
+            {selectedNode.comments.filter(c => !c.is_deleted).map(comment => (
+              <div key={comment.id} className="flex gap-2 items-start">
+                <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size={5} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{comment.author?.name}</span>
+                    <span className="text-[9px] text-gray-400">{formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}</span>
+                    {(isHOD || comment.author?.id === user?.id) && (
+                      <button onClick={() => deleteCommentMutation.mutate({ msgId: selectedNode.id, commentId: comment.id })} className="mobile-tappable p-0.5 text-gray-300 hover:text-red-500 ml-auto">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="bg-gray-50 dark:bg-slate-800/60 rounded-xl px-2.5 py-2 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {comment.content}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1 flex-wrap">
+                    {EMOJIS.map(emoji => {
+                      const count = comment.reaction_counts?.[emoji] || 0;
+                      const reacted = comment.user_reactions?.includes(emoji);
+                      if (!isStudent && count === 0) return null;
+                      return (
+                        <button key={emoji}
+                          onClick={() => isStudent && reactMutation.mutate({ msgId: selectedNode.id, commentId: comment.id, emoji })}
+                          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                            reacted ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700" : "bg-gray-50 dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/50"
+                          } ${isStudent ? "cursor-pointer" : "cursor-default"}`}
+                        >
+                          {emoji} {count > 0 && <span>{count}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {(isFaculty || isHOD) && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const text = e.target.mobileFeedbackInput.value.trim();
+                  if (!text) return;
+                  await addCommentMutation.mutateAsync({ msgId: selectedNode.id, content: text });
+                  e.target.reset();
+                }}
+                className="flex gap-2 mt-1"
+              >
+                <input
+                  name="mobileFeedbackInput"
+                  type="text"
+                  placeholder="Write faculty feedback..."
+                  className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 min-w-0"
+                />
+                <button type="submit" className="mobile-tappable px-3 py-2 rounded-xl bg-indigo-600 text-white shrink-0">
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            )}
+          </div>
+        </MobileCard>
       ) : (
-        <MobileRoadmapView timelineNodes={timelineNodes} onPreviewAttachment={setPreviewAttachment} />
+        <MobileCard className="text-center py-6 space-y-2">
+          <Hourglass className="w-8 h-8 text-gray-400 mx-auto animate-pulse" />
+          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">Upcoming Milestone</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{selectedNode?.accomplishment}</p>
+        </MobileCard>
       )}
 
       {/* Student FAB to Post Progress */}
@@ -547,25 +710,25 @@ export default function MobileProjectDetailPage() {
       )}
 
       {/* Post/Edit Progress Bottom Sheet */}
-      <BottomSheet open={addSheetOpen} onClose={() => { setAddSheetOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress" : "Post Progress"}>
+      <BottomSheet open={addSheetOpen} onClose={() => { setAddSheetOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Checkpoint" : "Post New Milestone"}>
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Progress Title *</label>
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Checkpoint Title *</label>
             <input
               type="text"
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
-              placeholder="e.g. Completed login module..."
+              placeholder="e.g. Completed API Integration..."
               className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
               autoFocus
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Description</label>
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Description *</label>
             <textarea
               value={formText}
               onChange={(e) => setFormText(e.target.value)}
-              placeholder="Describe what you accomplished in detail..."
+              placeholder="Describe what was accomplished in detail..."
               rows={3}
               className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
             />
@@ -581,15 +744,15 @@ export default function MobileProjectDetailPage() {
           )}
           <button
             onClick={handleSubmit}
-            disabled={sendMutation.isPending || editMutation.isPending || (!formTitle.trim() && !formText.trim() && formFiles.length === 0)}
-            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+            disabled={sendMutation.isPending || editMutation.isPending || (!formTitle.trim() && !formText.trim())}
+            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] text-white text-xs font-bold disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {(sendMutation.isPending || editMutation.isPending) ? (
               <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
             ) : (
               <Send className="w-4 h-4" />
             )}
-            {editingMsg ? "Save Changes" : "Post Update"}
+            {editingMsg ? "Save Checkpoint" : "Post Checkpoint"}
           </button>
         </div>
       </BottomSheet>
@@ -649,144 +812,11 @@ export default function MobileProjectDetailPage() {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteMutation.mutate(deleteTarget)}
-        title="Delete Update"
-        message="Are you sure you want to delete this progress update?"
+        title="Delete Checkpoint"
+        message="Are you sure you want to delete this progress checkpoint?"
         confirmText="Delete"
         danger
       />
     </div>
-  );
-}
-
-// ─── Progress Card Component ──────────────────────────────────────────────────
-
-function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUserId, onEdit, onDelete, onAddComment, onDeleteComment, onReact, onPreviewAttachment, isLatest }) {
-  const [feedbackText, setFeedbackText] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleFeedback = async () => {
-    if (!feedbackText.trim()) return;
-    setSubmitting(true);
-    await onAddComment(node.id, feedbackText.trim());
-    setFeedbackText("");
-    setSubmitting(false);
-  };
-
-  const comments = node.comments || [];
-
-  return (
-    <MobileCard>
-      {/* Header */}
-      <div className="flex items-start gap-2.5 mb-1.5">
-        <AvatarCircle name={node.author} picture={node.avatar} size={7} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{node.author}</span>
-            <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${ROLE_COLORS[node.role] || ROLE_COLORS.STUDENT}`}>
-              {node.role === "faculty" ? "Faculty" : node.role === "forum_member" ? "Forum" : node.role}
-            </span>
-            {isLatest && (
-              <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-full">
-                Latest
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-            {node.dateStr}
-            {node.is_edited && <span className="italic ml-1">(edited)</span>}
-          </p>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          {node.isOwn && node.canEdit && (
-            <button onClick={() => onEdit(node)} className="mobile-tappable p-1 rounded-lg text-gray-400 hover:text-indigo-600">
-              <Edit2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-          {(node.isOwn || isHOD) && (
-            <button onClick={() => onDelete(node.id)} className="mobile-tappable p-1 rounded-lg text-gray-400 hover:text-red-500">
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Title */}
-      {node.title && (
-        <h3 className="text-xs font-black text-gray-900 dark:text-white leading-snug mb-1">{node.title}</h3>
-      )}
-
-      {/* Description */}
-      {node.accomplishment && (
-        <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap font-medium mb-2">{node.accomplishment}</p>
-      )}
-
-      {/* Attachments List with Eye & Download Icons */}
-      <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
-
-      {/* Faculty Feedback */}
-      <div className="border-t border-gray-100 dark:border-slate-800 pt-2.5 mt-2 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <MessageSquare className="w-3 h-3 text-gray-400" />
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-            Faculty Feedback {comments.length > 0 && `(${comments.length})`}
-          </span>
-        </div>
-
-        {comments.filter(c => !c.is_deleted).map(comment => (
-          <div key={comment.id} className="flex gap-2 items-start">
-            <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size={5} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{comment.author?.name}</span>
-                <span className="text-[9px] text-gray-400">{formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}</span>
-                {(isHOD || comment.author?.id === currentUserId) && (
-                  <button onClick={() => onDeleteComment(node.id, comment.id)} className="mobile-tappable p-0.5 text-gray-300 hover:text-red-500 ml-auto">
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-              <div className="bg-gray-50 dark:bg-slate-800/60 rounded-xl rounded-tl-none px-2.5 py-2 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
-                {comment.content}
-              </div>
-              {/* Reactions */}
-              <div className="flex items-center gap-1 mt-1 flex-wrap">
-                {EMOJIS.map(emoji => {
-                  const count = comment.reaction_counts?.[emoji] || 0;
-                  const reacted = comment.user_reactions?.includes(emoji);
-                  if (!isStudent && count === 0) return null;
-                  return (
-                    <button key={emoji}
-                      onClick={() => isStudent && onReact(node.id, comment.id, emoji)}
-                      className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                        reacted ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700" : "bg-gray-50 dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/50"
-                      } ${isStudent ? "cursor-pointer" : "cursor-default"}`}
-                    >
-                      {emoji} {count > 0 && <span>{count}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* Feedback input */}
-        {(isFaculty || isHOD) && (
-          <div className="flex gap-2 mt-1">
-            <input
-              type="text" value={feedbackText} onChange={e => setFeedbackText(e.target.value)}
-              placeholder="Write feedback..."
-              className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 min-w-0"
-              onKeyDown={e => { if (e.key === "Enter") handleFeedback(); }}
-            />
-            <button onClick={handleFeedback} disabled={!feedbackText.trim() || submitting}
-              className="mobile-tappable px-3 py-2 rounded-xl bg-indigo-600 text-white disabled:opacity-40 shrink-0"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-      </div>
-    </MobileCard>
   );
 }
