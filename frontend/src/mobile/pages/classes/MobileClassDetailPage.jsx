@@ -11,7 +11,6 @@ import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../components/ui/Spinner";
 import { Avatar } from "../../../components/ui/Avatar";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
-import NotesDocsTab from "../../../pages/classes/NotesDocsTab";
 import api from "../../../api/axios";
 import MobileSearchBar from "../../components/MobileSearchBar";
 import MobileCard from "../../components/MobileCard";
@@ -183,7 +182,6 @@ export default function MobileClassDetailPage() {
     { key: "students", label: "Students" },
     ...(user?.role === "STUDENT" ? [{ key: "forms", label: "Forms" }] : []),
     ...(canManage ? [{ key: "students_data", label: "Data" }] : []),
-    { key: "notes", label: "Notes & Docs" },
   ];
 
   return (
@@ -306,13 +304,6 @@ export default function MobileClassDetailPage() {
           onEditStudent={(s) => setAdminDetailSheet(s)}
           refetch={invalidate}
         />
-      )}
-
-      {/* ─── NOTES & DOCS TAB ─── */}
-      {activeTab === "notes" && (
-        <div className="mobile-notes-container">
-          <NotesDocsTab className={className} />
-        </div>
       )}
 
       {/* ─── Student Action Sheet ─── */}

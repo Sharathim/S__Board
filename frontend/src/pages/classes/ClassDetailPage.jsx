@@ -23,7 +23,6 @@ import {
   Lock, AlertCircle, Building, Columns, CheckCircle, Pencil
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import NotesDocsTab from "./NotesDocsTab";
 
 const FORUM_CLASSES = ["UG_3A", "UG_3B"];
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
@@ -361,16 +360,6 @@ export default function ClassDetailPage() {
           </button>
         )}
 
-        <button
-          onClick={() => setActiveTab("notes")}
-          className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
-            activeTab === "notes"
-              ? "border-primary-600 text-primary-600 font-bold"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
-          }`}
-        >
-          Notes & Doc's
-        </button>
       </div>
 
       {activeTab === "students" ? (
@@ -468,9 +457,7 @@ export default function ClassDetailPage() {
           user={user}
           refetch={invalidate}
         />
-      ) : (
-        <NotesDocsTab className={className} />
-      )}
+      ) : null}
 
       <StudentDetailsModal
         open={detailModalOpen}
