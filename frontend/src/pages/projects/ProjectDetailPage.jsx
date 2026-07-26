@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,9 +16,9 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import {
   ArrowLeft, Plus, MoreVertical, CheckCircle, Paperclip, X,
   FolderKanban, Trash2, Edit2, FileText, Image, File,
-  Download, ArrowRight, MessageSquare, Send, Smile,
+  Download, MessageSquare, Send, Smile,
   Clock, Users, ChevronDown, ChevronUp, Eye, Map,
-  ExternalLink, ZoomIn,
+  ExternalLink, Layers, Check,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -68,12 +68,12 @@ function AvatarCircle({ name = "?", picture, size = "md", colorSeed }) {
 
 function RoleBadge({ role }) {
   const map = {
-    HOD: "bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800/50",
-    FACULTY: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50",
-    STUDENT: "bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50",
-    faculty: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50",
-    forum_member: "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50",
-    student: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50",
+    HOD: "bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800/60",
+    FACULTY: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60",
+    STUDENT: "bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/60",
+    faculty: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60",
+    forum_member: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60",
+    student: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60",
   };
   const labelMap = {
     HOD: "HOD",
@@ -81,10 +81,10 @@ function RoleBadge({ role }) {
     STUDENT: "Student",
     faculty: "Faculty",
     forum_member: "Forum Member",
-    student: "Students",
+    student: "Student",
   };
   return (
-    <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border leading-none ${map[role] || map.STUDENT}`}>
+    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border leading-none ${map[role] || map.STUDENT}`}>
       {labelMap[role] || role}
     </span>
   );
@@ -109,112 +109,128 @@ function AttachmentPreviewModal({ attachment, onClose }) {
 
   return (
     <div className="pm-preview-overlay" onClick={onClose}>
-      <div className="pm-preview-content" onClick={(e) => e.stopPropagation()}>
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-        {isImage && (
-          <img src={attachment.url} alt={attachment.name || "Preview"} />
-        )}
-        {isPdf && (
-          <iframe src={attachment.url} title={attachment.name || "PDF Preview"} />
-        )}
-        {!isImage && !isPdf && (
-          <div className="p-12 text-center space-y-4">
-            <File className="w-16 h-16 text-slate-400 mx-auto" />
-            <p className="text-lg font-bold text-slate-700 dark:text-slate-200">{attachment.name || "File"}</p>
+      <div className="pm-preview-content relative" onClick={(e) => e.stopPropagation()}>
+        {/* Header bar */}
+        <div className="flex items-center justify-between px-5 py-3.5 bg-slate-900 text-white border-b border-slate-800">
+          <div className="flex items-center gap-2.5 min-w-0 pr-6">
+            <Paperclip className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span className="text-sm font-bold truncate">{attachment.name || "Attachment Preview"}</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
             <a
               href={attachment.url}
+              download={attachment.name || true}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold transition-colors"
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+              title="Download file"
             >
-              <ExternalLink className="w-4 h-4" /> Open in Browser
+              <Download className="w-4 h-4" />
             </a>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-        )}
+        </div>
+
+        {/* Content viewer */}
+        <div className="p-4 flex items-center justify-center min-h-[300px] max-h-[80vh] overflow-auto bg-slate-950/80">
+          {isImage && (
+            <img src={attachment.url} alt={attachment.name || "Preview"} className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl" />
+          )}
+          {isPdf && (
+            <iframe src={attachment.url} title={attachment.name || "PDF Preview"} className="w-[80vw] h-[75vh] border-none rounded-lg" />
+          )}
+          {!isImage && !isPdf && (
+            <div className="py-12 px-8 text-center space-y-4 max-w-md">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-900/30 border border-indigo-700/50 flex items-center justify-center mx-auto text-indigo-400">
+                <File className="w-8 h-8" />
+              </div>
+              <p className="text-base font-bold text-white">{attachment.name || "File"}</p>
+              <p className="text-xs text-slate-400">Direct preview is not available for this file type in browser.</p>
+              <a
+                href={attachment.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" /> Open File
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── Inline Attachment Previews ───────────────────────────────────────────────
+// ─── Attachments List with Eye & Download Icons ───────────────────────────────
 
-function AttachmentGallery({ attachments, onPreview }) {
+function AttachmentList({ attachments, onPreview }) {
   if (!attachments || attachments.length === 0) return null;
 
-  const images = attachments.filter(a => isImageExt(getFileExt(a.name)));
-  const pdfs = attachments.filter(a => isPdfExt(getFileExt(a.name)));
-  const others = attachments.filter(a => !isImageExt(getFileExt(a.name)) && !isPdfExt(getFileExt(a.name)));
-
   return (
-    <div className="space-y-3">
-      <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+    <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+      <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
         Attachments ({attachments.length})
       </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {attachments.map((att, i) => {
+          const ext = getFileExt(att.name);
+          const isImg = isImageExt(ext);
+          const isPdf = isPdfExt(ext);
 
-      {/* Image gallery grid */}
-      {images.length > 0 && (
-        <div className="pm-attach-grid">
-          {images.map((att, i) => (
-            <div key={i} className="pm-attach-thumb" onClick={() => onPreview(att)}>
-              <img src={att.url} alt={att.name || "Image"} loading="lazy" />
-              <div className="pm-attach-thumb-overlay">
-                <span className="text-[10px] font-bold text-white truncate">{att.name}</span>
+          let icon = <File className="w-4 h-4 text-blue-500" />;
+          if (isImg) icon = <Image className="w-4 h-4 text-emerald-500" />;
+          else if (isPdf) icon = <FileText className="w-4 h-4 text-rose-500" />;
+
+          return (
+            <div
+              key={i}
+              className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-all group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shrink-0 shadow-2xs">
+                  {icon}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate leading-snug">
+                    {att.name || "Attachment"}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase">{ext || "file"}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Eye Icon for Preview */}
+                <button
+                  type="button"
+                  onClick={() => onPreview(att)}
+                  title="Preview Attachment"
+                  className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+                {/* Download Icon */}
+                <a
+                  href={att.url}
+                  download={att.name || true}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Download File"
+                  className="p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                </a>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* PDF embeds */}
-      {pdfs.map((att, i) => (
-        <div key={`pdf-${i}`} className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-rose-500" />
-              {att.name || "Document.pdf"}
-            </span>
-            <button
-              onClick={() => onPreview(att)}
-              className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-            >
-              <ZoomIn className="w-3 h-3" /> Fullscreen
-            </button>
-          </div>
-          <div className="pm-pdf-embed">
-            <iframe src={att.url} title={att.name || "PDF"} />
-          </div>
-        </div>
-      ))}
-
-      {/* Other files */}
-      {others.length > 0 && (
-        <div className="space-y-1.5">
-          {others.map((att, i) => (
-            <a
-              key={`file-${i}`}
-              href={att.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="pm-file-card"
-            >
-              <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
-                <File className="w-4 h-4 text-blue-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{att.name || "Attachment"}</p>
-                <p className="text-[10px] text-slate-400">{getFileExt(att.name).toUpperCase()} file</p>
-              </div>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            </a>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -243,11 +259,11 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
               onClick={() => onDelete(comment.id)}
               className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:text-rose-500 text-slate-400 transition-all"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-850 rounded-xl rounded-tl-none px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-150 dark:border-slate-700/50">
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl rounded-tl-none px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-200/50 dark:border-slate-700/50">
           {comment.content}
         </div>
         {/* Reactions */}
@@ -295,17 +311,15 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
   );
 }
 
-// ─── Progress Post Card ───────────────────────────────────────────────────────
+// ─── Progress Post Item (Clean Flat Design) ───────────────────────────────────
 
-function ProgressPostCard({
+function ProgressPostItem({
   node, projectId, isStudent, isFaculty, isHOD, currentUserId,
-  onEdit, onDelete, onDeleteComment, onReact, onAddComment,
-  isOwn, canEdit,
+  onEdit, onDelete, onDeleteComment, onReact, onAddComment, onPreviewAttachment,
+  isOwn, canEdit, isLatest,
 }) {
-  const [expanded, setExpanded] = useState(true);
   const [feedbackText, setFeedbackText] = useState("");
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
-  const [previewAttachment, setPreviewAttachment] = useState(null);
 
   const handleFeedback = async (e) => {
     e.preventDefault();
@@ -319,229 +333,197 @@ function ProgressPostCard({
   const comments = node.comments || [];
 
   return (
-    <>
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-        {/* Header with Title */}
-        <div className="flex items-start gap-3 p-4 sm:p-5">
-          <AvatarCircle name={node.author} picture={node.avatar} size="lg" />
-          <div className="flex-1 min-w-0">
+    <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 shadow-2xs space-y-4 transition-all">
+      {/* Top Author Row */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <AvatarCircle name={node.author} picture={node.avatar} size="md" />
+          <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-bold text-slate-900 dark:text-white">{node.author}</span>
+              <span className="text-sm font-black text-slate-900 dark:text-white">{node.author}</span>
               <RoleBadge role={node.role} />
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
-                {formatDistanceToNow(parseUTCDate(node.dateRaw), { addSuffix: true })}
-              </span>
-              {node.is_edited && (
-                <span className="text-[9px] text-slate-400 italic">(edited)</span>
+              {isLatest && (
+                <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50">
+                  Latest Update
+                </span>
               )}
             </div>
-            {node.title && (
-              <h3 className="text-base font-black text-slate-900 dark:text-white mt-1.5 leading-snug">
-                {node.title}
-              </h3>
-            )}
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{node.dateStr}</p>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            {isOwn && canEdit && (
-              <button
-                onClick={() => onEdit(node)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-            {(isOwn || isHOD) && (
-              <button
-                onClick={() => onDelete(node.id)}
-                className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-            <button
-              onClick={() => setExpanded(p => !p)}
-              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"
-            >
-              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
+            <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+              {node.dateStr}
+              {node.is_edited && <span className="italic ml-1.5 text-slate-400">(edited)</span>}
+            </p>
           </div>
         </div>
 
-        {expanded && (
-          <div className="px-4 sm:px-5 pb-5 space-y-4">
-            {/* Description content */}
-            {node.accomplishment && (
-              <div className="bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl p-4">
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-                  {node.accomplishment}
-                </p>
-              </div>
-            )}
-
-            {/* Inline Attachment Previews */}
-            <AttachmentGallery
-              attachments={node.attachments}
-              onPreview={setPreviewAttachment}
-            />
-
-            {/* Faculty/HOD Feedback Section */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  Faculty Feedback {comments.length > 0 && `(${comments.length})`}
-                </span>
-              </div>
-
-              {comments.length === 0 && (
-                <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
-                  {(isFaculty || isHOD) ? "Share your feedback below." : "No feedback yet from faculty."}
-                </p>
-              )}
-
-              {/* Comment list */}
-              <div className="space-y-3">
-                {comments.map(comment => (
-                  <CommentCard
-                    key={comment.id}
-                    comment={comment}
-                    projectId={projectId}
-                    msgId={node.id}
-                    isStudent={isStudent}
-                    isHOD={isHOD}
-                    currentUserId={currentUserId}
-                    onDelete={(commentId) => onDeleteComment(node.id, commentId)}
-                    onReact={(commentId, emoji) => onReact(node.id, commentId, emoji)}
-                  />
-                ))}
-              </div>
-
-              {/* Feedback input — HOD and Faculty only */}
-              {(isFaculty || isHOD) && (
-                <form onSubmit={handleFeedback} className="flex gap-2 mt-2">
-                  <input
-                    type="text"
-                    value={feedbackText}
-                    onChange={e => setFeedbackText(e.target.value)}
-                    placeholder="Write feedback or guidance..."
-                    className="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 min-w-0"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!feedbackText.trim() || submittingFeedback}
-                    className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-1.5"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span className="text-xs font-bold hidden sm:inline">Send</span>
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-        )}
+        <div className="flex items-center gap-1.5">
+          {isOwn && canEdit && (
+            <button
+              onClick={() => onEdit(node)}
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+              title="Edit progress"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {(isOwn || isHOD) && (
+            <button
+              onClick={() => onDelete(node.id)}
+              className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
+              title="Delete progress"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Attachment Preview Modal */}
-      {previewAttachment && (
-        <AttachmentPreviewModal
-          attachment={previewAttachment}
-          onClose={() => setPreviewAttachment(null)}
-        />
+      {/* Progress Title */}
+      {node.title && (
+        <h3 className="text-base font-black text-slate-900 dark:text-white leading-snug tracking-tight">
+          {node.title}
+        </h3>
       )}
-    </>
+
+      {/* Progress Description */}
+      {node.accomplishment && (
+        <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
+          {node.accomplishment}
+        </div>
+      )}
+
+      {/* Attachments List with Eye & Download Icons */}
+      <AttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
+
+      {/* Faculty Feedback Section */}
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+            <MessageSquare className="w-3.5 h-3.5" />
+            Faculty Feedback {comments.length > 0 && `(${comments.length})`}
+          </span>
+        </div>
+
+        {comments.length === 0 && (
+          <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1 font-medium">
+            {(isFaculty || isHOD) ? "Add feedback for the students on this progress update." : "No faculty feedback added yet."}
+          </p>
+        )}
+
+        {/* Comment list */}
+        {comments.length > 0 && (
+          <div className="space-y-2.5">
+            {comments.map(comment => (
+              <CommentCard
+                key={comment.id}
+                comment={comment}
+                projectId={projectId}
+                msgId={node.id}
+                isStudent={isStudent}
+                isHOD={isHOD}
+                currentUserId={currentUserId}
+                onDelete={(commentId) => onDeleteComment(node.id, commentId)}
+                onReact={(commentId, emoji) => onReact(node.id, commentId, emoji)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Feedback input — HOD and Faculty only */}
+        {(isFaculty || isHOD) && (
+          <form onSubmit={handleFeedback} className="flex gap-2 pt-1">
+            <input
+              type="text"
+              value={feedbackText}
+              onChange={e => setFeedbackText(e.target.value)}
+              placeholder="Write faculty feedback or notes..."
+              className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
+            <button
+              type="submit"
+              disabled={!feedbackText.trim() || submittingFeedback}
+              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-1.5 text-xs font-bold"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Send</span>
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
   );
 }
 
 // ─── Roadmap View ─────────────────────────────────────────────────────────────
 
-function RoadmapView({ timelineNodes, projectName }) {
+function RoadmapView({ timelineNodes, onPreviewAttachment }) {
   if (timelineNodes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-16">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center">
-          <Map className="w-7 h-7 text-indigo-500/60" />
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+          <Map className="w-6 h-6" />
         </div>
-        <div className="space-y-1">
-          <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No roadmap available</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">Post progress updates to auto-generate the project roadmap.</p>
+        <div>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Roadmap Generated</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Project roadmap will automatically build as progress updates are posted.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 px-1">
-        <Map className="w-4 h-4 text-indigo-500" />
-        <h3 className="text-sm font-black text-slate-900 dark:text-white">Project Roadmap</h3>
-        <span className="text-[10px] font-bold text-slate-400 ml-auto">{timelineNodes.length} milestones</span>
+    <div className="space-y-6 max-w-4xl mx-auto py-2">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <Map className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Timeline Roadmap</h3>
+        </div>
+        <span className="text-xs font-bold text-slate-400">{timelineNodes.length} Milestone{timelineNodes.length > 1 ? "s" : ""}</span>
       </div>
 
-      <div className="relative pl-10">
-        {/* Vertical connector line */}
-        <div className="pm-roadmap-line" />
+      <div className="relative pl-8 md:pl-10 space-y-6">
+        {/* Vertical line */}
+        <div className="absolute left-[15px] md:left-[19px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-indigo-500 via-indigo-300 to-slate-200 dark:via-indigo-800 dark:to-slate-800" />
 
-        <div className="space-y-1">
-          {timelineNodes.map((node, idx) => {
-            const isFirst = idx === 0;
-            return (
+        {timelineNodes.map((node, idx) => {
+          const isLatest = idx === 0;
+          return (
+            <div key={node.id} className="relative group">
+              {/* Dot */}
               <div
-                key={node.id}
-                className="pm-stagger-item relative pb-6"
-                style={{ animationDelay: `${idx * 80}ms` }}
+                className={`absolute -left-[27px] md:-left-[31px] top-1.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                  isLatest
+                    ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-500/30 ring-4 ring-indigo-500/10"
+                    : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-400"
+                }`}
               >
-                {/* Dot */}
-                <div
-                  className={`pm-roadmap-dot ${isFirst ? "pm-roadmap-dot-active pm-glow-active" : "pm-roadmap-dot-completed"}`}
-                  style={{ top: "4px" }}
-                />
-
-                {/* Content card */}
-                <div className={`ml-6 p-4 rounded-xl border transition-all ${
-                  isFirst
-                    ? "bg-gradient-to-br from-indigo-50/80 to-violet-50/80 dark:from-indigo-950/30 dark:to-violet-950/30 border-indigo-200 dark:border-indigo-800/50 shadow-sm"
-                    : "bg-white dark:bg-slate-900 border-slate-200/70 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-                }`}>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <AvatarCircle name={node.author} picture={node.avatar} size="xs" />
-                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">{node.author}</span>
-                    <span className="text-[10px] text-slate-400 ml-auto">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy")}</span>
-                  </div>
-                  {node.title && (
-                    <h4 className={`text-sm font-black leading-snug mb-1 ${
-                      isFirst ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300"
-                    }`}>
-                      {node.title}
-                    </h4>
-                  )}
-                  <p className={`text-xs leading-relaxed line-clamp-2 ${
-                    isFirst ? "text-slate-600 dark:text-slate-400" : "text-slate-500 dark:text-slate-500"
-                  }`}>
-                    {node.accomplishment || "No description"}
-                  </p>
-                  <div className="flex items-center gap-3 mt-2">
-                    {node.attachments.length > 0 && (
-                      <span className="text-[9px] font-bold text-slate-400 flex items-center gap-0.5">
-                        <Paperclip className="w-2.5 h-2.5" /> {node.attachments.length} file{node.attachments.length > 1 ? "s" : ""}
-                      </span>
-                    )}
-                    {node.comments.length > 0 && (
-                      <span className="text-[9px] font-bold text-indigo-400 flex items-center gap-0.5">
-                        <MessageSquare className="w-2.5 h-2.5" /> {node.comments.length} feedback
-                      </span>
-                    )}
-                    {isFirst && (
-                      <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 ml-auto bg-indigo-100 dark:bg-indigo-900/40 px-2 py-0.5 rounded-full">
-                        Latest
-                      </span>
-                    )}
-                  </div>
-                </div>
+                {isLatest ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700" />}
               </div>
-            );
-          })}
-        </div>
+
+              {/* Milestone Box */}
+              <div className="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <AvatarCircle name={node.author} picture={node.avatar} size="xs" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{node.author}</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-400">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy · h:mm a")}</span>
+                </div>
+
+                {node.title && (
+                  <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{node.title}</h4>
+                )}
+
+                {node.accomplishment && (
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 font-medium">
+                    {node.accomplishment}
+                  </p>
+                )}
+
+                <AttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -564,9 +546,9 @@ export default function ProjectDetailPage() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [selectedUpdateId, setSelectedUpdateId] = useState(null);
   const [kebabOpen, setKebabOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("latest"); // "latest" | "all" | "roadmap"
+  const [activeTab, setActiveTab] = useState("stream"); // "stream" | "roadmap"
+  const [previewAttachment, setPreviewAttachment] = useState(null);
 
   // Edit project fields
   const [editProjectName, setEditProjectName] = useState("");
@@ -577,7 +559,7 @@ export default function ProjectDetailPage() {
   const [formAccomplishment, setFormAccomplishment] = useState("");
   const [formFiles, setFormFiles] = useState([]);
 
-  // Fetch
+  // Fetch data
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", id],
     queryFn: () => getProject(id).then(r => r.data.project),
@@ -704,18 +686,9 @@ export default function ProjectDetailPage() {
   if (isLoading) return <Spinner />;
   if (!project) return null;
 
-  const handleEditProjectSubmit = (e) => {
-    e.preventDefault();
-    editProjectMutation.mutate({
-      name: editProjectName,
-      description: editProjectDesc,
-      members: project.members.map(m => ({ user_id: m.id, role_in_project: m.role_in_project }))
-    });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formAccomplishment.trim() && formFiles.length === 0) return;
+    if (!formTitle.trim() && !formAccomplishment.trim() && formFiles.length === 0) return;
 
     for (const f of formFiles) {
       if (f.size > 10 * 1024 * 1024) {
@@ -743,25 +716,21 @@ export default function ProjectDetailPage() {
 
   // Parse messages into timeline nodes
   const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
-    // Extract title from API response (new field) or fallback
     let title = msg.title || "";
     let accomplishment = "";
     try {
       const parsed = JSON.parse(msg.content);
       accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
-      // Legacy: if no title from API, try to derive from parsed content
       if (!title && parsed.title) title = parsed.title;
     } catch {
       accomplishment = msg.content || "";
     }
 
-    // If still no title, use first line of accomplishment or truncate
     if (!title && accomplishment) {
       const firstLine = accomplishment.split('\n')[0];
       title = firstLine.length > 80 ? firstLine.substring(0, 77) + "..." : firstLine;
     }
 
-    // Resolve attachments
     let attachments = [];
     if (msg.attachments && msg.attachments.length > 0) {
       attachments = msg.attachments;
@@ -789,23 +758,18 @@ export default function ProjectDetailPage() {
     };
   });
 
-  const currentUpdate = timelineNodes.find(n => n.id === selectedUpdateId) || timelineNodes[0];
   const allMembers = project.members || [];
 
-  // ─── Status config ────────────────────────────────────────────────────────
-
   const statusColors = {
-    COMPLETED: { dot: "bg-emerald-500", text: "text-emerald-400", label: "Completed" },
-    IN_PROGRESS: { dot: "bg-indigo-500 animate-pulse", text: "text-indigo-400", label: "In Progress" },
-    NOT_STARTED: { dot: "bg-slate-400", text: "text-slate-400", label: "Not Started" },
-    ON_HOLD: { dot: "bg-amber-400", text: "text-amber-400", label: "On Hold" },
-    REVIEW: { dot: "bg-violet-500", text: "text-violet-400", label: "Review" },
-    CANCELLED: { dot: "bg-rose-500", text: "text-rose-400", label: "Cancelled" },
-    LOW_ACTIVITY: { dot: "bg-orange-400", text: "text-orange-400", label: "Low Activity" },
+    COMPLETED: { dot: "bg-emerald-500", text: "text-emerald-500 dark:text-emerald-400", label: "Completed" },
+    IN_PROGRESS: { dot: "bg-indigo-500 animate-pulse", text: "text-indigo-500 dark:text-indigo-400", label: "In Progress" },
+    NOT_STARTED: { dot: "bg-slate-400", text: "text-slate-500 dark:text-slate-400", label: "Not Started" },
+    ON_HOLD: { dot: "bg-amber-400", text: "text-amber-500 dark:text-amber-400", label: "On Hold" },
+    REVIEW: { dot: "bg-violet-500", text: "text-violet-500 dark:text-violet-400", label: "Review" },
+    CANCELLED: { dot: "bg-rose-500", text: "text-rose-500 dark:text-rose-400", label: "Cancelled" },
+    LOW_ACTIVITY: { dot: "bg-orange-400", text: "text-orange-500 dark:text-orange-400", label: "Low Activity" },
   };
   const statusStyle = statusColors[project.status] || statusColors.IN_PROGRESS;
-
-  // ─── Shared action handlers ───────────────────────────────────────────────
 
   const progressHandlers = {
     onEdit: (n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); },
@@ -813,449 +777,175 @@ export default function ProjectDetailPage() {
     onDeleteComment: (msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId }),
     onReact: (msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji }),
     onAddComment: (msgId, content) => addCommentMutation.mutateAsync({ msgId, content }),
+    onPreviewAttachment: setPreviewAttachment,
   };
 
   return (
-    <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1440px] mx-auto px-3 sm:px-5 md:px-8 pb-4 space-y-4">
-      {/* ── Top Header ── */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start shrink-0 gap-3">
-        <div className="space-y-0.5 text-left">
+    <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-4 space-y-4">
+      {/* ── Top Header & Actions Bar ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between shrink-0 gap-3 pt-1">
+        <div className="space-y-1">
           <button
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to projects
+            <ArrowLeft className="w-3.5 h-3.5" /> Projects
           </button>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">Progress Monitor</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">
-            Current state of <span className="font-bold text-slate-700 dark:text-slate-300">{project.name}</span>, at a glance
-          </p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+              Progress Monitor
+            </h1>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+              <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
+              {statusStyle.label}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 relative pm-kebab-container shrink-0">
-          {/* Tab navigation */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-full p-1 mr-2">
+        {/* View Switcher & Action Buttons */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50">
             <button
-              onClick={() => setActiveTab("latest")}
-              className={`pm-tab ${activeTab === "latest" ? "pm-tab-active" : ""}`}
+              onClick={() => setActiveTab("stream")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "stream"
+                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
             >
-              Latest
-            </button>
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`pm-tab ${activeTab === "all" ? "pm-tab-active" : ""}`}
-            >
-              All Progress
+              <Layers className="w-3.5 h-3.5" />
+              Progress Stream
             </button>
             <button
               onClick={() => setActiveTab("roadmap")}
-              className={`pm-tab ${activeTab === "roadmap" ? "pm-tab-active" : ""}`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "roadmap"
+                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
             >
-              <span className="flex items-center gap-1"><Map className="w-3 h-3" /> Roadmap</span>
+              <Map className="w-3.5 h-3.5" />
+              Project Roadmap
             </button>
           </div>
 
-          {/* Only students get the Add progress button */}
+          {/* Student Post Progress Button */}
           {isStudent && (
             <button
               onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-              className="px-4 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all flex items-center gap-2 shrink-0"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 shrink-0"
             >
               <Plus className="w-4 h-4" /> Post Progress
             </button>
           )}
 
-          {(isHOD) && (
-            <button
-              onClick={() => setKebabOpen(!kebabOpen)}
-              className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-          )}
-
-          {kebabOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-150 dark:border-slate-800 py-1 z-50 animate-fade-in text-left">
-              {project.status !== "COMPLETED" && (
-                <button
-                  onClick={() => { statusMutation.mutate("COMPLETED"); setKebabOpen(false); }}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bold transition-colors"
-                >
-                  <CheckCircle className="w-4 h-4 text-emerald-500" /> Mark completed
-                </button>
-              )}
+          {/* HOD Menu */}
+          {isHOD && (
+            <div className="relative pm-kebab-container">
               <button
-                onClick={() => { setEditProjectModalOpen(true); setKebabOpen(false); }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold transition-colors"
+                onClick={() => setKebabOpen(!kebabOpen)}
+                className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
               >
-                <Edit2 className="w-3.5 h-3.5" /> Edit project
+                <MoreVertical className="w-4 h-4" />
               </button>
+              {kebabOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1 z-50 animate-fade-in text-left">
+                  {project.status !== "COMPLETED" && (
+                    <button
+                      onClick={() => { statusMutation.mutate("COMPLETED"); setKebabOpen(false); }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bold transition-colors"
+                    >
+                      <CheckCircle className="w-4 h-4 text-emerald-500" /> Mark completed
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { setEditProjectModalOpen(true); setKebabOpen(false); }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold transition-colors"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" /> Edit project
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Desktop Layout (≥1024px) ── */}
-      <div className="hidden lg:grid grid-cols-[300px_1fr] gap-5 flex-1 min-h-0 overflow-hidden">
+      {/* ── Compact Project Info Summary Bar (No card bloat) ── */}
+      <div className="px-5 py-3.5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xs">
+        <div className="space-y-0.5 max-w-2xl">
+          <h2 className="text-base font-black text-slate-900 dark:text-white truncate">{project.name}</h2>
+          {project.description && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">{project.description}</p>
+          )}
+        </div>
 
-        {/* Left: Update History Panel */}
-        <div className="flex flex-col h-full overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl">
-          <div className="flex items-center justify-between px-4 pt-4 pb-3 shrink-0 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                Update History
-              </span>
-              {timelineNodes.length > 0 && (
-                <span className="text-[9px] font-black bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-full px-1.5 py-0.5">
-                  {timelineNodes.length}
+        <div className="flex items-center gap-4 text-xs shrink-0">
+          <div className="flex items-center gap-2">
+            <Users className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center -space-x-1.5">
+              {allMembers.slice(0, 5).map((m) => (
+                <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size="xs" />
+              ))}
+              {allMembers.length > 5 && (
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300">
+                  +{allMembers.length - 5}
                 </span>
               )}
             </div>
           </div>
-
-          <div className={`flex-1 overflow-y-auto scrollbar-premium ${timelineNodes.length === 0 ? "flex flex-col items-center justify-center" : ""}`}>
-            {timelineNodes.length === 0 ? (
-              <div className="text-center p-6 space-y-3 max-w-[200px]">
-                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
-                  <FileText className="w-5 h-5 text-slate-400" />
-                </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 italic leading-relaxed">
-                  No progress updates yet.
-                </p>
-                {isStudent && (
-                  <button
-                    onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                    className="px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-[10.5px] font-bold hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all"
-                  >
-                    + Post Progress
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="p-3 space-y-2">
-                {timelineNodes.map((node, idx) => {
-                  const isActive = currentUpdate?.id === node.id;
-                  const isNewest = idx === 0;
-                  return (
-                    <button
-                      key={node.id}
-                      onClick={() => { setSelectedUpdateId(node.id); setActiveTab("latest"); }}
-                      className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all ${
-                        isActive
-                          ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60 ring-1 ring-indigo-500/20"
-                          : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-150 dark:hover:border-slate-800"
-                      }`}
-                    >
-                      <div className="relative shrink-0 mt-0.5">
-                        <AvatarCircle name={node.author} picture={node.avatar} size="sm" />
-                        {isNewest && (
-                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-900 animate-pulse" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-0.5">
-                        {node.title && (
-                          <p className="text-xs font-black text-slate-800 dark:text-slate-200 truncate leading-snug">
-                            {node.title}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate">{node.author}</span>
-                          <RoleBadge role={node.role} />
-                        </div>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500">{node.dateStr}</p>
-                        {!node.title && (
-                          <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">
-                            {node.accomplishment || "No content"}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2 mt-1">
-                          {node.attachments.length > 0 && (
-                            <span className="text-[9px] font-bold text-slate-400 flex items-center gap-0.5">
-                              <Paperclip className="w-2.5 h-2.5" /> {node.attachments.length}
-                            </span>
-                          )}
-                          {node.comments.length > 0 && (
-                            <span className="text-[9px] font-bold text-indigo-400 flex items-center gap-0.5">
-                              <MessageSquare className="w-2.5 h-2.5" /> {node.comments.length}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right: Main Content */}
-        <div className="flex flex-col h-full overflow-hidden gap-4">
-          {/* Hero Card */}
-          <div className="bg-[#080f20] text-white rounded-2xl overflow-hidden shrink-0 relative shadow-xl">
-            {/* Subtle glow effects */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl" />
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-violet-600/10 rounded-full blur-3xl" />
-            </div>
-            <div className="relative flex items-center justify-between px-6 py-5 gap-4">
-              <div className="flex items-center gap-5 min-w-0 flex-1">
-                {/* Status + Name */}
-                <div className="min-w-0 space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${statusStyle.dot}`} />
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${statusStyle.text}`}>
-                      {statusStyle.label}
-                    </span>
-                  </div>
-                  <h2 className="text-xl font-black text-white tracking-tight truncate">{project.name}</h2>
-                  {project.description && (
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed max-w-[380px]">
-                      {project.description}
-                    </p>
-                  )}
-                  {currentUpdate && (
-                    <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-                      <span className="text-slate-500">Latest: </span>
-                      {currentUpdate.title || currentUpdate.accomplishment}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Right side: last updated + team */}
-              <div className="flex flex-col gap-4 items-end border-l border-slate-800/80 pl-6 shrink-0 min-w-[160px]">
-                <div className="text-right w-full">
-                  <span className="text-[8px] uppercase font-black text-slate-500 tracking-widest block mb-1">Last Updated By</span>
-                  {currentUpdate ? (
-                    <div className="flex items-center justify-end gap-1.5">
-                      <AvatarCircle name={currentUpdate.author} picture={currentUpdate.avatar} size="xs" />
-                      <span className="text-xs font-bold text-white truncate max-w-[100px]">{currentUpdate.author}</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-slate-500 italic">No updates yet</span>
-                  )}
-                </div>
-                <div className="text-right w-full">
-                  <div className="flex items-center gap-1 justify-end mb-1">
-                    <Users className="w-2.5 h-2.5 text-slate-500" />
-                    <span className="text-[8px] uppercase font-black text-slate-500 tracking-widest">Team</span>
-                  </div>
-                  <div className="flex items-center justify-end -space-x-1.5">
-                    {allMembers.slice(0, 5).map((m) => (
-                      m.profile_picture ? (
-                        <img key={m.id} src={m.profile_picture} alt={m.name} title={m.name}
-                          className="w-6 h-6 rounded-full ring-2 ring-[#080f20] object-cover" />
-                      ) : (
-                        <div key={m.id} title={m.name}
-                          className={`w-6 h-6 rounded-full ring-2 ring-[#080f20] flex items-center justify-center text-[8px] font-black bg-indigo-600 text-white`}>
-                          {(m.name || "?").charAt(0).toUpperCase()}
-                        </div>
-                      )
-                    ))}
-                    {allMembers.length > 5 && (
-                      <div className="w-6 h-6 rounded-full ring-2 ring-[#080f20] bg-slate-700 flex items-center justify-center text-[8px] font-bold text-slate-300">
-                        +{allMembers.length - 5}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto scrollbar-premium space-y-4 pr-0.5">
-            {/* Latest Progress Tab */}
-            {activeTab === "latest" && (
-              <>
-                {timelineNodes.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-16">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center">
-                      <FileText className="w-7 h-7 text-indigo-500/60" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No progress updates yet</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">
-                        {isStudent ? "Be the first to post a progress update for this project." : "Students haven't posted any updates yet."}
-                      </p>
-                    </div>
-                    {isStudent && (
-                      <button
-                        onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                        className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20"
-                      >
-                        <span className="flex items-center gap-2"><Plus className="w-3.5 h-3.5" /> Post First Update</span>
-                      </button>
-                    )}
-                  </div>
-                ) : currentUpdate ? (
-                  <ProgressPostCard
-                    node={currentUpdate}
-                    projectId={id}
-                    isStudent={isStudent}
-                    isFaculty={isFaculty}
-                    isHOD={isHOD}
-                    currentUserId={user?.id}
-                    isOwn={currentUpdate.isOwn}
-                    canEdit={currentUpdate.canEdit}
-                    {...progressHandlers}
-                  />
-                ) : null}
-              </>
-            )}
-
-            {/* All Progress Tab */}
-            {activeTab === "all" && (
-              <>
-                {timelineNodes.length === 0 ? (
-                  <div className="text-center py-20 text-slate-400 italic text-sm">No progress updates yet.</div>
-                ) : (
-                  <div className="relative">
-                    {/* Timeline line */}
-                    <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-200 via-indigo-100 to-transparent dark:from-indigo-800 dark:via-indigo-900/40 dark:to-transparent" />
-                    <div className="space-y-6 pl-12">
-                      {timelineNodes.map((node, idx) => (
-                        <div key={node.id} className="relative">
-                          {/* Dot */}
-                          <div className={`absolute -left-[38px] top-4 w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-all ${
-                            idx === 0
-                              ? "border-indigo-500 bg-indigo-500"
-                              : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
-                          }`}>
-                            {idx === 0 && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                          </div>
-                          <ProgressPostCard
-                            node={node}
-                            projectId={id}
-                            isStudent={isStudent}
-                            isFaculty={isFaculty}
-                            isHOD={isHOD}
-                            currentUserId={user?.id}
-                            isOwn={node.isOwn}
-                            canEdit={node.canEdit}
-                            {...progressHandlers}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Roadmap Tab */}
-            {activeTab === "roadmap" && (
-              <RoadmapView timelineNodes={timelineNodes} projectName={project.name} />
-            )}
-          </div>
+          <span className="text-[11px] font-semibold text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-4">
+            {timelineNodes.length} Progress Update{timelineNodes.length !== 1 ? "s" : ""}
+          </span>
         </div>
       </div>
 
-      {/* ── Mobile Layout (<1024px) ── */}
-      <div className="flex flex-col lg:hidden space-y-5 overflow-y-auto pb-8">
-        {/* Hero Card Mobile */}
-        <div className="bg-[#080f20] text-white rounded-2xl overflow-hidden relative shadow-xl">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-8 -left-8 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl" />
-          </div>
-          <div className="relative p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="flex-1 min-w-0 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
-                  <span className={`text-[9px] font-black uppercase tracking-widest ${statusStyle.text}`}>
-                    {statusStyle.label}
-                  </span>
-                </div>
-                <h2 className="text-base font-black text-white tracking-tight">{project.name}</h2>
+      {/* ── Main View Content Area (Fits screen without page scroll) ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-premium pr-1">
+        {activeTab === "stream" ? (
+          timelineNodes.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-20">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+                <FileText className="w-6 h-6" />
               </div>
-              {/* Team */}
-              <div className="flex items-center -space-x-1.5 shrink-0">
-                {allMembers.slice(0, 4).map(m =>
-                  m.profile_picture ? (
-                    <img key={m.id} src={m.profile_picture} alt={m.name} className="w-6 h-6 rounded-full ring-2 ring-[#080f20] object-cover" />
-                  ) : (
-                    <div key={m.id} className="w-6 h-6 rounded-full ring-2 ring-[#080f20] bg-indigo-600 flex items-center justify-center text-[8px] font-black text-white">
-                      {(m.name || "?").charAt(0).toUpperCase()}
-                    </div>
-                  )
-                )}
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Progress Updates Yet</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm">
+                  {isStudent
+                    ? "Post your first progress update to start tracking project milestones."
+                    : "Students haven't submitted any progress updates yet."}
+                </p>
               </div>
+              {isStudent && (
+                <button
+                  onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" /> Post First Update
+                </button>
+              )}
             </div>
-            {currentUpdate && (
-              <div className="border-t border-white/10 pt-3">
-                <span className="text-[8px] font-black uppercase tracking-widest text-slate-500 block mb-1">Latest Update</span>
-                {currentUpdate.title && (
-                  <p className="text-xs font-bold text-white mb-0.5">{currentUpdate.title}</p>
-                )}
-                <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{currentUpdate.accomplishment}</p>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <AvatarCircle name={currentUpdate.author} picture={currentUpdate.avatar} size="xs" />
-                  <span className="text-[10px] font-bold text-slate-400">{currentUpdate.author}</span>
-                  <span className="text-[10px] text-slate-500 ml-auto">{currentUpdate.dateStr}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Tab bar */}
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-full p-1">
-          <button
-            onClick={() => setActiveTab("latest")}
-            className={`pm-tab flex-1 text-center ${activeTab === "latest" ? "pm-tab-active" : ""}`}
-          >
-            Progress
-          </button>
-          <button
-            onClick={() => setActiveTab("roadmap")}
-            className={`pm-tab flex-1 text-center ${activeTab === "roadmap" ? "pm-tab-active" : ""}`}
-          >
-            <span className="flex items-center justify-center gap-1"><Map className="w-3 h-3" /> Roadmap</span>
-          </button>
-        </div>
-
-        {/* Mobile content */}
-        {activeTab !== "roadmap" ? (
-          <>
-            {/* Progress Posts */}
-            {timelineNodes.length === 0 ? (
-              <div className="text-center py-12 space-y-3">
-                <p className="text-sm text-slate-400 dark:text-slate-500 italic">No progress updates yet.</p>
-                {isStudent && (
-                  <button
-                    onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                    className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"
-                  >+ Post Progress</button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress Updates ({timelineNodes.length})</span>
-                </div>
-                {timelineNodes.map(node => (
-                  <ProgressPostCard
-                    key={node.id}
-                    node={node}
-                    projectId={id}
-                    isStudent={isStudent}
-                    isFaculty={isFaculty}
-                    isHOD={isHOD}
-                    currentUserId={user?.id}
-                    isOwn={node.isOwn}
-                    canEdit={node.canEdit}
-                    {...progressHandlers}
-                  />
-                ))}
-              </div>
-            )}
-          </>
+          ) : (
+            <div className="space-y-4 max-w-4xl mx-auto py-1">
+              {timelineNodes.map((node, idx) => (
+                <ProgressPostItem
+                  key={node.id}
+                  node={node}
+                  projectId={id}
+                  isStudent={isStudent}
+                  isFaculty={isFaculty}
+                  isHOD={isHOD}
+                  currentUserId={user?.id}
+                  isOwn={node.isOwn}
+                  canEdit={node.canEdit}
+                  isLatest={idx === 0}
+                  {...progressHandlers}
+                />
+              ))}
+            </div>
+          )
         ) : (
-          <RoadmapView timelineNodes={timelineNodes} projectName={project.name} />
+          <RoadmapView timelineNodes={timelineNodes} onPreviewAttachment={setPreviewAttachment} />
         )}
       </div>
 
@@ -1275,18 +965,6 @@ export default function ProjectDetailPage() {
         title={editingMsg ? "Edit Progress Update" : "Post Progress Update"}
       >
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Role info banner for student */}
-          {!editingMsg && (
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
-              <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0 mt-0.5">
-                <FileText className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
-                Share what you have completed or worked on. Faculty and HOD will review and provide feedback.
-              </p>
-            </div>
-          )}
-
           {/* Progress Title */}
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -1296,7 +974,7 @@ export default function ProjectDetailPage() {
               type="text"
               value={formTitle}
               onChange={e => setFormTitle(e.target.value)}
-              placeholder="e.g. Completed login module, Fixed API integration..."
+              placeholder="e.g. Implemented Authentication Module..."
               required
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
@@ -1310,7 +988,7 @@ export default function ProjectDetailPage() {
             <textarea
               value={formAccomplishment}
               onChange={e => setFormAccomplishment(e.target.value)}
-              placeholder="Describe what you worked on in detail — features, tasks, or milestones you completed..."
+              placeholder="Describe what you worked on in detail..."
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
               rows={4}
             />
@@ -1323,7 +1001,6 @@ export default function ProjectDetailPage() {
                 Attachments <span className="text-slate-400 font-normal">(optional, max 10MB each)</span>
               </label>
 
-              {/* Selected files list */}
               {formFiles.length > 0 && (
                 <div className="space-y-1.5">
                   {formFiles.map((file, i) => (
@@ -1343,14 +1020,13 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
-              {/* Upload zone */}
               <label className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-slate-800/40 transition-colors text-center">
                 <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                   <Paperclip className="w-4 h-4 text-slate-400" />
                 </div>
                 <div>
                   <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Click to attach files</span>
-                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Images, PDF, documents, ZIP accepted — previewed inline</span>
+                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Images, PDF, documents, ZIP accepted</span>
                 </div>
                 <input
                   type="file"
@@ -1385,6 +1061,14 @@ export default function ProjectDetailPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Attachment Preview Modal */}
+      {previewAttachment && (
+        <AttachmentPreviewModal
+          attachment={previewAttachment}
+          onClose={() => setPreviewAttachment(null)}
+        />
+      )}
 
       <ConfirmDialog
         open={!!deleteTarget}

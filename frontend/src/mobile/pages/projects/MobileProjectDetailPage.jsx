@@ -21,7 +21,7 @@ import {
   FolderKanban, Users, GraduationCap, MessageSquare,
   CheckCircle, Paperclip, FileText, Image, File,
   Download, ChevronDown, ChevronUp, MoreVertical,
-  Clock, X, Map, ExternalLink, ZoomIn, Eye,
+  Clock, X, Map, ExternalLink, Eye, Check,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -45,12 +45,12 @@ function isPdfExt(ext) {
 }
 
 const ROLE_COLORS = {
-  HOD: "bg-violet-50 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400",
-  FACULTY: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400",
-  faculty: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400",
-  forum_member: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
-  student: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
-  STUDENT: "bg-slate-50 text-slate-600 dark:bg-slate-800/60 dark:text-slate-400",
+  HOD: "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300",
+  FACULTY: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
+  faculty: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
+  forum_member: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
+  student: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
+  STUDENT: "bg-slate-100 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400",
 };
 
 const STATUS_MAP = {
@@ -85,184 +85,178 @@ function AttachmentPreviewSheet({ attachment, onClose }) {
   const isPdf = isPdfExt(ext);
 
   return (
-    <BottomSheet open={!!attachment} onClose={onClose} title={attachment.name || "Preview"}>
-      <div className="space-y-3">
+    <BottomSheet open={!!attachment} onClose={onClose} title={attachment.name || "Attachment Preview"}>
+      <div className="space-y-3 pb-2">
         {isImage && (
-          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700">
-            <img src={attachment.url} alt={attachment.name} className="w-full max-h-[60vh] object-contain bg-gray-50 dark:bg-slate-800" />
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-black/5 flex items-center justify-center">
+            <img src={attachment.url} alt={attachment.name} className="w-full max-h-[55vh] object-contain" />
           </div>
         )}
         {isPdf && (
-          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700" style={{ height: "60vh" }}>
+          <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 h-[55vh]">
             <iframe src={attachment.url} title={attachment.name} className="w-full h-full border-none" />
           </div>
         )}
         {!isImage && !isPdf && (
-          <div className="text-center py-8 space-y-3">
+          <div className="text-center py-8 space-y-2">
             <File className="w-12 h-12 text-gray-400 mx-auto" />
             <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{attachment.name}</p>
             <p className="text-xs text-gray-400">{ext.toUpperCase()} file</p>
           </div>
         )}
-        <a
-          href={attachment.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold flex items-center justify-center gap-2"
-        >
-          <ExternalLink className="w-4 h-4" /> Open in Browser
-        </a>
+        <div className="flex gap-2 pt-1">
+          <a
+            href={attachment.url}
+            download={attachment.name || true}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mobile-tappable flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 text-xs font-bold flex items-center justify-center gap-2"
+          >
+            <Download className="w-4 h-4" /> Download
+          </a>
+          <a
+            href={attachment.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mobile-tappable flex-1 py-3 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center justify-center gap-2"
+          >
+            <ExternalLink className="w-4 h-4" /> Open File
+          </a>
+        </div>
       </div>
     </BottomSheet>
   );
 }
 
-// ─── Mobile Attachment Gallery ────────────────────────────────────────────────
+// ─── Mobile Attachment List with Eye & Download Icons ─────────────────────────
 
-function MobileAttachmentGallery({ attachments, onPreview }) {
+function MobileAttachmentList({ attachments, onPreview }) {
   if (!attachments || attachments.length === 0) return null;
 
-  const images = attachments.filter(a => isImageExt(getFileExt(a.name)));
-  const pdfs = attachments.filter(a => isPdfExt(getFileExt(a.name)));
-  const others = attachments.filter(a => !isImageExt(getFileExt(a.name)) && !isPdfExt(getFileExt(a.name)));
-
   return (
-    <div className="space-y-2">
-      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Attachments ({attachments.length})</span>
+    <div className="space-y-1.5 pt-2 border-t border-gray-100 dark:border-slate-800">
+      <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider block">
+        Attachments ({attachments.length})
+      </span>
+      <div className="space-y-1.5">
+        {attachments.map((att, i) => {
+          const ext = getFileExt(att.name);
+          const isImg = isImageExt(ext);
+          const isPdf = isPdfExt(ext);
 
-      {/* Image thumbnails — horizontal scroll */}
-      {images.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto mobile-hide-scrollbar pb-1">
-          {images.map((att, i) => (
+          let icon = <File className="w-3.5 h-3.5 text-blue-500" />;
+          if (isImg) icon = <Image className="w-3.5 h-3.5 text-emerald-500" />;
+          else if (isPdf) icon = <FileText className="w-3.5 h-3.5 text-rose-500" />;
+
+          return (
             <div
               key={i}
-              onClick={() => onPreview(att)}
-              className="shrink-0 w-24 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 cursor-pointer active:scale-95 transition-transform"
+              className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-gray-200/70 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40"
             >
-              <img src={att.url} alt={att.name} className="w-full h-full object-cover" loading="lazy" />
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700/50 shrink-0">
+                  {icon}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate leading-tight">
+                    {att.name || "Attachment"}
+                  </p>
+                  <span className="text-[9px] font-semibold text-gray-400 uppercase">{ext || "file"}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Eye Icon for Preview */}
+                <button
+                  type="button"
+                  onClick={() => onPreview(att)}
+                  title="Preview"
+                  className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                </button>
+                {/* Download Icon */}
+                <a
+                  href={att.url}
+                  download={att.name || true}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Download"
+                  className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* PDF previews */}
-      {pdfs.map((att, i) => (
-        <div
-          key={`pdf-${i}`}
-          onClick={() => onPreview(att)}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 cursor-pointer active:scale-[0.98] transition-transform"
-        >
-          <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center shrink-0">
-            <FileText className="w-4 h-4 text-rose-500" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-gray-700 dark:text-gray-200 truncate">{att.name}</p>
-            <p className="text-[10px] text-gray-400">Tap to preview</p>
-          </div>
-          <Eye className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-        </div>
-      ))}
-
-      {/* Other files */}
-      {others.map((att, i) => (
-        <a
-          key={`file-${i}`}
-          href={att.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50"
-        >
-          <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
-            <File className="w-4 h-4 text-blue-500" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-gray-700 dark:text-gray-200 truncate">{att.name || "File"}</p>
-            <p className="text-[10px] text-gray-400">{getFileExt(att.name).toUpperCase()} file</p>
-          </div>
-          <ExternalLink className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-        </a>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 // ─── Mobile Roadmap View ──────────────────────────────────────────────────────
 
-function MobileRoadmapView({ timelineNodes }) {
+function MobileRoadmapView({ timelineNodes, onPreviewAttachment }) {
   if (timelineNodes.length === 0) {
     return (
       <MobileEmptyState
         icon={Map}
-        title="No roadmap available"
-        description="Post progress updates to auto-generate the project roadmap."
+        title="No Roadmap Generated"
+        description="Progress updates will build the roadmap automatically."
       />
     );
   }
 
   return (
     <div className="space-y-3 mt-2">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-1">
         <Map className="w-4 h-4 text-indigo-500" />
-        <span className="text-xs font-black text-gray-900 dark:text-white">Project Roadmap</span>
+        <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Project Roadmap</span>
         <span className="text-[10px] font-bold text-gray-400 ml-auto">{timelineNodes.length} milestones</span>
       </div>
 
-      <div className="relative pl-8">
+      <div className="relative pl-7 space-y-4">
         {/* Vertical line */}
-        <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-300 via-indigo-200 to-transparent dark:from-indigo-700 dark:via-indigo-800 dark:to-transparent" />
+        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 via-indigo-300 to-gray-200 dark:via-indigo-800 dark:to-slate-800" />
 
-        <div className="space-y-1">
-          {timelineNodes.map((node, idx) => {
-            const isFirst = idx === 0;
-            return (
-              <div key={node.id} className="relative pb-4 pm-stagger-item" style={{ animationDelay: `${idx * 60}ms` }}>
-                {/* Dot */}
-                <div
-                  className={`absolute -left-[21px] top-3 w-3 h-3 rounded-full border-2 z-2 ${
-                    isFirst
-                      ? "border-indigo-500 bg-indigo-500 shadow-[0_0_0_3px_rgba(99,102,241,0.2)]"
-                      : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900"
-                  }`}
-                >
-                  {isFirst && <div className="w-1 h-1 rounded-full bg-white mx-auto mt-[1px]" />}
+        {timelineNodes.map((node, idx) => {
+          const isLatest = idx === 0;
+          return (
+            <div key={node.id} className="relative pb-1">
+              {/* Dot */}
+              <div
+                className={`absolute -left-[20px] top-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                  isLatest
+                    ? "border-indigo-600 bg-indigo-600 text-white"
+                    : "border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                }`}
+              >
+                {isLatest && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+              </div>
+
+              <MobileCard>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <AvatarCircle name={node.author} picture={node.avatar} size={5} />
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{node.author}</span>
+                  </div>
+                  <span className="text-[9px] font-semibold text-gray-400 shrink-0">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy")}</span>
                 </div>
 
-                <MobileCard>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <AvatarCircle name={node.author} picture={node.avatar} size={5} />
-                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300">{node.author}</span>
-                    <span className="text-[9px] text-gray-400 ml-auto">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy")}</span>
-                  </div>
-                  {node.title && (
-                    <h4 className={`text-xs font-black leading-snug mb-0.5 ${isFirst ? "text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}>
-                      {node.title}
-                    </h4>
-                  )}
-                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isFirst ? "text-gray-600 dark:text-gray-400" : "text-gray-500"}`}>
-                    {node.accomplishment || "No description"}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    {node.attachments.length > 0 && (
-                      <span className="text-[9px] font-bold text-gray-400 flex items-center gap-0.5">
-                        <Paperclip className="w-2.5 h-2.5" /> {node.attachments.length}
-                      </span>
-                    )}
-                    {node.comments.length > 0 && (
-                      <span className="text-[9px] font-bold text-indigo-400 flex items-center gap-0.5">
-                        <MessageSquare className="w-2.5 h-2.5" /> {node.comments.length}
-                      </span>
-                    )}
-                    {isFirst && (
-                      <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 ml-auto bg-indigo-50 dark:bg-indigo-950/30 px-1.5 py-0.5 rounded-full">
-                        Latest
-                      </span>
-                    )}
-                  </div>
-                </MobileCard>
-              </div>
-            );
-          })}
-        </div>
+                {node.title && (
+                  <h4 className="text-xs font-black text-gray-900 dark:text-white leading-snug mb-1">{node.title}</h4>
+                )}
+
+                {node.accomplishment && (
+                  <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">{node.accomplishment}</p>
+                )}
+
+                <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
+              </MobileCard>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -444,8 +438,6 @@ export default function MobileProjectDetailPage() {
     };
   });
 
-  const latestUpdate = timelineNodes[0];
-
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
       {/* Back + Title */}
@@ -464,7 +456,7 @@ export default function MobileProjectDetailPage() {
         )}
       </div>
 
-      {/* Status + Description Card */}
+      {/* Status + Description Summary */}
       <MobileCard>
         <div className="flex items-center gap-2 mb-2">
           <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${st.bg} ${st.text}`}>
@@ -477,14 +469,14 @@ export default function MobileProjectDetailPage() {
           </span>
         </div>
         {project.description && (
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{project.description}</p>
+          <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">{project.description}</p>
         )}
         {/* Team avatars row */}
         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100 dark:border-slate-800">
-          <Users className="w-3 h-3 text-gray-400" />
+          <Users className="w-3.5 h-3.5 text-gray-400" />
           <div className="flex -space-x-1.5">
-            {allMembers.slice(0, 6).map(m => (
-              <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size={6} />
+            {allMembers.slice(0, 5).map(m => (
+              <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size={5} />
             ))}
           </div>
           <span className="text-[10px] font-bold text-gray-400 ml-1">{allMembers.length} members</span>
@@ -492,86 +484,61 @@ export default function MobileProjectDetailPage() {
       </MobileCard>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800/60 rounded-full p-1">
+      <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800/60 rounded-xl p-1">
         <button
           onClick={() => setActiveTab("progress")}
-          className={`pm-tab flex-1 text-center ${activeTab === "progress" ? "pm-tab-active" : ""}`}
+          className={`pm-tab flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
+            activeTab === "progress"
+              ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
+              : "text-gray-500 dark:text-gray-400"
+          }`}
         >
           Progress ({timelineNodes.length})
         </button>
         <button
           onClick={() => setActiveTab("roadmap")}
-          className={`pm-tab flex-1 text-center ${activeTab === "roadmap" ? "pm-tab-active" : ""}`}
+          className={`pm-tab flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
+            activeTab === "roadmap"
+              ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
+              : "text-gray-500 dark:text-gray-400"
+          }`}
         >
-          <span className="flex items-center justify-center gap-1"><Map className="w-3 h-3" /> Roadmap</span>
+          <span className="flex items-center justify-center gap-1"><Map className="w-3.5 h-3.5" /> Roadmap</span>
         </button>
       </div>
 
       {/* Tab content */}
       {activeTab === "progress" ? (
-        <>
-          {/* Latest update highlight card */}
-          {latestUpdate && (
-            <MobileCard className="border-indigo-200 dark:border-indigo-800/50 bg-gradient-to-br from-indigo-50/50 to-violet-50/50 dark:from-indigo-950/20 dark:to-violet-950/20">
-              <div className="flex items-center gap-1.5 mb-2">
-                <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/40 px-1.5 py-0.5 rounded-full">
-                  Latest
-                </span>
-                <span className="text-[10px] text-gray-400 ml-auto">{latestUpdate.dateStr}</span>
-              </div>
-              {latestUpdate.title && (
-                <h3 className="text-sm font-black text-gray-900 dark:text-white leading-snug mb-1">{latestUpdate.title}</h3>
-              )}
-              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3">{latestUpdate.accomplishment}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <AvatarCircle name={latestUpdate.author} picture={latestUpdate.avatar} size={5} />
-                <span className="text-[10px] font-bold text-gray-500">{latestUpdate.author}</span>
-                {latestUpdate.attachments.length > 0 && (
-                  <span className="text-[9px] font-bold text-gray-400 flex items-center gap-0.5 ml-auto">
-                    <Paperclip className="w-2.5 h-2.5" /> {latestUpdate.attachments.length}
-                  </span>
-                )}
-                {latestUpdate.comments.length > 0 && (
-                  <span className="text-[9px] font-bold text-indigo-400 flex items-center gap-0.5">
-                    <MessageSquare className="w-2.5 h-2.5" /> {latestUpdate.comments.length}
-                  </span>
-                )}
-              </div>
-            </MobileCard>
-          )}
-
-          {/* Progress Updates */}
-          {timelineNodes.length === 0 ? (
-            <MobileEmptyState
-              icon={FileText}
-              title="No progress updates yet"
-              description={isStudent ? "Post your first update to get started." : "Students haven't posted any updates yet."}
-            />
-          ) : (
-            <div className="space-y-3">
-              <MobileSectionHeader title="All Updates" count={timelineNodes.length} />
-              {timelineNodes.map(node => (
-                <ProgressCard
-                  key={node.id}
-                  node={node}
-                  projectId={id}
-                  isStudent={isStudent}
-                  isFaculty={isFaculty}
-                  isHOD={isHOD}
-                  currentUserId={user?.id}
-                  onEdit={(n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddSheetOpen(true); }}
-                  onDelete={(msgId) => setDeleteTarget(msgId)}
-                  onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
-                  onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
-                  onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
-                  onPreviewAttachment={setPreviewAttachment}
-                />
-              ))}
-            </div>
-          )}
-        </>
+        timelineNodes.length === 0 ? (
+          <MobileEmptyState
+            icon={FileText}
+            title="No progress updates yet"
+            description={isStudent ? "Post your first update to get started." : "Students haven't posted any updates yet."}
+          />
+        ) : (
+          <div className="space-y-3">
+            {timelineNodes.map((node, idx) => (
+              <ProgressCard
+                key={node.id}
+                node={node}
+                projectId={id}
+                isStudent={isStudent}
+                isFaculty={isFaculty}
+                isHOD={isHOD}
+                currentUserId={user?.id}
+                isLatest={idx === 0}
+                onEdit={(n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddSheetOpen(true); }}
+                onDelete={(msgId) => setDeleteTarget(msgId)}
+                onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
+                onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
+                onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
+                onPreviewAttachment={setPreviewAttachment}
+              />
+            ))}
+          </div>
+        )
       ) : (
-        <MobileRoadmapView timelineNodes={timelineNodes} />
+        <MobileRoadmapView timelineNodes={timelineNodes} onPreviewAttachment={setPreviewAttachment} />
       )}
 
       {/* Student FAB to Post Progress */}
@@ -582,7 +549,6 @@ export default function MobileProjectDetailPage() {
       {/* Post/Edit Progress Bottom Sheet */}
       <BottomSheet open={addSheetOpen} onClose={() => { setAddSheetOpen(false); setEditingMsg(null); }} title={editingMsg ? "Edit Progress" : "Post Progress"}>
         <div className="space-y-3">
-          {/* Title */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Progress Title *</label>
             <input
@@ -590,11 +556,10 @@ export default function MobileProjectDetailPage() {
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
               placeholder="e.g. Completed login module..."
-              className="w-full px-3 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
               autoFocus
             />
           </div>
-          {/* Description */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Description</label>
             <textarea
@@ -602,14 +567,13 @@ export default function MobileProjectDetailPage() {
               onChange={(e) => setFormText(e.target.value)}
               placeholder="Describe what you accomplished in detail..."
               rows={3}
-              className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
+              className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
             />
           </div>
-          {/* Files */}
           {!editingMsg && (
             <div>
               <input type="file" multiple onChange={(e) => setFormFiles(Array.from(e.target.files))} className="hidden" id="progress-files" />
-              <label htmlFor="progress-files" className="mobile-tappable flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 text-xs font-semibold text-gray-500 cursor-pointer justify-center">
+              <label htmlFor="progress-files" className="mobile-tappable flex items-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 text-xs font-semibold text-gray-500 cursor-pointer justify-center">
                 <Paperclip className="w-4 h-4" />
                 Attach Files ({formFiles.length})
               </label>
@@ -618,7 +582,7 @@ export default function MobileProjectDetailPage() {
           <button
             onClick={handleSubmit}
             disabled={sendMutation.isPending || editMutation.isPending || (!formTitle.trim() && !formText.trim() && formFiles.length === 0)}
-            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {(sendMutation.isPending || editMutation.isPending) ? (
               <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
@@ -658,24 +622,24 @@ export default function MobileProjectDetailPage() {
           <input
             type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
             placeholder="Project name"
-            className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
           <textarea
             value={editDesc} onChange={(e) => setEditDesc(e.target.value)}
             placeholder="Description" rows={3}
-            className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
+            className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
           />
           <button
             onClick={() => editProjectMutation.mutate({ name: editName, description: editDesc, members: allMembers.map(m => ({ user_id: m.id, role_in_project: m.role_in_project })) })}
             disabled={editProjectMutation.isPending || !editName.trim()}
-            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] text-white text-sm font-bold disabled:opacity-50"
+            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] text-white text-xs font-bold disabled:opacity-50"
           >
             {editProjectMutation.isPending ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </BottomSheet>
 
-      {/* Attachment Preview */}
+      {/* Attachment Preview Sheet */}
       <AttachmentPreviewSheet
         attachment={previewAttachment}
         onClose={() => setPreviewAttachment(null)}
@@ -694,10 +658,9 @@ export default function MobileProjectDetailPage() {
   );
 }
 
-// ─── Progress Card ────────────────────────────────────────────────────────────
+// ─── Progress Card Component ──────────────────────────────────────────────────
 
-function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUserId, onEdit, onDelete, onAddComment, onDeleteComment, onReact, onPreviewAttachment }) {
-  const [expanded, setExpanded] = useState(true);
+function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUserId, onEdit, onDelete, onAddComment, onDeleteComment, onReact, onPreviewAttachment, isLatest }) {
   const [feedbackText, setFeedbackText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -713,15 +676,20 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
 
   return (
     <MobileCard>
-      {/* Author Header */}
-      <div className="flex items-start gap-2.5 mb-2">
-        <AvatarCircle name={node.author} picture={node.avatar} size={8} />
+      {/* Header */}
+      <div className="flex items-start gap-2.5 mb-1.5">
+        <AvatarCircle name={node.author} picture={node.avatar} size={7} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{node.author}</span>
             <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${ROLE_COLORS[node.role] || ROLE_COLORS.STUDENT}`}>
               {node.role === "faculty" ? "Faculty" : node.role === "forum_member" ? "Forum" : node.role}
             </span>
+            {isLatest && (
+              <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-full">
+                Latest
+              </span>
+            )}
           </div>
           <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
             {node.dateStr}
@@ -730,107 +698,95 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {node.isOwn && node.canEdit && (
-            <button onClick={() => onEdit(node)} className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-blue-500">
+            <button onClick={() => onEdit(node)} className="mobile-tappable p-1 rounded-lg text-gray-400 hover:text-indigo-600">
               <Edit2 className="w-3.5 h-3.5" />
             </button>
           )}
           {(node.isOwn || isHOD) && (
-            <button onClick={() => onDelete(node.id)} className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-red-500">
+            <button onClick={() => onDelete(node.id)} className="mobile-tappable p-1 rounded-lg text-gray-400 hover:text-red-500">
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
-          <button onClick={() => setExpanded(p => !p)} className="mobile-tappable p-1.5 rounded-lg text-gray-400">
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
         </div>
       </div>
 
       {/* Title */}
       {node.title && (
-        <h3 className="text-sm font-black text-gray-900 dark:text-white leading-snug mb-2">{node.title}</h3>
+        <h3 className="text-xs font-black text-gray-900 dark:text-white leading-snug mb-1">{node.title}</h3>
       )}
 
-      {expanded && (
-        <div className="space-y-3">
-          {/* Content */}
-          {node.accomplishment && (
-            <div className="bg-indigo-50/50 dark:bg-indigo-950/15 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-3">
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{node.accomplishment}</p>
-            </div>
-          )}
+      {/* Description */}
+      {node.accomplishment && (
+        <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap font-medium mb-2">{node.accomplishment}</p>
+      )}
 
-          {/* Inline Attachment Previews */}
-          <MobileAttachmentGallery
-            attachments={node.attachments}
-            onPreview={onPreviewAttachment}
-          />
+      {/* Attachments List with Eye & Download Icons */}
+      <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
 
-          {/* Comments */}
-          <div className="border-t border-gray-100 dark:border-slate-800 pt-3 space-y-2">
-            <div className="flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                Feedback {comments.length > 0 && `(${comments.length})`}
-              </span>
-            </div>
-
-            {comments.filter(c => !c.is_deleted).map(comment => (
-              <div key={comment.id} className="flex gap-2 items-start">
-                <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size={6} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{comment.author?.name}</span>
-                    <span className="text-[9px] text-gray-400">{formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}</span>
-                    {(isHOD || comment.author?.id === currentUserId) && (
-                      <button onClick={() => onDeleteComment(node.id, comment.id)} className="mobile-tappable p-0.5 text-gray-300 hover:text-red-500 ml-auto">
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="bg-gray-50 dark:bg-slate-800/60 rounded-xl rounded-tl-none px-2.5 py-2 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {comment.content}
-                  </div>
-                  {/* Reactions */}
-                  <div className="flex items-center gap-1 mt-1 flex-wrap">
-                    {EMOJIS.map(emoji => {
-                      const count = comment.reaction_counts?.[emoji] || 0;
-                      const reacted = comment.user_reactions?.includes(emoji);
-                      if (!isStudent && count === 0) return null;
-                      return (
-                        <button key={emoji}
-                          onClick={() => isStudent && onReact(node.id, comment.id, emoji)}
-                          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                            reacted ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700" : "bg-gray-50 dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/50"
-                          } ${isStudent ? "cursor-pointer" : "cursor-default"}`}
-                        >
-                          {emoji} {count > 0 && <span>{count}</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Feedback input */}
-            {(isFaculty || isHOD) && (
-              <div className="flex gap-2 mt-1">
-                <input
-                  type="text" value={feedbackText} onChange={e => setFeedbackText(e.target.value)}
-                  placeholder="Write feedback..."
-                  className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 min-w-0"
-                  onKeyDown={e => { if (e.key === "Enter") handleFeedback(); }}
-                />
-                <button onClick={handleFeedback} disabled={!feedbackText.trim() || submitting}
-                  className="mobile-tappable px-3 py-2 rounded-xl bg-indigo-600 text-white disabled:opacity-40 shrink-0"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
+      {/* Faculty Feedback */}
+      <div className="border-t border-gray-100 dark:border-slate-800 pt-2.5 mt-2 space-y-2">
+        <div className="flex items-center gap-1.5">
+          <MessageSquare className="w-3 h-3 text-gray-400" />
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            Faculty Feedback {comments.length > 0 && `(${comments.length})`}
+          </span>
         </div>
-      )}
+
+        {comments.filter(c => !c.is_deleted).map(comment => (
+          <div key={comment.id} className="flex gap-2 items-start">
+            <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size={5} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-200">{comment.author?.name}</span>
+                <span className="text-[9px] text-gray-400">{formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}</span>
+                {(isHOD || comment.author?.id === currentUserId) && (
+                  <button onClick={() => onDeleteComment(node.id, comment.id)} className="mobile-tappable p-0.5 text-gray-300 hover:text-red-500 ml-auto">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              <div className="bg-gray-50 dark:bg-slate-800/60 rounded-xl rounded-tl-none px-2.5 py-2 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                {comment.content}
+              </div>
+              {/* Reactions */}
+              <div className="flex items-center gap-1 mt-1 flex-wrap">
+                {EMOJIS.map(emoji => {
+                  const count = comment.reaction_counts?.[emoji] || 0;
+                  const reacted = comment.user_reactions?.includes(emoji);
+                  if (!isStudent && count === 0) return null;
+                  return (
+                    <button key={emoji}
+                      onClick={() => isStudent && onReact(node.id, comment.id, emoji)}
+                      className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                        reacted ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700" : "bg-gray-50 dark:bg-slate-800/60 border-gray-200 dark:border-slate-700/50"
+                      } ${isStudent ? "cursor-pointer" : "cursor-default"}`}
+                    >
+                      {emoji} {count > 0 && <span>{count}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Feedback input */}
+        {(isFaculty || isHOD) && (
+          <div className="flex gap-2 mt-1">
+            <input
+              type="text" value={feedbackText} onChange={e => setFeedbackText(e.target.value)}
+              placeholder="Write feedback..."
+              className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 min-w-0"
+              onKeyDown={e => { if (e.key === "Enter") handleFeedback(); }}
+            />
+            <button onClick={handleFeedback} disabled={!feedbackText.trim() || submitting}
+              className="mobile-tappable px-3 py-2 rounded-xl bg-indigo-600 text-white disabled:opacity-40 shrink-0"
+            >
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
     </MobileCard>
   );
 }
