@@ -20,7 +20,6 @@ import {
   Download, MessageSquare, Send, Smile,
   Clock, Users, ChevronDown, ChevronUp, Eye, Map,
   ExternalLink, Layers, Check, Lock, ChevronRight, ChevronLeft,
-  Flag, Gamepad2,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -458,25 +457,15 @@ function ProgressPostItem({
 // ─── Roadmap View (Game-Style Island Path) ────────────────────────────────────
 
 const ISLAND_MIN_SLOTS = 5;
-const ISLAND_THEMES = [
-  { from: "from-emerald-400", to: "to-emerald-600", ring: "ring-emerald-500/20", shadow: "shadow-emerald-500/30", glow: "bg-emerald-500" },
-  { from: "from-sky-400", to: "to-sky-600", ring: "ring-sky-500/20", shadow: "shadow-sky-500/30", glow: "bg-sky-500" },
-  { from: "from-violet-400", to: "to-violet-600", ring: "ring-violet-500/20", shadow: "shadow-violet-500/30", glow: "bg-violet-500" },
-  { from: "from-amber-400", to: "to-amber-600", ring: "ring-amber-500/20", shadow: "shadow-amber-500/30", glow: "bg-amber-500" },
-  { from: "from-rose-400", to: "to-rose-600", ring: "ring-rose-500/20", shadow: "shadow-rose-500/30", glow: "bg-rose-500" },
-];
 
-function IslandNode({ node, index, isCompleted, isSelected, onClick, compact }) {
-  const theme = ISLAND_THEMES[index % ISLAND_THEMES.length];
-  const size = compact ? "w-20 h-20" : "w-24 h-24";
-
+function IslandNode({ node, index, isCompleted, isSelected, onClick }) {
   return (
     <button
       type="button"
       onClick={() => isCompleted && onClick(node)}
       disabled={!isCompleted}
-      className={`group relative flex flex-col items-center shrink-0 ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"} focus:outline-none`}
-      style={{ width: compact ? 96 : 128 }}
+      className={`group relative flex flex-col items-center shrink-0 focus:outline-none ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"}`}
+      style={{ width: 128 }}
     >
       {/* Number badge */}
       <span
@@ -485,100 +474,41 @@ function IslandNode({ node, index, isCompleted, isSelected, onClick, compact }) 
             ? isSelected
               ? "bg-indigo-600 text-white border-indigo-600"
               : "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-            : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+            : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
         }`}
       >
         {index + 1}
         {isCompleted && <span className="uppercase tracking-wider">{isSelected ? "Viewing" : "Completed"}</span>}
       </span>
 
-      {/* Island platform */}
+      {/* Island illustration */}
       <div
-        className={`relative ${size} rounded-full flex items-center justify-center transition-transform duration-300 ${
+        className={`relative w-32 h-32 flex items-center justify-center transition-transform duration-300 ${
           isCompleted ? "group-hover:-translate-y-1.5 group-active:translate-y-0" : ""
         }`}
       >
-        {/* Glow ring behind completed islands */}
         {isCompleted && (
-          <span className={`absolute inset-0 rounded-full ${theme.glow} opacity-20 blur-xl scale-110`} />
+          <span className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 blur-2xl scale-75" />
         )}
-
-        {/* Base platform */}
-        <div
-          className={`relative w-full h-full rounded-full border-4 flex items-center justify-center shadow-lg transition-all ${
+        <img
+          src="/island.png"
+          alt={isCompleted ? node.title || "Completed milestone" : "Locked milestone"}
+          draggable={false}
+          className={`relative w-full h-full object-contain select-none transition-all duration-300 ${
             isCompleted
-              ? `bg-gradient-to-br ${theme.from} ${theme.to} border-white/70 dark:border-slate-900/70 ${theme.shadow} ring-4 ${isSelected ? "ring-indigo-400/50" : theme.ring}`
-              : "bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 border-white/60 dark:border-slate-900/60"
+              ? isSelected
+                ? "drop-shadow-[0_0_18px_rgba(99,102,241,0.45)]"
+                : "drop-shadow-lg"
+              : "grayscale opacity-50 brightness-90"
           }`}
-        >
-          {/* Little terrain dots for flavor on completed islands */}
-          {isCompleted && (
-            <>
-              <span className="absolute top-2 left-3 w-2 h-2 rounded-full bg-white/30" />
-              <span className="absolute bottom-3 right-4 w-1.5 h-1.5 rounded-full bg-white/20" />
-            </>
-          )}
-
-          {isCompleted ? (
-            <Check className="w-7 h-7 text-white drop-shadow stroke-[3]" />
-          ) : (
-            <Lock className="w-6 h-6 text-slate-100 dark:text-slate-400" />
-          )}
-        </div>
+        />
+        {!isCompleted && (
+          <span className="absolute w-9 h-9 rounded-full bg-slate-700/85 dark:bg-slate-900/85 flex items-center justify-center shadow-md">
+            <Lock className="w-4 h-4 text-slate-200" />
+          </span>
+        )}
       </div>
     </button>
-  );
-}
-
-function JourneyProgressBar({ completed, total }) {
-  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-  return (
-    <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
-      <div className="flex items-center gap-2 mb-3">
-        <Gamepad2 className="w-4 h-4 text-emerald-500" />
-        <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Journey Progress</span>
-      </div>
-      <div className="flex items-end gap-4">
-        <span className="text-4xl font-black text-emerald-500 leading-none">{pct}<span className="text-xl">%</span></span>
-        <div className="flex-1 pb-1.5">
-          <div className="relative h-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
-            <div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out"
-              style={{ width: `${pct}%` }}
-            />
-            {Array.from({ length: total }).map((_, i) => {
-              const left = total > 1 ? (i / (total - 1)) * 100 : 0;
-              const filled = i < completed;
-              const isLast = i === total - 1;
-              return (
-                <span
-                  key={i}
-                  className="absolute -top-1.5"
-                  style={{ left: `${left}%`, transform: "translateX(-50%)" }}
-                >
-                  {isLast ? (
-                    <Flag className={`w-4 h-4 ${filled ? "text-emerald-500" : "text-slate-400 dark:text-slate-600"}`} />
-                  ) : (
-                    <span
-                      className={`flex items-center justify-center w-4 h-4 rounded-full border-2 ${
-                        filled
-                          ? "bg-emerald-500 border-emerald-500"
-                          : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700"
-                      }`}
-                    >
-                      {!filled && <Lock className="w-2 h-2 text-slate-400 dark:text-slate-600" />}
-                    </span>
-                  )}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">
-        {completed} of {total} Milestone{total !== 1 ? "s" : ""} Completed
-      </p>
-    </div>
   );
 }
 
@@ -586,6 +516,7 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   const scrollRef = useRef(null);
   const totalSlots = Math.max(ISLAND_MIN_SLOTS, timelineNodes.length);
   const slots = Array.from({ length: totalSlots }, (_, i) => timelineNodes[i] || null);
+  const activeNode = timelineNodes.find((n) => n.id === selectedId) || timelineNodes[0];
 
   const scrollBy = (dir) => {
     scrollRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
@@ -608,70 +539,63 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   }
 
   return (
-    <div className="space-y-6 py-2">
-      <div className="flex items-center gap-2 px-1">
-        <Map className="w-4 h-4 text-indigo-500" />
-        <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</h3>
+    <div className="space-y-3 py-2">
+      <div className="px-1">
+        <div className="flex items-center gap-2">
+          <Map className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</h3>
+        </div>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Track the journey of this project</p>
       </div>
 
       {/* Island path */}
-      <div className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-8 overflow-hidden">
+      <div className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-8 pb-6 overflow-hidden">
         {/* Decorative background clouds */}
         <div className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20">
           <div className="absolute top-6 left-16 w-16 h-6 rounded-full bg-white dark:bg-slate-700 blur-sm" />
           <div className="absolute bottom-10 right-24 w-20 h-7 rounded-full bg-white dark:bg-slate-700 blur-sm" />
         </div>
 
-        {/* Nav arrow */}
+        {/* Nav arrows */}
         {slots.length > 3 && (
-          <button
-            type="button"
-            onClick={() => scrollBy(1)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
-            aria-label="Scroll roadmap forward"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        )}
-        {slots.length > 3 && (
-          <button
-            type="button"
-            onClick={() => scrollBy(-1)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
-            aria-label="Scroll roadmap backward"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => scrollBy(1)}
+              className="absolute right-3 top-[4.5rem] z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
+              aria-label="Scroll roadmap forward"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollBy(-1)}
+              className="absolute left-3 top-[4.5rem] z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
+              aria-label="Scroll roadmap backward"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </>
         )}
 
         <div
           ref={scrollRef}
-          className="relative flex items-start gap-6 overflow-x-auto scrollbar-premium scroll-smooth px-6 py-2"
+          className="relative flex items-start gap-2 overflow-x-auto scrollbar-premium scroll-smooth px-4 py-2"
         >
           {slots.map((node, idx) => {
             const isCompleted = !!node;
             const isSelected = isCompleted && node.id === selectedId;
             return (
-              <div key={node ? node.id : `locked-${idx}`} className="flex items-start gap-6 shrink-0">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 h-4">
-                    {isCompleted ? format(parseUTCDate(node.dateRaw), "MMM d, h:mm a") : ""}
-                  </div>
-                  <IslandNode
-                    node={node}
-                    index={idx}
-                    isCompleted={isCompleted}
-                    isSelected={isSelected}
-                    onClick={onSelectMilestone}
-                  />
-                  {isCompleted && (
-                    <p className="max-w-[110px] text-center text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-snug line-clamp-2">
-                      {node.title || "Progress update"}
-                    </p>
-                  )}
-                </div>
+              <div key={node ? node.id : `locked-${idx}`} className="flex items-start shrink-0">
+                <IslandNode
+                  node={node}
+                  index={idx}
+                  isCompleted={isCompleted}
+                  isSelected={isSelected}
+                  onClick={onSelectMilestone}
+                />
                 {idx < slots.length - 1 && (
-                  <div className="flex items-center h-24 mt-11">
+                  <div className="flex items-center h-32 -mx-2">
                     <svg width="40" height="16" viewBox="0 0 40 16" className="text-slate-300 dark:text-slate-700">
                       <line x1="2" y1="8" x2="38" y2="8" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
                     </svg>
@@ -681,9 +605,28 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
             );
           })}
         </div>
-      </div>
 
-      <JourneyProgressBar completed={timelineNodes.length} total={totalSlots} />
+        {/* Detail card for the active/selected milestone */}
+        {activeNode && (
+          <div className="mt-2 max-w-sm mx-auto md:mx-0 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-lg shadow-slate-900/5 space-y-1.5">
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+              {format(parseUTCDate(activeNode.dateRaw), "MMM d, h:mm a")}
+            </p>
+            {activeNode.title && (
+              <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{activeNode.title}</h4>
+            )}
+            {activeNode.accomplishment && (
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+                {activeNode.accomplishment}
+              </p>
+            )}
+            <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+              <Users className="w-3.5 h-3.5" />
+              {(activeNode.comments || []).length} Update{(activeNode.comments || []).length !== 1 ? "s" : ""}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

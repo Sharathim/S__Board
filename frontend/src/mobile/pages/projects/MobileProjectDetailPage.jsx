@@ -23,7 +23,7 @@ import {
   CheckCircle, Paperclip, FileText, Image, File,
   Download, ChevronDown, ChevronUp, MoreVertical,
   Clock, X, Map, ExternalLink, Eye, Check, Lock,
-  ChevronRight, ChevronLeft, Flag, Gamepad2,
+  ChevronRight, ChevronLeft,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -200,39 +200,6 @@ function MobileAttachmentList({ attachments, onPreview }) {
 // ─── Mobile Roadmap View (Game-Style Single Island + Arrows/Swipe) ────────────
 
 const ISLAND_MIN_SLOTS = 5;
-const ISLAND_THEMES = [
-  { from: "from-emerald-400", to: "to-emerald-600", ring: "ring-emerald-500/20", shadow: "shadow-emerald-500/30", glow: "bg-emerald-500" },
-  { from: "from-sky-400", to: "to-sky-600", ring: "ring-sky-500/20", shadow: "shadow-sky-500/30", glow: "bg-sky-500" },
-  { from: "from-violet-400", to: "to-violet-600", ring: "ring-violet-500/20", shadow: "shadow-violet-500/30", glow: "bg-violet-500" },
-  { from: "from-amber-400", to: "to-amber-600", ring: "ring-amber-500/20", shadow: "shadow-amber-500/30", glow: "bg-amber-500" },
-  { from: "from-rose-400", to: "to-rose-600", ring: "ring-rose-500/20", shadow: "shadow-rose-500/30", glow: "bg-rose-500" },
-];
-
-function MobileJourneyProgressBar({ completed, total }) {
-  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-  return (
-    <MobileCard>
-      <div className="flex items-center gap-2 mb-2.5">
-        <Gamepad2 className="w-3.5 h-3.5 text-emerald-500" />
-        <span className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wider">Journey Progress</span>
-      </div>
-      <div className="flex items-end gap-3">
-        <span className="text-3xl font-black text-emerald-500 leading-none">{pct}<span className="text-base">%</span></span>
-        <div className="flex-1 pb-1">
-          <div className="relative h-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
-            <div
-              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
-      </div>
-      <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5">
-        {completed} of {total} Milestone{total !== 1 ? "s" : ""} Completed
-      </p>
-    </MobileCard>
-  );
-}
 
 function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   const totalSlots = Math.max(ISLAND_MIN_SLOTS, timelineNodes.length);
@@ -269,7 +236,6 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   const goTo = (idx) => setCursor(Math.max(0, Math.min(slots.length - 1, idx)));
   const node = slots[cursor];
   const isCompleted = !!node;
-  const theme = ISLAND_THEMES[cursor % ISLAND_THEMES.length];
 
   const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchEnd = (e) => {
@@ -284,9 +250,12 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
 
   return (
     <div className="space-y-3 mt-2">
-      <div className="flex items-center gap-2 px-1">
-        <Map className="w-4 h-4 text-indigo-500" />
-        <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</span>
+      <div className="px-1">
+        <div className="flex items-center gap-2">
+          <Map className="w-4 h-4 text-indigo-500" />
+          <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</span>
+        </div>
+        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Track the journey of this project</p>
       </div>
 
       <div
@@ -304,7 +273,7 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
           type="button"
           onClick={() => goTo(cursor - 1)}
           disabled={cursor === 0}
-          className="mobile-tappable absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
+          className="mobile-tappable absolute left-2 top-10 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
           aria-label="Previous milestone"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -313,7 +282,7 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
           type="button"
           onClick={() => goTo(cursor + 1)}
           disabled={cursor === slots.length - 1}
-          className="mobile-tappable absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
+          className="mobile-tappable absolute right-2 top-10 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
           aria-label="Next milestone"
         >
           <ChevronRight className="w-4 h-4" />
@@ -326,13 +295,13 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="flex flex-col items-center gap-3 py-2"
+            className="flex flex-col items-center gap-2 py-2"
           >
             <span
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm border ${
                 isCompleted
                   ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+                  : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
               }`}
             >
               {cursor + 1} {isCompleted ? "· COMPLETED" : "· LOCKED"}
@@ -342,22 +311,22 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
               type="button"
               onClick={() => isCompleted && onSelectMilestone(node)}
               disabled={!isCompleted}
-              className="relative w-28 h-28 rounded-full flex items-center justify-center"
+              className="relative w-32 h-32 flex items-center justify-center"
             >
-              {isCompleted && <span className={`absolute inset-0 rounded-full ${theme.glow} opacity-20 blur-xl scale-110`} />}
-              <div
-                className={`relative w-full h-full rounded-full border-4 flex items-center justify-center shadow-lg ${
-                  isCompleted
-                    ? `bg-gradient-to-br ${theme.from} ${theme.to} border-white/70 dark:border-slate-900/70 ${theme.shadow} ring-4 ${theme.ring}`
-                    : "bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 border-white/60 dark:border-slate-900/60"
+              {isCompleted && <span className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 blur-2xl scale-75" />}
+              <img
+                src="/island.png"
+                alt={isCompleted ? node.title || "Completed milestone" : "Locked milestone"}
+                draggable={false}
+                className={`relative w-full h-full object-contain select-none ${
+                  isCompleted ? "drop-shadow-lg" : "grayscale opacity-50 brightness-90"
                 }`}
-              >
-                {isCompleted ? (
-                  <Check className="w-8 h-8 text-white drop-shadow stroke-[3]" />
-                ) : (
-                  <Lock className="w-7 h-7 text-slate-100 dark:text-slate-400" />
-                )}
-              </div>
+              />
+              {!isCompleted && (
+                <span className="absolute w-9 h-9 rounded-full bg-slate-700/85 dark:bg-slate-900/85 flex items-center justify-center shadow-md">
+                  <Lock className="w-4 h-4 text-slate-200" />
+                </span>
+              )}
             </button>
 
             {isCompleted ? (
@@ -384,8 +353,6 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
           ))}
         </div>
       </div>
-
-      <MobileJourneyProgressBar completed={timelineNodes.length} total={totalSlots} />
     </div>
   );
 }
