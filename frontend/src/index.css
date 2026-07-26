@@ -2979,3 +2979,217 @@ label, .form-label-standard {
 /* Scrollbar hide */
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROGRESS MONITOR — Premium UI Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Premium thin scrollbar */
+.scrollbar-premium {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+.scrollbar-premium::-webkit-scrollbar { width: 5px; }
+.scrollbar-premium::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-premium::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+}
+.scrollbar-premium::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+.dark .scrollbar-premium { scrollbar-color: rgba(100, 116, 139, 0.3) transparent; }
+.dark .scrollbar-premium::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); }
+.dark .scrollbar-premium::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.5); }
+
+/* Roadmap timeline connector */
+.pm-roadmap-line {
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--primary-400), var(--primary-200), transparent);
+}
+.dark .pm-roadmap-line {
+  background: linear-gradient(to bottom, var(--primary-600), var(--primary-800), transparent);
+}
+
+.pm-roadmap-dot {
+  position: absolute;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+.pm-roadmap-dot-active {
+  border-color: var(--primary-500);
+  background: var(--primary-500);
+  box-shadow: 0 0 0 4px var(--primary-glow-20), 0 0 12px var(--primary-glow-30);
+}
+.pm-roadmap-dot-completed {
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+}
+.dark .pm-roadmap-dot-completed {
+  border-color: var(--primary-700);
+  background: var(--primary-900);
+}
+
+/* Attachment preview gallery */
+.pm-attach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
+}
+.pm-attach-thumb {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  aspect-ratio: 4/3;
+  background: var(--surface-secondary);
+}
+.pm-attach-thumb:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border-color: var(--primary-300);
+}
+.pm-attach-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pm-attach-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.pm-attach-thumb:hover .pm-attach-thumb-overlay {
+  opacity: 1;
+}
+
+/* PDF embed container */
+.pm-pdf-embed {
+  width: 100%;
+  height: 280px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface-secondary);
+}
+.pm-pdf-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* File info card */
+.pm-file-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.pm-file-card:hover {
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+}
+.dark .pm-file-card:hover {
+  border-color: var(--primary-700);
+  background: var(--primary-900);
+}
+
+/* Progress tab buttons */
+.pm-tab {
+  position: relative;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.pm-tab:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+.pm-tab-active {
+  background: var(--dark-pill);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.dark .pm-tab-active {
+  background: var(--primary-600);
+  color: white;
+}
+
+/* Preview modal overlay */
+.pm-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fade-in 0.2s ease;
+}
+.pm-preview-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.pm-preview-content img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+}
+.pm-preview-content iframe {
+  width: 80vw;
+  height: 85vh;
+  border: none;
+}
+
+/* Stagger animation for roadmap items */
+@keyframes pm-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.pm-stagger-item {
+  animation: pm-slide-up 0.4s ease forwards;
+  opacity: 0;
+}
+
+/* Pulse glow for active roadmap dot */
+@keyframes pm-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--primary-glow-15); }
+  50% { box-shadow: 0 0 0 8px var(--primary-glow-25), 0 0 16px var(--primary-glow-15); }
+}
+.pm-glow-active {
+  animation: pm-glow-pulse 2.5s ease-in-out infinite;
+}

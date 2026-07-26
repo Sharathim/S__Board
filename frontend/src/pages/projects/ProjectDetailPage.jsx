@@ -17,14 +17,15 @@ import {
   ArrowLeft, Plus, MoreVertical, CheckCircle, Paperclip, X,
   FolderKanban, Trash2, Edit2, FileText, Image, File,
   Download, ArrowRight, MessageSquare, Send, Smile,
-  Clock, Users, ChevronDown, ChevronUp,
+  Clock, Users, ChevronDown, ChevronUp, Eye, Map,
+  ExternalLink, ZoomIn,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
+import { ProjectFormCard } from "./ProjectWorkflowPage";
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Backend stores UTC datetimes WITHOUT 'Z' suffix.
-// Appending 'Z' makes JS parse them as UTC → converts to user's local timezone.
 function parseUTCDate(dateStr) {
   if (!dateStr) return new Date();
   const s = String(dateStr);
@@ -36,31 +37,15 @@ function getFileExt(name) {
   return name.split(".").pop().toLowerCase();
 }
 
-function AttachmentPill({ url, name, type }) {
-  const ext = getFileExt(name);
-  const isImage = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext);
-  const isPdf = ext === "pdf";
-  const isZip = ext === "zip" || ext === "rar";
-
-  let icon = <File className="w-3.5 h-3.5" />;
-  let colorCls = "text-blue-500 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800/50";
-  if (isImage) { icon = <Image className="w-3.5 h-3.5" />; colorCls = "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50"; }
-  else if (isPdf) { icon = <FileText className="w-3.5 h-3.5" />; colorCls = "text-rose-500 bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/50"; }
-  else if (isZip) { icon = <FolderKanban className="w-3.5 h-3.5" />; colorCls = "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/50"; }
-
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold ${colorCls} hover:opacity-80 transition-opacity max-w-[200px] truncate`}
-    >
-      {icon}
-      <span className="truncate">{name || "Attachment"}</span>
-      <Download className="w-3 h-3 shrink-0 opacity-60" />
-    </a>
-  );
+function isImageExt(ext) {
+  return ["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg"].includes(ext);
 }
+
+function isPdfExt(ext) {
+  return ext === "pdf";
+}
+
+// ─── Shared Sub-components ────────────────────────────────────────────────────
 
 function AvatarCircle({ name = "?", picture, size = "md", colorSeed }) {
   const colors = [
@@ -80,8 +65,6 @@ function AvatarCircle({ name = "?", picture, size = "md", colorSeed }) {
     </div>
   );
 }
-
-import { ProjectFormCard } from "./ProjectWorkflowPage";
 
 function RoleBadge({ role }) {
   const map = {
@@ -108,6 +91,135 @@ function RoleBadge({ role }) {
 }
 
 const EMOJIS = ["👍", "❤️", "🔥"];
+
+// ─── Attachment Preview Modal ─────────────────────────────────────────────────
+
+function AttachmentPreviewModal({ attachment, onClose }) {
+  useEffect(() => {
+    const handleEsc = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handleEsc);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handleEsc); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  if (!attachment) return null;
+  const ext = getFileExt(attachment.name);
+  const isImage = isImageExt(ext);
+  const isPdf = isPdfExt(ext);
+
+  return (
+    <div className="pm-preview-overlay" onClick={onClose}>
+      <div className="pm-preview-content" onClick={(e) => e.stopPropagation()}>
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        {isImage && (
+          <img src={attachment.url} alt={attachment.name || "Preview"} />
+        )}
+        {isPdf && (
+          <iframe src={attachment.url} title={attachment.name || "PDF Preview"} />
+        )}
+        {!isImage && !isPdf && (
+          <div className="p-12 text-center space-y-4">
+            <File className="w-16 h-16 text-slate-400 mx-auto" />
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-200">{attachment.name || "File"}</p>
+            <a
+              href={attachment.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" /> Open in Browser
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Inline Attachment Previews ───────────────────────────────────────────────
+
+function AttachmentGallery({ attachments, onPreview }) {
+  if (!attachments || attachments.length === 0) return null;
+
+  const images = attachments.filter(a => isImageExt(getFileExt(a.name)));
+  const pdfs = attachments.filter(a => isPdfExt(getFileExt(a.name)));
+  const others = attachments.filter(a => !isImageExt(getFileExt(a.name)) && !isPdfExt(getFileExt(a.name)));
+
+  return (
+    <div className="space-y-3">
+      <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        Attachments ({attachments.length})
+      </span>
+
+      {/* Image gallery grid */}
+      {images.length > 0 && (
+        <div className="pm-attach-grid">
+          {images.map((att, i) => (
+            <div key={i} className="pm-attach-thumb" onClick={() => onPreview(att)}>
+              <img src={att.url} alt={att.name || "Image"} loading="lazy" />
+              <div className="pm-attach-thumb-overlay">
+                <span className="text-[10px] font-bold text-white truncate">{att.name}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* PDF embeds */}
+      {pdfs.map((att, i) => (
+        <div key={`pdf-${i}`} className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-rose-500" />
+              {att.name || "Document.pdf"}
+            </span>
+            <button
+              onClick={() => onPreview(att)}
+              className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+            >
+              <ZoomIn className="w-3 h-3" /> Fullscreen
+            </button>
+          </div>
+          <div className="pm-pdf-embed">
+            <iframe src={att.url} title={att.name || "PDF"} />
+          </div>
+        </div>
+      ))}
+
+      {/* Other files */}
+      {others.length > 0 && (
+        <div className="space-y-1.5">
+          {others.map((att, i) => (
+            <a
+              key={`file-${i}`}
+              href={att.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pm-file-card"
+            >
+              <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0">
+                <File className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{att.name || "Attachment"}</p>
+                <p className="text-[10px] text-slate-400">{getFileExt(att.name).toUpperCase()} file</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Comment Card ─────────────────────────────────────────────────────────────
 
 function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserId, onDelete, onReact }) {
   const [showEmojis, setShowEmojis] = useState(false);
@@ -183,6 +295,8 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
   );
 }
 
+// ─── Progress Post Card ───────────────────────────────────────────────────────
+
 function ProgressPostCard({
   node, projectId, isStudent, isFaculty, isHOD, currentUserId,
   onEdit, onDelete, onDeleteComment, onReact, onAddComment,
@@ -191,6 +305,7 @@ function ProgressPostCard({
   const [expanded, setExpanded] = useState(true);
   const [feedbackText, setFeedbackText] = useState("");
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [previewAttachment, setPreviewAttachment] = useState(null);
 
   const handleFeedback = async (e) => {
     e.preventDefault();
@@ -204,129 +319,230 @@ function ProgressPostCard({
   const comments = node.comments || [];
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-      {/* Header */}
-      <div className="flex items-start gap-3 p-4 sm:p-5">
-        <AvatarCircle name={node.author} picture={node.avatar} size="lg" />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-bold text-slate-900 dark:text-white">{node.author}</span>
-            <RoleBadge role={node.role} />
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
-              {formatDistanceToNow(parseUTCDate(node.dateRaw), { addSuffix: true })}
-            </span>
-            {node.is_edited && (
-              <span className="text-[9px] text-slate-400 italic">(edited)</span>
-            )}
-          </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{node.dateStr}</p>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {isOwn && canEdit && (
-            <button
-              onClick={() => onEdit(node)}
-              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-          {(isOwn || isHOD) && (
-            <button
-              onClick={() => onDelete(node.id)}
-              className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-          <button
-            onClick={() => setExpanded(p => !p)}
-            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"
-          >
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {expanded && (
-        <div className="px-4 sm:px-5 pb-5 space-y-4">
-          {/* Accomplishment content */}
-          {node.accomplishment && (
-            <div className="bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl p-4">
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-                {node.accomplishment}
-              </p>
-            </div>
-          )}
-
-          {/* Attachments */}
-          {node.attachments && node.attachments.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                Attachments ({node.attachments.length})
+    <>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        {/* Header with Title */}
+        <div className="flex items-start gap-3 p-4 sm:p-5">
+          <AvatarCircle name={node.author} picture={node.avatar} size="lg" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-bold text-slate-900 dark:text-white">{node.author}</span>
+              <RoleBadge role={node.role} />
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
+                {formatDistanceToNow(parseUTCDate(node.dateRaw), { addSuffix: true })}
               </span>
-              <div className="flex flex-wrap gap-2">
-                {node.attachments.map((att, i) => (
-                  <AttachmentPill key={i} url={att.url} name={att.name} type={att.type} />
+              {node.is_edited && (
+                <span className="text-[9px] text-slate-400 italic">(edited)</span>
+              )}
+            </div>
+            {node.title && (
+              <h3 className="text-base font-black text-slate-900 dark:text-white mt-1.5 leading-snug">
+                {node.title}
+              </h3>
+            )}
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{node.dateStr}</p>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isOwn && canEdit && (
+              <button
+                onClick={() => onEdit(node)}
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {(isOwn || isHOD) && (
+              <button
+                onClick={() => onDelete(node.id)}
+                className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              onClick={() => setExpanded(p => !p)}
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"
+            >
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="px-4 sm:px-5 pb-5 space-y-4">
+            {/* Description content */}
+            {node.accomplishment && (
+              <div className="bg-gradient-to-br from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/20 dark:to-violet-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl p-4">
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  {node.accomplishment}
+                </p>
+              </div>
+            )}
+
+            {/* Inline Attachment Previews */}
+            <AttachmentGallery
+              attachments={node.attachments}
+              onPreview={setPreviewAttachment}
+            />
+
+            {/* Faculty/HOD Feedback Section */}
+            <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  Faculty Feedback {comments.length > 0 && `(${comments.length})`}
+                </span>
+              </div>
+
+              {comments.length === 0 && (
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
+                  {(isFaculty || isHOD) ? "Share your feedback below." : "No feedback yet from faculty."}
+                </p>
+              )}
+
+              {/* Comment list */}
+              <div className="space-y-3">
+                {comments.map(comment => (
+                  <CommentCard
+                    key={comment.id}
+                    comment={comment}
+                    projectId={projectId}
+                    msgId={node.id}
+                    isStudent={isStudent}
+                    isHOD={isHOD}
+                    currentUserId={currentUserId}
+                    onDelete={(commentId) => onDeleteComment(node.id, commentId)}
+                    onReact={(commentId, emoji) => onReact(node.id, commentId, emoji)}
+                  />
                 ))}
               </div>
+
+              {/* Feedback input — HOD and Faculty only */}
+              {(isFaculty || isHOD) && (
+                <form onSubmit={handleFeedback} className="flex gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={feedbackText}
+                    onChange={e => setFeedbackText(e.target.value)}
+                    placeholder="Write feedback or guidance..."
+                    className="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 min-w-0"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!feedbackText.trim() || submittingFeedback}
+                    className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold hidden sm:inline">Send</span>
+                  </button>
+                </form>
+              )}
             </div>
-          )}
-
-          {/* Faculty/HOD Feedback Section */}
-          <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                Faculty Feedback {comments.length > 0 && `(${comments.length})`}
-              </span>
-            </div>
-
-            {comments.length === 0 && (
-              <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1">
-                {(isFaculty || isHOD) ? "Share your feedback below." : "No feedback yet from faculty."}
-              </p>
-            )}
-
-            {/* Comment list */}
-            <div className="space-y-3">
-              {comments.map(comment => (
-                <CommentCard
-                  key={comment.id}
-                  comment={comment}
-                  projectId={projectId}
-                  msgId={node.id}
-                  isStudent={isStudent}
-                  isHOD={isHOD}
-                  currentUserId={currentUserId}
-                  onDelete={(commentId) => onDeleteComment(node.id, commentId)}
-                  onReact={(commentId, emoji) => onReact(node.id, commentId, emoji)}
-                />
-              ))}
-            </div>
-
-            {/* Feedback input — HOD and Faculty only */}
-            {(isFaculty || isHOD) && (
-              <form onSubmit={handleFeedback} className="flex gap-2 mt-2">
-                <input
-                  type="text"
-                  value={feedbackText}
-                  onChange={e => setFeedbackText(e.target.value)}
-                  placeholder="Write feedback or guidance..."
-                  className="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 min-w-0"
-                />
-                <button
-                  type="submit"
-                  disabled={!feedbackText.trim() || submittingFeedback}
-                  className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-1.5"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold hidden sm:inline">Send</span>
-                </button>
-              </form>
-            )}
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Attachment Preview Modal */}
+      {previewAttachment && (
+        <AttachmentPreviewModal
+          attachment={previewAttachment}
+          onClose={() => setPreviewAttachment(null)}
+        />
       )}
+    </>
+  );
+}
+
+// ─── Roadmap View ─────────────────────────────────────────────────────────────
+
+function RoadmapView({ timelineNodes, projectName }) {
+  if (timelineNodes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-16">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center">
+          <Map className="w-7 h-7 text-indigo-500/60" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No roadmap available</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Post progress updates to auto-generate the project roadmap.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 px-1">
+        <Map className="w-4 h-4 text-indigo-500" />
+        <h3 className="text-sm font-black text-slate-900 dark:text-white">Project Roadmap</h3>
+        <span className="text-[10px] font-bold text-slate-400 ml-auto">{timelineNodes.length} milestones</span>
+      </div>
+
+      <div className="relative pl-10">
+        {/* Vertical connector line */}
+        <div className="pm-roadmap-line" />
+
+        <div className="space-y-1">
+          {timelineNodes.map((node, idx) => {
+            const isFirst = idx === 0;
+            return (
+              <div
+                key={node.id}
+                className="pm-stagger-item relative pb-6"
+                style={{ animationDelay: `${idx * 80}ms` }}
+              >
+                {/* Dot */}
+                <div
+                  className={`pm-roadmap-dot ${isFirst ? "pm-roadmap-dot-active pm-glow-active" : "pm-roadmap-dot-completed"}`}
+                  style={{ top: "4px" }}
+                />
+
+                {/* Content card */}
+                <div className={`ml-6 p-4 rounded-xl border transition-all ${
+                  isFirst
+                    ? "bg-gradient-to-br from-indigo-50/80 to-violet-50/80 dark:from-indigo-950/30 dark:to-violet-950/30 border-indigo-200 dark:border-indigo-800/50 shadow-sm"
+                    : "bg-white dark:bg-slate-900 border-slate-200/70 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                }`}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <AvatarCircle name={node.author} picture={node.avatar} size="xs" />
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">{node.author}</span>
+                    <span className="text-[10px] text-slate-400 ml-auto">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy")}</span>
+                  </div>
+                  {node.title && (
+                    <h4 className={`text-sm font-black leading-snug mb-1 ${
+                      isFirst ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300"
+                    }`}>
+                      {node.title}
+                    </h4>
+                  )}
+                  <p className={`text-xs leading-relaxed line-clamp-2 ${
+                    isFirst ? "text-slate-600 dark:text-slate-400" : "text-slate-500 dark:text-slate-500"
+                  }`}>
+                    {node.accomplishment || "No description"}
+                  </p>
+                  <div className="flex items-center gap-3 mt-2">
+                    {node.attachments.length > 0 && (
+                      <span className="text-[9px] font-bold text-slate-400 flex items-center gap-0.5">
+                        <Paperclip className="w-2.5 h-2.5" /> {node.attachments.length} file{node.attachments.length > 1 ? "s" : ""}
+                      </span>
+                    )}
+                    {node.comments.length > 0 && (
+                      <span className="text-[9px] font-bold text-indigo-400 flex items-center gap-0.5">
+                        <MessageSquare className="w-2.5 h-2.5" /> {node.comments.length} feedback
+                      </span>
+                    )}
+                    {isFirst && (
+                      <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 ml-auto bg-indigo-100 dark:bg-indigo-900/40 px-2 py-0.5 rounded-full">
+                        Latest
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -350,13 +566,14 @@ export default function ProjectDetailPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [selectedUpdateId, setSelectedUpdateId] = useState(null);
   const [kebabOpen, setKebabOpen] = useState(false);
-  const [viewAllProgress, setViewAllProgress] = useState(false);
+  const [activeTab, setActiveTab] = useState("latest"); // "latest" | "all" | "roadmap"
 
   // Edit project fields
   const [editProjectName, setEditProjectName] = useState("");
   const [editProjectDesc, setEditProjectDesc] = useState("");
 
-  // Simplified progress form fields (student only)
+  // Progress form fields (student only)
+  const [formTitle, setFormTitle] = useState("");
   const [formAccomplishment, setFormAccomplishment] = useState("");
   const [formFiles, setFormFiles] = useState([]);
 
@@ -383,7 +600,7 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     if (editingMsg) {
-      // For editing, parse old content format too
+      setFormTitle(editingMsg.title || "");
       let parsed = {};
       try { parsed = JSON.parse(editingMsg.content); } catch { parsed = {}; }
       setFormAccomplishment(
@@ -391,6 +608,7 @@ export default function ProjectDetailPage() {
         editingMsg.content || ""
       );
     } else {
+      setFormTitle("");
       setFormAccomplishment("");
     }
     setFormFiles([]);
@@ -437,6 +655,7 @@ export default function ProjectDetailPage() {
     mutationFn: (formData) => postMessage(id, formData),
     onSuccess: () => {
       refetchMessages();
+      setFormTitle("");
       setFormAccomplishment("");
       setFormFiles([]);
       setAddModalOpen(false);
@@ -445,7 +664,7 @@ export default function ProjectDetailPage() {
   });
 
   const editMutation = useMutation({
-    mutationFn: ({ messageId, content }) => editMessage(id, messageId, { content }),
+    mutationFn: ({ messageId, title, content }) => editMessage(id, messageId, { title, content }),
     onSuccess: () => { setEditingMsg(null); setAddModalOpen(false); refetchMessages(); },
   });
 
@@ -506,14 +725,14 @@ export default function ProjectDetailPage() {
     }
 
     if (editingMsg) {
-      // For edits keep as simple JSON with backward compat
-      const contentJson = JSON.stringify({
-        completed_this_week: formAccomplishment,
-        summary: formAccomplishment,
+      editMutation.mutate({
+        messageId: editingMsg.id,
+        title: formTitle,
+        content: formAccomplishment,
       });
-      editMutation.mutate({ messageId: editingMsg.id, content: contentJson });
     } else {
       const formData = new FormData();
+      formData.append("title", formTitle);
       formData.append("content", formAccomplishment);
       for (const file of formFiles) {
         formData.append("attachments", file);
@@ -524,15 +743,25 @@ export default function ProjectDetailPage() {
 
   // Parse messages into timeline nodes
   const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
+    // Extract title from API response (new field) or fallback
+    let title = msg.title || "";
     let accomplishment = "";
     try {
       const parsed = JSON.parse(msg.content);
       accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
+      // Legacy: if no title from API, try to derive from parsed content
+      if (!title && parsed.title) title = parsed.title;
     } catch {
       accomplishment = msg.content || "";
     }
 
-    // Resolve attachments - support both new multi-attachment list and legacy single
+    // If still no title, use first line of accomplishment or truncate
+    if (!title && accomplishment) {
+      const firstLine = accomplishment.split('\n')[0];
+      title = firstLine.length > 80 ? firstLine.substring(0, 77) + "..." : firstLine;
+    }
+
+    // Resolve attachments
     let attachments = [];
     if (msg.attachments && msg.attachments.length > 0) {
       attachments = msg.attachments;
@@ -550,6 +779,7 @@ export default function ProjectDetailPage() {
       author: msg.sender?.name || "Unknown",
       role: msg.sender?.role || "STUDENT",
       avatar: msg.sender?.profile_picture,
+      title,
       accomplishment,
       attachments,
       comments: msg.comments || [],
@@ -562,65 +792,7 @@ export default function ProjectDetailPage() {
   const currentUpdate = timelineNodes.find(n => n.id === selectedUpdateId) || timelineNodes[0];
   const allMembers = project.members || [];
 
-  // ─── View All Progress ────────────────────────────────────────────────────
-
-  if (viewAllProgress) {
-    return (
-      <div className="max-w-[860px] mx-auto px-4 sm:px-6 pb-12 space-y-6">
-        {/* Header */}
-        <div className="pt-2 space-y-1">
-          <button
-            onClick={() => setViewAllProgress(false)}
-            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to progress monitor
-          </button>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">All Progress Updates</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">Complete history for {project.name}</p>
-        </div>
-
-        {timelineNodes.length === 0 ? (
-          <div className="text-center py-20 text-slate-400 italic text-sm">No progress updates yet.</div>
-        ) : (
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-200 via-indigo-100 to-transparent dark:from-indigo-800 dark:via-indigo-900/40 dark:to-transparent" />
-            <div className="space-y-6 pl-12">
-              {timelineNodes.map((node, idx) => (
-                <div key={node.id} className="relative">
-                  {/* Dot */}
-                  <div className={`absolute -left-[38px] top-4 w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    idx === 0
-                      ? "border-indigo-500 bg-indigo-500"
-                      : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
-                  }`}>
-                    {idx === 0 && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                  </div>
-                  <ProgressPostCard
-                    node={node}
-                    projectId={id}
-                    isStudent={isStudent}
-                    isFaculty={isFaculty}
-                    isHOD={isHOD}
-                    currentUserId={user?.id}
-                    isOwn={node.isOwn}
-                    canEdit={node.canEdit}
-                    onEdit={(n) => { setEditingMsg({ id: n.id, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); }}
-                    onDelete={(msgId) => setDeleteTarget(msgId)}
-                    onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
-                    onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
-                    onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ─── Main View ────────────────────────────────────────────────────────────
+  // ─── Status config ────────────────────────────────────────────────────────
 
   const statusColors = {
     COMPLETED: { dot: "bg-emerald-500", text: "text-emerald-400", label: "Completed" },
@@ -632,6 +804,16 @@ export default function ProjectDetailPage() {
     LOW_ACTIVITY: { dot: "bg-orange-400", text: "text-orange-400", label: "Low Activity" },
   };
   const statusStyle = statusColors[project.status] || statusColors.IN_PROGRESS;
+
+  // ─── Shared action handlers ───────────────────────────────────────────────
+
+  const progressHandlers = {
+    onEdit: (n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); },
+    onDelete: (msgId) => setDeleteTarget(msgId),
+    onDeleteComment: (msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId }),
+    onReact: (msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji }),
+    onAddComment: (msgId, content) => addCommentMutation.mutateAsync({ msgId, content }),
+  };
 
   return (
     <div className="flex flex-col lg:h-[calc(100vh-100px)] lg:overflow-hidden max-w-[1440px] mx-auto px-3 sm:px-5 md:px-8 pb-4 space-y-4">
@@ -651,6 +833,28 @@ export default function ProjectDetailPage() {
         </div>
 
         <div className="flex items-center justify-end gap-2 relative pm-kebab-container shrink-0">
+          {/* Tab navigation */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-full p-1 mr-2">
+            <button
+              onClick={() => setActiveTab("latest")}
+              className={`pm-tab ${activeTab === "latest" ? "pm-tab-active" : ""}`}
+            >
+              Latest
+            </button>
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`pm-tab ${activeTab === "all" ? "pm-tab-active" : ""}`}
+            >
+              All Progress
+            </button>
+            <button
+              onClick={() => setActiveTab("roadmap")}
+              className={`pm-tab ${activeTab === "roadmap" ? "pm-tab-active" : ""}`}
+            >
+              <span className="flex items-center gap-1"><Map className="w-3 h-3" /> Roadmap</span>
+            </button>
+          </div>
+
           {/* Only students get the Add progress button */}
           {isStudent && (
             <button
@@ -708,12 +912,6 @@ export default function ProjectDetailPage() {
                 </span>
               )}
             </div>
-            <button
-              onClick={() => setViewAllProgress(true)}
-              className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition-colors"
-            >
-              View all <ArrowRight className="w-3 h-3" />
-            </button>
           </div>
 
           <div className={`flex-1 overflow-y-auto scrollbar-premium ${timelineNodes.length === 0 ? "flex flex-col items-center justify-center" : ""}`}>
@@ -742,7 +940,7 @@ export default function ProjectDetailPage() {
                   return (
                     <button
                       key={node.id}
-                      onClick={() => setSelectedUpdateId(node.id)}
+                      onClick={() => { setSelectedUpdateId(node.id); setActiveTab("latest"); }}
                       className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all ${
                         isActive
                           ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60 ring-1 ring-indigo-500/20"
@@ -756,14 +954,21 @@ export default function ProjectDetailPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0 space-y-0.5">
+                        {node.title && (
+                          <p className="text-xs font-black text-slate-800 dark:text-slate-200 truncate leading-snug">
+                            {node.title}
+                          </p>
+                        )}
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{node.author}</span>
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate">{node.author}</span>
                           <RoleBadge role={node.role} />
                         </div>
                         <p className="text-[10px] text-slate-400 dark:text-slate-500">{node.dateStr}</p>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">
-                          {node.accomplishment || "No content"}
-                        </p>
+                        {!node.title && (
+                          <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">
+                            {node.accomplishment || "No content"}
+                          </p>
+                        )}
                         <div className="flex items-center gap-2 mt-1">
                           {node.attachments.length > 0 && (
                             <span className="text-[9px] font-bold text-slate-400 flex items-center gap-0.5">
@@ -813,7 +1018,7 @@ export default function ProjectDetailPage() {
                   {currentUpdate && (
                     <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
                       <span className="text-slate-500">Latest: </span>
-                      {currentUpdate.accomplishment}
+                      {currentUpdate.title || currentUpdate.accomplishment}
                     </p>
                   )}
                 </div>
@@ -860,45 +1065,90 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          {/* Progress Post Detail */}
+          {/* Tab Content */}
           <div className="flex-1 overflow-y-auto scrollbar-premium space-y-4 pr-0.5">
-            {timelineNodes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-16">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center">
-                  <FileText className="w-7 h-7 text-indigo-500/60" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No progress updates yet</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
-                    {isStudent ? "Be the first to post a progress update for this project." : "Students haven't posted any updates yet."}
-                  </p>
-                </div>
-                {isStudent && (
-                  <button
-                    onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                    className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20"
-                  >
-                    <span className="flex items-center gap-2"><Plus className="w-3.5 h-3.5" /> Post First Update</span>
-                  </button>
+            {/* Latest Progress Tab */}
+            {activeTab === "latest" && (
+              <>
+                {timelineNodes.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-16">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900/40 flex items-center justify-center">
+                      <FileText className="w-7 h-7 text-indigo-500/60" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold text-slate-600 dark:text-slate-400">No progress updates yet</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        {isStudent ? "Be the first to post a progress update for this project." : "Students haven't posted any updates yet."}
+                      </p>
+                    </div>
+                    {isStudent && (
+                      <button
+                        onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                        className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20"
+                      >
+                        <span className="flex items-center gap-2"><Plus className="w-3.5 h-3.5" /> Post First Update</span>
+                      </button>
+                    )}
+                  </div>
+                ) : currentUpdate ? (
+                  <ProgressPostCard
+                    node={currentUpdate}
+                    projectId={id}
+                    isStudent={isStudent}
+                    isFaculty={isFaculty}
+                    isHOD={isHOD}
+                    currentUserId={user?.id}
+                    isOwn={currentUpdate.isOwn}
+                    canEdit={currentUpdate.canEdit}
+                    {...progressHandlers}
+                  />
+                ) : null}
+              </>
+            )}
+
+            {/* All Progress Tab */}
+            {activeTab === "all" && (
+              <>
+                {timelineNodes.length === 0 ? (
+                  <div className="text-center py-20 text-slate-400 italic text-sm">No progress updates yet.</div>
+                ) : (
+                  <div className="relative">
+                    {/* Timeline line */}
+                    <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-200 via-indigo-100 to-transparent dark:from-indigo-800 dark:via-indigo-900/40 dark:to-transparent" />
+                    <div className="space-y-6 pl-12">
+                      {timelineNodes.map((node, idx) => (
+                        <div key={node.id} className="relative">
+                          {/* Dot */}
+                          <div className={`absolute -left-[38px] top-4 w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-all ${
+                            idx === 0
+                              ? "border-indigo-500 bg-indigo-500"
+                              : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
+                          }`}>
+                            {idx === 0 && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                          </div>
+                          <ProgressPostCard
+                            node={node}
+                            projectId={id}
+                            isStudent={isStudent}
+                            isFaculty={isFaculty}
+                            isHOD={isHOD}
+                            currentUserId={user?.id}
+                            isOwn={node.isOwn}
+                            canEdit={node.canEdit}
+                            {...progressHandlers}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
-              </div>
-            ) : currentUpdate ? (
-              <ProgressPostCard
-                node={currentUpdate}
-                projectId={id}
-                isStudent={isStudent}
-                isFaculty={isFaculty}
-                isHOD={isHOD}
-                currentUserId={user?.id}
-                isOwn={currentUpdate.isOwn}
-                canEdit={currentUpdate.canEdit}
-                onEdit={(n) => { setEditingMsg({ id: n.id, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); }}
-                onDelete={(msgId) => setDeleteTarget(msgId)}
-                onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
-                onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
-                onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
-              />
-            ) : null}
+              </>
+            )}
+
+            {/* Roadmap Tab */}
+            {activeTab === "roadmap" && (
+              <RoadmapView timelineNodes={timelineNodes} projectName={project.name} />
+            )}
           </div>
         </div>
       </div>
@@ -938,6 +1188,9 @@ export default function ProjectDetailPage() {
             {currentUpdate && (
               <div className="border-t border-white/10 pt-3">
                 <span className="text-[8px] font-black uppercase tracking-widest text-slate-500 block mb-1">Latest Update</span>
+                {currentUpdate.title && (
+                  <p className="text-xs font-bold text-white mb-0.5">{currentUpdate.title}</p>
+                )}
                 <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{currentUpdate.accomplishment}</p>
                 <div className="flex items-center gap-2 mt-1.5">
                   <AvatarCircle name={currentUpdate.author} picture={currentUpdate.avatar} size="xs" />
@@ -949,49 +1202,60 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Progress Posts */}
-        {timelineNodes.length === 0 ? (
-          <div className="text-center py-12 space-y-3">
-            <p className="text-sm text-slate-400 dark:text-slate-500 italic">No progress updates yet.</p>
-            {isStudent && (
-              <button
-                onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"
-              >+ Post Progress</button>
+        {/* Mobile Tab bar */}
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-full p-1">
+          <button
+            onClick={() => setActiveTab("latest")}
+            className={`pm-tab flex-1 text-center ${activeTab === "latest" ? "pm-tab-active" : ""}`}
+          >
+            Progress
+          </button>
+          <button
+            onClick={() => setActiveTab("roadmap")}
+            className={`pm-tab flex-1 text-center ${activeTab === "roadmap" ? "pm-tab-active" : ""}`}
+          >
+            <span className="flex items-center justify-center gap-1"><Map className="w-3 h-3" /> Roadmap</span>
+          </button>
+        </div>
+
+        {/* Mobile content */}
+        {activeTab !== "roadmap" ? (
+          <>
+            {/* Progress Posts */}
+            {timelineNodes.length === 0 ? (
+              <div className="text-center py-12 space-y-3">
+                <p className="text-sm text-slate-400 dark:text-slate-500 italic">No progress updates yet.</p>
+                {isStudent && (
+                  <button
+                    onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"
+                  >+ Post Progress</button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress Updates ({timelineNodes.length})</span>
+                </div>
+                {timelineNodes.map(node => (
+                  <ProgressPostCard
+                    key={node.id}
+                    node={node}
+                    projectId={id}
+                    isStudent={isStudent}
+                    isFaculty={isFaculty}
+                    isHOD={isHOD}
+                    currentUserId={user?.id}
+                    isOwn={node.isOwn}
+                    canEdit={node.canEdit}
+                    {...progressHandlers}
+                  />
+                ))}
+              </div>
             )}
-          </div>
+          </>
         ) : (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Progress Updates ({timelineNodes.length})</span>
-              <button onClick={() => setViewAllProgress(true)} className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-                View all <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-            {timelineNodes.slice(0, 3).map(node => (
-              <ProgressPostCard
-                key={node.id}
-                node={node}
-                projectId={id}
-                isStudent={isStudent}
-                isFaculty={isFaculty}
-                isHOD={isHOD}
-                currentUserId={user?.id}
-                isOwn={node.isOwn}
-                canEdit={node.canEdit}
-                onEdit={(n) => { setEditingMsg({ id: n.id, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); }}
-                onDelete={(msgId) => setDeleteTarget(msgId)}
-                onDeleteComment={(msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId })}
-                onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
-                onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
-              />
-            ))}
-            {timelineNodes.length > 3 && (
-              <button onClick={() => setViewAllProgress(true)} className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                View {timelineNodes.length - 3} more updates →
-              </button>
-            )}
-          </div>
+          <RoadmapView timelineNodes={timelineNodes} projectName={project.name} />
         )}
       </div>
 
@@ -1023,18 +1287,32 @@ export default function ProjectDetailPage() {
             </div>
           )}
 
-          {/* Main textarea */}
+          {/* Progress Title */}
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              What did you complete / accomplish? <span className="text-rose-500">*</span>
+              Progress Title <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formTitle}
+              onChange={e => setFormTitle(e.target.value)}
+              placeholder="e.g. Completed login module, Fixed API integration..."
+              required
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
+          </div>
+
+          {/* Description textarea */}
+          <div className="space-y-1.5 text-left">
+            <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Description
             </label>
             <textarea
               value={formAccomplishment}
               onChange={e => setFormAccomplishment(e.target.value)}
-              placeholder="Describe what you worked on and completed. Be specific — what features, tasks, or milestones did you finish?"
-              required
+              placeholder="Describe what you worked on in detail — features, tasks, or milestones you completed..."
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
-              rows={5}
+              rows={4}
             />
           </div>
 
@@ -1072,7 +1350,7 @@ export default function ProjectDetailPage() {
                 </div>
                 <div>
                   <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Click to attach files</span>
-                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">PDF, images, documents, ZIP accepted</span>
+                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Images, PDF, documents, ZIP accepted — previewed inline</span>
                 </div>
                 <input
                   type="file"
@@ -1098,7 +1376,7 @@ export default function ProjectDetailPage() {
             </Button>
             <Button
               type="submit"
-              disabled={sendMutation.isPending || editMutation.isPending || (!formAccomplishment.trim() && formFiles.length === 0)}
+              disabled={sendMutation.isPending || editMutation.isPending || (!formTitle.trim() && !formAccomplishment.trim() && formFiles.length === 0)}
             >
               {sendMutation.isPending || editMutation.isPending
                 ? "Posting..."

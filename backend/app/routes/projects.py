@@ -185,6 +185,7 @@ def recent_activity():
             "status": p.status.value,
             "updated_at": p.updated_at.isoformat(),
             "last_message": {
+                "title": last_msg.title,
                 "content": last_msg.content,
                 "sender_name": last_msg.sender.name if last_msg.sender else "Unknown",
                 "created_at": last_msg.created_at.isoformat(),
@@ -354,6 +355,7 @@ def post_message(project_id):
     if user.role in (UserRole.HOD, UserRole.FACULTY):
         return jsonify({"error": "HOD and Faculty cannot post progress updates. Use the feedback system to comment on existing posts."}), 403
 
+    title = request.form.get("title", "").strip()
     content = request.form.get("content", "").strip()
     files = request.files.getlist("attachments")
     # Support legacy single-file field too
@@ -382,6 +384,7 @@ def post_message(project_id):
     msg = ProjectMessage(
         project_id=project_id,
         sender_id=user.id,
+        title=title or None,
         content=content,
         attachment_url=",".join(attachment_urls) if attachment_urls else None,
         attachment_type=",".join(attachment_types) if attachment_types else None,
@@ -414,10 +417,13 @@ def edit_message(project_id, message_id):
         return jsonify({"error": "Edit window expired (30 minutes)"}), 400
 
     data = request.get_json()
+    new_title = data.get("title", "").strip()
     new_content = data.get("content", "").strip()
-    if not new_content:
+    if not new_content and not new_title:
         return jsonify({"error": "Content cannot be empty"}), 400
 
+    if new_title:
+        msg.title = new_title
     msg.content = new_content
     msg.is_edited = True
     msg.updated_at = datetime.utcnow()
@@ -565,6 +571,7 @@ def _serialize_message(msg, current_user=None):
             "profile_picture": msg.sender.profile_picture,
             "role": msg.sender.role.value,
         } if msg.sender and not msg.is_deleted else None,
+        "title": msg.title,
         "content": msg.content,
         "is_deleted": msg.is_deleted,
         "is_edited": msg.is_edited,
