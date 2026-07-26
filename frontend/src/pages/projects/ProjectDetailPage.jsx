@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,9 +18,7 @@ import {
   FolderKanban, Trash2, Edit2, FileText, Image, File,
   Download, MessageSquare, Send, Smile,
   Clock, Users, ChevronDown, ChevronUp, Eye, Map,
-  ExternalLink, Layers, Check, ChevronLeft, ChevronRight,
-  Flag, Trees, Sparkles, Shield, Zap, Crown, Rocket, Star,
-  Lock, Compass, Hourglass, Award,
+  ExternalLink, Layers, Check,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -45,24 +43,6 @@ function isImageExt(ext) {
 
 function isPdfExt(ext) {
   return ext === "pdf";
-}
-
-// ─── Milestone Icons Mapping ─────────────────────────────────────────────────
-
-function getMilestoneIcon(index, isLastReal, isFuture) {
-  if (isFuture) return <Lock className="w-5 h-5 text-slate-400" />;
-  if (isLastReal) return <Award className="w-6 h-6 text-amber-500" />;
-  
-  const iconList = [
-    <Flag className="w-5 h-5 text-indigo-500" />,
-    <Sparkles className="w-5 h-5 text-emerald-500" />,
-    <Shield className="w-5 h-5 text-blue-500" />,
-    <Zap className="w-5 h-5 text-amber-500" />,
-    <Crown className="w-5 h-5 text-purple-500" />,
-    <Rocket className="w-5 h-5 text-rose-500" />,
-    <Star className="w-5 h-5 text-cyan-500" />,
-  ];
-  return iconList[index % iconList.length];
 }
 
 // ─── Shared Sub-components ────────────────────────────────────────────────────
@@ -226,6 +206,7 @@ function AttachmentList({ attachments, onPreview }) {
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
+                {/* Eye Icon for Preview */}
                 <button
                   type="button"
                   onClick={() => onPreview(att)}
@@ -234,6 +215,7 @@ function AttachmentList({ attachments, onPreview }) {
                 >
                   <Eye className="w-4 h-4" />
                 </button>
+                {/* Download Icon */}
                 <a
                   href={att.url}
                   download={att.name || true}
@@ -329,141 +311,225 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
   );
 }
 
-// ─── Interactive Journey Map Component ───────────────────────────────────────
+// ─── Progress Post Item (Clean Flat Design) ───────────────────────────────────
 
-function JourneyMap({
-  allMapNodes,
-  selectedIndex,
-  onSelectIndex,
-  isCompleted,
+function ProgressPostItem({
+  node, projectId, isStudent, isFaculty, isHOD, currentUserId,
+  onEdit, onDelete, onDeleteComment, onReact, onAddComment, onPreviewAttachment,
+  isOwn, canEdit, isLatest,
 }) {
-  const containerRef = useRef(null);
-  const nodeRefs = useRef([]);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
-  // Smooth scroll centering on active node
-  useEffect(() => {
-    const container = containerRef.current;
-    const targetNode = nodeRefs.current[selectedIndex];
-    if (container && targetNode) {
-      const containerWidth = container.clientWidth;
-      const targetLeft = targetNode.offsetLeft;
-      const targetWidth = targetNode.offsetWidth;
-      const scrollToLeft = targetLeft - containerWidth / 2 + targetWidth / 2;
-      container.scrollTo({ left: Math.max(0, scrollToLeft), behavior: "smooth" });
-    }
-  }, [selectedIndex, allMapNodes.length]);
+  const handleFeedback = async (e) => {
+    e.preventDefault();
+    if (!feedbackText.trim()) return;
+    setSubmittingFeedback(true);
+    await onAddComment(node.id, feedbackText.trim());
+    setFeedbackText("");
+    setSubmittingFeedback(false);
+  };
+
+  const comments = node.comments || [];
 
   return (
-    <div className="relative py-6 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 text-white rounded-3xl overflow-hidden shadow-2xl border border-slate-800/80">
-      {/* Decorative background stars & path elements */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-4 left-10"><Sparkles className="w-4 h-4 text-indigo-400" /></div>
-        <div className="absolute bottom-6 left-1/4"><Trees className="w-6 h-6 text-emerald-500" /></div>
-        <div className="absolute top-6 right-1/3"><Compass className="w-5 h-5 text-amber-400" /></div>
-        <div className="absolute bottom-4 right-12"><Trees className="w-5 h-5 text-emerald-600" /></div>
-      </div>
+    <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800/80 shadow-2xs space-y-4 transition-all">
+      {/* Top Author Row */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <AvatarCircle name={node.author} picture={node.avatar} size="md" />
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-black text-slate-900 dark:text-white">{node.author}</span>
+              <RoleBadge role={node.role} />
+              {isLatest && (
+                <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50">
+                  Latest Update
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+              {node.dateStr}
+              {node.is_edited && <span className="italic ml-1.5 text-slate-400">(edited)</span>}
+            </p>
+          </div>
+        </div>
 
-      {/* Map Scroll Container */}
-      <div ref={containerRef} className="jm-scroll-container px-16 md:px-32 py-8 relative">
-        <div className="flex items-center min-w-max gap-16 md:gap-24 relative z-10 px-8">
-          
-          {/* Winding Connecting Line (SVG background path) */}
-          <svg className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-12 pointer-events-none z-0 overflow-visible">
-            <path
-              d="M 0,24 Q 200,4 400,24 T 800,24 T 1200,24 T 1600,24 T 2000,24 T 2400,24"
-              fill="none"
-              stroke="#334155"
-              strokeWidth="4"
-              className="jm-path-dash"
-            />
-          </svg>
-
-          {allMapNodes.map((node, idx) => {
-            const isActive = idx === selectedIndex;
-            const isFuture = node.isFuture;
-            const isLastReal = !isFuture && idx === allMapNodes.length - (isCompleted ? 1 : 2);
-            
-            return (
-              <div
-                key={node.id || idx}
-                ref={(el) => (nodeRefs.current[idx] = el)}
-                onClick={() => onSelectIndex(idx)}
-                className={`relative flex flex-col items-center cursor-pointer transition-all duration-300 group ${
-                  isActive ? "jm-active-node scale-110" : "hover:scale-105 opacity-80 hover:opacity-100"
-                } ${isFuture ? "opacity-50" : ""}`}
-              >
-                {/* Node Top Title Tooltip / Label */}
-                <div className="mb-3 text-center transition-transform group-hover:-translate-y-1">
-                  {isActive && (
-                    <span className="jm-active-badge inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-primary-500 text-white shadow-md mb-1">
-                      {isFuture ? "Upcoming" : isLastReal ? "Latest Milestone" : `Milestone #${idx + 1}`}
-                    </span>
-                  )}
-                  <h4 className={`text-xs font-black truncate max-w-[140px] ${
-                    isActive ? "text-white scale-105" : "text-slate-300"
-                  }`}>
-                    {node.title}
-                  </h4>
-                  <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
-                    {node.dateStr}
-                  </p>
-                </div>
-
-                {/* Node Milestone Icon Badge */}
-                <div
-                  className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center border-2 transition-all shadow-xl relative ${
-                    isActive
-                      ? "bg-gradient-to-br from-primary-500 to-primary-600 border-white text-white ring-4 ring-primary-500/30"
-                      : isFuture
-                      ? "bg-slate-800/80 border-slate-700/80 text-slate-500 border-dashed"
-                      : "bg-slate-800 border-slate-700 text-slate-200 group-hover:border-indigo-500"
-                  }`}
-                >
-                  {getMilestoneIcon(idx, isLastReal, isFuture)}
-
-                  {/* Attachment & Feedback counters on node */}
-                  {!isFuture && (node.attachments?.length > 0 || node.comments?.length > 0) && (
-                    <div className="absolute -bottom-2 -right-2 flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-full px-1.5 py-0.5 text-[9px] font-bold text-slate-300 shadow-md">
-                      {node.attachments?.length > 0 && <span>📎 {node.attachments.length}</span>}
-                      {node.comments?.length > 0 && <span>💬 {node.comments.length}</span>}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex items-center gap-1.5">
+          {isOwn && canEdit && (
+            <button
+              onClick={() => onEdit(node)}
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+              title="Edit progress"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {(isOwn || isHOD) && (
+            <button
+              onClick={() => onDelete(node.id)}
+              className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
+              title="Delete progress"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Navigation Controls: Previous / Next */}
-      <div className="flex items-center justify-between px-6 pt-2 pb-1 border-t border-slate-800/80 relative z-20">
-        <button
-          onClick={() => onSelectIndex(Math.max(0, selectedIndex - 1))}
-          disabled={selectedIndex === 0}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none text-xs font-bold text-white transition-all active:scale-95 border border-slate-700/80 shadow-md"
-        >
-          <ChevronLeft className="w-4 h-4" /> Previous
-        </button>
+      {/* Progress Title */}
+      {node.title && (
+        <h3 className="text-base font-black text-slate-900 dark:text-white leading-snug tracking-tight">
+          {node.title}
+        </h3>
+      )}
 
-        <div className="text-center">
-          <span className="text-xs font-bold text-slate-300">
-            Checkpoint <span className="text-primary-400 font-black">{selectedIndex + 1}</span> of {allMapNodes.length}
+      {/* Progress Description */}
+      {node.accomplishment && (
+        <div className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
+          {node.accomplishment}
+        </div>
+      )}
+
+      {/* Attachments List with Eye & Download Icons */}
+      <AttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
+
+      {/* Faculty Feedback Section */}
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+            <MessageSquare className="w-3.5 h-3.5" />
+            Faculty Feedback {comments.length > 0 && `(${comments.length})`}
           </span>
         </div>
 
-        <button
-          onClick={() => onSelectIndex(Math.min(allMapNodes.length - 1, selectedIndex + 1))}
-          disabled={selectedIndex === allMapNodes.length - 1}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none text-xs font-bold text-white transition-all active:scale-95 border border-slate-700/80 shadow-md"
-        >
-          Next <ChevronRight className="w-4 h-4" />
-        </button>
+        {comments.length === 0 && (
+          <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1 font-medium">
+            {(isFaculty || isHOD) ? "Add feedback for the students on this progress update." : "No faculty feedback added yet."}
+          </p>
+        )}
+
+        {/* Comment list */}
+        {comments.length > 0 && (
+          <div className="space-y-2.5">
+            {comments.map(comment => (
+              <CommentCard
+                key={comment.id}
+                comment={comment}
+                projectId={projectId}
+                msgId={node.id}
+                isStudent={isStudent}
+                isHOD={isHOD}
+                currentUserId={currentUserId}
+                onDelete={(commentId) => onDeleteComment(node.id, commentId)}
+                onReact={(commentId, emoji) => onReact(node.id, commentId, emoji)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Feedback input — HOD and Faculty only */}
+        {(isFaculty || isHOD) && (
+          <form onSubmit={handleFeedback} className="flex gap-2 pt-1">
+            <input
+              type="text"
+              value={feedbackText}
+              onChange={e => setFeedbackText(e.target.value)}
+              placeholder="Write faculty feedback or notes..."
+              className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
+            <button
+              type="submit"
+              disabled={!feedbackText.trim() || submittingFeedback}
+              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-1.5 text-xs font-bold"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Send</span>
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
 }
 
-// ─── Main Page Component ──────────────────────────────────────────────────────
+// ─── Roadmap View ─────────────────────────────────────────────────────────────
+
+function RoadmapView({ timelineNodes, onPreviewAttachment }) {
+  if (timelineNodes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+          <Map className="w-6 h-6" />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Roadmap Generated</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Project roadmap will automatically build as progress updates are posted.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto py-2">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <Map className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Timeline Roadmap</h3>
+        </div>
+        <span className="text-xs font-bold text-slate-400">{timelineNodes.length} Milestone{timelineNodes.length > 1 ? "s" : ""}</span>
+      </div>
+
+      <div className="relative pl-8 md:pl-10 space-y-6">
+        {/* Vertical line */}
+        <div className="absolute left-[15px] md:left-[19px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-indigo-500 via-indigo-300 to-slate-200 dark:via-indigo-800 dark:to-slate-800" />
+
+        {timelineNodes.map((node, idx) => {
+          const isLatest = idx === 0;
+          return (
+            <div key={node.id} className="relative group">
+              {/* Dot */}
+              <div
+                className={`absolute -left-[27px] md:-left-[31px] top-1.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                  isLatest
+                    ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-500/30 ring-4 ring-indigo-500/10"
+                    : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-400"
+                }`}
+              >
+                {isLatest ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700" />}
+              </div>
+
+              {/* Milestone Box */}
+              <div className="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <AvatarCircle name={node.author} picture={node.avatar} size="xs" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{node.author}</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-400">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy · h:mm a")}</span>
+                </div>
+
+                {node.title && (
+                  <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{node.title}</h4>
+                )}
+
+                {node.accomplishment && (
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 font-medium">
+                    {node.accomplishment}
+                  </p>
+                )}
+
+                <AttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -481,7 +547,7 @@ export default function ProjectDetailPage() {
   const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [kebabOpen, setKebabOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("stream"); // "stream" | "roadmap"
   const [previewAttachment, setPreviewAttachment] = useState(null);
 
   // Edit project fields
@@ -505,77 +571,7 @@ export default function ProjectDetailPage() {
   });
 
   const messages = messagesData?.messages || [];
-  
-  // Parse raw messages chronologically (oldest = index 0, newest = index N-1)
-  const chronologicalMessages = [...messages].filter(msg => !msg.is_deleted);
-
-  const timelineNodes = chronologicalMessages.map((msg, idx) => {
-    let title = msg.title || "";
-    let accomplishment = "";
-    try {
-      const parsed = JSON.parse(msg.content);
-      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
-      if (!title && parsed.title) title = parsed.title;
-    } catch {
-      accomplishment = msg.content || "";
-    }
-
-    if (!title && accomplishment) {
-      const firstLine = accomplishment.split('\n')[0];
-      title = firstLine.length > 70 ? firstLine.substring(0, 67) + "..." : firstLine;
-    }
-
-    let attachments = [];
-    if (msg.attachments && msg.attachments.length > 0) {
-      attachments = msg.attachments;
-    } else if (msg.attachment_url) {
-      attachments = [{ url: msg.attachment_url, type: msg.attachment_type, name: msg.attachment_name }];
-    }
-
-    const isOwn = msg.sender?.id === user?.id;
-    const canEdit = msg.can_edit && isOwn;
-
-    return {
-      id: msg.id,
-      dateRaw: msg.created_at,
-      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
-      author: msg.sender?.name || "Unknown",
-      role: msg.sender?.role || "STUDENT",
-      avatar: msg.sender?.profile_picture,
-      title,
-      accomplishment,
-      attachments,
-      comments: msg.comments || [],
-      is_edited: msg.is_edited,
-      isOwn,
-      canEdit,
-      isFuture: false,
-    };
-  });
-
-  // Build complete map nodes array with Future Checkpoint if project is not completed
-  const isCompleted = project?.status === "COMPLETED";
-  const allMapNodes = [...timelineNodes];
-  if (!isCompleted) {
-    allMapNodes.push({
-      id: "future-node",
-      title: "Waiting for next update",
-      dateStr: "Next Milestone",
-      isFuture: true,
-      accomplishment: "The project team hasn't submitted this milestone yet. Students can post the next update using the 'Post Progress' button above.",
-      attachments: [],
-      comments: [],
-    });
-  }
-
-  // Set initial selectedIndex to latest real progress on load
-  useEffect(() => {
-    if (timelineNodes.length > 0) {
-      setSelectedIndex(timelineNodes.length - 1);
-    } else if (!isCompleted) {
-      setSelectedIndex(0);
-    }
-  }, [messages.length, isCompleted]);
+  const reversedMessages = [...messages].reverse();
 
   useEffect(() => {
     if (project) {
@@ -639,18 +635,13 @@ export default function ProjectDetailPage() {
   // Mutations
   const sendMutation = useMutation({
     mutationFn: (formData) => postMessage(id, formData),
-    onSuccess: (res) => {
+    onSuccess: () => {
       refetchMessages();
       setFormTitle("");
       setFormAccomplishment("");
       setFormFiles([]);
       setAddModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ["project", id] });
-      
-      // Auto-focus on new checkpoint
-      setTimeout(() => {
-        setSelectedIndex(timelineNodes.length);
-      }, 200);
     },
   });
 
@@ -723,7 +714,50 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const selectedNode = allMapNodes[selectedIndex] || allMapNodes[0];
+  // Parse messages into timeline nodes
+  const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
+    let title = msg.title || "";
+    let accomplishment = "";
+    try {
+      const parsed = JSON.parse(msg.content);
+      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
+      if (!title && parsed.title) title = parsed.title;
+    } catch {
+      accomplishment = msg.content || "";
+    }
+
+    if (!title && accomplishment) {
+      const firstLine = accomplishment.split('\n')[0];
+      title = firstLine.length > 80 ? firstLine.substring(0, 77) + "..." : firstLine;
+    }
+
+    let attachments = [];
+    if (msg.attachments && msg.attachments.length > 0) {
+      attachments = msg.attachments;
+    } else if (msg.attachment_url) {
+      attachments = [{ url: msg.attachment_url, type: msg.attachment_type, name: msg.attachment_name }];
+    }
+
+    const isOwn = msg.sender?.id === user?.id;
+    const canEdit = msg.can_edit && isOwn;
+
+    return {
+      id: msg.id,
+      dateRaw: msg.created_at,
+      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
+      author: msg.sender?.name || "Unknown",
+      role: msg.sender?.role || "STUDENT",
+      avatar: msg.sender?.profile_picture,
+      title,
+      accomplishment,
+      attachments,
+      comments: msg.comments || [],
+      is_edited: msg.is_edited,
+      isOwn,
+      canEdit,
+    };
+  });
+
   const allMembers = project.members || [];
 
   const statusColors = {
@@ -737,59 +771,80 @@ export default function ProjectDetailPage() {
   };
   const statusStyle = statusColors[project.status] || statusColors.IN_PROGRESS;
 
+  const progressHandlers = {
+    onEdit: (n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddModalOpen(true); },
+    onDelete: (msgId) => setDeleteTarget(msgId),
+    onDeleteComment: (msgId, commentId) => deleteCommentMutation.mutate({ msgId, commentId }),
+    onReact: (msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji }),
+    onAddComment: (msgId, content) => addCommentMutation.mutateAsync({ msgId, content }),
+    onPreviewAttachment: setPreviewAttachment,
+  };
+
   return (
-    <div className="flex flex-col min-h-screen max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-12 space-y-6">
-      
-      {/* ── 1. Project Information Header Card ── */}
-      <div className="p-5 md:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
-        <div className="space-y-1.5 max-w-2xl">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-              className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors mr-2"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Projects
-            </button>
+    <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-4 space-y-4">
+      {/* ── Top Header & Actions Bar ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between shrink-0 gap-3 pt-1">
+        <div className="space-y-1">
+          <button
+            onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Projects
+          </button>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
+              Progress Monitor
+            </h1>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
               {statusStyle.label}
             </span>
           </div>
-          <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-            {project.name}
-          </h1>
-          {project.description && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-2">{project.description}</p>
-          )}
         </div>
 
-        <div className="flex items-center gap-4 shrink-0 flex-wrap justify-between md:justify-end">
-          {/* Team Members */}
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-slate-400" />
-            <div className="flex items-center -space-x-1.5">
-              {allMembers.slice(0, 5).map((m) => (
-                <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size="xs" />
-              ))}
-            </div>
+        {/* View Switcher & Action Buttons */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50">
+            <button
+              onClick={() => setActiveTab("stream")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "stream"
+                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Progress Stream
+            </button>
+            <button
+              onClick={() => setActiveTab("roadmap")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                activeTab === "roadmap"
+                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+            >
+              <Map className="w-3.5 h-3.5" />
+              Project Roadmap
+            </button>
           </div>
 
-          {/* Post Progress Button (Students) */}
+          {/* Student Post Progress Button */}
           {isStudent && (
             <button
               onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-              className="px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 active:scale-95 text-white text-xs font-bold shadow-md shadow-primary-500/20 transition-all flex items-center gap-2 shrink-0"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 shrink-0"
             >
               <Plus className="w-4 h-4" /> Post Progress
             </button>
           )}
 
-          {/* HOD Options Kebab */}
+          {/* HOD Menu */}
           {isHOD && (
             <div className="relative pm-kebab-container">
               <button
                 onClick={() => setKebabOpen(!kebabOpen)}
-                className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center shrink-0 transition-colors"
+                className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
@@ -816,164 +871,81 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* ── 2. Interactive Journey Map & Navigation ── */}
-      <JourneyMap
-        allMapNodes={allMapNodes}
-        selectedIndex={selectedIndex}
-        onSelectIndex={setSelectedIndex}
-        isCompleted={isCompleted}
-      />
+      {/* ── Compact Project Info Summary Bar (No card bloat) ── */}
+      <div className="px-5 py-3.5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xs">
+        <div className="space-y-0.5 max-w-2xl">
+          <h2 className="text-base font-black text-slate-900 dark:text-white truncate">{project.name}</h2>
+          {project.description && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">{project.description}</p>
+          )}
+        </div>
 
-      {/* ── 3. Selected Checkpoint Details Panel (Below Map) ── */}
-      <div className="space-y-4">
-        {selectedNode && !selectedNode.isFuture ? (
-          <div className="p-6 md:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-5 animate-fade-in">
-            {/* Header / Author row */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <AvatarCircle name={selectedNode.author} picture={selectedNode.avatar} size="lg" />
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-base font-black text-slate-900 dark:text-white">{selectedNode.author}</span>
-                    <RoleBadge role={selectedNode.role} />
-                  </div>
-                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
-                    {selectedNode.dateStr}
-                    {selectedNode.is_edited && <span className="italic ml-2">(edited)</span>}
-                  </p>
-                </div>
-              </div>
-
-              {/* Edit / Delete Actions */}
-              <div className="flex items-center gap-2">
-                {selectedNode.isOwn && selectedNode.canEdit && (
-                  <button
-                    onClick={() => {
-                      setEditingMsg({
-                        id: selectedNode.id,
-                        title: selectedNode.title,
-                        content: selectedNode.accomplishment,
-                        created_at: selectedNode.dateRaw,
-                      });
-                      setAddModalOpen(true);
-                    }}
-                    className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-                    title="Edit checkpoint"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                )}
-                {(selectedNode.isOwn || isHOD) && (
-                  <button
-                    onClick={() => setDeleteTarget(selectedNode.id)}
-                    className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-colors"
-                    title="Delete checkpoint"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+        <div className="flex items-center gap-4 text-xs shrink-0">
+          <div className="flex items-center gap-2">
+            <Users className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center -space-x-1.5">
+              {allMembers.slice(0, 5).map((m) => (
+                <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size="xs" />
+              ))}
+              {allMembers.length > 5 && (
+                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300">
+                  +{allMembers.length - 5}
+                </span>
+              )}
             </div>
+          </div>
+          <span className="text-[11px] font-semibold text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-4">
+            {timelineNodes.length} Progress Update{timelineNodes.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+      </div>
 
-            {/* Checkpoint Title */}
-            {selectedNode.title && (
-              <h2 className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
-                {selectedNode.title}
-              </h2>
-            )}
-
-            {/* Checkpoint Description */}
-            {selectedNode.accomplishment && (
-              <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/50 text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
-                {selectedNode.accomplishment}
+      {/* ── Main View Content Area (Fits screen without page scroll) ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-premium pr-1">
+        {activeTab === "stream" ? (
+          timelineNodes.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-20">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+                <FileText className="w-6 h-6" />
               </div>
-            )}
-
-            {/* Attachments List with Eye & Download Icons */}
-            <AttachmentList attachments={selectedNode.attachments} onPreview={setPreviewAttachment} />
-
-            {/* Faculty Comments & Feedback */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-slate-400" />
-                <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Faculty Feedback {selectedNode.comments.length > 0 && `(${selectedNode.comments.length})`}
-                </h3>
-              </div>
-
-              {selectedNode.comments.length === 0 && (
-                <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1 font-medium">
-                  {(isFaculty || isHOD) ? "Leave feedback for the project team on this milestone." : "No faculty feedback on this milestone yet."}
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Progress Updates Yet</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm">
+                  {isStudent
+                    ? "Post your first progress update to start tracking project milestones."
+                    : "Students haven't submitted any progress updates yet."}
                 </p>
-              )}
-
-              {/* Comments list */}
-              {selectedNode.comments.length > 0 && (
-                <div className="space-y-3">
-                  {selectedNode.comments.map(comment => (
-                    <CommentCard
-                      key={comment.id}
-                      comment={comment}
-                      projectId={id}
-                      msgId={selectedNode.id}
-                      isStudent={isStudent}
-                      isHOD={isHOD}
-                      currentUserId={user?.id}
-                      onDelete={(commentId) => deleteCommentMutation.mutate({ msgId: selectedNode.id, commentId })}
-                      onReact={(commentId, emoji) => reactMutation.mutate({ msgId: selectedNode.id, commentId, emoji })}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Feedback input — HOD and Faculty only */}
-              {(isFaculty || isHOD) && (
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    const text = e.target.feedbackInput.value.trim();
-                    if (!text) return;
-                    await addCommentMutation.mutateAsync({ msgId: selectedNode.id, content: text });
-                    e.target.reset();
-                  }}
-                  className="flex gap-2 pt-2"
+              </div>
+              {isStudent && (
+                <button
+                  onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-500/20 flex items-center gap-1.5"
                 >
-                  <input
-                    name="feedbackInput"
-                    type="text"
-                    placeholder="Write faculty guidance or feedback on this checkpoint..."
-                    className="flex-1 px-4 py-2.5 text-xs md:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 active:scale-95 text-white transition-all shrink-0 flex items-center gap-2 text-xs font-bold shadow-md shadow-primary-500/20"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Send</span>
-                  </button>
-                </form>
+                  <Plus className="w-4 h-4" /> Post First Update
+                </button>
               )}
             </div>
-          </div>
-        ) : (
-          /* Future Checkpoint Card */
-          <div className="p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 text-center space-y-3 animate-fade-in shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto text-slate-400">
-              <Hourglass className="w-6 h-6 animate-pulse" />
+          ) : (
+            <div className="space-y-4 max-w-4xl mx-auto py-1">
+              {timelineNodes.map((node, idx) => (
+                <ProgressPostItem
+                  key={node.id}
+                  node={node}
+                  projectId={id}
+                  isStudent={isStudent}
+                  isFaculty={isFaculty}
+                  isHOD={isHOD}
+                  currentUserId={user?.id}
+                  isOwn={node.isOwn}
+                  canEdit={node.canEdit}
+                  isLatest={idx === 0}
+                  {...progressHandlers}
+                />
+              ))}
             </div>
-            <h3 className="text-base font-black text-white">Upcoming Milestone</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-              {selectedNode?.accomplishment || "Waiting for the project team to post the next progress update."}
-            </p>
-            {isStudent && (
-              <button
-                onClick={() => { setAddModalOpen(true); setEditingMsg(null); }}
-                className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-xs font-bold shadow-lg shadow-primary-500/20 transition-all"
-              >
-                <Plus className="w-4 h-4" /> Post Next Checkpoint
-              </button>
-            )}
-          </div>
+          )
+        ) : (
+          <RoadmapView timelineNodes={timelineNodes} onPreviewAttachment={setPreviewAttachment} />
         )}
       </div>
 
@@ -990,35 +962,34 @@ export default function ProjectDetailPage() {
       <Modal
         open={addModalOpen}
         onClose={() => { setAddModalOpen(false); setEditingMsg(null); }}
-        title={editingMsg ? "Edit Checkpoint" : "Post New Milestone Checkpoint"}
+        title={editingMsg ? "Edit Progress Update" : "Post Progress Update"}
       >
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Progress Title */}
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Checkpoint Title <span className="text-rose-500">*</span>
+              Progress Title <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
               value={formTitle}
               onChange={e => setFormTitle(e.target.value)}
-              placeholder="e.g. Completed Backend API Integration..."
+              placeholder="e.g. Implemented Authentication Module..."
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
 
           {/* Description textarea */}
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Description <span className="text-rose-500">*</span>
+              Description
             </label>
             <textarea
               value={formAccomplishment}
               onChange={e => setFormAccomplishment(e.target.value)}
-              placeholder="Describe what was accomplished in detail..."
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500/30 leading-relaxed"
+              placeholder="Describe what you worked on in detail..."
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
               rows={4}
             />
           </div>
@@ -1027,7 +998,7 @@ export default function ProjectDetailPage() {
           {!editingMsg && (
             <div className="space-y-2 text-left">
               <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Attachments <span className="text-slate-400 font-normal">(optional)</span>
+                Attachments <span className="text-slate-400 font-normal">(optional, max 10MB each)</span>
               </label>
 
               {formFiles.length > 0 && (
@@ -1049,13 +1020,13 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
-              <label className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-500 cursor-pointer bg-white dark:bg-slate-800/40 transition-colors text-center">
+              <label className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-slate-800/40 transition-colors text-center">
                 <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                   <Paperclip className="w-4 h-4 text-slate-400" />
                 </div>
                 <div>
                   <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Click to attach files</span>
-                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Images, PDFs, docs accepted</span>
+                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Images, PDF, documents, ZIP accepted</span>
                 </div>
                 <input
                   type="file"
@@ -1081,11 +1052,11 @@ export default function ProjectDetailPage() {
             </Button>
             <Button
               type="submit"
-              disabled={sendMutation.isPending || editMutation.isPending || (!formTitle.trim() && !formAccomplishment.trim())}
+              disabled={sendMutation.isPending || editMutation.isPending || (!formTitle.trim() && !formAccomplishment.trim() && formFiles.length === 0)}
             >
               {sendMutation.isPending || editMutation.isPending
                 ? "Posting..."
-                : editingMsg ? "Save Checkpoint" : "Post Checkpoint"}
+                : editingMsg ? "Save Update" : "Post Update"}
             </Button>
           </div>
         </form>
@@ -1103,8 +1074,8 @@ export default function ProjectDetailPage() {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteMutation.mutate(deleteTarget)}
-        title="Delete Checkpoint"
-        message="Are you sure you want to delete this progress checkpoint? This cannot be undone."
+        title="Delete Progress Update"
+        message="Are you sure you want to delete this progress update? This cannot be undone."
         confirmText="Delete"
         danger
       />
