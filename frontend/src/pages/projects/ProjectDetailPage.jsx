@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   getProject, getMessages, postMessage, editMessage, deleteMessage,
   updateProjectStatus, updateProject,
@@ -18,7 +19,8 @@ import {
   FolderKanban, Trash2, Edit2, FileText, Image, File,
   Download, MessageSquare, Send, Smile,
   Clock, Users, ChevronDown, ChevronUp, Eye, Map,
-  ExternalLink, Layers, Check,
+  ExternalLink, Layers, Check, Lock, ChevronRight, ChevronLeft,
+  Flag, Gamepad2,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -453,78 +455,235 @@ function ProgressPostItem({
   );
 }
 
-// ─── Roadmap View ─────────────────────────────────────────────────────────────
+// ─── Roadmap View (Game-Style Island Path) ────────────────────────────────────
 
-function RoadmapView({ timelineNodes, onPreviewAttachment }) {
+const ISLAND_MIN_SLOTS = 5;
+const ISLAND_THEMES = [
+  { from: "from-emerald-400", to: "to-emerald-600", ring: "ring-emerald-500/20", shadow: "shadow-emerald-500/30", glow: "bg-emerald-500" },
+  { from: "from-sky-400", to: "to-sky-600", ring: "ring-sky-500/20", shadow: "shadow-sky-500/30", glow: "bg-sky-500" },
+  { from: "from-violet-400", to: "to-violet-600", ring: "ring-violet-500/20", shadow: "shadow-violet-500/30", glow: "bg-violet-500" },
+  { from: "from-amber-400", to: "to-amber-600", ring: "ring-amber-500/20", shadow: "shadow-amber-500/30", glow: "bg-amber-500" },
+  { from: "from-rose-400", to: "to-rose-600", ring: "ring-rose-500/20", shadow: "shadow-rose-500/30", glow: "bg-rose-500" },
+];
+
+function IslandNode({ node, index, isCompleted, isSelected, onClick, compact }) {
+  const theme = ISLAND_THEMES[index % ISLAND_THEMES.length];
+  const size = compact ? "w-20 h-20" : "w-24 h-24";
+
+  return (
+    <button
+      type="button"
+      onClick={() => isCompleted && onClick(node)}
+      disabled={!isCompleted}
+      className={`group relative flex flex-col items-center shrink-0 ${isCompleted ? "cursor-pointer" : "cursor-not-allowed"} focus:outline-none`}
+      style={{ width: compact ? 96 : 128 }}
+    >
+      {/* Number badge */}
+      <span
+        className={`mb-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm border ${
+          isCompleted
+            ? isSelected
+              ? "bg-indigo-600 text-white border-indigo-600"
+              : "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+            : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+        }`}
+      >
+        {index + 1}
+        {isCompleted && <span className="uppercase tracking-wider">{isSelected ? "Viewing" : "Completed"}</span>}
+      </span>
+
+      {/* Island platform */}
+      <div
+        className={`relative ${size} rounded-full flex items-center justify-center transition-transform duration-300 ${
+          isCompleted ? "group-hover:-translate-y-1.5 group-active:translate-y-0" : ""
+        }`}
+      >
+        {/* Glow ring behind completed islands */}
+        {isCompleted && (
+          <span className={`absolute inset-0 rounded-full ${theme.glow} opacity-20 blur-xl scale-110`} />
+        )}
+
+        {/* Base platform */}
+        <div
+          className={`relative w-full h-full rounded-full border-4 flex items-center justify-center shadow-lg transition-all ${
+            isCompleted
+              ? `bg-gradient-to-br ${theme.from} ${theme.to} border-white/70 dark:border-slate-900/70 ${theme.shadow} ring-4 ${isSelected ? "ring-indigo-400/50" : theme.ring}`
+              : "bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 border-white/60 dark:border-slate-900/60"
+          }`}
+        >
+          {/* Little terrain dots for flavor on completed islands */}
+          {isCompleted && (
+            <>
+              <span className="absolute top-2 left-3 w-2 h-2 rounded-full bg-white/30" />
+              <span className="absolute bottom-3 right-4 w-1.5 h-1.5 rounded-full bg-white/20" />
+            </>
+          )}
+
+          {isCompleted ? (
+            <Check className="w-7 h-7 text-white drop-shadow stroke-[3]" />
+          ) : (
+            <Lock className="w-6 h-6 text-slate-100 dark:text-slate-400" />
+          )}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function JourneyProgressBar({ completed, total }) {
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return (
+    <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+      <div className="flex items-center gap-2 mb-3">
+        <Gamepad2 className="w-4 h-4 text-emerald-500" />
+        <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Journey Progress</span>
+      </div>
+      <div className="flex items-end gap-4">
+        <span className="text-4xl font-black text-emerald-500 leading-none">{pct}<span className="text-xl">%</span></span>
+        <div className="flex-1 pb-1.5">
+          <div className="relative h-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+            {Array.from({ length: total }).map((_, i) => {
+              const left = total > 1 ? (i / (total - 1)) * 100 : 0;
+              const filled = i < completed;
+              const isLast = i === total - 1;
+              return (
+                <span
+                  key={i}
+                  className="absolute -top-1.5"
+                  style={{ left: `${left}%`, transform: "translateX(-50%)" }}
+                >
+                  {isLast ? (
+                    <Flag className={`w-4 h-4 ${filled ? "text-emerald-500" : "text-slate-400 dark:text-slate-600"}`} />
+                  ) : (
+                    <span
+                      className={`flex items-center justify-center w-4 h-4 rounded-full border-2 ${
+                        filled
+                          ? "bg-emerald-500 border-emerald-500"
+                          : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700"
+                      }`}
+                    >
+                      {!filled && <Lock className="w-2 h-2 text-slate-400 dark:text-slate-600" />}
+                    </span>
+                  )}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-1">
+        {completed} of {total} Milestone{total !== 1 ? "s" : ""} Completed
+      </p>
+    </div>
+  );
+}
+
+function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
+  const scrollRef = useRef(null);
+  const totalSlots = Math.max(ISLAND_MIN_SLOTS, timelineNodes.length);
+  const slots = Array.from({ length: totalSlots }, (_, i) => timelineNodes[i] || null);
+
+  const scrollBy = (dir) => {
+    scrollRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+  };
+
   if (timelineNodes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
         <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
-          <Map className="w-6 h-6" />
+          <Lock className="w-6 h-6" />
         </div>
         <div>
-          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Roadmap Generated</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Project roadmap will automatically build as progress updates are posted.</p>
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Everything Is Locked</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 max-w-xs">
+            Post your first progress update to unlock the first island on this project's roadmap.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-2">
-      <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <Map className="w-4 h-4 text-indigo-500" />
-          <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Timeline Roadmap</h3>
+    <div className="space-y-6 py-2">
+      <div className="flex items-center gap-2 px-1">
+        <Map className="w-4 h-4 text-indigo-500" />
+        <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</h3>
+      </div>
+
+      {/* Island path */}
+      <div className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-8 overflow-hidden">
+        {/* Decorative background clouds */}
+        <div className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20">
+          <div className="absolute top-6 left-16 w-16 h-6 rounded-full bg-white dark:bg-slate-700 blur-sm" />
+          <div className="absolute bottom-10 right-24 w-20 h-7 rounded-full bg-white dark:bg-slate-700 blur-sm" />
         </div>
-        <span className="text-xs font-bold text-slate-400">{timelineNodes.length} Milestone{timelineNodes.length > 1 ? "s" : ""}</span>
-      </div>
 
-      <div className="relative pl-8 md:pl-10 space-y-6">
-        {/* Vertical line */}
-        <div className="absolute left-[15px] md:left-[19px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-indigo-500 via-indigo-300 to-slate-200 dark:via-indigo-800 dark:to-slate-800" />
+        {/* Nav arrow */}
+        {slots.length > 3 && (
+          <button
+            type="button"
+            onClick={() => scrollBy(1)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
+            aria-label="Scroll roadmap forward"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+        {slots.length > 3 && (
+          <button
+            type="button"
+            onClick={() => scrollBy(-1)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 active:scale-95 transition-all"
+            aria-label="Scroll roadmap backward"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
 
-        {timelineNodes.map((node, idx) => {
-          const isLatest = idx === 0;
-          return (
-            <div key={node.id} className="relative group">
-              {/* Dot */}
-              <div
-                className={`absolute -left-[27px] md:-left-[31px] top-1.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  isLatest
-                    ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-500/30 ring-4 ring-indigo-500/10"
-                    : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-400"
-                }`}
-              >
-                {isLatest ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700" />}
-              </div>
-
-              {/* Milestone Box */}
-              <div className="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <AvatarCircle name={node.author} picture={node.avatar} size="xs" />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{node.author}</span>
+        <div
+          ref={scrollRef}
+          className="relative flex items-start gap-6 overflow-x-auto scrollbar-premium scroll-smooth px-6 py-2"
+        >
+          {slots.map((node, idx) => {
+            const isCompleted = !!node;
+            const isSelected = isCompleted && node.id === selectedId;
+            return (
+              <div key={node ? node.id : `locked-${idx}`} className="flex items-start gap-6 shrink-0">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 h-4">
+                    {isCompleted ? format(parseUTCDate(node.dateRaw), "MMM d, h:mm a") : ""}
                   </div>
-                  <span className="text-[10px] font-semibold text-slate-400">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy · h:mm a")}</span>
+                  <IslandNode
+                    node={node}
+                    index={idx}
+                    isCompleted={isCompleted}
+                    isSelected={isSelected}
+                    onClick={onSelectMilestone}
+                  />
+                  {isCompleted && (
+                    <p className="max-w-[110px] text-center text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-snug line-clamp-2">
+                      {node.title || "Progress update"}
+                    </p>
+                  )}
                 </div>
-
-                {node.title && (
-                  <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{node.title}</h4>
+                {idx < slots.length - 1 && (
+                  <div className="flex items-center h-24 mt-11">
+                    <svg width="40" height="16" viewBox="0 0 40 16" className="text-slate-300 dark:text-slate-700">
+                      <line x1="2" y1="8" x2="38" y2="8" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
+                    </svg>
+                  </div>
                 )}
-
-                {node.accomplishment && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 font-medium">
-                    {node.accomplishment}
-                  </p>
-                )}
-
-                <AttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
+
+      <JourneyProgressBar completed={timelineNodes.length} total={totalSlots} />
     </div>
   );
 }
@@ -549,6 +708,7 @@ export default function ProjectDetailPage() {
   const [kebabOpen, setKebabOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("stream"); // "stream" | "roadmap"
   const [previewAttachment, setPreviewAttachment] = useState(null);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
 
   // Edit project fields
   const [editProjectName, setEditProjectName] = useState("");
@@ -780,6 +940,15 @@ export default function ProjectDetailPage() {
     onPreviewAttachment: setPreviewAttachment,
   };
 
+  const handleSelectMilestone = (node) => {
+    setSelectedMilestoneId(node.id);
+    setActiveTab("stream");
+  };
+
+  const displayedNode = selectedMilestoneId
+    ? timelineNodes.find((n) => n.id === selectedMilestoneId) || timelineNodes[0]
+    : timelineNodes[0];
+
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-4 space-y-4">
       {/* ── Top Header & Actions Bar ── */}
@@ -900,10 +1069,11 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* ── Main View Content Area (Fits screen without page scroll) ── */}
-      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-premium pr-1">
-        {activeTab === "stream" ? (
-          timelineNodes.length === 0 ? (
+      {/* ── Main View Content Area ── */}
+      {activeTab === "stream" ? (
+        // Progress Stream: shows only the selected/latest update — page itself never scrolls.
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {timelineNodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-20">
               <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
                 <FileText className="w-6 h-6" />
@@ -926,28 +1096,42 @@ export default function ProjectDetailPage() {
               )}
             </div>
           ) : (
-            <div className="space-y-4 max-w-4xl mx-auto py-1">
-              {timelineNodes.map((node, idx) => (
-                <ProgressPostItem
-                  key={node.id}
-                  node={node}
-                  projectId={id}
-                  isStudent={isStudent}
-                  isFaculty={isFaculty}
-                  isHOD={isHOD}
-                  currentUserId={user?.id}
-                  isOwn={node.isOwn}
-                  canEdit={node.canEdit}
-                  isLatest={idx === 0}
-                  {...progressHandlers}
-                />
-              ))}
+            <div className="h-full max-w-4xl mx-auto flex flex-col">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={displayedNode.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="min-h-0 overflow-y-auto scrollbar-premium"
+                >
+                  <ProgressPostItem
+                    node={displayedNode}
+                    projectId={id}
+                    isStudent={isStudent}
+                    isFaculty={isFaculty}
+                    isHOD={isHOD}
+                    currentUserId={user?.id}
+                    isOwn={displayedNode.isOwn}
+                    canEdit={displayedNode.canEdit}
+                    isLatest={displayedNode.id === timelineNodes[0]?.id}
+                    {...progressHandlers}
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
-          )
-        ) : (
-          <RoadmapView timelineNodes={timelineNodes} onPreviewAttachment={setPreviewAttachment} />
-        )}
-      </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-premium pr-1">
+          <RoadmapView
+            timelineNodes={timelineNodes}
+            onSelectMilestone={handleSelectMilestone}
+            selectedId={selectedMilestoneId ?? timelineNodes[0]?.id}
+          />
+        </div>
+      )}
 
       {/* ── Edit Project Modal ── */}
       <Modal open={editProjectModalOpen} onClose={() => setEditProjectModalOpen(false)}>

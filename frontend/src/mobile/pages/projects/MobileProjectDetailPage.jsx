@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   getProject, getMessages, postMessage, editMessage, deleteMessage,
   updateProjectStatus, updateProject,
@@ -21,7 +22,8 @@ import {
   FolderKanban, Users, GraduationCap, MessageSquare,
   CheckCircle, Paperclip, FileText, Image, File,
   Download, ChevronDown, ChevronUp, MoreVertical,
-  Clock, X, Map, ExternalLink, Eye, Check,
+  Clock, X, Map, ExternalLink, Eye, Check, Lock,
+  ChevronRight, ChevronLeft, Flag, Gamepad2,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -195,69 +197,195 @@ function MobileAttachmentList({ attachments, onPreview }) {
   );
 }
 
-// ─── Mobile Roadmap View ──────────────────────────────────────────────────────
+// ─── Mobile Roadmap View (Game-Style Single Island + Arrows/Swipe) ────────────
 
-function MobileRoadmapView({ timelineNodes, onPreviewAttachment }) {
+const ISLAND_MIN_SLOTS = 5;
+const ISLAND_THEMES = [
+  { from: "from-emerald-400", to: "to-emerald-600", ring: "ring-emerald-500/20", shadow: "shadow-emerald-500/30", glow: "bg-emerald-500" },
+  { from: "from-sky-400", to: "to-sky-600", ring: "ring-sky-500/20", shadow: "shadow-sky-500/30", glow: "bg-sky-500" },
+  { from: "from-violet-400", to: "to-violet-600", ring: "ring-violet-500/20", shadow: "shadow-violet-500/30", glow: "bg-violet-500" },
+  { from: "from-amber-400", to: "to-amber-600", ring: "ring-amber-500/20", shadow: "shadow-amber-500/30", glow: "bg-amber-500" },
+  { from: "from-rose-400", to: "to-rose-600", ring: "ring-rose-500/20", shadow: "shadow-rose-500/30", glow: "bg-rose-500" },
+];
+
+function MobileJourneyProgressBar({ completed, total }) {
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return (
+    <MobileCard>
+      <div className="flex items-center gap-2 mb-2.5">
+        <Gamepad2 className="w-3.5 h-3.5 text-emerald-500" />
+        <span className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wider">Journey Progress</span>
+      </div>
+      <div className="flex items-end gap-3">
+        <span className="text-3xl font-black text-emerald-500 leading-none">{pct}<span className="text-base">%</span></span>
+        <div className="flex-1 pb-1">
+          <div className="relative h-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+      </div>
+      <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5">
+        {completed} of {total} Milestone{total !== 1 ? "s" : ""} Completed
+      </p>
+    </MobileCard>
+  );
+}
+
+function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
+  const totalSlots = Math.max(ISLAND_MIN_SLOTS, timelineNodes.length);
+  const slots = Array.from({ length: totalSlots }, (_, i) => timelineNodes[i] || null);
+
+  const initialIdx = (() => {
+    if (selectedId) {
+      const found = timelineNodes.findIndex((n) => n.id === selectedId);
+      if (found >= 0) return found;
+    }
+    return 0;
+  })();
+
+  const [cursor, setCursor] = useState(initialIdx);
+  const touchStartX = useRef(null);
+
+  useEffect(() => {
+    if (selectedId) {
+      const found = timelineNodes.findIndex((n) => n.id === selectedId);
+      if (found >= 0) setCursor(found);
+    }
+  }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (timelineNodes.length === 0) {
     return (
       <MobileEmptyState
-        icon={Map}
-        title="No Roadmap Generated"
-        description="Progress updates will build the roadmap automatically."
+        icon={Lock}
+        title="Everything Is Locked"
+        description="Post your first progress update to unlock the first island."
       />
     );
   }
+
+  const goTo = (idx) => setCursor(Math.max(0, Math.min(slots.length - 1, idx)));
+  const node = slots[cursor];
+  const isCompleted = !!node;
+  const theme = ISLAND_THEMES[cursor % ISLAND_THEMES.length];
+
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) goTo(cursor + 1);
+      else goTo(cursor - 1);
+    }
+    touchStartX.current = null;
+  };
 
   return (
     <div className="space-y-3 mt-2">
       <div className="flex items-center gap-2 px-1">
         <Map className="w-4 h-4 text-indigo-500" />
         <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</span>
-        <span className="text-[10px] font-bold text-slate-400 ml-auto">{timelineNodes.length} milestones</span>
       </div>
 
-      <div className="relative pl-7 space-y-4">
-        {/* Vertical line */}
-        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 via-indigo-300 to-slate-200 dark:via-indigo-800 dark:to-slate-800" />
+      <div
+        className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-6 overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20">
+          <div className="absolute top-4 left-8 w-12 h-5 rounded-full bg-white dark:bg-slate-700 blur-sm" />
+          <div className="absolute bottom-8 right-10 w-14 h-5 rounded-full bg-white dark:bg-slate-700 blur-sm" />
+        </div>
 
-        {timelineNodes.map((node, idx) => {
-          const isLatest = idx === 0;
-          return (
-            <div key={node.id} className="relative pb-1">
-              {/* Dot */}
+        {/* Left / Right arrows */}
+        <button
+          type="button"
+          onClick={() => goTo(cursor - 1)}
+          disabled={cursor === 0}
+          className="mobile-tappable absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
+          aria-label="Previous milestone"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => goTo(cursor + 1)}
+          disabled={cursor === slots.length - 1}
+          className="mobile-tappable absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
+          aria-label="Next milestone"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={cursor}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="flex flex-col items-center gap-3 py-2"
+          >
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm border ${
+                isCompleted
+                  ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+              }`}
+            >
+              {cursor + 1} {isCompleted ? "· COMPLETED" : "· LOCKED"}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => isCompleted && onSelectMilestone(node)}
+              disabled={!isCompleted}
+              className="relative w-28 h-28 rounded-full flex items-center justify-center"
+            >
+              {isCompleted && <span className={`absolute inset-0 rounded-full ${theme.glow} opacity-20 blur-xl scale-110`} />}
               <div
-                className={`absolute -left-[20px] top-2.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                  isLatest
-                    ? "border-indigo-600 bg-indigo-600 text-white"
-                    : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                className={`relative w-full h-full rounded-full border-4 flex items-center justify-center shadow-lg ${
+                  isCompleted
+                    ? `bg-gradient-to-br ${theme.from} ${theme.to} border-white/70 dark:border-slate-900/70 ${theme.shadow} ring-4 ${theme.ring}`
+                    : "bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800 border-white/60 dark:border-slate-900/60"
                 }`}
               >
-                {isLatest && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                {isCompleted ? (
+                  <Check className="w-8 h-8 text-white drop-shadow stroke-[3]" />
+                ) : (
+                  <Lock className="w-7 h-7 text-slate-100 dark:text-slate-400" />
+                )}
               </div>
+            </button>
 
-              <MobileCard>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <AvatarCircle name={node.author} picture={node.avatar} size={5} />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{node.author}</span>
-                  </div>
-                  <span className="text-[9px] font-semibold text-slate-400 shrink-0">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy")}</span>
-                </div>
+            {isCompleted ? (
+              <div className="text-center space-y-0.5 max-w-[220px]">
+                <p className="text-xs font-black text-slate-900 dark:text-white leading-snug">{node.title || "Progress update"}</p>
+                <p className="text-[10px] font-semibold text-slate-400">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy · h:mm a")}</p>
+                <p className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 pt-1">Tap island to view details</p>
+              </div>
+            ) : (
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">Locked until a new update is posted</p>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
-                {node.title && (
-                  <h4 className="text-xs font-black text-slate-900 dark:text-white leading-snug mb-1">{node.title}</h4>
-                )}
-
-                {node.accomplishment && (
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">{node.accomplishment}</p>
-                )}
-
-                <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
-              </MobileCard>
-            </div>
-          );
-        })}
+        {/* Dots pagination */}
+        <div className="flex items-center justify-center gap-1.5 pt-1">
+          {slots.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={`h-1.5 rounded-full transition-all ${i === cursor ? "w-5 bg-indigo-500" : "w-1.5 bg-slate-300 dark:bg-slate-700"}`}
+              aria-label={`Go to milestone ${i + 1}`}
+            />
+          ))}
+        </div>
       </div>
+
+      <MobileJourneyProgressBar completed={timelineNodes.length} total={totalSlots} />
     </div>
   );
 }
@@ -281,6 +409,7 @@ export default function MobileProjectDetailPage() {
   const [editProjectSheetOpen, setEditProjectSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("progress"); // "progress" | "roadmap"
   const [previewAttachment, setPreviewAttachment] = useState(null);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
 
   // Progress form
   const [formTitle, setFormTitle] = useState("");
@@ -438,6 +567,15 @@ export default function MobileProjectDetailPage() {
     };
   });
 
+  const handleSelectMilestone = (node) => {
+    setSelectedMilestoneId(node.id);
+    setActiveTab("progress");
+  };
+
+  const displayedNode = selectedMilestoneId
+    ? timelineNodes.find((n) => n.id === selectedMilestoneId) || timelineNodes[0]
+    : timelineNodes[0];
+
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
       {/* Back + Title */}
@@ -516,17 +654,22 @@ export default function MobileProjectDetailPage() {
             description={isStudent ? "Post your first update to get started." : "Students haven't posted any updates yet."}
           />
         ) : (
-          <div className="space-y-3">
-            {timelineNodes.map((node, idx) => (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={displayedNode.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
               <ProgressCard
-                key={node.id}
-                node={node}
+                node={displayedNode}
                 projectId={id}
                 isStudent={isStudent}
                 isFaculty={isFaculty}
                 isHOD={isHOD}
                 currentUserId={user?.id}
-                isLatest={idx === 0}
+                isLatest={displayedNode.id === timelineNodes[0]?.id}
                 onEdit={(n) => { setEditingMsg({ id: n.id, title: n.title, content: n.accomplishment, created_at: n.dateRaw }); setAddSheetOpen(true); }}
                 onDelete={(msgId) => setDeleteTarget(msgId)}
                 onAddComment={(msgId, content) => addCommentMutation.mutateAsync({ msgId, content })}
@@ -534,11 +677,15 @@ export default function MobileProjectDetailPage() {
                 onReact={(msgId, commentId, emoji) => reactMutation.mutate({ msgId, commentId, emoji })}
                 onPreviewAttachment={setPreviewAttachment}
               />
-            ))}
-          </div>
+            </motion.div>
+          </AnimatePresence>
         )
       ) : (
-        <MobileRoadmapView timelineNodes={timelineNodes} onPreviewAttachment={setPreviewAttachment} />
+        <MobileRoadmapView
+          timelineNodes={timelineNodes}
+          onSelectMilestone={handleSelectMilestone}
+          selectedId={selectedMilestoneId ?? timelineNodes[0]?.id}
+        />
       )}
 
       {/* Student FAB to Post Progress */}
