@@ -514,9 +514,11 @@ function IslandNode({ node, index, isCompleted, isSelected, onClick }) {
 
 function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   const scrollRef = useRef(null);
-  const totalSlots = Math.max(ISLAND_MIN_SLOTS, timelineNodes.length);
-  const slots = Array.from({ length: totalSlots }, (_, i) => timelineNodes[i] || null);
-  const activeNode = timelineNodes.find((n) => n.id === selectedId) || timelineNodes[0];
+  // timelineNodes is newest-first; the roadmap must read oldest -> newest (island 1 = first milestone achieved).
+  const chronological = [...timelineNodes].reverse();
+  const totalSlots = Math.max(ISLAND_MIN_SLOTS, chronological.length);
+  const slots = Array.from({ length: totalSlots }, (_, i) => chronological[i] || null);
+  const activeNode = chronological.find((n) => n.id === selectedId) || chronological[chronological.length - 1];
 
   const scrollBy = (dir) => {
     scrollRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
@@ -595,9 +597,11 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
                   onClick={onSelectMilestone}
                 />
                 {idx < slots.length - 1 && (
-                  <div className="flex items-center h-32 -mx-2">
-                    <svg width="40" height="16" viewBox="0 0 40 16" className="text-slate-300 dark:text-slate-700">
-                      <line x1="2" y1="8" x2="38" y2="8" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
+                  <div className="flex items-center h-32 -mx-1">
+                    <svg width="56" height="16" viewBox="0 0 56 16" className="text-slate-300 dark:text-slate-700">
+                      <line x1="2" y1="8" x2="54" y2="8" stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
+                      <circle cx="19" cy="8" r="2.5" fill="currentColor" />
+                      <circle cx="37" cy="8" r="2.5" fill="currentColor" />
                     </svg>
                   </div>
                 )}

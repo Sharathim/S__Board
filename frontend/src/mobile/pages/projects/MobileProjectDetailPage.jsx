@@ -202,15 +202,17 @@ function MobileAttachmentList({ attachments, onPreview }) {
 const ISLAND_MIN_SLOTS = 5;
 
 function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
-  const totalSlots = Math.max(ISLAND_MIN_SLOTS, timelineNodes.length);
-  const slots = Array.from({ length: totalSlots }, (_, i) => timelineNodes[i] || null);
+  // timelineNodes is newest-first; the roadmap must read oldest -> newest (island 1 = first milestone achieved).
+  const chronological = [...timelineNodes].reverse();
+  const totalSlots = Math.max(ISLAND_MIN_SLOTS, chronological.length);
+  const slots = Array.from({ length: totalSlots }, (_, i) => chronological[i] || null);
 
   const initialIdx = (() => {
     if (selectedId) {
-      const found = timelineNodes.findIndex((n) => n.id === selectedId);
+      const found = chronological.findIndex((n) => n.id === selectedId);
       if (found >= 0) return found;
     }
-    return 0;
+    return Math.max(0, chronological.length - 1);
   })();
 
   const [cursor, setCursor] = useState(initialIdx);
@@ -218,7 +220,7 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
 
   useEffect(() => {
     if (selectedId) {
-      const found = timelineNodes.findIndex((n) => n.id === selectedId);
+      const found = chronological.findIndex((n) => n.id === selectedId);
       if (found >= 0) setCursor(found);
     }
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
