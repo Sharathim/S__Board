@@ -11,15 +11,29 @@ import { useSocket } from "../../../hooks/useSocket";
 import { Spinner } from "../../../components/ui/Spinner";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import BottomSheet from "../../layout/BottomSheet";
-import { Paperclip, X, File, FileText, Download, ExternalLink, Send, Plus } from "lucide-react";
+import { Paperclip, X, File, Download, ExternalLink, Send } from "lucide-react";
 import { format } from "date-fns";
 
 import ProgressWorld3D from "../../../components/projects/ProgressWorld3D";
 
 function parseUTCDate(dateStr) {
   if (!dateStr) return new Date();
-  const s = String(dateStr);
-  return new Date(s.endsWith("Z") ? s : s + "Z");
+  try {
+    const s = String(dateStr);
+    const d = new Date(s.endsWith("Z") ? s : s + "Z");
+    return isNaN(d.getTime()) ? new Date() : d;
+  } catch {
+    return new Date();
+  }
+}
+
+function formatDateSafe(dateStr, formatPattern = "MMM d, yyyy · h:mm a") {
+  try {
+    const d = parseUTCDate(dateStr);
+    return format(d, formatPattern);
+  } catch {
+    return "Recently";
+  }
 }
 
 function getFileExt(name) {
@@ -110,7 +124,7 @@ export default function MobileProjectDetailPage() {
   const [formText, setFormText] = useState("");
   const [formFiles, setFormFiles] = useState([]);
 
-  const { data: project, isLoading } = useQuery({
+  const { data: project, isLoading, isError } = useQuery({
     queryKey: ["project", id],
     queryFn: () => getProject(id).then(r => r.data.project),
   });
@@ -140,7 +154,7 @@ export default function MobileProjectDetailPage() {
   const onNewMessage = useCallback((msg) => {
     queryClient.setQueryData(["messages", id], old => {
       if (!old) return old;
-      return { ...old, messages: [...(old.messages || []), msg], total: old.total + 1 };
+      return { ...old, messages: [...(old.messages || []), msg], total: (old.total || 0) + 1 };
     });
   }, [id, queryClient]);
 
@@ -205,10 +219,10 @@ export default function MobileProjectDetailPage() {
   };
 
   if (isLoading) return <div className="flex items-center justify-center py-20"><Spinner /></div>;
-  if (!project) return null;
+  if (isError || !project) return <div className="p-8 text-center text-slate-400">Failed to load project details.</div>;
 
   // Parse messages into timeline nodes
-  const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
+  const timelineNodes = reversedMessages.filter(msg => msg && !msg.is_deleted).map(msg => {
     let title = msg.title || "";
     let accomplishment = "";
     try {
@@ -229,10 +243,10 @@ export default function MobileProjectDetailPage() {
 
     return {
       id: msg.id, dateRaw: msg.created_at,
-      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
-      author: msg.sender?.name || "Unknown", role: msg.sender?.role || "STUDENT",
-      avatar: msg.sender?.profile_picture, title, accomplishment, attachments,
-      comments: msg.comments || [], is_edited: msg.is_edited,
+      dateStr: formatDateSafe(msg.created_at),
+      author: msg.sender?.name || "Student Member", role: msg.sender?.role || "STUDENT",
+      avatar: msg.sender?.profile_picture, title: title || "Progress Milestone", accomplishment, attachments,
+      comments: Array.isArray(msg.comments) ? msg.comments : [], is_edited: msg.is_edited,
       isOwn: msg.sender?.id === user?.id, canEdit: msg.can_edit && msg.sender?.id === user?.id,
     };
   });

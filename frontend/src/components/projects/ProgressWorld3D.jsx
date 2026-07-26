@@ -4,18 +4,28 @@ import gsap from "gsap";
 import {
   ChevronLeft, ChevronRight, Eye, Download, MessageSquare, Send, Smile,
   X, Paperclip, Plus, ArrowLeft, Users, FileText, CheckCircle2, Lock,
-  Sparkles, Trophy, ShieldAlert, Flag, Home, Mountain, Compass, MapPin
+  Sparkles, Trophy, ShieldAlert, Flag, Home, Mountain, Compass, MapPin, AlertCircle
 } from "lucide-react";
+
+function parseUTCDate(dateStr) {
+  if (!dateStr) return new Date();
+  try {
+    const s = String(dateStr);
+    const d = new Date(s.endsWith('Z') ? s : s + 'Z');
+    return isNaN(d.getTime()) ? new Date() : d;
+  } catch {
+    return new Date();
+  }
+}
 
 /**
  * Procedural Low-Poly 3D Progress Monitor World using Three.js & GSAP.
- * Renders a floating island game world with winding paths, 3D checkpoints,
- * animated player character, dynamic lighting, fog, and interactive camera tracking.
+ * Includes WebGL error boundary & graceful 2D isometric fallback for devices/browsers without WebGL hardware support.
  */
 export default function ProgressWorld3D({
   project,
-  timelineNodes,
-  selectedIndex,
+  timelineNodes = [],
+  selectedIndex = 0,
   onSelectCheckpoint,
   isStudent,
   isFaculty,
@@ -38,31 +48,31 @@ export default function ProgressWorld3D({
   const currentLookAt = useRef(new THREE.Vector3(0, 0, 0));
   const checkpointMeshesRef = useRef([]);
 
-  const totalSteps = timelineNodes.length;
-  const activeNode = timelineNodes[selectedIndex] || timelineNodes[0];
+  const [webGlSupported, setWebGlSupported] = useState(true);
 
-  // ─── Initialize 3D Scene ───────────────────────────────────────────────────
+  const safeTimelineNodes = Array.isArray(timelineNodes) ? timelineNodes : [];
+  const totalSteps = safeTimelineNodes.length;
+  const safeIndex = Math.min(Math.max(0, selectedIndex), totalSteps);
+  const activeNode = safeTimelineNodes[safeIndex] || safeTimelineNodes[0] || null;
+
+  // ─── Initialize 3D Scene with WebGL Try/Catch ───
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || (window.innerHeight - 80);
 
-    // 1. Scene
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
-    scene.background = new THREE.Color(0x0f172a); // Deep blue night-sky pastel
-    scene.fog = new THREE.FogExp2(0x0f172a, 0.018);
+    // 1. WebGL Renderer Creation Guard
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    } catch (e) {
+      console.warn("WebGL not supported or context creation failed:", e);
+      setWebGlSupported(false);
+      return;
+    }
 
-    // 2. Camera (Isometric Perspective)
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
-    cameraRef.current = camera;
-    camera.position.set(0, 24, 32);
-    camera.lookAt(0, 0, 0);
-
-    // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     rendererRef.current = renderer;
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -71,13 +81,28 @@ export default function ProgressWorld3D({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
 
+    // Clear previous children
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
     container.appendChild(renderer.domElement);
 
-    // 4. Lights
-    const ambientLight = new THREE.AmbientLight(0xc7d2fe, 0.85); // Gentle soft blue-purple ambient
+    // 2. Scene & Camera
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
+    scene.background = new THREE.Color(0x0f172a);
+    scene.fog = new THREE.FogExp2(0x0f172a, 0.018);
+
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    cameraRef.current = camera;
+    camera.position.set(0, 24, 32);
+    camera.lookAt(0, 0, 0);
+
+    // 3. Lights
+    const ambientLight = new THREE.AmbientLight(0xc7d2fe, 0.85);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff7ed, 1.4); // Warm sunlight
+    const sunLight = new THREE.DirectionalLight(0xfff7ed, 1.4);
     sunLight.position.set(30, 45, 25);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
@@ -96,11 +121,11 @@ export default function ProgressWorld3D({
     fillLight.position.set(-30, 20, -20);
     scene.add(fillLight);
 
-    // 5. Build Island Base & Path
-    const pathPoints = generateWindingPath(totalSteps + 1); // +1 for locked area
+    // 4. Build Island Base & Path
+    const pathPoints = generateWindingPath(totalSteps + 1);
     buildFloatingIsland(scene, pathPoints);
 
-    // 6. Build Checkpoints along path
+    // 5. Build Checkpoints
     checkpointMeshesRef.current = [];
     const checkpointGroup = new THREE.Group();
     scene.add(checkpointGroup);
@@ -114,16 +139,16 @@ export default function ProgressWorld3D({
       checkpointMeshesRef.current.push(cpMesh);
     });
 
-    // 7. Player Character Token
+    // 6. Player Character Token
     const playerGroup = createPlayerCharacter();
     playerMeshRef.current = playerGroup;
-    if (pathPoints[selectedIndex]) {
-      playerGroup.position.copy(pathPoints[selectedIndex]);
+    if (pathPoints[safeIndex]) {
+      playerGroup.position.copy(pathPoints[safeIndex]);
     }
     scene.add(playerGroup);
 
-    // 8. Particle System (Floating sparkles/pollen)
-    const particleCount = 120;
+    // 7. Particle System
+    const particleCount = 100;
     const pGeo = new THREE.BufferGeometry();
     const pPos = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
@@ -142,7 +167,7 @@ export default function ProgressWorld3D({
     const particles = new THREE.Points(pGeo, pMat);
     scene.add(particles);
 
-    // 9. Animation Loop
+    // 8. Animation Loop
     let clock = new THREE.Clock();
     let animId;
 
@@ -151,11 +176,8 @@ export default function ProgressWorld3D({
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
 
-      // Sway trees & clouds
       scene.traverse((obj) => {
-        if (obj.userData?.sway) {
-          obj.rotation.z = Math.sin(elapsed * 1.5 + obj.position.x) * 0.04;
-        }
+        if (obj.userData?.sway) obj.rotation.z = Math.sin(elapsed * 1.5 + obj.position.x) * 0.04;
         if (obj.userData?.drift) {
           obj.position.x += delta * 0.5;
           if (obj.position.x > 50) obj.position.x = -50;
@@ -164,12 +186,9 @@ export default function ProgressWorld3D({
           const s = 1 + Math.sin(elapsed * 3) * 0.08;
           obj.scale.set(s, s, s);
         }
-        if (obj.userData?.spin) {
-          obj.rotation.y += delta * 1.2;
-        }
+        if (obj.userData?.spin) obj.rotation.y += delta * 1.2;
       });
 
-      // Particle float
       const positions = particles.geometry.attributes.position.array;
       for (let i = 1; i < particleCount * 3; i += 3) {
         positions[i] += delta * 0.6;
@@ -177,12 +196,10 @@ export default function ProgressWorld3D({
       }
       particles.geometry.attributes.position.needsUpdate = true;
 
-      // Player idle bobbing
-      if (playerGroup) {
-        playerGroup.position.y = (pathPoints[selectedIndex]?.y || 0) + Math.sin(elapsed * 3) * 0.15;
+      if (playerGroup && pathPoints[safeIndex]) {
+        playerGroup.position.y = (pathPoints[safeIndex]?.y || 0) + Math.sin(elapsed * 3) * 0.15;
       }
 
-      // Smooth camera target tracking
       currentLookAt.current.lerp(targetLookAt.current, 0.06);
       camera.lookAt(currentLookAt.current);
 
@@ -191,18 +208,16 @@ export default function ProgressWorld3D({
 
     animate();
 
-    // Resize Handler
     const handleResize = () => {
       if (!container || !renderer || !camera) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || (window.innerHeight - 80);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
     window.addEventListener("resize", handleResize);
 
-    // Raycasting for clicking 3D checkpoints
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -219,13 +234,7 @@ export default function ProgressWorld3D({
           topObj = topObj.parent;
         }
         if (topObj.userData?.index !== undefined) {
-          const idx = topObj.userData.index;
-          if (idx < totalSteps) {
-            onSelectCheckpoint(idx);
-          } else {
-            // Locked checkpoint clicked
-            onSelectCheckpoint(idx);
-          }
+          onSelectCheckpoint(topObj.userData.index);
         }
       }
     };
@@ -243,14 +252,13 @@ export default function ProgressWorld3D({
     };
   }, [totalSteps]);
 
-  // ─── Camera & Player Movement on Checkpoint Selection ─────────────────────
+  // ─── Camera & Player Movement ───
   useEffect(() => {
-    if (!cameraRef.current || !sceneRef.current) return;
+    if (!cameraRef.current || !sceneRef.current || !webGlSupported) return;
 
     const points = generateWindingPath(totalSteps + 1);
-    const targetPt = points[selectedIndex] || new THREE.Vector3(0, 0, 0);
+    const targetPt = points[safeIndex] || points[0] || new THREE.Vector3(0, 0, 0);
 
-    // Update target camera lookAt & position
     targetLookAt.current.copy(targetPt);
 
     const cameraOffset = new THREE.Vector3(targetPt.x, targetPt.y + 18, targetPt.z + 24);
@@ -263,56 +271,81 @@ export default function ProgressWorld3D({
       ease: "power2.inOut",
     });
 
-    // Move player character smoothly along path
-    if (playerMeshRef.current && points[selectedIndex]) {
+    if (playerMeshRef.current && points[safeIndex]) {
       gsap.to(playerMeshRef.current.position, {
         x: targetPt.x,
         y: targetPt.y,
         z: targetPt.z,
         duration: 1.2,
         ease: "power2.out",
-        onUpdate: () => {
-          // Bounce animation while moving
-          playerMeshRef.current.rotation.y += 0.1;
-        },
         onComplete: () => {
-          playerMeshRef.current.rotation.y = 0;
-          // Jump celebration
-          gsap.to(playerMeshRef.current.position, {
-            y: targetPt.y + 0.8,
-            duration: 0.25,
-            yoyo: true,
-            repeat: 1,
-            ease: "power1.out",
-          });
+          if (playerMeshRef.current) {
+            playerMeshRef.current.rotation.y = 0;
+            gsap.to(playerMeshRef.current.position, {
+              y: targetPt.y + 0.8,
+              duration: 0.25,
+              yoyo: true,
+              repeat: 1,
+              ease: "power1.out",
+            });
+          }
         },
       });
     }
 
-    // Highlight checkpoint mesh
     checkpointMeshesRef.current.forEach((mesh, idx) => {
       if (!mesh) return;
-      const isSelected = idx === selectedIndex;
+      const isSelected = idx === safeIndex;
       const scale = isSelected ? 1.25 : 1.0;
       gsap.to(mesh.scale, { x: scale, y: scale, z: scale, duration: 0.4, ease: "back.out(1.7)" });
     });
-  }, [selectedIndex, totalSteps]);
+  }, [safeIndex, totalSteps, webGlSupported]);
 
-  // ─── Keyboard Navigation ──────────────────────────────────────────────────
+  // ─── Keyboard Controls ───
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
-        if (selectedIndex > 0) onSelectCheckpoint(selectedIndex - 1);
+        if (safeIndex > 0) onSelectCheckpoint(safeIndex - 1);
       } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
-        if (selectedIndex < totalSteps) onSelectCheckpoint(selectedIndex + 1);
+        if (safeIndex < totalSteps) onSelectCheckpoint(safeIndex + 1);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, totalSteps, onSelectCheckpoint]);
+  }, [safeIndex, totalSteps, onSelectCheckpoint]);
 
-  const isLockedSelected = selectedIndex >= totalSteps;
-  const isLastUnlocked = selectedIndex === totalSteps - 1;
+  const isLockedSelected = safeIndex >= totalSteps;
+
+  // Fallback View if WebGL is disabled/not supported
+  if (!webGlSupported) {
+    return (
+      <div className="relative w-full h-[calc(100vh-80px)] bg-slate-950 p-6 overflow-y-auto font-sans text-white">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-300">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <p className="text-xs font-semibold">
+              3D WebGL hardware acceleration is disabled in your browser settings. Displaying interactive journey view.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-white">{project?.name || "Project Progress"}</h2>
+            <div className="space-y-3">
+              {safeTimelineNodes.map((node, i) => (
+                <div key={node.id} className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-indigo-400">Milestone {i + 1}</span>
+                    <span className="text-[10px] text-slate-400">{node.dateStr}</span>
+                  </div>
+                  <h3 className="text-sm font-bold text-white">{node.title || "Update"}</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">{node.accomplishment}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-[calc(100vh-80px)] overflow-hidden bg-slate-950 font-sans select-none">
@@ -327,7 +360,7 @@ export default function ProgressWorld3D({
             <Compass className="w-4 h-4" />
           </div>
           <div>
-            <h1 className="text-sm font-black text-white leading-tight truncate max-w-[200px] sm:max-w-xs">{project.name}</h1>
+            <h1 className="text-sm font-black text-white leading-tight truncate max-w-[180px] sm:max-w-xs">{project?.name || "Project"}</h1>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mt-0.5">3D Project Journey</span>
           </div>
         </div>
@@ -340,7 +373,7 @@ export default function ProgressWorld3D({
             <div>
               <span className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 block leading-none">Journey</span>
               <span className="text-xs font-black text-amber-400">
-                {totalSteps > 0 ? `${Math.round(((selectedIndex + 1) / totalSteps) * 100)}%` : "0%"}
+                {totalSteps > 0 ? `${Math.round(((safeIndex + 1) / totalSteps) * 100)}%` : "0%"}
               </span>
             </div>
           </div>
@@ -360,8 +393,8 @@ export default function ProgressWorld3D({
       {/* ── Navigation Arrow Controls (Bottom Center) ── */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 bg-slate-900/90 backdrop-blur-lg border border-slate-700/70 rounded-full p-1.5 shadow-2xl">
         <button
-          onClick={() => selectedIndex > 0 && onSelectCheckpoint(selectedIndex - 1)}
-          disabled={selectedIndex === 0}
+          onClick={() => safeIndex > 0 && onSelectCheckpoint(safeIndex - 1)}
+          disabled={safeIndex === 0}
           className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -370,7 +403,7 @@ export default function ProgressWorld3D({
         {/* Milestone Steps Dots */}
         <div className="flex items-center gap-1.5 px-3">
           {Array.from({ length: totalSteps + 1 }).map((_, idx) => {
-            const isCurrent = idx === selectedIndex;
+            const isCurrent = idx === safeIndex;
             const isLock = idx >= totalSteps;
             return (
               <button
@@ -390,8 +423,8 @@ export default function ProgressWorld3D({
         </div>
 
         <button
-          onClick={() => selectedIndex < totalSteps && onSelectCheckpoint(selectedIndex + 1)}
-          disabled={selectedIndex >= totalSteps}
+          onClick={() => safeIndex < totalSteps && onSelectCheckpoint(safeIndex + 1)}
+          disabled={safeIndex >= totalSteps}
           className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all"
         >
           <ChevronRight className="w-5 h-5" />
@@ -402,7 +435,7 @@ export default function ProgressWorld3D({
       {activeNode && !isLockedSelected && (
         <GlassInfoPanel
           node={activeNode}
-          projectId={project.id}
+          projectId={project?.id}
           isStudent={isStudent}
           isFaculty={isFaculty}
           isHOD={isHOD}
@@ -413,7 +446,7 @@ export default function ProgressWorld3D({
           onReact={onReact}
           onEditProgress={onEditProgress}
           onDeleteProgress={onDeleteProgress}
-          stepIndex={selectedIndex}
+          stepIndex={safeIndex}
           totalSteps={totalSteps}
         />
       )}
@@ -454,6 +487,9 @@ function GlassInfoPanel({
   const [minimized, setMinimized] = useState(false);
   const [feedbackInput, setFeedbackInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  if (!node) return null;
+
   const comments = node.comments || [];
 
   const handleSendFeedback = async (e) => {
@@ -472,9 +508,11 @@ function GlassInfoPanel({
       {/* Header Bar */}
       <div className="sticky top-0 z-20 flex items-center justify-between px-5 py-4 bg-slate-900/95 border-b border-slate-800/80 backdrop-blur-md">
         <div className="flex items-center gap-3 min-w-0">
-          <AvatarCircle name={node.author} picture={node.avatar} size="sm" />
+          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-black text-xs shrink-0">
+            {(node.author || "?").charAt(0).toUpperCase()}
+          </div>
           <div className="min-w-0">
-            <h3 className="text-xs font-black text-white truncate">{node.author}</h3>
+            <h3 className="text-xs font-black text-white truncate">{node.author || "Unknown"}</h3>
             <p className="text-[10px] font-semibold text-slate-400">Milestone {stepIndex + 1} of {totalSteps} • {node.dateStr}</p>
           </div>
         </div>
@@ -482,12 +520,12 @@ function GlassInfoPanel({
         <div className="flex items-center gap-1.5 shrink-0">
           {node.isOwn && node.canEdit && (
             <button onClick={() => onEditProgress(node)} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors" title="Edit">
-              <Edit2 className="w-3.5 h-3.5" />
+              <Paperclip className="w-3.5 h-3.5" />
             </button>
           )}
           {(node.isOwn || isHOD) && (
             <button onClick={() => onDeleteProgress(node.id)} className="p-1.5 rounded-lg hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 transition-colors" title="Delete">
-              <Trash2 className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
           <button onClick={() => setMinimized(!minimized)} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
@@ -569,7 +607,7 @@ function GlassInfoPanel({
                       <span>{c.author?.name || "Faculty"}</span>
                       {(isHOD || c.author?.id === currentUserId) && (
                         <button onClick={() => onDeleteComment(node.id, c.id)} className="text-slate-500 hover:text-rose-400">
-                          <Trash2 className="w-3 h-3" />
+                          <X className="w-3 h-3" />
                         </button>
                       )}
                     </div>
@@ -609,8 +647,9 @@ function GlassInfoPanel({
 function generateWindingPath(count) {
   const points = [];
   const radius = 18;
-  for (let i = 0; i < Math.max(count, 3); i++) {
-    const t = i / Math.max(count - 1, 1);
+  const safeCount = Math.max(count || 0, 3);
+  for (let i = 0; i < safeCount; i++) {
+    const t = i / Math.max(safeCount - 1, 1);
     const angle = t * Math.PI * 2.2 - Math.PI * 0.5;
     const r = radius + Math.sin(t * Math.PI * 3) * 4;
     const x = Math.cos(angle) * r;
@@ -622,7 +661,6 @@ function generateWindingPath(count) {
 }
 
 function buildFloatingIsland(scene, pathPoints) {
-  // Main Island Base (Low poly cylinder)
   const islandGeo = new THREE.CylinderGeometry(26, 8, 12, 12);
   const islandMat = new THREE.MeshStandardMaterial({
     color: 0x334155,
@@ -635,10 +673,9 @@ function buildFloatingIsland(scene, pathPoints) {
   island.receiveShadow = true;
   scene.add(island);
 
-  // Top Grass Surface Layer
   const grassGeo = new THREE.CylinderGeometry(26.2, 25.8, 1.2, 16);
   const grassMat = new THREE.MeshStandardMaterial({
-    color: 0x10b981, // Vivid emerald grass
+    color: 0x10b981,
     roughness: 0.6,
     metalness: 0.05,
     flatShading: true,
@@ -648,7 +685,6 @@ function buildFloatingIsland(scene, pathPoints) {
   grass.receiveShadow = true;
   scene.add(grass);
 
-  // Winding Stone Path Pavers
   pathPoints.forEach((pt) => {
     const paverGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.3, 7);
     const paverMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7, flatShading: true });
@@ -659,14 +695,12 @@ function buildFloatingIsland(scene, pathPoints) {
     scene.add(paver);
   });
 
-  // Trees & Environment Props
   for (let i = 0; i < 22; i++) {
     const ang = Math.random() * Math.PI * 2;
     const rad = 8 + Math.random() * 16;
     const px = Math.cos(ang) * rad;
     const pz = Math.sin(ang) * rad;
 
-    // Avoid tree overlap on path
     const nearPath = pathPoints.some(pt => pt.distanceTo(new THREE.Vector3(px, 0, pz)) < 3.5);
     if (!nearPath) {
       const tree = createPineTree();
@@ -706,7 +740,6 @@ function createCheckpointMesh(index, isLocked, isLatest) {
   const group = new THREE.Group();
 
   if (isLocked) {
-    // Locked Mystery Portal Structure
     const archGeo = new THREE.TorusGeometry(1.6, 0.3, 6, 12);
     const archMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8, flatShading: true });
     const arch = new THREE.Mesh(archGeo, archMat);
@@ -722,12 +755,10 @@ function createCheckpointMesh(index, isLocked, isLatest) {
     return group;
   }
 
-  // Cyclical Checkpoint Themes
   const themes = ["camp", "tower", "gate", "village", "castle", "mountain", "temple", "trophy"];
   const theme = themes[index % themes.length];
 
   if (theme === "camp") {
-    // Campfire & Tent
     const tentGeo = new THREE.ConeGeometry(1.4, 2.2, 4);
     const tentMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6, flatShading: true });
     const tent = new THREE.Mesh(tentGeo, tentMat);
@@ -735,7 +766,6 @@ function createCheckpointMesh(index, isLocked, isLatest) {
     tent.castShadow = true;
     group.add(tent);
   } else if (theme === "tower") {
-    // Stone Watchtower
     const towerGeo = new THREE.CylinderGeometry(1.1, 1.3, 3.2, 7);
     const towerMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8, flatShading: true });
     const tower = new THREE.Mesh(towerGeo, towerMat);
@@ -743,14 +773,12 @@ function createCheckpointMesh(index, isLocked, isLatest) {
     tower.castShadow = true;
     group.add(tower);
   } else if (theme === "gate") {
-    // Magic Arch
     const gateGeo = new THREE.TorusGeometry(1.8, 0.35, 6, 12);
     const gateMat = new THREE.MeshStandardMaterial({ color: 0x818cf8, roughness: 0.4, flatShading: true });
     const gate = new THREE.Mesh(gateGeo, gateMat);
     gate.position.y = 1.8;
     group.add(gate);
   } else if (theme === "trophy") {
-    // Golden Monument
     const baseGeo = new THREE.BoxGeometry(2, 0.8, 2);
     const baseMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.2, metalness: 0.9 });
     const base = new THREE.Mesh(baseGeo, baseMat);
@@ -764,7 +792,6 @@ function createCheckpointMesh(index, isLocked, isLatest) {
     star.userData = { spin: true };
     group.add(star);
   } else {
-    // Default Flag Post
     const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 3.5);
     const poleMat = new THREE.MeshStandardMaterial({ color: 0x78350f });
     const pole = new THREE.Mesh(poleGeo, poleMat);
@@ -778,7 +805,6 @@ function createCheckpointMesh(index, isLocked, isLatest) {
     group.add(flag);
   }
 
-  // Glowing Base Ring for Current Checkpoint
   if (isLatest) {
     const ringGeo = new THREE.RingGeometry(2.0, 2.4, 24);
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x6366f1, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
@@ -795,7 +821,6 @@ function createCheckpointMesh(index, isLocked, isLatest) {
 function createPlayerCharacter() {
   const group = new THREE.Group();
 
-  // Head
   const headGeo = new THREE.SphereGeometry(0.45, 8, 8);
   const headMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.5, flatShading: true });
   const head = new THREE.Mesh(headGeo, headMat);
@@ -803,14 +828,12 @@ function createPlayerCharacter() {
   head.castShadow = true;
   group.add(head);
 
-  // Explorer Hat
   const hatGeo = new THREE.ConeGeometry(0.7, 0.5, 6);
   const hatMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8, flatShading: true });
   const hat = new THREE.Mesh(hatGeo, hatMat);
   hat.position.y = 2.3;
   group.add(hat);
 
-  // Body Cloak
   const bodyGeo = new THREE.CylinderGeometry(0.35, 0.65, 1.2, 6);
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4f46e5, roughness: 0.6, flatShading: true });
   const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -818,7 +841,6 @@ function createPlayerCharacter() {
   body.castShadow = true;
   group.add(body);
 
-  // Backpack
   const packGeo = new THREE.BoxGeometry(0.5, 0.6, 0.4);
   const packMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 });
   const pack = new THREE.Mesh(packGeo, packMat);

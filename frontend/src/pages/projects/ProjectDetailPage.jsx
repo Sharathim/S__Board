@@ -8,21 +8,33 @@ import {
 } from "../../api/projects";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../hooks/useSocket";
-import { usePageTransition } from "../../context/TransitionContext";
 import { Spinner } from "../../components/ui/Spinner";
 import { Button } from "../../components/ui/Button";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { Paperclip, X, FileText, File, Image, Download, ExternalLink, Plus } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { Paperclip, X, File, Download, ExternalLink } from "lucide-react";
+import { format } from "date-fns";
 
 import ProgressWorld3D from "../../components/projects/ProgressWorld3D";
-import { ProjectFormCard } from "./ProjectWorkflowPage";
 
 function parseUTCDate(dateStr) {
   if (!dateStr) return new Date();
-  const s = String(dateStr);
-  return new Date(s.endsWith('Z') ? s : s + 'Z');
+  try {
+    const s = String(dateStr);
+    const d = new Date(s.endsWith('Z') ? s : s + 'Z');
+    return isNaN(d.getTime()) ? new Date() : d;
+  } catch {
+    return new Date();
+  }
+}
+
+function formatDateSafe(dateStr, formatPattern = "MMM d, yyyy · h:mm a") {
+  try {
+    const d = parseUTCDate(dateStr);
+    return format(d, formatPattern);
+  } catch {
+    return "Recently";
+  }
 }
 
 function getFileExt(name) {
@@ -127,7 +139,6 @@ export default function ProjectDetailPage() {
 
   // UI state
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [editProjectModalOpen, setEditProjectModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -139,7 +150,7 @@ export default function ProjectDetailPage() {
   const [formFiles, setFormFiles] = useState([]);
 
   // Fetch project
-  const { data: project, isLoading } = useQuery({
+  const { data: project, isLoading, isError } = useQuery({
     queryKey: ["project", id],
     queryFn: () => getProject(id).then(r => r.data.project),
   });
@@ -173,7 +184,7 @@ export default function ProjectDetailPage() {
   const onNewMessage = useCallback((msg) => {
     queryClient.setQueryData(["messages", id], old => {
       if (!old) return old;
-      return { ...old, messages: [...(old.messages || []), msg], total: old.total + 1 };
+      return { ...old, messages: [...(old.messages || []), msg], total: (old.total || 0) + 1 };
     });
   }, [id, queryClient]);
 
@@ -237,7 +248,7 @@ export default function ProjectDetailPage() {
   });
 
   if (isLoading) return <Spinner />;
-  if (!project) return null;
+  if (isError || !project) return <div className="p-8 text-center text-slate-400">Failed to load project details. Please refresh.</div>;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -267,8 +278,8 @@ export default function ProjectDetailPage() {
     }
   };
 
-  // Parse messages into timeline nodes
-  const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
+  // Parse messages into timeline nodes safely
+  const timelineNodes = reversedMessages.filter(msg => msg && !msg.is_deleted).map(msg => {
     let title = msg.title || "";
     let accomplishment = "";
     try {
@@ -297,14 +308,14 @@ export default function ProjectDetailPage() {
     return {
       id: msg.id,
       dateRaw: msg.created_at,
-      dateStr: format(parseUTCDate(msg.created_at), "MMM d, yyyy · h:mm a"),
-      author: msg.sender?.name || "Unknown",
+      dateStr: formatDateSafe(msg.created_at),
+      author: msg.sender?.name || "Student Member",
       role: msg.sender?.role || "STUDENT",
       avatar: msg.sender?.profile_picture,
-      title,
+      title: title || "Progress Milestone",
       accomplishment,
       attachments,
-      comments: msg.comments || [],
+      comments: Array.isArray(msg.comments) ? msg.comments : [],
       is_edited: msg.is_edited,
       isOwn,
       canEdit,
