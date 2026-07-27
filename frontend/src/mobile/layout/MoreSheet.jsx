@@ -13,14 +13,12 @@ import { useState } from "react";
 const getMoreItemsForRole = (role) => {
   if (role === "HOD") {
     return [
-      { icon: FileText, label: "Notes & Docs", to: "/notes" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
   } else {
     // FACULTY or STUDENT
     return [
-      { icon: FileText, label: "Notes & Docs", to: "/notes" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
   }

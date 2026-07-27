@@ -1,758 +1,652 @@
-import { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import gsap from "gsap";
 import {
-  FileText, Presentation, FileCode, Image as ImageIcon, Download, Eye,
-  Plus, Trash2, BookOpen, Layers, X, Check, Loader2, AlertCircle,
-  Sparkles, FolderPlus, FolderOpen, ChevronDown, ChevronRight, UploadCloud,
-  FileUp, Search
+  BookMarked, ChevronDown, Plus, Upload, Trash2,
+  FileText, File, Presentation, X, Check, Loader2,
+  Archive, ArchiveRestore, FolderOpen, BookOpen, Layers,
+  RefreshCw, Download, AlertCircle, Sparkles, UploadCloud, BookPlus
 } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
 import {
-  getNotesClasses, getNotesTree, uploadNotesUnified,
-  deleteSubjectDirect, deleteUnitDirect, deleteFileDirect
+  getFacultyNotesHub, listUnits, createSubject, createUnit,
+  uploadFiles, deleteFile, deleteSubject, deleteUnit,
+  archiveSubject, unarchiveSubject
 } from "../../api/notes";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { useAuth } from "../../context/AuthContext";
 
-const UNIT_OPTIONS = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"];
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const CURRENT_ACADEMIC_YEAR = (() => {
+  const now = new Date();
+  const y = now.getFullYear();
+  return now.getMonth() >= 5 ? `${y}-${y + 1}` : `${y - 1}-${y}`;
+})();
 
-function getFileFormatDetails(type) {
-  const t = (type || "").toLowerCase();
-  if (t === "pdf") {
-    return { icon: FileText, color: "text-red-500 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/50", label: "PDF" };
-  }
-  if (["ppt", "pptx"].includes(t)) {
-    return { icon: Presentation, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/50", label: "PPT" };
-  }
-  if (["doc", "docx"].includes(t)) {
-    return { icon: FileCode, color: "text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/50", label: "DOC" };
-  }
-  if (["png", "jpg", "jpeg"].includes(t)) {
-    return { icon: ImageIcon, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50", label: "IMG" };
-  }
-  return { icon: FileText, color: "text-gray-500 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700", label: (type || "FILE").toUpperCase() };
+const CLASS_PALETTE = [
+  "from-violet-500 to-purple-600",
+  "from-blue-500 to-cyan-500",
+  "from-emerald-500 to-teal-500",
+  "from-rose-500 to-pink-500",
+  "from-amber-500 to-orange-500",
+  "from-indigo-500 to-blue-600",
+];
+
+function getFileIcon(type) {
+  if (type === "pdf") return <FileText className="nd-file-icon nd-file-pdf" />;
+  if (["ppt", "pptx"].includes(type)) return <Presentation className="nd-file-icon nd-file-ppt" />;
+  return <File className="nd-file-icon nd-file-doc" />;
 }
 
-export default function FacultyNotesPage() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+// ─── Toast System ─────────────────────────────────────────────────────────────
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  const add = useCallback((msg, type = "success") => {
+    const id = Date.now().toString(36);
+    setToasts(p => [...p, { id, msg, type }]);
+    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000);
+  }, []);
+  return { toasts, add };
+}
 
-  const [selectedClass, setSelectedClass] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+function ToastStack({ toasts }) {
+  if (!toasts.length) return null;
+  return (
+    <div className="nd-toast-stack">
+      {toasts.map(t => (
+        <div key={t.id} className={`nd-toast nd-toast-${t.type}`}>
+          {t.type === "success" ? <Check className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
+          <span>{t.msg}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  // Modals & Dialogs
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [previewFile, setPreviewFile] = useState(null);
+// ─── Inline Creator (press Enter to save) ────────────────────────────────────
+function InlineCreator({ placeholder, onSave, onCancel }) {
+  const [val, setVal] = useState("");
+  const ref = useRef(null);
+  useEffect(() => { ref.current?.focus(); }, []);
 
-  // Confirm delete states
-  const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'subject'|'unit'|'file', id, name }
+  const submit = () => { if (val.trim()) { onSave(val.trim()); setVal(""); } };
+  return (
+    <div className="nd-inline-creator">
+      <input
+        ref={ref}
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onKeyDown={e => { if (e.key === "Enter") submit(); if (e.key === "Escape") onCancel(); }}
+        placeholder={placeholder}
+        className="nd-inline-input"
+      />
+      <button onClick={submit} className="nd-btn-icon nd-btn-confirm" title="Save (Enter)">
+        <Check className="w-3.5 h-3.5" />
+      </button>
+      <button onClick={onCancel} className="nd-btn-icon nd-btn-cancel" title="Cancel (Esc)">
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
 
-  // Upload Form State
-  const [uploadForm, setUploadForm] = useState({
-    className: "",
-    subjectMode: "existing", // "existing" or "new"
-    subjectId: "",
-    subjectName: "",
-    unitName: "Unit 1",
-    files: [],
-  });
+// ─── File Row ─────────────────────────────────────────────────────────────────
+function FileRow({ file, onDelete }) {
+  return (
+    <div className="nd-file-row group">
+      {getFileIcon(file.file_type)}
+      <span className="nd-file-name">{file.file_name}</span>
+      <div className="nd-file-actions">
+        <a href={file.file_url} target="_blank" rel="noreferrer" className="nd-btn-icon-sm" title="Download">
+          <Download className="w-3 h-3" />
+        </a>
+        <button onClick={onDelete} className="nd-btn-icon-sm nd-btn-danger-sm" title="Delete file">
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Unit Row ─────────────────────────────────────────────────────────────────
+function UnitRow({ unit, className: cls, subjectId, onDelete, addToast, onRefreshHub }) {
+  const [expanded, setExpanded] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState("");
+  const [uploadPct, setUploadPct] = useState(0);
+  const fileRef = useRef(null);
+  const rowRef = useRef(null);
 
-  const isStaff = user?.role === "FACULTY" || user?.role === "HOD";
+  const loadFiles = useCallback(async () => {
+    if (!expanded) return;
+    setLoadingFiles(true);
+    try {
+      const res = await listUnits(cls, subjectId);
+      const found = (res.data.units || []).find(u => u.id === unit.id);
+      setFiles(found?.files || []);
+    } finally { setLoadingFiles(false); }
+  }, [cls, subjectId, unit.id, expanded]);
 
-  // 1. Fetch user classes
-  const { data: classesData, isLoading: loadingClasses } = useQuery({
-    queryKey: ["notes-classes"],
-    queryFn: async () => {
-      const res = await getNotesClasses();
-      return res.data;
-    },
-  });
+  useEffect(() => { loadFiles(); }, [loadFiles]);
 
-  const availableClasses = classesData?.classes || [];
-
-  // Set default selected class once loaded
-  useEffect(() => {
-    if (availableClasses.length > 0 && !selectedClass) {
-      setSelectedClass(availableClasses[0]);
-    }
-  }, [availableClasses, selectedClass]);
-
-  // Keep uploadForm className in sync
-  useEffect(() => {
-    if (selectedClass) {
-      setUploadForm(prev => ({ ...prev, className: selectedClass }));
-    }
-  }, [selectedClass]);
-
-  // 2. Fetch Notes Tree for selected class
-  const { data: treeData, isLoading: loadingTree, refetch: refetchTree } = useQuery({
-    queryKey: ["notes-tree", selectedClass],
-    queryFn: async () => {
-      if (!selectedClass) return null;
-      const res = await getClassNotesTree(selectedClass);
-      return res.data;
-    },
-    enabled: !!selectedClass,
-  });
-
-  const subjects = treeData?.subjects || [];
-
-  // Filter subjects based on search query
-  const filteredSubjects = subjects.filter(subj => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    const matchSubj = subj.name.toLowerCase().includes(q);
-    const matchUnits = subj.units.some(u =>
-      u.name.toLowerCase().includes(q) ||
-      u.files.some(f => f.file_name.toLowerCase().includes(q))
+  const doUpload = useCallback(async (fileList) => {
+    const valid = Array.from(fileList).filter(f =>
+      ["pdf", "ppt", "pptx", "doc", "docx"].includes(f.name.split(".").pop().toLowerCase())
     );
-    return matchSubj || matchUnits;
-  });
-
-  // Handle open upload modal
-  const handleOpenUpload = () => {
-    setUploadForm({
-      className: selectedClass || (availableClasses[0] || ""),
-      subjectMode: "existing",
-      subjectId: subjects.length > 0 ? String(subjects[0].name) : "__new__",
-      subjectName: subjects.length > 0 ? "" : "",
-      unitName: "Unit 1",
-      files: [],
-    });
-    if (subjects.length === 0) {
-      setUploadForm(prev => ({ ...prev, subjectMode: "new" }));
-    }
-    setUploadError("");
-    setUploadProgress(0);
-    setIsUploadOpen(true);
-  };
-
-  // Handle File Selection
-  const handleFileChange = (e) => {
-    const selected = Array.from(e.target.files || []);
-    if (selected.length > 0) {
-      setUploadForm(prev => ({
-        ...prev,
-        files: [...prev.files, ...selected]
-      }));
-    }
-  };
-
-  const removeSelectedFile = (idx) => {
-    setUploadForm(prev => ({
-      ...prev,
-      files: prev.files.filter((_, i) => i !== idx)
-    }));
-  };
-
-  // Submit Upload
-  const handleUploadSubmit = async (e) => {
-    e.preventDefault();
-    setUploadError("");
-
-    const targetClass = uploadForm.className;
-    const targetSubject = uploadForm.subjectMode === "new"
-      ? uploadForm.subjectName.trim()
-      : uploadForm.subjectId.trim();
-
-    if (!targetClass) {
-      setUploadError("Please select a class.");
-      return;
-    }
-    if (!targetSubject) {
-      setUploadError("Please select or enter a subject name.");
-      return;
-    }
-    if (!uploadForm.unitName) {
-      setUploadError("Please select a unit.");
-      return;
-    }
-    if (uploadForm.files.length === 0) {
-      setUploadError("Please select at least one file to upload.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("class_name", targetClass);
-    formData.append("subject_name", targetSubject);
-    formData.append("unit_name", uploadForm.unitName);
-    uploadForm.files.forEach(file => {
-      formData.append("files", file);
-    });
-
-    setUploading(true);
-    setUploadProgress(10);
-
+    if (!valid.length) { addToast("Only PDF, PPT, PPTX, DOC, DOCX allowed.", "error"); return; }
+    const fd = new FormData();
+    valid.forEach(f => fd.append("files", f));
+    setUploading(true); setUploadPct(0);
     try {
-      await uploadNotesUnified(formData, (progressEvent) => {
-        const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-        setUploadProgress(Math.max(10, percent));
+      await uploadFiles(cls, subjectId, unit.id, fd, evt => {
+        if (evt.total) setUploadPct(Math.round(evt.loaded / evt.total * 100));
       });
-      setUploading(false);
-      setIsUploadOpen(false);
-      // Refetch tree for target class
-      queryClient.invalidateQueries(["notes-tree", targetClass]);
-      if (targetClass !== selectedClass) {
-        setSelectedClass(targetClass);
-      }
-    } catch (err) {
-      setUploading(false);
-      setUploadError(err.response?.data?.error || "Failed to upload notes. Please try again.");
-    }
-  };
+      addToast(`${valid.length} file(s) uploaded!`);
+      setExpanded(true);
+      await loadFiles();
+      onRefreshHub?.();
+    } catch { addToast("Upload failed.", "error"); }
+    finally { setUploading(false); }
+  }, [cls, subjectId, unit.id, addToast, loadFiles, onRefreshHub]);
 
-  // Handle Delete Actions
-  const executeDelete = async () => {
-    if (!deleteTarget) return;
+  const handleDeleteFile = async (fileId) => {
     try {
-      if (deleteTarget.type === "subject") {
-        await deleteSubjectDirect(deleteTarget.id);
-      } else if (deleteTarget.type === "unit") {
-        await deleteUnitDirect(deleteTarget.id);
-      } else if (deleteTarget.type === "file") {
-        await deleteFileDirect(deleteTarget.id);
-      }
-      queryClient.invalidateQueries(["notes-tree", selectedClass]);
-      setDeleteTarget(null);
-    } catch (err) {
-      alert(err.response?.data?.error || "Deletion failed");
-    }
+      await deleteFile(cls, subjectId, unit.id, fileId);
+      setFiles(p => p.filter(f => f.id !== fileId));
+      addToast("File deleted.");
+    } catch { addToast("Failed to delete file.", "error"); }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pb-24">
-      {/* ── Top Header Banner ── */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-6 transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <div className="p-2.5 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/25">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                  Notes & Docs
-                </h1>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                  {user?.role === "STUDENT"
-                    ? `Study materials and course notes for ${selectedClass || "your class"}`
-                    : `Upload and manage unit-wise notes across your handling classes`}
-                </p>
-              </div>
-            </div>
+    <div
+      ref={rowRef}
+      className={`nd-unit-row${isDragOver ? " nd-unit-drag" : ""}`}
+      onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={e => { e.preventDefault(); setIsDragOver(false); doUpload(e.dataTransfer.files); gsap.fromTo(rowRef.current, { scale: 0.98 }, { scale: 1, duration: 0.25, ease: "back.out(2)" }); }}
+    >
+      {/* Unit header */}
+      <div className="nd-unit-header">
+        <button className="nd-unit-toggle" onClick={() => setExpanded(v => !v)}>
+          <div className={`nd-unit-icon${expanded ? " nd-unit-icon-active" : ""}`}>
+            <Layers className="w-3 h-3" />
           </div>
+          <span className="nd-unit-name">{unit.name}</span>
+          <span className="nd-unit-meta">{unit.file_count ?? files.length} files</span>
+          <ChevronDown className={`nd-chevron${expanded ? " rotate-180" : ""}`} />
+        </button>
+        <button onClick={() => fileRef.current?.click()} className="nd-upload-pill">
+          <Upload className="w-3 h-3" />
+          <span>Upload</span>
+        </button>
+        <button onClick={() => { if (window.confirm("Delete this unit and all its files?")) onDelete(); }} className="nd-btn-icon-sm nd-btn-danger-sm">
+          <Trash2 className="w-3 h-3" />
+        </button>
+        <input ref={fileRef} type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx" className="hidden"
+          onChange={e => { doUpload(e.target.files); e.target.value = ""; }} />
+      </div>
 
-          {/* Controls: Class Selector & Search */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Search Input */}
-            <div className="relative min-w-[200px] flex-1 md:flex-none">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search subject, unit or file..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition"
-              />
-            </div>
+      {/* Drag hint */}
+      {isDragOver && (
+        <div className="nd-drag-hint">
+          <UploadCloud className="w-4 h-4" />
+          <span>Drop files here</span>
+        </div>
+      )}
 
-            {/* Class Picker */}
-            {availableClasses.length > 1 && (
-              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
-                  Class:
-                </span>
-                <select
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className="bg-white dark:bg-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400 focus:outline-none cursor-pointer shadow-sm"
-                >
-                  {availableClasses.map((cls) => (
-                    <option key={cls} value={cls}>
-                      {cls}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+      {/* Upload progress */}
+      {uploading && (
+        <div className="nd-progress-bar-wrap">
+          <div className="nd-progress-label">
+            <span>Uploading…</span>
+            <span>{uploadPct}%</span>
           </div>
+          <div className="nd-progress-track">
+            <div className="nd-progress-fill" style={{ width: `${uploadPct}%` }} />
+          </div>
+        </div>
+      )}
+
+      {/* Files list */}
+      {expanded && (
+        <div className="nd-files-list">
+          {loadingFiles ? (
+            <div className="nd-loading-row"><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Loading files…</span></div>
+          ) : files.length === 0 ? (
+            <div className="nd-empty-files">
+              <UploadCloud className="w-4 h-4" />
+              <span>No files — drag & drop or click Upload above</span>
+            </div>
+          ) : files.map(f => (
+            <FileRow key={f.id} file={f} onDelete={() => handleDeleteFile(f.id)} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Subject Card ─────────────────────────────────────────────────────────────
+function SubjectCard({ subject, className: cls, colorIdx, onDelete, onArchive, addToast, refetchHub }) {
+  const [expanded, setExpanded] = useState(false);
+  const [units, setUnits] = useState([]);
+  const [loadingUnits, setLoadingUnits] = useState(false);
+  const [addingUnit, setAddingUnit] = useState(false);
+  const cardRef = useRef(null);
+
+  const loadUnits = useCallback(async () => {
+    if (!expanded) return;
+    setLoadingUnits(true);
+    try {
+      const res = await listUnits(cls, subject.id);
+      setUnits(res.data.units || []);
+    } finally { setLoadingUnits(false); }
+  }, [cls, subject.id, expanded]);
+
+  useEffect(() => { loadUnits(); }, [loadUnits]);
+
+  const handleAddUnit = async (name) => {
+    try {
+      const res = await createUnit(cls, subject.id, { name });
+      setUnits(p => [...p, res.data.unit]);
+      setAddingUnit(false);
+      addToast(`Unit "${name}" created!`);
+    } catch { addToast("Failed to create unit.", "error"); }
+  };
+
+  const handleDeleteUnit = async (unitId) => {
+    try {
+      await deleteUnit(cls, subject.id, unitId);
+      setUnits(p => p.filter(u => u.id !== unitId));
+      addToast("Unit deleted.");
+      refetchHub();
+    } catch { addToast("Failed.", "error"); }
+  };
+
+  const gradBg = CLASS_PALETTE[colorIdx % CLASS_PALETTE.length];
+
+  return (
+    <div ref={cardRef} className={`nd-subject-card${expanded ? " nd-subject-expanded" : ""}`}>
+      {/* Card header */}
+      <div className="nd-subject-header" onClick={() => setExpanded(v => !v)}>
+        <div className={`nd-subject-icon bg-gradient-to-br ${gradBg}`}>
+          <BookOpen className="w-4 h-4 text-white" />
+        </div>
+        <div className="nd-subject-info">
+          <div className="nd-subject-title-row">
+            <h3 className="nd-subject-title">{subject.name}</h3>
+            {subject.is_archived && <span className="nd-badge-archived">Archived</span>}
+          </div>
+          <p className="nd-subject-meta">{subject.unit_count} units · {subject.file_count} files</p>
+        </div>
+        <div className="nd-subject-actions" onClick={e => e.stopPropagation()}>
+          <button
+            onClick={() => onArchive(subject.id, subject.is_archived)}
+            className="nd-btn-icon-sm"
+            title={subject.is_archived ? "Restore" : "Archive"}
+          >
+            {subject.is_archived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            onClick={() => { if (window.confirm(`Delete "${subject.name}" and all its content?`)) onDelete(subject.id); }}
+            className="nd-btn-icon-sm nd-btn-danger-sm"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          <ChevronDown className={`nd-chevron ml-1${expanded ? " rotate-180" : ""}`} />
         </div>
       </div>
 
-      {/* ── Main Content Area ── */}
-      <div className="max-w-7xl mx-auto px-6 pt-8">
-        {loadingClasses || loadingTree ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-indigo-400" />
-            <p className="text-xs font-medium text-slate-500">Loading course materials...</p>
-          </div>
-        ) : filteredSubjects.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-12 text-center shadow-sm max-w-xl mx-auto my-12">
-            <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4 border border-indigo-100 dark:border-indigo-900/50">
-              <FolderOpen className="w-8 h-8" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              {searchQuery ? "No matching notes found" : `No notes uploaded yet for ${selectedClass}`}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-              {searchQuery
-                ? "Try searching for a different keyword or subject name."
-                : isStaff
-                ? "Click the + button at the bottom right to upload unit notes for this class."
-                : "Your faculty members haven't uploaded notes for this class yet. Please check back later."}
-            </p>
-            {isStaff && !searchQuery && (
-              <button
-                onClick={handleOpenUpload}
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25"
-              >
-                <Plus className="w-4 h-4" /> Upload First Note
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {filteredSubjects.map((subj) => (
-              <div
-                key={subj.id}
-                className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition duration-300"
-              >
-                {/* Subject Header */}
-                <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 dark:from-slate-950 dark:via-indigo-950/80 dark:to-slate-950 p-6 text-white flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-indigo-300 border border-white/10">
-                      <BookOpen className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold tracking-tight text-white">
-                        {subj.name}
-                      </h2>
-                      <p className="text-[11px] text-indigo-200/70 font-medium">
-                        Class: <span className="font-semibold text-indigo-300">{selectedClass}</span> • {subj.units.length} Unit(s)
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Actions for Subject */}
-                  {isStaff && (
-                    <button
-                      onClick={() => setDeleteTarget({ type: "subject", id: subj.id, name: subj.name })}
-                      title="Delete Subject"
-                      className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Units List */}
-                <div className="p-6 space-y-6">
-                  {subj.units.map((unit) => (
-                    <div
-                      key={unit.id}
-                      className="bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5 space-y-4"
-                    >
-                      {/* Unit Header */}
-                      <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200/60 dark:border-slate-700/50">
-                        <div className="flex items-center gap-2.5">
-                          <span className="px-3 py-1 rounded-lg bg-indigo-600/10 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold tracking-wide uppercase">
-                            {unit.name}
-                          </span>
-                          <span className="text-xs text-slate-400 font-medium">
-                            ({unit.files.length} file{unit.files.length !== 1 ? "s" : ""})
-                          </span>
-                        </div>
-
-                        {/* Delete Unit */}
-                        {isStaff && (
-                          <button
-                            onClick={() => setDeleteTarget({ type: "unit", id: unit.id, name: unit.name })}
-                            title="Delete Unit"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition text-xs"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Files Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {unit.files.map((file) => {
-                          const fmt = getFileFormatDetails(file.file_type);
-                          const IconComp = fmt.icon;
-
-                          return (
-                            <div
-                              key={file.id}
-                              className="group relative bg-white dark:bg-slate-900 rounded-xl p-3.5 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/70 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className={`p-2.5 rounded-xl border ${fmt.color} shrink-0`}>
-                                  <IconComp className="w-5 h-5" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <h4
-                                    className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition"
-                                    title={file.file_name}
-                                  >
-                                    {file.file_name}
-                                  </h4>
-                                  <p className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1.5">
-                                    <span>Uploaded by {file.uploaded_by?.name || "Faculty"}</span>
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* File Card Actions */}
-                              <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                  {fmt.label}
-                                </span>
-
-                                <div className="flex items-center gap-1">
-                                  {/* Preview Button */}
-                                  <button
-                                    onClick={() => setPreviewFile(file)}
-                                    className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition"
-                                    title="Preview Document"
-                                  >
-                                    <Eye className="w-3.5 h-3.5" />
-                                  </button>
-
-                                  {/* Download Button */}
-                                  <a
-                                    href={file.file_url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    download
-                                    className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition"
-                                    title="Download File"
-                                  >
-                                    <Download className="w-3.5 h-3.5" />
-                                  </a>
-
-                                  {/* Delete File Button */}
-                                  {isStaff && (
-                                    <button
-                                      onClick={() => setDeleteTarget({ type: "file", id: file.id, name: file.file_name })}
-                                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition"
-                                      title="Delete File"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+      {/* Expanded content */}
+      {expanded && (
+        <div className="nd-subject-body">
+          {loadingUnits ? (
+            <div className="nd-loading-row"><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Loading…</span></div>
+          ) : (
+            <>
+              <div className="nd-units-list">
+                {units.length === 0 && !addingUnit && (
+                  <p className="nd-empty-units">No units yet — add one below</p>
+                )}
+                {units.map(u => (
+                  <UnitRow
+                    key={u.id}
+                    unit={u}
+                    className={cls}
+                    subjectId={subject.id}
+                    onDelete={() => handleDeleteUnit(u.id)}
+                    addToast={addToast}
+                    onRefreshHub={refetchHub}
+                  />
+                ))}
               </div>
+              {addingUnit ? (
+                <InlineCreator
+                  placeholder="Unit name — e.g. Unit 1: Introduction"
+                  onSave={handleAddUnit}
+                  onCancel={() => setAddingUnit(false)}
+                />
+              ) : (
+                <button className="nd-add-unit-btn" onClick={() => setAddingUnit(true)}>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add unit</span>
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── New Subject Modal / Form ─────────────────────────────────────────────────
+function NewSubjectForm({ className: cls, onDone, onCancel, addToast, defaultYear, defaultSem }) {
+  const [name, setName] = useState("");
+  const [year, setYear] = useState(defaultYear || CURRENT_ACADEMIC_YEAR);
+  const [sem, setSem] = useState(defaultSem || 1);
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const handleSave = async () => {
+    if (!name.trim()) { addToast("Enter a subject name.", "error"); return; }
+    setSaving(true);
+    try {
+      await createSubject(cls, { name: name.trim(), academic_year: year, semester: sem });
+      addToast(`"${name.trim()}" created!`);
+      onDone();
+    } catch (e) {
+      addToast(e?.response?.data?.error || "Failed to create subject.", "error");
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="nd-new-subject-form">
+      <div className="nd-nsf-header">
+        <BookPlus className="w-4 h-4 text-[var(--primary)]" />
+        <span className="nd-nsf-title">New Subject</span>
+        <button onClick={onCancel} className="nd-btn-icon-sm ml-auto"><X className="w-3.5 h-3.5" /></button>
+      </div>
+      <div className="nd-nsf-row">
+        <div className="nd-nsf-field">
+          <label className="nd-label">Academic Year</label>
+          <input
+            value={year}
+            onChange={e => setYear(e.target.value)}
+            placeholder="e.g. 2025-26"
+            className="nd-input"
+          />
+        </div>
+        <div className="nd-nsf-field">
+          <label className="nd-label">Semester</label>
+          <div className="nd-sem-toggle">
+            {[1, 2].map(s => (
+              <button key={s} onClick={() => setSem(s)}
+                className={`nd-sem-btn${sem === s ? " nd-sem-btn-active" : ""}`}>
+                Sem {s}
+              </button>
             ))}
           </div>
-        )}
+        </div>
+      </div>
+      <div className="nd-nsf-field">
+        <label className="nd-label">Subject Name</label>
+        <input
+          ref={inputRef}
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") onCancel(); }}
+          placeholder="e.g. Software Engineering"
+          className="nd-input"
+        />
+      </div>
+      <div className="nd-nsf-actions">
+        <button onClick={onCancel} className="nd-btn-secondary">Cancel</button>
+        <button onClick={handleSave} disabled={saving} className="nd-btn-primary">
+          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+          {saving ? "Saving…" : "Create Subject"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ─────────────────────────────────────────────────────────────────
+export default function FacultyNotesPage() {
+  const { user } = useAuth();
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(CURRENT_ACADEMIC_YEAR);
+  const [selectedSem, setSelectedSem] = useState(1);
+  const [addingSubject, setAddingSubject] = useState(false);
+  const { toasts, add: addToast } = useToast();
+  const pageRef = useRef(null);
+  const panelRef = useRef(null);
+
+  const { data: classes = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ["faculty-notes-hub"],
+    queryFn: () => getFacultyNotesHub(),
+    select: d => d.data.classes || [],
+    staleTime: 60000,
+  });
+
+  // Auto-select first class
+  useEffect(() => {
+    if (classes.length && !selectedClass) {
+      const first = classes[0];
+      setSelectedClass(first.class_name);
+      const yr = first.academic_years?.[0];
+      if (yr) { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }
+    }
+  }, [classes, selectedClass]);
+
+  // Page entrance
+  useEffect(() => {
+    if (pageRef.current) gsap.from(pageRef.current, { opacity: 0, y: 16, duration: 0.4, ease: "power3.out" });
+  }, []);
+
+  // Panel transition on selection change
+  useEffect(() => {
+    if (panelRef.current) gsap.from(panelRef.current, { opacity: 0, x: 12, duration: 0.3, ease: "power2.out" });
+  }, [selectedClass, selectedYear, selectedSem]);
+
+  const classData = classes.find(c => c.class_name === selectedClass);
+  const yearData = classData?.academic_years.find(y => y.year === selectedYear);
+  const semData = yearData?.semesters.find(s => s.semester === selectedSem);
+  const subjects = semData?.subjects || [];
+
+  const allYears = classData?.academic_years || [];
+  const bothSems = yearData
+    ? [1, 2].map(s => ({ sem: s, count: yearData.semesters.find(x => x.semester === s)?.subjects.length || 0 }))
+    : [];
+
+  const handleSelectClass = (cn) => {
+    setSelectedClass(cn);
+    setAddingSubject(false);
+    const cd = classes.find(c => c.class_name === cn);
+    const yr = cd?.academic_years?.[0];
+    if (yr) { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }
+  };
+
+  const handleDeleteSubject = async (id) => {
+    try { await deleteSubject(selectedClass, id); addToast("Subject deleted."); refetch(); }
+    catch { addToast("Failed to delete.", "error"); }
+  };
+
+  const handleArchiveSubject = async (id, isArchived) => {
+    try {
+      if (isArchived) { await unarchiveSubject(selectedClass, id); addToast("Restored."); }
+      else { await archiveSubject(selectedClass, id); addToast("Archived."); }
+      refetch();
+    } catch { addToast("Failed.", "error"); }
+  };
+
+  if (user?.role !== "FACULTY") {
+    return (
+      <div className="nd-guard-msg">
+        <BookMarked className="w-10 h-10 text-[var(--text-muted)]" />
+        <p>This page is for Faculty only.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={pageRef} className="nd-root">
+
+      {/* ── Page Header ── */}
+      <div className="nd-page-header">
+        <div className="nd-page-header-left">
+          <div className="nd-page-icon">
+            <BookMarked className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="nd-page-title">Notes & Docs</h1>
+            <p className="nd-page-subtitle">Manage class resources — subjects, units & documents</p>
+          </div>
+        </div>
+        <button onClick={() => refetch()} className="nd-btn-icon nd-btn-ghost" title="Refresh">
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* ── Floating "+" Upload Button for Faculty & HOD ── */}
-      {isStaff && (
-        <button
-          onClick={handleOpenUpload}
-          className="fixed bottom-8 right-8 z-30 p-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xl shadow-indigo-600/40 hover:scale-105 active:scale-95 transition duration-200 flex items-center gap-2 group"
-          title="Upload Notes"
-        >
-          <Plus className="w-6 h-6 transition-transform group-hover:rotate-90 duration-300" />
-          <span className="pr-1 text-sm font-bold hidden sm:inline">Upload Notes</span>
-        </button>
-      )}
+      {isLoading ? (
+        <div className="nd-state-center">
+          <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
+          <p>Loading your classes…</p>
+        </div>
+      ) : isError ? (
+        <div className="nd-state-center">
+          <AlertCircle className="w-8 h-8 text-red-400" />
+          <p>Failed to load data</p>
+          <button onClick={() => refetch()} className="nd-btn-primary nd-btn-sm">Retry</button>
+        </div>
+      ) : classes.length === 0 ? (
+        <div className="nd-state-center">
+          <Sparkles className="w-10 h-10 text-[var(--primary)] opacity-50" />
+          <p className="font-semibold">No classes assigned</p>
+          <p className="text-sm text-[var(--text-muted)]">Ask the HOD to assign you to a class.</p>
+        </div>
+      ) : (
+        <div className="nd-workspace">
 
-      {/* ── Upload Notes Modal (4-Step Flow) ── */}
-      {isUploadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-xl shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
-                  <UploadCloud className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    Upload Notes & Documents
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Add syllabus materials for students
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsUploadOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
+          {/* ── LEFT: Class Selector ── */}
+          <aside className="nd-sidebar">
+            <p className="nd-sidebar-label">My Classes</p>
+            <div className="nd-class-list">
+              {classes.map((cls, idx) => {
+                const grad = CLASS_PALETTE[idx % CLASS_PALETTE.length];
+                const active = cls.class_name === selectedClass;
+                return (
+                  <button
+                    key={cls.class_name}
+                    onClick={() => handleSelectClass(cls.class_name)}
+                    className={`nd-class-btn${active ? " nd-class-btn-active" : ""}`}
+                  >
+                    <span className={`nd-class-avatar bg-gradient-to-br ${grad}`}>
+                      {cls.class_name.split("_")[1]?.[0] || cls.class_name[0]}
+                    </span>
+                    <div className="nd-class-info">
+                      <span className="nd-class-name">{cls.class_name.replace("_", " ")}</span>
+                      {cls.is_incharge && <span className="nd-class-badge">Incharge</span>}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+          </aside>
 
-            {/* Modal Form Body */}
-            <form onSubmit={handleUploadSubmit} className="p-6 space-y-5">
-              {uploadError && (
-                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{uploadError}</span>
-                </div>
-              )}
-
-              {/* 1. Class Selection */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  1. Select Class
-                </label>
-                <select
-                  value={uploadForm.className}
-                  onChange={(e) => setUploadForm({ ...uploadForm, className: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/30 outline-none"
-                >
-                  {availableClasses.map((cls) => (
-                    <option key={cls} value={cls}>
-                      {cls}
-                    </option>
-                  ))}
-                </select>
+          {/* ── RIGHT: Subject Panel ── */}
+          <main ref={panelRef} className="nd-panel">
+            {!selectedClass ? (
+              <div className="nd-state-center">
+                <BookMarked className="w-10 h-10 text-[var(--text-muted)] opacity-40" />
+                <p>Select a class to manage notes</p>
               </div>
-
-              {/* 2. Subject Name (Dropdown + Create New option) */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    2. Subject Name
-                  </label>
-                  <span className="text-[10px] text-slate-400">
-                    (Combines same subject notes)
-                  </span>
+            ) : (
+              <>
+                {/* Panel top bar */}
+                <div className="nd-panel-topbar">
+                  <div className="nd-panel-title-block">
+                    <h2 className="nd-panel-class">{selectedClass.replace("_", " ")}</h2>
+                    <p className="nd-panel-crumb">{selectedYear} · Semester {selectedSem}</p>
+                  </div>
+                  <button className="nd-btn-primary" onClick={() => setAddingSubject(v => !v)}>
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>New Subject</span>
+                  </button>
                 </div>
 
-                {uploadForm.subjectMode === "existing" ? (
-                  <div className="space-y-2">
-                    <select
-                      value={uploadForm.subjectId}
-                      onChange={(e) => {
-                        if (e.target.value === "__new__") {
-                          setUploadForm({ ...uploadForm, subjectMode: "new", subjectId: "", subjectName: "" });
-                        } else {
-                          setUploadForm({ ...uploadForm, subjectId: e.target.value });
-                        }
-                      }}
-                      className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/30 outline-none"
-                    >
-                      {subjects.map((s) => (
-                        <option key={s.id} value={s.name}>
-                          {s.name}
-                        </option>
-                      ))}
-                      <option value="__new__">+ Create New Subject...</option>
-                    </select>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      placeholder="Enter new subject name..."
-                      value={uploadForm.subjectName}
-                      onChange={(e) => setUploadForm({ ...uploadForm, subjectName: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/30 outline-none"
-                    />
-                    {subjects.length > 0 && (
+                {/* Year tabs */}
+                {allYears.length > 0 && (
+                  <div className="nd-year-tabs">
+                    {allYears.map(yr => (
                       <button
-                        type="button"
-                        onClick={() => setUploadForm({ ...uploadForm, subjectMode: "existing", subjectId: subjects[0]?.name || "" })}
-                        className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                        key={yr.year}
+                        onClick={() => { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }}
+                        className={`nd-year-tab${selectedYear === yr.year ? " nd-year-tab-active" : ""}`}
                       >
-                        ← Pick from existing subjects
+                        {yr.year}
                       </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* 3. Unit Selection */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  3. Select Unit
-                </label>
-                <select
-                  value={uploadForm.unitName}
-                  onChange={(e) => setUploadForm({ ...uploadForm, unitName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/30 outline-none"
-                >
-                  {UNIT_OPTIONS.map((u) => (
-                    <option key={u} value={u}>
-                      {u}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 4. Multi-File Upload Picker */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  4. Select Files (PDF, PPT, DOC, Images)
-                </label>
-                <div className="relative border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600 rounded-2xl p-4 text-center bg-slate-50/50 dark:bg-slate-800/40 transition">
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.ppt,.pptx,.doc,.docx,.png,.jpg,.jpeg"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <FileUp className="w-8 h-8 mx-auto text-indigo-500 mb-2" />
-                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    Click or drag files here to upload
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
-                    Supports multiple files (.pdf, .ppt, .pptx, .doc, .docx, .png, .jpg, .jpeg)
-                  </p>
-                </div>
-
-                {/* Selected File List */}
-                {uploadForm.files.length > 0 && (
-                  <div className="mt-3 space-y-2 max-h-36 overflow-y-auto pr-1">
-                    {uploadForm.files.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200"
-                      >
-                        <span className="truncate pr-2">{file.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeSelectedFile(idx)}
-                          className="text-slate-400 hover:text-red-500 p-1"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
                     ))}
                   </div>
                 )}
-              </div>
 
-              {/* Progress Bar */}
-              {uploading && (
-                <div className="space-y-1.5 pt-2">
-                  <div className="flex justify-between text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                    <div
-                      className="h-full bg-indigo-600 transition-all duration-300 rounded-full"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
+                {/* Semester toggle */}
+                <div className="nd-sem-strip">
+                  {bothSems.map(({ sem, count }) => (
+                    <button
+                      key={sem}
+                      onClick={() => setSelectedSem(sem)}
+                      className={`nd-sem-pill${selectedSem === sem ? " nd-sem-pill-active" : ""}`}
+                    >
+                      Semester {sem}
+                      <span className="nd-sem-count">{count}</span>
+                    </button>
+                  ))}
                 </div>
-              )}
 
-              {/* Submit Buttons */}
-              <div className="pt-3 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsUploadOpen(false)}
-                  disabled={uploading}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={uploading}
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition flex items-center gap-2"
-                >
-                  {uploading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Uploading...
-                    </>
-                  ) : (
-                    "Upload Notes"
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+                {/* New Subject Form — inline, not a modal */}
+                {addingSubject && (
+                  <NewSubjectForm
+                    className={selectedClass}
+                    defaultYear={selectedYear}
+                    defaultSem={selectedSem}
+                    addToast={addToast}
+                    onDone={() => { setAddingSubject(false); refetch(); }}
+                    onCancel={() => setAddingSubject(false)}
+                  />
+                )}
+
+                {/* Subject list */}
+                {subjects.length === 0 && !addingSubject ? (
+                  <div className="nd-empty-state">
+                    <FolderOpen className="w-10 h-10 text-[var(--text-muted)] opacity-40" />
+                    <p className="font-semibold text-[var(--text-primary)]">No subjects for Semester {selectedSem}</p>
+                    <p className="text-sm text-[var(--text-muted)]">Click "New Subject" above to add one.</p>
+                  </div>
+                ) : (
+                  <div className="nd-subject-list">
+                    {subjects.map((s, idx) => (
+                      <SubjectCard
+                        key={s.id}
+                        subject={s}
+                        className={selectedClass}
+                        colorIdx={idx}
+                        onDelete={handleDeleteSubject}
+                        onArchive={handleArchiveSubject}
+                        addToast={addToast}
+                        refetchHub={refetch}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </main>
         </div>
       )}
 
-      {/* ── Document Preview Modal ── */}
-      {previewFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-800 w-full max-w-5xl h-[85vh] shadow-2xl flex flex-col overflow-hidden">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
-              <div className="flex items-center gap-3 min-w-0">
-                <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                  {previewFile.file_name}
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href={previewFile.file_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  download
-                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download
-                </a>
-                <button
-                  onClick={() => setPreviewFile(null)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Viewer Content */}
-            <div className="flex-1 bg-slate-900 flex items-center justify-center overflow-hidden">
-              {["png", "jpg", "jpeg"].includes((previewFile.file_type || "").toLowerCase()) ? (
-                <img
-                  src={previewFile.file_url}
-                  alt={previewFile.file_name}
-                  className="max-h-full max-w-full object-contain p-4"
-                />
-              ) : (previewFile.file_type || "").toLowerCase() === "pdf" ? (
-                <iframe
-                  src={previewFile.file_url}
-                  title={previewFile.file_name}
-                  className="w-full h-full border-0"
-                />
-              ) : (
-                <iframe
-                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewFile.file_url)}&embedded=true`}
-                  title={previewFile.file_name}
-                  className="w-full h-full border-0"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Confirm Delete Dialog ── */}
-      <ConfirmDialog
-        open={!!deleteTarget}
-        title={`Delete ${deleteTarget?.type}?`}
-        message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={executeDelete}
-        onCancel={() => setDeleteTarget(null)}
-      />
+      <ToastStack toasts={toasts} />
     </div>
   );
 }
