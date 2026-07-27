@@ -784,13 +784,16 @@ export default function MobileProjectDetailPage() {
 function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUserId, onEdit, onDelete, onAddComment, onDeleteComment, onReact, onPreviewAttachment, isLatest }) {
   const [feedbackText, setFeedbackText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isExpandingComposer, setIsExpandingComposer] = useState(false);
 
-  const handleFeedback = async () => {
+  const handleFeedback = async (e) => {
+    if (e) e.preventDefault();
     if (!feedbackText.trim()) return;
     setSubmitting(true);
     await onAddComment(node.id, feedbackText.trim());
     setFeedbackText("");
     setSubmitting(false);
+    setIsExpandingComposer(false);
   };
 
   const comments = node.comments || [];
@@ -845,13 +848,71 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
       <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
 
       {/* Faculty Feedback */}
-      <div className="border-t border-slate-100 dark:border-slate-800 pt-2.5 mt-2 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <MessageSquare className="w-3 h-3 text-slate-400" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Faculty Feedback {comments.length > 0 && `(${comments.length})`}
-          </span>
+      <div className="border-t border-slate-100 dark:border-slate-800 pt-3 mt-3 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <MessageSquare className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Faculty Feedback {comments.length > 0 && `(${comments.length})`}
+            </span>
+          </div>
+          {(isFaculty || isHOD) && (
+            <button
+              onClick={() => setIsExpandingComposer(p => !p)}
+              className="mobile-tappable px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold border border-indigo-200/60 dark:border-indigo-800/60 flex items-center gap-1"
+            >
+              {isExpandingComposer ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+              {isExpandingComposer ? "Close" : "Add Feedback"}
+            </button>
+          )}
         </div>
+
+        {/* Mobile Expandable Composer */}
+        <AnimatePresence>
+          {isExpandingComposer && (
+            <motion.form
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              onSubmit={handleFeedback}
+              className="overflow-hidden"
+            >
+              <div className="p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/50 space-y-2">
+                <textarea
+                  value={feedbackText}
+                  onChange={e => setFeedbackText(e.target.value)}
+                  placeholder="Write faculty feedback or notes..."
+                  rows={2}
+                  autoFocus
+                  className="w-full p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setFeedbackText(""); setIsExpandingComposer(false); }}
+                    className="px-2.5 py-1 text-[11px] font-bold text-slate-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!feedbackText.trim() || submitting}
+                    className="mobile-tappable px-3 py-1 rounded-lg bg-indigo-600 text-white text-[11px] font-bold disabled:opacity-40 flex items-center gap-1 shadow-sm"
+                  >
+                    <Send className="w-3 h-3" /> Post
+                  </button>
+                </div>
+              </div>
+            </motion.form>
+          )}
+        </AnimatePresence>
+
+        {comments.length === 0 && !isExpandingComposer && (
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 italic py-1">
+            {(isFaculty || isHOD) ? "No feedback added yet. Tap 'Add Feedback' to review." : "No faculty feedback added yet."}
+          </p>
+        )}
 
         {comments.filter(c => !c.is_deleted).map(comment => (
           <div key={comment.id} className="flex gap-2 items-start">
@@ -890,23 +951,6 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
             </div>
           </div>
         ))}
-
-        {/* Feedback input */}
-        {(isFaculty || isHOD) && (
-          <div className="flex gap-2 mt-1">
-            <input
-              type="text" value={feedbackText} onChange={e => setFeedbackText(e.target.value)}
-              placeholder="Write feedback..."
-              className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 min-w-0"
-              onKeyDown={e => { if (e.key === "Enter") handleFeedback(); }}
-            />
-            <button onClick={handleFeedback} disabled={!feedbackText.trim() || submitting}
-              className="mobile-tappable px-3 py-2 rounded-xl bg-indigo-600 text-white disabled:opacity-40 shrink-0"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
       </div>
     </MobileCard>
   );

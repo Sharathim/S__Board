@@ -321,14 +321,16 @@ function ProgressPostItem({
 }) {
   const [feedbackText, setFeedbackText] = useState("");
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [isExpandingComposer, setIsExpandingComposer] = useState(false);
 
-  const handleFeedback = async (e) => {
+  const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     if (!feedbackText.trim()) return;
     setSubmittingFeedback(true);
     await onAddComment(node.id, feedbackText.trim());
     setFeedbackText("");
     setSubmittingFeedback(false);
+    setIsExpandingComposer(false);
   };
 
   const comments = node.comments || [];
@@ -402,16 +404,129 @@ function ProgressPostItem({
       {/* Faculty Feedback Section */}
       <div className="pt-5 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-indigo-500" />
-            Faculty Feedback {comments.length > 0 && <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold">{comments.length}</span>}
-          </span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <MessageSquare className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-black text-slate-800 dark:text-slate-200 tracking-wide uppercase">
+              Faculty Feedback & Review
+            </span>
+            {comments.length > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold">
+                {comments.length}
+              </span>
+            )}
+          </div>
+
+          {(isFaculty || isHOD) && (
+            <button
+              type="button"
+              onClick={() => setIsExpandingComposer(prev => !prev)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-2xs ${
+                isExpandingComposer
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600 active:scale-95 shadow-indigo-500/20"
+              }`}
+            >
+              {isExpandingComposer ? (
+                <>
+                  <X className="w-3.5 h-3.5" /> Close Composer
+                </>
+              ) : (
+                <>
+                  <Plus className="w-3.5 h-3.5" /> Add Feedback
+                </>
+              )}
+            </button>
+          )}
         </div>
 
-        {comments.length === 0 && (
-          <p className="text-xs text-slate-400 dark:text-slate-500 italic pl-1 font-medium">
-            {(isFaculty || isHOD) ? "Add feedback for the students on this progress update." : "No faculty feedback added yet."}
-          </p>
+        {/* Expandable Composer Box */}
+        <AnimatePresence>
+          {isExpandingComposer && (
+            <motion.form
+              initial={{ opacity: 0, height: 0, scale: 0.98 }}
+              animate={{ opacity: 1, height: "auto", scale: 1 }}
+              exit={{ opacity: 0, height: 0, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onSubmit={handleFeedbackSubmit}
+              className="overflow-hidden"
+            >
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-900 border border-indigo-200/80 dark:border-indigo-800/60 shadow-sm space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                    Writing Official Faculty Review
+                  </span>
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                    <span className="font-medium">Quick tags:</span>
+                    {["Approved 👍", "Needs Revision ⚠️", "Great Progress 🚀"].map((tag) => (
+                      <button
+                        type="button"
+                        key={tag}
+                        onClick={() => setFeedbackText(prev => prev ? `${prev} ${tag}` : tag)}
+                        className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-400 dark:hover:border-indigo-600 text-[10px] font-medium transition-colors"
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  placeholder="Provide constructive guidance, review notes, or action items for the student team..."
+                  rows={3}
+                  autoFocus
+                  className="w-full p-3.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 resize-none leading-relaxed transition-all"
+                />
+
+                <div className="flex items-center justify-between pt-1">
+                  <p className="text-[10px] font-medium text-slate-400">
+                    Feedback will be visible to all project members.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setFeedbackText(""); setIsExpandingComposer(false); }}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!feedbackText.trim() || submittingFeedback}
+                      className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white disabled:opacity-40 transition-all text-xs font-bold shadow-sm shadow-indigo-500/30 flex items-center gap-1.5"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{submittingFeedback ? "Posting..." : "Post Feedback"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.form>
+          )}
+        </AnimatePresence>
+
+        {/* Empty state when no feedback and composer is collapsed */}
+        {comments.length === 0 && !isExpandingComposer && (
+          <div className="p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-2">
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+              {(isFaculty || isHOD)
+                ? "No faculty feedback has been added for this progress update yet."
+                : "No faculty feedback added yet."}
+            </p>
+            {(isFaculty || isHOD) && (
+              <button
+                type="button"
+                onClick={() => setIsExpandingComposer(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-xs font-bold transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Feedback
+              </button>
+            )}
+          </div>
         )}
 
         {/* Comment list */}
@@ -431,27 +546,6 @@ function ProgressPostItem({
               />
             ))}
           </div>
-        )}
-
-        {/* Feedback input — HOD and Faculty only */}
-        {(isFaculty || isHOD) && (
-          <form onSubmit={handleFeedback} className="flex gap-2.5 pt-2">
-            <input
-              type="text"
-              value={feedbackText}
-              onChange={e => setFeedbackText(e.target.value)}
-              placeholder="Write faculty feedback or notes..."
-              className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-medium"
-            />
-            <button
-              type="submit"
-              disabled={!feedbackText.trim() || submittingFeedback}
-              className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white disabled:opacity-40 transition-all shrink-0 flex items-center gap-2 text-xs font-bold shadow-sm"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>Send</span>
-            </button>
-          </form>
         )}
       </div>
     </div>
