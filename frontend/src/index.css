@@ -133,6 +133,9 @@
   --violet-950: var(--primary-900);
 }
 
+html.dark,
+body.dark,
+:root.dark,
 .dark {
   --background: #090D16;
   --surface: #0F172A;
@@ -147,6 +150,8 @@
   --sidebar-bg: #0F172A;
   --sidebar-border: #1E293B;
   --sidebar-hover: #1E293B;
+  background-color: #090D16;
+  color: #F8FAFC;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
@@ -1185,23 +1190,66 @@ button {
   display: none;
 }
 
-/* ─── Dark Mode Universal Glassmorphic Overrides (Mockup Replica) ───────── */
-.dark .dh-card,
-.dark .bg-white,
-.dark .bg-gray-800,
-.dark .dark\:bg-gray-800,
-.dark [class*="bg-white"],
-.dark [class*="bg-gray-800"] {
-  /* Translucent deep purple/black base matching the mockup reference */
-  background: rgba(12, 10, 25, 0.45) !important;
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
+/* ─── Dark Mode Universal Overrides ─────────────────────────────────────── */
+.dark body {
+  background-color: #090D16 !important;
+  color: #F8FAFC !important;
+}
 
-  /* Subtle glowing neon border */
-  border: 1px solid rgba(139, 92, 246, 0.12) !important;
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+.dark header,
+.dark main,
+.dark nav,
+.dark footer,
+.dark section {
+  border-color: #1E293B;
+}
+
+.dark .bg-white {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #1E293B !important;
+}
+
+.dark .bg-gray-50,
+.dark .bg-slate-50,
+.dark .bg-\[\#F3F3F5\] {
+  background-color: #090D16 !important;
+}
+
+.dark .bg-gray-100,
+.dark .bg-slate-100 {
+  background-color: #1E293B !important;
+}
+
+.dark .text-gray-900,
+.dark .text-slate-900,
+.dark .text-\[\#171717\],
+.dark .text-gray-800,
+.dark .text-slate-800,
+.dark .text-gray-700,
+.dark .text-slate-700 {
+  color: #F8FAFC !important;
+}
+
+.dark .text-gray-600,
+.dark .text-slate-600,
+.dark .text-gray-500,
+.dark .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+.dark .text-gray-400,
+.dark .text-slate-400 {
+  color: #64748B !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-200\/70,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-\[\#EBEBEB\] {
+  border-color: #1E293B !important;
 }
 
 /* Glass inputs, Textareas, Selects, and form fields */
