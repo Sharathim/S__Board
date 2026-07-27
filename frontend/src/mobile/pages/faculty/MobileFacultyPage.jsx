@@ -5,6 +5,7 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../components/ui/Spinner";
 import { Avatar } from "../../../components/ui/Avatar";
+import { Switch } from "../../../components/ui/Switch";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import MobileSearchBar from "../../components/MobileSearchBar";
 import MobileCard from "../../components/MobileCard";
@@ -101,6 +102,22 @@ export default function MobileFacultyPage() {
 
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
+      {/* HOD Registration Toggle */}
+      {isHOD && (
+        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/60 dark:border-slate-800 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-[#F05A2B]" />
+            <span className="text-xs font-bold text-gray-700 dark:text-gray-300">New Faculty Registration</span>
+          </div>
+          <Switch
+            checked={inviteData?.is_active || false}
+            onChange={() => toggleInviteMutation.mutate()}
+            loading={toggleInviteMutation.isPending}
+            size="sm"
+          />
+        </div>
+      )}
+
       {/* HOD Invite Banner */}
       {isHOD && inviteData?.invite_link && inviteData?.is_active && (
         <MobileCard className="!bg-indigo-50 dark:!bg-indigo-950/20 !border-indigo-200/60 dark:!border-indigo-800/40">

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../../context/TransitionContext";
@@ -290,14 +291,15 @@ export default function ProjectsPage() {
 
 
       {/* Floating Plus Button for Project Creation (Terracotta Orange themed) */}
-      {canCreateProject && (
+      {canCreateProject && createPortal(
         <button
           onClick={openCreate}
-          className="fixed bottom-24 md:bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-[#F05A2B] to-[#C93D14] text-white flex items-center justify-center shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full bg-gradient-to-r from-[#F05A2B] to-[#C93D14] text-white flex items-center justify-center shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
           title="Create New Project"
         >
           <Plus className="w-6 h-6" />
-        </button>
+        </button>,
+        document.body
       )}
 
       {/* Mobile Project Creation Bottom Sheet */}

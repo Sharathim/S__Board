@@ -21,18 +21,6 @@ export function Sidebar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
-  const sidebarRef = useRef(null);
-
-  useEffect(() => {
-    if (sidebarRef.current) {
-      gsap.from(sidebarRef.current, {
-        opacity: 0,
-        x: -30,
-        duration: 0.6,
-        ease: "power3.out",
-      });
-    }
-  }, []);
 
   const handleMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
@@ -64,7 +52,6 @@ export function Sidebar() {
     <>
       {/* ── 1. Middle Main Routes Capsule Card (Vertically Centered with Clamp) ── */}
       <aside
-        ref={sidebarRef}
         className="fixed left-3 side-nav-centered z-40 hidden lg:flex flex-col select-none transition-all duration-300"
       >
         <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">

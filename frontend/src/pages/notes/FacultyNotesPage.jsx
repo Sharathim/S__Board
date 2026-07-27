@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import gsap from "gsap";
 import {
@@ -412,15 +413,12 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
 
 // ─── Subject Card (With Unit Tabs) ───────────────────────────────────────────
 function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDeleteUnit, onDeleteFile, onPreviewFile }) {
-  const [activeUnitName, setActiveUnitName] = useState("all");
+  const [activeUnitName, setActiveUnitName] = useState("Unit 1");
 
   const units = subject.units || [];
 
   // Filter files by active unit tab
   const activeFiles = useMemo(() => {
-    if (activeUnitName === "all") {
-      return units.flatMap(u => u.files.map(f => ({ ...f, unit_name: u.name, unit_id: u.id })));
-    }
     const matchingUnit = units.find(u => u.name === activeUnitName);
     if (!matchingUnit) return [];
     return matchingUnit.files.map(f => ({ ...f, unit_name: matchingUnit.name, unit_id: matchingUnit.id }));
@@ -463,25 +461,15 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
           )}
         </div>
 
-        {/* Unit Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none mb-4 border-b border-gray-100 dark:border-gray-700/60 pb-3">
-          <button
-            onClick={() => setActiveUnitName("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
-              activeUnitName === "all"
-                ? "bg-[#F05A2B] text-white shadow-sm"
-                : "bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-          >
-            All Units
-          </button>
+        {/* Unit Filter Tabs: 5 columns grid without scrolling */}
+        <div className="grid grid-cols-5 gap-1 py-1 mb-4 border-b border-gray-100 dark:border-gray-700/60 pb-3">
           {UNIT_OPTIONS.map(unitName => {
             const hasUnit = units.some(u => u.name === unitName);
             return (
               <button
                 key={unitName}
                 onClick={() => setActiveUnitName(unitName)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
                   activeUnitName === unitName
                     ? "bg-[#F05A2B] text-white shadow-sm"
                     : hasUnit
@@ -489,8 +477,8 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
                     : "bg-gray-50 dark:bg-gray-900/40 text-gray-300 dark:text-gray-600 cursor-default"
                 }`}
               >
-                {unitName}
-                {hasUnit && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+                <span>{unitName}</span>
+                {hasUnit && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />}
               </button>
             );
           })}
@@ -501,7 +489,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
           {activeFiles.length === 0 ? (
             <div className="py-8 text-center text-gray-400 dark:text-gray-500 space-y-1">
               <FolderOpen className="w-8 h-8 mx-auto opacity-50" />
-              <p className="text-xs font-medium">No notes uploaded for {activeUnitName === "all" ? "this subject" : activeUnitName}</p>
+              <p className="text-xs font-medium">No notes uploaded for {activeUnitName}</p>
             </div>
           ) : (
             activeFiles.map(file => (
@@ -528,7 +516,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
         <span className="flex items-center gap-1">
           <User className="w-3.5 h-3.5" /> Created by {subject.created_by?.name || "Faculty"}
         </span>
-        {activeUnitObj && canDeleteItem(activeUnitObj) && activeUnitName !== "all" && (
+        {activeUnitObj && canDeleteItem(activeUnitObj) && (
           <button
             onClick={() => onDeleteUnit({
               type: "unit", id: activeUnitObj.id,
@@ -925,14 +913,15 @@ export default function FacultyNotesPage() {
       </div>
 
       {/* Floating Action Button (FAB) for Staff */}
-      {isStaff && (
+      {isStaff && createPortal(
         <button
           onClick={() => setUploadOpen(true)}
-          className="fixed right-6 bottom-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#F05A2B] to-orange-600 text-white shadow-xl shadow-orange-500/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
+          className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full bg-gradient-to-br from-[#F05A2B] to-orange-600 text-white shadow-xl shadow-orange-500/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
           title="Upload Notes"
         >
           <Plus className="w-6 h-6" />
-        </button>
+        </button>,
+        document.body
       )}
 
       {/* Upload Modal */}
