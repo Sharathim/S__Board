@@ -359,20 +359,20 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
   const IconComponent = fileDetails.icon;
 
   return (
-    <div className="group flex items-center justify-between p-3 rounded-xl bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700/60 hover:border-gray-200 dark:hover:border-gray-600 shadow-sm hover:shadow transition-all gap-3">
+    <div className="group flex items-center justify-between p-3 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900/40 shadow-2xs hover:shadow-xs transition-all gap-3">
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        <div className={`p-2.5 rounded-xl border ${fileDetails.badgeBg} flex items-center justify-center shrink-0`}>
-          <IconComponent className="w-5 h-5" />
+        <div className="p-2.5 rounded-xl bg-[#F05A2B]/10 text-[#F05A2B] flex items-center justify-center shrink-0">
+          <IconComponent className="w-4.5 h-4.5 text-[#F05A2B]" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate group-hover:text-[#F05A2B] transition-colors">
+          <p className="text-xs font-extrabold text-slate-900 dark:text-slate-100 truncate group-hover:text-[#F05A2B] transition-colors">
             {file.file_name}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+            <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               {fileDetails.label}
             </span>
-            <span className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
               by {file.uploaded_by?.name || "Faculty"}
             </span>
           </div>
@@ -382,7 +382,7 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
       <div className="flex items-center gap-1 shrink-0">
         <button
           onClick={() => onPreview(file)}
-          className="p-2 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-2 text-slate-400 hover:text-[#F05A2B] hover:bg-orange-50 dark:hover:bg-orange-950/30 rounded-lg transition-colors"
           title="Preview Document"
         >
           <Eye className="w-4 h-4" />
@@ -392,7 +392,7 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
           download
           target="_blank"
           rel="noreferrer"
-          className="p-2 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-2 text-slate-400 hover:text-[#F05A2B] hover:bg-orange-50 dark:hover:bg-orange-950/30 rounded-lg transition-colors"
           title="Download Document"
         >
           <Download className="w-4 h-4" />
@@ -400,7 +400,7 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
         {canDelete && (
           <button
             onClick={() => onDelete(file)}
-            className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
             title="Delete File"
           >
             <Trash2 className="w-4 h-4" />
@@ -425,26 +425,30 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
   }, [units, activeUnitName]);
 
   const activeUnitObj = units.find(u => u.name === activeUnitName);
+  const totalFiles = units.reduce((acc, u) => acc + (u.files?.length || 0), 0);
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/70 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+    <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+      {/* Top Gradient Accent Line */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-orange-400" />
+
       <div>
         {/* Card Top Header */}
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start justify-between gap-3 pt-1 mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-[#F05A2B] flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#F05A2B] flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
               <BookMarked className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#F05A2B] bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 rounded-md">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white bg-[#F05A2B] rounded-md shadow-2xs">
                   {className.replace("_", " ")}
                 </span>
-                <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                  {units.length} units
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-bold">
+                  {units.length} units · {totalFiles} files
                 </span>
               </div>
-              <h3 className="font-extrabold text-gray-900 dark:text-white text-base truncate mt-0.5">
+              <h3 className="font-extrabold text-slate-900 dark:text-white text-base truncate">
                 {subject.name}
               </h3>
             </div>
@@ -453,7 +457,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
           {canDeleteItem(subject) && (
             <button
               onClick={() => onDeleteSubject({ type: "subject", id: subject.id, className, name: subject.name })}
-              className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+              className="p-2 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors shrink-0"
               title="Delete Subject"
             >
               <Trash2 className="w-4 h-4" />
@@ -461,35 +465,36 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
           )}
         </div>
 
-        {/* Unit Filter Tabs: 5 columns grid without scrolling */}
-        <div className="grid grid-cols-5 gap-1 py-1 mb-4 border-b border-gray-100 dark:border-gray-700/60 pb-3">
+        {/* Segmented Unit Filter Tabs */}
+        <div className="bg-slate-100/80 dark:bg-slate-800/60 p-1 rounded-2xl grid grid-cols-5 gap-1 mb-4">
           {UNIT_OPTIONS.map(unitName => {
             const hasUnit = units.some(u => u.name === unitName);
+            const isActive = activeUnitName === unitName;
             return (
               <button
                 key={unitName}
                 onClick={() => setActiveUnitName(unitName)}
-                className={`py-1.5 px-1 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
-                  activeUnitName === unitName
-                    ? "bg-[#F05A2B] text-white shadow-sm"
+                className={`py-2 px-1 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
+                  isActive
+                    ? "bg-[#F05A2B] text-white shadow-xs"
                     : hasUnit
-                    ? "bg-gray-100 dark:bg-gray-700/60 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    : "bg-gray-50 dark:bg-gray-900/40 text-gray-300 dark:text-gray-600 cursor-default"
+                    ? "bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900"
+                    : "text-slate-400 dark:text-slate-600"
                 }`}
               >
                 <span>{unitName}</span>
-                {hasUnit && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />}
+                {hasUnit && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-[#F05A2B]"}`} />}
               </button>
             );
           })}
         </div>
 
         {/* Files List in Active Unit */}
-        <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin">
           {activeFiles.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 dark:text-gray-500 space-y-1">
-              <FolderOpen className="w-8 h-8 mx-auto opacity-50" />
-              <p className="text-xs font-medium">No notes uploaded for {activeUnitName}</p>
+            <div className="py-8 text-center bg-slate-50/50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl space-y-1">
+              <FolderOpen className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-700" />
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">No notes uploaded for {activeUnitName}</p>
             </div>
           ) : (
             activeFiles.map(file => (
@@ -512,9 +517,9 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
       </div>
 
       {/* Card Footer Meta */}
-      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
-        <span className="flex items-center gap-1">
-          <User className="w-3.5 h-3.5" /> Created by {subject.created_by?.name || "Faculty"}
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 font-semibold">
+        <span className="flex items-center gap-1.5">
+          <User className="w-3.5 h-3.5 text-slate-400" /> Created by {subject.created_by?.name || "Faculty"}
         </span>
         {activeUnitObj && canDeleteItem(activeUnitObj) && (
           <button
@@ -522,9 +527,9 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
               type: "unit", id: activeUnitObj.id,
               className, subjectId: subject.id, name: activeUnitObj.name
             })}
-            className="text-red-500 hover:underline text-[11px] font-medium flex items-center gap-1"
+            className="text-red-500 hover:text-red-600 text-xs font-bold flex items-center gap-1 transition-colors"
           >
-            <Trash2 className="w-3 h-3" /> Delete {activeUnitName}
+            <Trash2 className="w-3.5 h-3.5" /> Delete {activeUnitName}
           </button>
         )}
       </div>
