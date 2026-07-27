@@ -73,14 +73,26 @@ export default function MobileFacultyPage() {
 
   const facultyList = facultyData || [];
   const filtered = useMemo(() => {
-    if (!search.trim()) return facultyList;
-    const q = search.toLowerCase();
-    return facultyList.filter(f =>
-      f.name?.toLowerCase().includes(q) ||
-      f.email?.toLowerCase().includes(q) ||
-      f.designation?.toLowerCase().includes(q)
-    );
-  }, [facultyList, search]);
+    let list = [...facultyList];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(f =>
+        f.name?.toLowerCase().includes(q) ||
+        f.email?.toLowerCase().includes(q) ||
+        f.designation?.toLowerCase().includes(q)
+      );
+    }
+    if (user) {
+      list.sort((a, b) => {
+        const aIsMe = a.user_id === user.id || a.id === user.id || (a.email && user.email && a.email.toLowerCase() === user.email.toLowerCase());
+        const bIsMe = b.user_id === user.id || b.id === user.id || (b.email && user.email && b.email.toLowerCase() === user.email.toLowerCase());
+        if (aIsMe && !bIsMe) return -1;
+        if (!aIsMe && bIsMe) return 1;
+        return 0;
+      });
+    }
+    return list;
+  }, [facultyList, search, user]);
 
   const copyInviteLink = async () => {
     if (inviteData?.invite_link) {
@@ -118,8 +130,6 @@ export default function MobileFacultyPage() {
         </div>
       )}
 
-
-
       {/* Search */}
       <MobileSearchBar
         value={search}
@@ -143,24 +153,26 @@ export default function MobileFacultyPage() {
         />
       ) : (
         <div className="space-y-2.5">
-          {filtered.map((fac) => (
-            <MobileCard key={fac.id}>
-              <div className="flex items-start gap-3">
-                {/* Avatar */}
-                <div className="w-11 h-11 rounded-2xl overflow-hidden shrink-0 ring-2 ring-indigo-500/20">
-                  <Avatar src={fac.profile_picture} name={fac.name} size="md" className="w-full h-full" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  {/* Name + Designation */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">{fac.name}</h3>
-                    {fac.id === user?.id && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 rounded-md uppercase">
-                        You
-                      </span>
-                    )}
+          {filtered.map((fac) => {
+            const isMe = user && (fac.user_id === user.id || fac.id === user.id || (fac.email && user.email && fac.email.toLowerCase() === user.email.toLowerCase()));
+            return (
+              <MobileCard key={fac.id} className={isMe ? "ring-2 ring-indigo-500/50 border-indigo-300 dark:border-indigo-700 bg-indigo-50/10 dark:bg-indigo-950/10" : ""}>
+                <div className="flex items-start gap-3">
+                  {/* Avatar */}
+                  <div className="w-11 h-11 rounded-2xl overflow-hidden shrink-0 ring-2 ring-indigo-500/20">
+                    <Avatar src={fac.profile_picture} name={fac.name} size="md" className="w-full h-full" />
                   </div>
+
+                  <div className="flex-1 min-w-0">
+                    {/* Name + Designation */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">{fac.name}</h3>
+                      {isMe && (
+                        <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-md shadow-xs shrink-0">
+                          YOU
+                        </span>
+                      )}
+                    </div>
                   {fac.designation && (
                     <div className="mt-1">
                       <DesignationBadge designation={fac.designation} />
@@ -198,7 +210,8 @@ export default function MobileFacultyPage() {
                 )}
               </div>
             </MobileCard>
-          ))}
+          );
+        })}
         </div>
       )}
 

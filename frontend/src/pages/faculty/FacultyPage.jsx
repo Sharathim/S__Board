@@ -97,8 +97,9 @@ function InviteBanner() {
 }
 
 // ─── Faculty Card ─────────────────────────────────────────────────────────────
-function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
+function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onAssignIncharge, onRemoveIncharge }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMe = user && (fac.user_id === user.id || fac.id === user.id || (fac.email && user.email && fac.email.toLowerCase() === user.email.toLowerCase()));
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -108,9 +109,11 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
   }, [menuOpen]);
 
   return (
-    <div className={`group bg-white dark:bg-gray-800/80 rounded-[20px] border border-[#E5E7EB] dark:border-gray-700/80 shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px] transition-all duration-200 ease-out flex flex-col justify-between h-full relative p-[20px] ${
-      menuOpen ? "z-30" : "z-10"
-    }`}>
+    <div className={`group rounded-[20px] shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] transition-all duration-200 ease-out flex flex-col justify-between h-full relative p-[20px] ${
+      isMe
+        ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-b from-indigo-50/40 via-white to-white dark:from-indigo-950/30 dark:via-gray-800 dark:to-gray-800"
+        : "bg-white dark:bg-gray-800/80 border border-[#E5E7EB] dark:border-gray-700/80 hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px]"
+    } ${menuOpen ? "z-30" : "z-10"}`}>
       {/* Top half container that will grow to fill space */}
       <div className="flex flex-col flex-1">
         {/* Top Section (Avatar & Actions) */}
@@ -172,7 +175,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
                 )}
               </div>
             ) : (
-              userRole === "FACULTY" && userId === fac.user_id && (
+              (userRole === "FACULTY" && (userId === fac.user_id || userId === fac.id)) && (
                 <button
                   onClick={() => onEdit(fac)}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 transition-all"
@@ -185,11 +188,16 @@ function FacultyCard({ fac, isHOD, userId, userRole, onEdit, onDelete, onAssignI
           </div>
         </div>
 
-        {/* Faculty Name */}
-        <div className="mt-[8px]">
-          <h3 className="text-[26px] font-bold text-[#1E293B] dark:text-white leading-tight tracking-tight group-hover:text-[#5B5CEB] dark:group-hover:text-indigo-400 transition-colors">
+        {/* Faculty Name & YOU Badge */}
+        <div className="mt-[8px] flex items-center justify-between gap-2">
+          <h3 className="text-[24px] lg:text-[26px] font-bold text-[#1E293B] dark:text-white leading-tight tracking-tight group-hover:text-[#5B5CEB] dark:group-hover:text-indigo-400 transition-colors truncate">
             {fac.name}
           </h3>
+          {isMe && (
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xs shrink-0">
+              YOU
+            </span>
+          )}
         </div>
 
         {/* Email Address */}
@@ -285,10 +293,21 @@ export default function FacultyPage() {
     professors: facultyList.filter((f) => f.designation === "Professor").length,
   }), [facultyList]);
 
-  // ── Filtered list ──
+  // ── Filtered & Sorted list (Logged in user sorted FIRST) ──
   const filtered = useMemo(() => {
-    return facultyList;
-  }, [facultyList]);
+    if (!facultyList || facultyList.length === 0) return [];
+    const list = [...facultyList];
+    if (user) {
+      list.sort((a, b) => {
+        const aIsMe = a.user_id === user.id || a.id === user.id || (a.email && user.email && a.email.toLowerCase() === user.email.toLowerCase());
+        const bIsMe = b.user_id === user.id || b.id === user.id || (b.email && user.email && b.email.toLowerCase() === user.email.toLowerCase());
+        if (aIsMe && !bIsMe) return -1;
+        if (!aIsMe && bIsMe) return 1;
+        return 0;
+      });
+    }
+    return list;
+  }, [facultyList, user]);
 
   // ── Mutations ──
   const assignMutation = useMutation({
@@ -412,6 +431,7 @@ export default function FacultyPage() {
               isHOD={isHOD}
               userId={user?.id}
               userRole={user?.role}
+              user={user}
               onEdit={handleOpenEdit}
               onDelete={setDeleteConfirm}
               onAssignIncharge={(f) => { setAssignModal(f); setSelectedClass(""); }}
@@ -432,21 +452,32 @@ export default function FacultyPage() {
           </div>
 
           <div className="space-y-3">
-            {filtered.map((fac) => (
-              <div
-                key={fac.id}
-                className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 relative ${
-                  openKebabId === fac.id ? "z-30" : "z-10"
-                }`}
-              >
-                {/* Col 1: Avatar + Name */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <Avatar fac={fac} size="sm" />
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{fac.name}</p>
-                    <p className="text-xs text-gray-450 dark:text-gray-550 mt-0.5 truncate">{fac.email}</p>
+            {filtered.map((fac) => {
+              const isMe = user && (fac.user_id === user.id || fac.id === user.id || (fac.email && user.email && fac.email.toLowerCase() === user.email.toLowerCase()));
+              return (
+                <div
+                  key={fac.id}
+                  className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 transition-all duration-300 relative ${
+                    isMe
+                      ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-r from-indigo-50/40 via-white to-white dark:from-indigo-950/30 dark:via-gray-800 dark:to-gray-800"
+                      : "bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/80 hover:border-indigo-500/20"
+                  } ${openKebabId === fac.id ? "z-30" : "z-10"}`}
+                >
+                  {/* Col 1: Avatar + Name */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar fac={fac} size="sm" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{fac.name}</p>
+                        {isMe && (
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xs shrink-0">
+                            YOU
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-450 dark:text-gray-550 mt-0.5 truncate">{fac.email}</p>
+                    </div>
                   </div>
-                </div>
 
                 {/* Col 2: Designation */}
                 <div className="flex items-center">
@@ -555,8 +586,9 @@ export default function FacultyPage() {
                   )}
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
         </div>
       )}
 
