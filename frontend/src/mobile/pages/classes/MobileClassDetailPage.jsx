@@ -18,10 +18,10 @@ import MobileEmptyState from "../../components/MobileEmptyState";
 import MobileSectionHeader from "../../components/MobileSectionHeader";
 import BottomSheet from "../../layout/BottomSheet";
 import {
-  Users, Trash2, Search, GraduationCap, ChevronLeft,
-  BookOpen, Mail, ArrowLeft, Crown, ShieldCheck,
-  MoreVertical, MessageSquarePlus, FileText, Eye,
-  Download, Plus, Save, CheckCircle2,
+  Users, Trash2, Mail, ArrowLeft, MessageSquarePlus, FileText, Eye,
+  Download, Plus, Save, CheckCircle2, MoreVertical, Lock, AlertCircle,
+  FileSpreadsheet, FileArchive, UploadCloud, CheckCircle, Columns,
+  PlusCircle, ChevronRight, X
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 
@@ -46,23 +46,47 @@ const STUDENT_CORE_FIELDS = [
   { name: "religion", label: "Religion", type: "text" },
   { name: "community", label: "Community", type: "text" },
   { name: "caste", label: "Caste", type: "text" },
-  { name: "mobile_number", label: "Mobile Number", type: "tel" },
+  { name: "mobile_number", label: "Student Mobile Number", type: "tel" },
   { name: "communication_address", label: "Communication Address", type: "textarea" },
   { name: "permanent_address", label: "Permanent Address", type: "textarea" },
-  { name: "tenth_percentage", label: "10th %", type: "text" },
-  { name: "twelfth_percentage", label: "12th %", type: "text" },
-  { name: "admission_type", label: "Admission Type", type: "select", options: ["Counselling", "Management"] },
-  { name: "aadhar_number", label: "Aadhar Number", type: "text" },
-  { name: "pan_number", label: "PAN Number", type: "text" },
+  { name: "tenth_percentage", label: "10th Percentage (%)", type: "text" },
+  { name: "twelfth_percentage", label: "12th Percentage (%)", type: "text" },
+  { name: "admission_type", label: "Type of Admission", type: "select", options: ["Counselling", "Management"] },
+  { name: "aadhar_number", label: "Aadhar Card Number", type: "text" },
+  { name: "pan_number", label: "PAN Card Number", type: "text" },
   { name: "father_name", label: "Father's Name", type: "text" },
   { name: "father_occupation", label: "Father's Occupation", type: "text" },
-  { name: "father_income", label: "Father's Income", type: "text" },
-  { name: "father_mobile", label: "Father's Mobile", type: "tel" },
+  { name: "father_income", label: "Father's Annual Income", type: "text" },
+  { name: "father_mobile", label: "Father's Mobile Number", type: "tel" },
   { name: "mother_name", label: "Mother's Name", type: "text" },
   { name: "mother_occupation", label: "Mother's Occupation", type: "text" },
-  { name: "mother_income", label: "Mother's Income", type: "text" },
-  { name: "mother_mobile", label: "Mother's Mobile", type: "tel" },
+  { name: "mother_income", label: "Mother's Annual Income", type: "text" },
+  { name: "mother_mobile", label: "Mother's Mobile Number", type: "tel" },
 ];
+
+const PERSONAL_FIELDS = STUDENT_CORE_FIELDS.slice(0, 9);
+const ACADEMIC_FIELDS = STUDENT_CORE_FIELDS.slice(9, 14);
+const PARENT_FIELDS = STUDENT_CORE_FIELDS.slice(14);
+
+// ─── Input renderer helper ────────────────────────────────────────────────────
+function FieldInput({ field, value, onChange, disabled = false }) {
+  const base = `w-full px-3 py-2.5 text-xs rounded-xl border ${disabled ? "bg-gray-100 dark:bg-slate-900/50 text-gray-400 border-gray-200 dark:border-slate-700 cursor-not-allowed" : "bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border-gray-200 dark:border-slate-700"} focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all`;
+
+  if (field.type === "select") return (
+    <select value={value} disabled={disabled} onChange={e => onChange(e.target.value)} className={base}>
+      <option value="">Select option</option>
+      {field.options.map(o => <option key={o} value={o}>{o}</option>)}
+    </select>
+  );
+  if (field.type === "textarea") return (
+    <textarea value={value} disabled={disabled} onChange={e => onChange(e.target.value)} rows={2}
+      className={`${base} resize-none`} placeholder={`Enter ${field.label.toLowerCase()}`} />
+  );
+  return (
+    <input type={field.type || "text"} value={value} disabled={disabled} onChange={e => onChange(e.target.value)}
+      placeholder={`Enter ${field.label.toLowerCase()}`} className={base} />
+  );
+}
 
 export default function MobileClassDetailPage() {
   const { className } = useParams();
@@ -85,7 +109,6 @@ export default function MobileClassDetailPage() {
 
   const meta = CLASS_META[className] || { label: className?.replace("_", " "), short: className, gradient: "from-primary-500 to-violet-600", year: 1, level: "UG" };
 
-  // ─── Data ───────────────────────────────────────────
   const { data: students, isLoading } = useQuery({
     queryKey: ["students", className],
     queryFn: () => listStudents(className).then(r => r.data.students),
@@ -97,7 +120,7 @@ export default function MobileClassDetailPage() {
     enabled: canManage && activeTab === "students_data",
   });
 
-  const { data: statsData } = useQuery({
+  const { data: statsData, refetch: refetchStats } = useQuery({
     queryKey: ["class-stats", className],
     queryFn: () => getClassStats(className).then(r => r.data),
     enabled: canManage && activeTab === "students_data",
@@ -127,11 +150,10 @@ export default function MobileClassDetailPage() {
     queryClient.invalidateQueries({ queryKey: ["classes"] });
     queryClient.invalidateQueries({ queryKey: ["forum-members"] });
     if (ownStudentId) refetchOwnDetails();
-    if (canManage) refetchStudentsData();
+    if (canManage) { refetchStudentsData(); refetchStats(); }
     refetchForms();
   };
 
-  // ─── Mutations ──────────────────────────────────────
   const removeMutation = useMutation({
     mutationFn: (studentId) => removeStudent(className, studentId),
     onSuccess: () => { setRemoveTarget(null); invalidate(); },
@@ -147,12 +169,6 @@ export default function MobileClassDetailPage() {
     onSuccess: () => { setDetailSheetOpen(false); invalidate(); },
   });
 
-  const saveAdminDetailsMutation = useMutation({
-    mutationFn: ({ studentId, details }) => saveStudentDetailsAdmin(className, studentId, details),
-    onSuccess: () => { setAdminDetailSheet(null); invalidate(); },
-  });
-
-  // ─── Student List ───────────────────────────────────
   const studentList = students || [];
 
   const sortedStudents = useMemo(() => {
@@ -207,7 +223,7 @@ export default function MobileClassDetailPage() {
             key={tab.key}
             onClick={() => {
               setActiveTab(tab.key);
-              if (tab.key === "students_data") refetchStudentsData();
+              if (tab.key === "students_data") { refetchStudentsData(); refetchStats(); refetchForms(); }
               if (tab.key === "forms") refetchForms();
             }}
             className={`mobile-tappable whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
@@ -225,20 +241,15 @@ export default function MobileClassDetailPage() {
       {activeTab === "students" && (
         <div className="space-y-3">
           <MobileSearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search students..." />
-
           {filtered.length === 0 ? (
-            <MobileEmptyState
-              icon={Users}
-              title={searchQuery ? "No results" : "No students yet"}
-              description={searchQuery ? `No students match "${searchQuery}"` : "Students will appear after they onboard."}
-            />
+            <MobileEmptyState icon={Users} title={searchQuery ? "No results" : "No students yet"}
+              description={searchQuery ? `No students match "${searchQuery}"` : "Students will appear after they onboard."} />
           ) : (
             <div className="space-y-2">
               {filtered.map(s => {
                 const isOwn = s.user_id === user?.id;
                 return (
-                  <MobileCard
-                    key={s.id}
+                  <MobileCard key={s.id}
                     onClick={isOwn && user?.role === "STUDENT" ? () => setDetailSheetOpen(true) : undefined}
                     className={isOwn ? "!border-primary-300 dark:!border-primary-700/50 !bg-primary-50/30 dark:!bg-primary-950/10" : ""}
                   >
@@ -255,28 +266,18 @@ export default function MobileClassDetailPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{s.name}</p>
-                          {isOwn && (
-                            <span className="text-[8px] font-bold px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-md uppercase">Me</span>
-                          )}
-                          {s.is_forum_member && (
-                            <span className="text-[8px] font-bold px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-md uppercase">Forum</span>
-                          )}
+                          {isOwn && <span className="text-[8px] font-bold px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-md uppercase">Me</span>}
+                          {s.is_forum_member && <span className="text-[8px] font-bold px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-md uppercase">Forum</span>}
                         </div>
                         <p className="text-[10px] text-gray-400 truncate">{s.email}</p>
                       </div>
-
-                      {/* Roll & Reg */}
                       <div className="text-right shrink-0">
                         {s.roll_number && (
                           <span className="text-[10px] font-mono font-bold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-slate-800 px-1.5 py-0.5 rounded block">{s.roll_number}</span>
                         )}
                       </div>
-
                       {canManage && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setStudentActionSheet(s); }}
-                          className="mobile-tappable p-1.5 rounded-xl text-gray-400"
-                        >
+                        <button onClick={e => { e.stopPropagation(); setStudentActionSheet(s); }} className="mobile-tappable p-1.5 rounded-xl text-gray-400">
                           <MoreVertical className="w-4 h-4" />
                         </button>
                       )}
@@ -300,8 +301,9 @@ export default function MobileClassDetailPage() {
           className={className}
           stats={statsData}
           students={studentsData?.students || []}
+          customColumns={studentsData?.custom_columns || []}
           forms={formsData || []}
-          onEditStudent={(s) => setAdminDetailSheet(s)}
+          onEditStudent={s => setAdminDetailSheet(s)}
           refetch={invalidate}
         />
       )}
@@ -310,39 +312,31 @@ export default function MobileClassDetailPage() {
       <BottomSheet open={!!studentActionSheet} onClose={() => setStudentActionSheet(null)} title={studentActionSheet?.name}>
         {studentActionSheet && (
           <div className="space-y-1">
-            <a
-              href={`mailto:${studentActionSheet.email}`}
-              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50"
-            >
+            <a href={`mailto:${studentActionSheet.email}`}
+              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50">
               <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-500"><Mail className="w-4 h-4" /></div>
               <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Send Email</span>
             </a>
 
             {canManage && (
-              <button
-                onClick={() => { const s = studentActionSheet; setStudentActionSheet(null); setTimeout(() => setAdminDetailSheet(s), 300); }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50"
-              >
+              <button onClick={() => { const s = studentActionSheet; setStudentActionSheet(null); setTimeout(() => setAdminDetailSheet(s), 300); }}
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50">
                 <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-500"><FileText className="w-4 h-4" /></div>
                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Edit Details</span>
               </button>
             )}
 
             {isForumClass && canManage && !studentActionSheet.is_forum_member && (
-              <button
-                onClick={() => { const s = studentActionSheet; setStudentActionSheet(null); setTimeout(() => setForumSheet(s), 300); }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50"
-              >
+              <button onClick={() => { const s = studentActionSheet; setStudentActionSheet(null); setTimeout(() => setForumSheet(s), 300); }}
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50">
                 <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-500"><MessageSquarePlus className="w-4 h-4" /></div>
                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Add to Forum</span>
               </button>
             )}
 
             {canManage && (
-              <button
-                onClick={() => { const s = studentActionSheet; setStudentActionSheet(null); setTimeout(() => setRemoveTarget(s), 300); }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20"
-              >
+              <button onClick={() => { const s = studentActionSheet; setStudentActionSheet(null); setTimeout(() => setRemoveTarget(s), 300); }}
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20">
                 <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500"><Trash2 className="w-4 h-4" /></div>
                 <span className="text-sm font-semibold text-red-600 dark:text-red-400">Remove Student</span>
               </button>
@@ -365,70 +359,36 @@ export default function MobileClassDetailPage() {
             <div className="grid grid-cols-3 gap-2">
               {FORUM_ROLES.map(r => (
                 <button key={r} onClick={() => setForumRole(r)}
-                  className={`mobile-tappable px-2 py-2 rounded-xl text-xs font-bold border text-center ${
-                    forumRole === r ? "bg-primary-600 text-white border-primary-600" : "bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-800"
-                  }`}
-                >{r}</button>
+                  className={`mobile-tappable px-2 py-2 rounded-xl text-xs font-bold border text-center ${forumRole === r ? "bg-primary-600 text-white border-primary-600" : "bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-800"}`}>
+                  {r}
+                </button>
               ))}
             </div>
-            <button
-              onClick={() => forumMutation.mutate({ studentId: forumSheet.id, role: forumRole })}
+            <button onClick={() => forumMutation.mutate({ studentId: forumSheet.id, role: forumRole })}
               disabled={forumMutation.isPending}
-              className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50"
-            >
+              className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50">
               {forumMutation.isPending ? "Assigning..." : `Assign as ${forumRole}`}
             </button>
           </div>
         )}
       </BottomSheet>
 
-      {/* ─── My Details Sheet (Student) ─── */}
-      <BottomSheet open={detailSheetOpen} onClose={() => setDetailSheetOpen(false)} title="My Details">
-        <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-          {STUDENT_CORE_FIELDS.map(field => (
-            <div key={field.name}>
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">{field.label}</label>
-              {field.type === "select" ? (
-                <select
-                  value={studentDetailsForm[field.name] || ""}
-                  onChange={(e) => setStudentDetailsForm(prev => ({ ...prev, [field.name]: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
-                >
-                  <option value="">Select...</option>
-                  {field.options.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
-              ) : field.type === "textarea" ? (
-                <textarea
-                  value={studentDetailsForm[field.name] || ""}
-                  onChange={(e) => setStudentDetailsForm(prev => ({ ...prev, [field.name]: e.target.value }))}
-                  rows={2}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none"
-                />
-              ) : (
-                <input
-                  type={field.type || "text"}
-                  value={studentDetailsForm[field.name] || ""}
-                  onChange={(e) => setStudentDetailsForm(prev => ({ ...prev, [field.name]: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
-                />
-              )}
-            </div>
-          ))}
-          <button
-            onClick={() => saveDetailsMutation.mutate(studentDetailsForm)}
-            disabled={saveDetailsMutation.isPending}
-            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-primary-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2 sticky bottom-0"
-          >
-            {saveDetailsMutation.isPending ? <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Details
-          </button>
-        </div>
-      </BottomSheet>
+      {/* ─── My Details Sheet (Student self-edit with immutable lock) ─── */}
+      <StudentSelfEditSheet
+        open={detailSheetOpen}
+        onClose={() => setDetailSheetOpen(false)}
+        ownDetails={ownDetails}
+        formState={studentDetailsForm}
+        setFormState={setStudentDetailsForm}
+        onSave={() => saveDetailsMutation.mutate(studentDetailsForm)}
+        isPending={saveDetailsMutation.isPending}
+      />
 
       {/* ─── Admin Edit Details Sheet ─── */}
       <AdminDetailSheet
         student={adminDetailSheet}
         className={className}
+        customColumns={studentsData?.custom_columns || []}
         onClose={() => setAdminDetailSheet(null)}
         refetch={invalidate}
       />
@@ -446,177 +406,167 @@ export default function MobileClassDetailPage() {
   );
 }
 
-// ─── Admin Edit Student Details Bottom Sheet ────────────────────────────────────
+// ─── Student Self-Edit Details Bottom Sheet (with immutable lock) ─────────────
 
-function AdminDetailSheet({ student, className, onClose, refetch }) {
-  const [form, setForm] = useState({});
+function StudentSelfEditSheet({ open, onClose, ownDetails, formState, setFormState, onSave, isPending }) {
+  const [subTab, setSubTab] = useState("personal");
+
+  const subtabs = [
+    { key: "personal", label: "Personal" },
+    { key: "parents", label: "Parents" },
+    { key: "academic", label: "Academic" },
+  ];
+
+  const fieldsByTab = {
+    personal: PERSONAL_FIELDS,
+    parents: PARENT_FIELDS,
+    academic: ACADEMIC_FIELDS,
+  };
+
+  const isImmutable = (fieldName) => {
+    const v = ownDetails?.details?.[fieldName];
+    return v !== undefined && v !== null && String(v).trim() !== "";
+  };
+
+  return (
+    <BottomSheet open={open} onClose={onClose} title="My Registry Details">
+      <div className="space-y-3">
+        <div className="flex items-start gap-2 p-2.5 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-800/30">
+          <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">
+            Once a field is saved, it becomes <strong>locked</strong> and cannot be changed. Verify before saving.
+          </p>
+        </div>
+
+        {/* Sub-tabs */}
+        <div className="flex gap-1 border-b border-gray-100 dark:border-slate-800 pb-1">
+          {subtabs.map(t => (
+            <button key={t.key} onClick={() => setSubTab(t.key)}
+              className={`px-3 py-1.5 text-xs font-bold rounded-t-lg border-b-2 transition-all ${subTab === t.key ? "border-indigo-600 text-indigo-600" : "border-transparent text-gray-400"}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-3 max-h-[55vh] overflow-y-auto mobile-hide-scrollbar pb-2">
+          {(fieldsByTab[subTab] || []).map(field => {
+            const locked = isImmutable(field.name);
+            return (
+              <div key={field.name} className="space-y-1">
+                <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  {field.label}
+                  {locked && <Lock className="w-2.5 h-2.5 text-amber-500" title="Locked once saved" />}
+                </label>
+                <FieldInput field={field} value={formState[field.name] || ""}
+                  onChange={v => setFormState(prev => ({ ...prev, [field.name]: v }))}
+                  disabled={locked} />
+              </div>
+            );
+          })}
+        </div>
+
+        <button onClick={onSave} disabled={isPending}
+          className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2">
+          {isPending ? <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> : <Save className="w-4 h-4" />}
+          Save Details
+        </button>
+      </div>
+    </BottomSheet>
+  );
+}
+
+// ─── Admin Edit Student Details Bottom Sheet (full fields + custom cols) ──────
+
+function AdminDetailSheet({ student, className, customColumns = [], onClose, refetch }) {
+  const [subTab, setSubTab] = useState("personal");
+  const [formState, setFormState] = useState({});
+  const [extraState, setExtraState] = useState({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (student) {
-      setForm({
-        roll_number: student.roll_number || "",
-        register_number: student.register_number || "",
-        gender: student.gender || student.details?.gender || "",
-        blood_group: student.blood_group || student.details?.blood_group || "",
-        mobile_number: student.mobile_number || student.details?.mobile_number || "",
-        father_name: student.father_name || student.details?.father_name || "",
-        mother_name: student.mother_name || student.details?.mother_name || "",
-        communication_address: student.communication_address || student.details?.communication_address || "",
-        nationality: student.nationality || student.details?.nationality || "Indian",
-        religion: student.religion || student.details?.religion || "",
-        community: student.community || student.details?.community || "",
-        caste: student.caste || student.details?.caste || "",
-      });
+      const details = student.details || {};
+      const stateObj = {};
+      STUDENT_CORE_FIELDS.forEach(f => { stateObj[f.name] = details[f.name] || student[f.name] || ""; });
+      setFormState(stateObj);
+      setExtraState(student.extra_details || {});
+      setSubTab("personal");
     }
   }, [student]);
 
   if (!student) return null;
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setSaving(true);
     try {
-      await saveStudentDetailsAdmin(className, student.user_id || student.id, form);
-      refetch();
+      await saveStudentDetailsAdmin(className, student.user_id || student.id, formState, extraState);
+      refetch?.();
       onClose();
     } catch (err) {
-      alert("Failed to save student details: " + (err.response?.data?.message || err.message));
+      alert("Failed to save: " + (err.response?.data?.message || err.message));
     } finally {
       setSaving(false);
     }
   };
 
+  const subtabs = [
+    { key: "personal", label: "Personal" },
+    { key: "parents", label: "Parents" },
+    { key: "academic", label: "Academic" },
+    ...(customColumns.length > 0 ? [{ key: "custom", label: "Custom" }] : []),
+  ];
+
+  const fieldsByTab = { personal: PERSONAL_FIELDS, parents: PARENT_FIELDS, academic: ACADEMIC_FIELDS };
+
   return (
-    <BottomSheet open={!!student} onClose={onClose} title={`Edit Details — ${student.name}`}>
-      <form onSubmit={handleSave} className="space-y-3 max-h-[65vh] overflow-y-auto mobile-hide-scrollbar pb-4">
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Roll No</label>
-            <input
-              type="text"
-              value={form.roll_number}
-              onChange={e => setForm(f => ({ ...f, roll_number: e.target.value }))}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Register No</label>
-            <input
-              type="text"
-              value={form.register_number}
-              onChange={e => setForm(f => ({ ...f, register_number: e.target.value }))}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
+    <BottomSheet open={!!student} onClose={onClose} title={`Edit — ${student.name}`}>
+      <div className="space-y-3">
+        {/* Sub-tabs */}
+        <div className="flex gap-1 overflow-x-auto mobile-hide-scrollbar border-b border-gray-100 dark:border-slate-800 pb-1">
+          {subtabs.map(t => (
+            <button key={t.key} onClick={() => setSubTab(t.key)}
+              className={`px-3 py-1.5 text-xs font-bold whitespace-nowrap border-b-2 transition-all ${subTab === t.key ? "border-indigo-600 text-indigo-600" : "border-transparent text-gray-400"}`}>
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Gender</label>
-            <select
-              value={form.gender}
-              onChange={e => setForm(f => ({ ...f, gender: e.target.value }))}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Blood Group</label>
-            <input
-              type="text"
-              value={form.blood_group}
-              onChange={e => setForm(f => ({ ...f, blood_group: e.target.value }))}
-              placeholder="e.g. O+ve"
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
+        <div className="space-y-3 max-h-[55vh] overflow-y-auto mobile-hide-scrollbar pb-2">
+          {subTab !== "custom" ? (
+            (fieldsByTab[subTab] || []).map(field => (
+              <div key={field.name} className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{field.label}</label>
+                <FieldInput field={field} value={formState[field.name] || ""}
+                  onChange={v => setFormState(prev => ({ ...prev, [field.name]: v }))} />
+              </div>
+            ))
+          ) : (
+            customColumns.map(col => (
+              <div key={col.name} className="space-y-1">
+                <label className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{col.label}</label>
+                <input type="text" value={extraState[col.name] || ""}
+                  onChange={e => setExtraState(prev => ({ ...prev, [col.name]: e.target.value }))}
+                  placeholder={`Enter ${col.label}`}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-indigo-200 dark:border-indigo-800/50 bg-indigo-50/30 dark:bg-indigo-950/10 text-gray-900 dark:text-white focus:outline-none" />
+              </div>
+            ))
+          )}
         </div>
 
-        <div>
-          <label className="text-[10px] font-bold text-gray-400 uppercase">Student Mobile</label>
-          <input
-            type="text"
-            value={form.mobile_number}
-            onChange={e => setForm(f => ({ ...f, mobile_number: e.target.value }))}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Father's Name</label>
-            <input
-              type="text"
-              value={form.father_name}
-              onChange={e => setForm(f => ({ ...f, father_name: e.target.value }))}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Mother's Name</label>
-            <input
-              type="text"
-              value={form.mother_name}
-              onChange={e => setForm(f => ({ ...f, mother_name: e.target.value }))}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="text-[10px] font-bold text-gray-400 uppercase">Communication Address</label>
-          <textarea
-            value={form.communication_address}
-            onChange={e => setForm(f => ({ ...f, communication_address: e.target.value }))}
-            rows={2}
-            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white resize-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Community</label>
-            <input
-              type="text"
-              value={form.community}
-              onChange={e => setForm(f => ({ ...f, community: e.target.value }))}
-              placeholder="e.g. BC / MBC / SC"
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Caste</label>
-            <input
-              type="text"
-              value={form.caste}
-              onChange={e => setForm(f => ({ ...f, caste: e.target.value }))}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 disabled:opacity-50"
-        >
-          {saving ? "Saving Details..." : "Save Student Details"}
+        <button onClick={handleSave} disabled={saving}
+          className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2">
+          {saving ? <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> : <Save className="w-4 h-4" />}
+          Save Changes
         </button>
-      </form>
+      </div>
     </BottomSheet>
   );
 }
 
-// ─── Active Forms Tab (Student view) ───────────────────────────────────────────
+// ─── Active Forms Tab (Student View) ─────────────────────────────────────────
 
 function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
   const [fillForm, setFillForm] = useState(null);
-  const [formResponses, setFormResponses] = useState({});
   const [userSubmissions, setUserSubmissions] = useState({});
 
   useEffect(() => {
@@ -630,9 +580,7 @@ function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
             x => (studentId && (x.student_id === studentId || x.id === studentId)) ||
                  (user?.id && (x.user_id === user.id || x.student_id === user.id))
           );
-          if (userResp) {
-            subMap[f.id] = userResp;
-          }
+          if (userResp) subMap[f.id] = userResp;
         } catch (e) {}
       }
       setUserSubmissions(subMap);
@@ -640,23 +588,13 @@ function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
     checkSubmissions();
   }, [forms, className, studentId, user]);
 
-  const submitMutation = useMutation({
-    mutationFn: ({ formId, data }) => submitFormResponse(className, formId, data),
-    onSuccess: (_, variables) => {
-      setUserSubmissions(prev => ({ ...prev, [variables.formId]: true }));
-      setFillForm(null);
-      setFormResponses({});
-      refetch();
-    },
-  });
-
   const activeForms = forms.filter(f => !f.is_expired);
-  const fields = fillForm?.metadata?.fields || fillForm?.fields || [];
 
   return (
     <div className="space-y-3">
+      <MobileSectionHeader title="Academic & Administration Forms" count={activeForms.length} />
       {activeForms.length === 0 ? (
-        <MobileEmptyState icon={FileText} title="No active forms" description="There are no forms to fill out right now." />
+        <MobileEmptyState icon={FileText} title="No active forms" description="No forms to fill right now." />
       ) : (
         activeForms.map(form => {
           const isSubmitted = !!userSubmissions[form.id] || !!form.has_responded;
@@ -664,21 +602,18 @@ function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
             <MobileCard key={form.id}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">{form.title}</h3>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white">{form.title}</h3>
+                  <p className="text-[10px] text-gray-400 uppercase mt-0.5 font-semibold">Type: {form.form_type}</p>
                   {form.description && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{form.description}</p>}
-                  <p className="text-[10px] text-gray-400 mt-2 font-medium">{form.response_count || 0} response{form.response_count !== 1 ? "s" : ""}</p>
                 </div>
-                <div className="shrink-0 pt-0.5">
+                <div className="shrink-0">
                   {isSubmitted ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-200/50 dark:border-emerald-800/30">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Completed
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 text-xs font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Completed
                     </span>
                   ) : (
-                    <button
-                      onClick={() => { setFillForm(form); setFormResponses({}); }}
-                      className="mobile-tappable px-3.5 py-1.5 rounded-xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20"
-                    >
+                    <button onClick={() => setFillForm(form)}
+                      className="mobile-tappable px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-md">
                       Fill Form
                     </button>
                   )}
@@ -689,410 +624,698 @@ function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
         })
       )}
 
-      <BottomSheet open={!!fillForm} onClose={() => setFillForm(null)} title={fillForm?.title || "Fill Form"}>
-        {fillForm && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitMutation.mutate({ formId: fillForm.id, data: formResponses });
-            }}
-            className="space-y-3.5 max-h-[65vh] overflow-y-auto mobile-hide-scrollbar pb-4"
-          >
-            {fillForm.description && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800">
-                {fillForm.description}
-              </p>
-            )}
-
-            {fields.length === 0 ? (
-              <p className="text-xs text-gray-400 italic text-center py-4">No fields in this form.</p>
-            ) : (
-              fields.map((field, idx) => (
-                <div key={idx} className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
-                    {field.label || field.name} {field.required && <span className="text-red-500">*</span>}
-                  </label>
-                  {field.type === "select" ? (
-                    <select
-                      value={formResponses[field.name] || ""}
-                      required={field.required}
-                      onChange={e => setFormResponses(p => ({ ...p, [field.name]: e.target.value }))}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
-                    >
-                      <option value="">Select option...</option>
-                      {(Array.isArray(field.options) ? field.options : (field.options || "").split(",")).map(o => {
-                        const opt = typeof o === "string" ? o.trim() : o;
-                        return <option key={opt} value={opt}>{opt}</option>;
-                      })}
-                    </select>
-                  ) : field.type === "textarea" ? (
-                    <textarea
-                      value={formResponses[field.name] || ""}
-                      required={field.required}
-                      onChange={e => setFormResponses(p => ({ ...p, [field.name]: e.target.value }))}
-                      rows={3}
-                      placeholder={`Enter ${field.label?.toLowerCase() || field.name}`}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none"
-                    />
-                  ) : (
-                    <input
-                      type={field.type || "text"}
-                      value={formResponses[field.name] || ""}
-                      required={field.required}
-                      onChange={e => setFormResponses(p => ({ ...p, [field.name]: e.target.value }))}
-                      placeholder={`Enter ${field.label?.toLowerCase() || field.name}`}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
-                    />
-                  )}
-                </div>
-              ))
-            )}
-
-            <button
-              type="submit"
-              disabled={submitMutation.isPending}
-              className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 disabled:opacity-50"
-            >
-              {submitMutation.isPending ? "Submitting Response..." : "Submit Form"}
-            </button>
-          </form>
-        )}
-      </BottomSheet>
+      {/* Fill Form Sheet */}
+      <FillFormSheet
+        form={fillForm}
+        className={className}
+        studentName={user?.name}
+        studentRoll={user?.student?.roll_number}
+        onClose={() => setFillForm(null)}
+        onSuccess={() => { setFillForm(null); refetch(); }}
+      />
     </div>
   );
 }
 
-// ─── Students Data Tab (Admin view) ────────────────────────────────────────────
+// ─── Fill Form Bottom Sheet (Student) ─────────────────────────────────────────
 
-function StudentsDataTab({ className, stats, students, forms, onEditStudent, refetch }) {
-  const queryClient = useQueryClient();
+function FillFormSheet({ form, className, studentName, studentRoll, onClose, onSuccess }) {
+  const [answers, setAnswers] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  const fields = form?.metadata?.fields || [];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setIsPending(true);
+    try {
+      if (form.form_type === "internship") {
+        if (!selectedFile) { setErrorMsg("Please upload your internship certificate PDF."); setIsPending(false); return; }
+        const formData = new FormData();
+        formData.append("answers", JSON.stringify(answers));
+        formData.append("certificate", selectedFile);
+        await submitFormResponse(className, form.id, formData, true);
+      } else {
+        await submitFormResponse(className, form.id, { answers });
+      }
+      onSuccess();
+    } catch (err) {
+      setErrorMsg(err.response?.data?.error || "Failed to submit. Try again.");
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return (
+    <BottomSheet open={!!form} onClose={onClose} title={form?.title || "Fill Form"}>
+      {form && (
+        <form onSubmit={handleSubmit} className="space-y-3 max-h-[70vh] overflow-y-auto mobile-hide-scrollbar pb-4">
+          {/* Student info */}
+          <div className="grid grid-cols-2 gap-2 p-2.5 bg-gray-50 dark:bg-slate-800/60 rounded-xl text-xs">
+            <div><span className="text-gray-400 block text-[9px] font-bold uppercase">Name</span>{studentName}</div>
+            <div><span className="text-gray-400 block text-[9px] font-bold uppercase">Roll No</span>{studentRoll}</div>
+          </div>
+
+          {/* Internship fixed fields */}
+          {form.form_type === "internship" && (
+            <div className="space-y-2.5">
+              {[
+                { name: "company_name", label: "Company Name", type: "text", required: true },
+                { name: "start_date", label: "Start Date", type: "date", required: true },
+                { name: "end_date", label: "End Date", type: "date", required: true },
+                { name: "duration", label: "Duration (e.g. 4 weeks)", type: "text", required: true },
+                { name: "project_name", label: "Project Name", type: "text", required: true },
+                { name: "company_website", label: "Company Website", type: "url", required: true },
+              ].map(f => (
+                <div key={f.name} className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">{f.label} {f.required && <span className="text-red-500">*</span>}</label>
+                  <input type={f.type} required={f.required} value={answers[f.name] || ""}
+                    onChange={e => setAnswers(p => ({ ...p, [f.name]: e.target.value }))}
+                    className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none" />
+                </div>
+              ))}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Company Address <span className="text-red-500">*</span></label>
+                <textarea required rows={2} value={answers.company_address || ""} onChange={e => setAnswers(p => ({ ...p, company_address: e.target.value }))}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Certificate PDF <span className="text-red-500">*</span></label>
+                <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-xl bg-indigo-50/30 dark:bg-indigo-950/10 cursor-pointer">
+                  <input type="file" accept=".pdf" onChange={e => {
+                    const f = e.target.files[0];
+                    if (f && f.type !== "application/pdf") { setErrorMsg("Only PDF files allowed."); } else { setErrorMsg(""); setSelectedFile(f); }
+                  }} className="hidden" />
+                  <UploadCloud className="w-7 h-7 text-indigo-500 mb-1.5" />
+                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                    {selectedFile ? selectedFile.name : "Tap to upload certificate PDF"}
+                  </p>
+                  {selectedFile && <p className="text-[10px] text-emerald-600 font-bold mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Ready</p>}
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Custom / Mark Sheet fields */}
+          {fields.map((field, idx) => (
+            <div key={idx} className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">{field.label || field.name} {field.required && <span className="text-red-500">*</span>}</label>
+              <input type={field.type || "text"} required={field.required} value={answers[field.name] || ""}
+                onChange={e => setAnswers(p => ({ ...p, [field.name]: e.target.value }))}
+                placeholder={`Enter ${(field.label || field.name).toLowerCase()}`}
+                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none" />
+            </div>
+          ))}
+
+          {errorMsg && (
+            <div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/20 rounded-xl text-xs text-red-600 font-semibold">
+              <AlertCircle className="w-4 h-4 shrink-0" /> {errorMsg}
+            </div>
+          )}
+
+          <button type="submit" disabled={isPending}
+            className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2 sticky bottom-0">
+            {isPending ? <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> : null}
+            {isPending ? "Submitting..." : "Submit Form"}
+          </button>
+        </form>
+      )}
+    </BottomSheet>
+  );
+}
+
+// ─── Students Data Tab (HOD/Incharge View) ────────────────────────────────────
+
+function StudentsDataTab({ className, stats, students, customColumns = [], forms, onEditStudent, refetch }) {
+  const [subTab, setSubTab] = useState("main_table");
   const [createFormOpen, setCreateFormOpen] = useState(false);
   const [exportSheetOpen, setExportSheetOpen] = useState(false);
   const [viewResponsesForm, setViewResponsesForm] = useState(null);
-  const [formTitle, setFormTitle] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-  const [formFields, setFormFields] = useState([{ name: "", label: "", type: "text", required: false }]);
-
-  // Export column selection
-  const [selectedCols, setSelectedCols] = useState({});
-
-  useEffect(() => {
-    if (exportSheetOpen) {
-      const defaultSel = { roll_number: true, name: true, register_number: true };
-      STUDENT_CORE_FIELDS.forEach(f => { defaultSel[f.name] = true; });
-      setSelectedCols(defaultSel);
-    }
-  }, [exportSheetOpen]);
-
-  const handleSelectAll = () => {
-    const updated = { roll_number: true, name: true, register_number: true };
-    STUDENT_CORE_FIELDS.forEach(f => { updated[f.name] = true; });
-    setSelectedCols(updated);
-  };
-
-  const handleSelectNone = () => {
-    const updated = { roll_number: false, name: false, register_number: false };
-    STUDENT_CORE_FIELDS.forEach(f => { updated[f.name] = false; });
-    setSelectedCols(updated);
-  };
-
-  const createFormMutation = useMutation({
-    mutationFn: (data) => createForm(className, data),
-    onSuccess: () => { setCreateFormOpen(false); setFormTitle(""); setFormDesc(""); setFormFields([{ name: "", label: "", type: "text", required: false }]); refetch(); },
-  });
+  const [studentSearch, setStudentSearch] = useState("");
 
   const deleteFormMutation = useMutation({
     mutationFn: (formId) => deleteForm(className, formId),
     onSuccess: () => refetch(),
   });
 
-  const handleExport = async () => {
-    const activeCols = Object.keys(selectedCols).filter(k => selectedCols[k]);
-    if (activeCols.length === 0) return;
+  const handleExportWhole = async () => {
     try {
-      const response = await api.get(`/classes/${className}/export-students-data`, {
-        params: { columns: activeCols.join(",") },
-        responseType: "blob",
-      });
+      const response = await api.get(`/classes/${className}/export-students-data`, { responseType: "blob" });
       const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${className}_students_data_${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      link.download = `${className}_students_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      setExportSheetOpen(false);
-    } catch (err) { console.error("Export failed", err); }
+    } catch (err) { console.error(err); }
   };
 
-  const handleExportFormResponses = async (form) => {
+  const handleExportForm = async (form) => {
     try {
       const response = await api.get(`/classes/${className}/forms/${form.id}/export`, { responseType: "blob" });
       const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${className}_${form.title.replace(/\s+/g, '_')}_responses.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      link.download = `${className}_${form.title.replace(/\s+/g, "_")}_responses.xlsx`;
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (err) { console.error("Export form responses failed", err); }
+    } catch (err) { console.error(err); }
   };
+
+  const filteredStudents = useMemo(() => {
+    if (!studentSearch) return students;
+    const q = studentSearch.toLowerCase();
+    return students.filter(s => s.name?.toLowerCase().includes(q) || s.roll_number?.toLowerCase().includes(q));
+  }, [students, studentSearch]);
+
+  const subtabs = [
+    { key: "main_table", label: "Main Table" },
+    { key: "builder", label: "Form Builder" },
+    { key: "responses", label: `Submissions (${forms.length})` },
+  ];
 
   return (
     <div className="space-y-4">
       {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-2 gap-2">
-          <MobileCard><span className="text-lg font-black text-gray-900 dark:text-white">{stats.total_students ?? 0}</span><span className="text-[10px] font-semibold text-gray-400 uppercase block mt-0.5">Total Students</span></MobileCard>
-          <MobileCard><span className="text-lg font-black text-gray-900 dark:text-white">{stats.details_filled ?? 0}</span><span className="text-[10px] font-semibold text-gray-400 uppercase block mt-0.5">Details Filled</span></MobileCard>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex gap-2 flex-wrap">
-        <button onClick={() => setExportSheetOpen(true)} className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300">
-          <Download className="w-3.5 h-3.5" /> Export Excel
-        </button>
-        <button onClick={() => setCreateFormOpen(true)} className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300">
-          <Plus className="w-3.5 h-3.5" /> Create Form
-        </button>
+      <div className="grid grid-cols-3 gap-2">
+        <MobileCard className="!p-3">
+          <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center mb-1.5">
+            <Users className="w-3.5 h-3.5 text-blue-500" />
+          </div>
+          <p className="text-lg font-black text-gray-900 dark:text-white">{stats?.total_students ?? 0}</p>
+          <p className="text-[9px] font-bold text-gray-400 uppercase mt-0.5">Total</p>
+        </MobileCard>
+        <MobileCard className="!p-3">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center mb-1.5">
+            <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+          </div>
+          <p className="text-lg font-black text-gray-900 dark:text-white">{stats?.complete_students ?? 0}</p>
+          <p className="text-[9px] font-bold text-gray-400 uppercase mt-0.5">Completed</p>
+        </MobileCard>
+        <MobileCard className="!p-3">
+          <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center mb-1.5">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+          </div>
+          <p className="text-lg font-black text-gray-900 dark:text-white">{stats?.incomplete_students ?? 0}</p>
+          <p className="text-[9px] font-bold text-gray-400 uppercase mt-0.5">Pending</p>
+        </MobileCard>
       </div>
 
-      {/* Forms */}
-      {forms.length > 0 && (
-        <div>
-          <MobileSectionHeader title="Forms" count={forms.length} />
-          <div className="space-y-2 mt-2">
-            {forms.map(form => (
-              <MobileCard key={form.id}>
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{form.title}</h4>
-                    <p className="text-[10px] text-gray-400">{form.response_count || 0} responses</p>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => setViewResponsesForm(form)}
-                      className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-blue-500">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => handleExportFormResponses(form)}
-                      className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-green-500">
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => { if (window.confirm("Delete this form?")) deleteFormMutation.mutate(form.id); }}
-                      className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-red-500">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </MobileCard>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Student List */}
-      <div>
-        <MobileSectionHeader title="Student Details" count={students.length} />
-        <div className="space-y-2 mt-2">
-          {students.slice(0, 30).map(s => (
-            <MobileCard key={s.id} onClick={() => onEditStudent(s)}>
-              <div className="flex items-center gap-3">
-                <Avatar src={s.profile_picture} name={s.name} size="sm" className="w-8 h-8 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{s.name}</p>
-                  <p className="text-[10px] text-gray-400 truncate">{s.roll_number || "No roll"}</p>
-                </div>
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${s.has_details ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400" : "bg-gray-100 text-gray-400 dark:bg-slate-800"}`}>
-                  {s.has_details ? "Filled" : "Pending"}
-                </span>
-              </div>
-            </MobileCard>
-          ))}
-        </div>
-      </div>
-
-      {/* Export Columns Sheet */}
-      <BottomSheet open={exportSheetOpen} onClose={() => setExportSheetOpen(false)} title="Configure Export Columns">
-        <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-          <div className="flex gap-2">
-            <button onClick={handleSelectAll} className="mobile-tappable px-3 py-1.5 text-[10px] font-bold border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300">
-              Select All
-            </button>
-            <button onClick={handleSelectNone} className="mobile-tappable px-3 py-1.5 text-[10px] font-bold border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300">
-              Deselect All
-            </button>
-          </div>
-
-          <div className="space-y-1 border-t border-b border-gray-100 dark:border-slate-800 py-3">
-            {[{ name: "roll_number", label: "Roll Number" }, { name: "name", label: "Name" }, { name: "register_number", label: "Register Number" },
-              ...STUDENT_CORE_FIELDS.map(f => ({ name: f.name, label: f.label }))
-            ].map(col => (
-              <label key={col.name} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/40">
-                <input
-                  type="checkbox"
-                  checked={!!selectedCols[col.name]}
-                  onChange={() => setSelectedCols(prev => ({ ...prev, [col.name]: !prev[col.name] }))}
-                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{col.label}</span>
-              </label>
-            ))}
-          </div>
-
-          <button onClick={handleExport}
-            disabled={Object.values(selectedCols).filter(Boolean).length === 0}
-            className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50 sticky bottom-0">
-            Export ({Object.values(selectedCols).filter(Boolean).length} columns)
+      {/* Sub-tabs */}
+      <div className="flex gap-1 overflow-x-auto mobile-hide-scrollbar border-b border-gray-100 dark:border-slate-800 pb-1 -mx-1 px-1">
+        {subtabs.map(t => (
+          <button key={t.key} onClick={() => setSubTab(t.key)}
+            className={`mobile-tappable whitespace-nowrap px-3 py-2 text-xs font-bold border-b-2 transition-all shrink-0 ${subTab === t.key ? "border-indigo-600 text-indigo-600" : "border-transparent text-gray-400"}`}>
+            {t.label}
           </button>
-        </div>
-      </BottomSheet>
+        ))}
+      </div>
 
-      {/* View Responses Sheet */}
-      <ViewResponsesSheet form={viewResponsesForm} className={className} onClose={() => setViewResponsesForm(null)} />
-
-      {/* Create Form Sheet */}
-      <BottomSheet open={createFormOpen} onClose={() => setCreateFormOpen(false)} title="Create Custom Form">
-        <div className="space-y-4 max-h-[65vh] overflow-y-auto mobile-hide-scrollbar pb-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase">Form Header</label>
-            <input
-              type="text"
-              value={formTitle}
-              onChange={e => setFormTitle(e.target.value)}
-              placeholder="e.g. Internship Details / Elective Choice"
-              className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
-            />
-            <textarea
-              value={formDesc}
-              onChange={e => setFormDesc(e.target.value)}
-              placeholder="Instructions or description for students (optional)"
-              rows={2}
-              className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Form Fields ({formFields.length})</span>
-              <button
-                type="button"
-                onClick={() => setFormFields(p => [...p, { name: "", label: "", type: "text", required: false, options: "" }])}
-                className="text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center gap-1 hover:underline"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Field
+      {/* ─── MAIN TABLE ─── */}
+      {subTab === "main_table" && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Students Master Registry</span>
+            <div className="flex gap-1.5">
+              <button onClick={() => setExportSheetOpen(true)}
+                className="mobile-tappable flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700 text-xs font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900">
+                <Columns className="w-3 h-3" /> Select
+              </button>
+              <button onClick={handleExportWhole}
+                className="mobile-tappable flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold">
+                <FileSpreadsheet className="w-3 h-3" /> Export All
               </button>
             </div>
-
-            {formFields.map((field, idx) => (
-              <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800/80 border border-gray-200/80 dark:border-slate-700 space-y-2.5 relative">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">Field #{idx + 1}</span>
-                  {formFields.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setFormFields(prev => prev.filter((_, i) => i !== idx))}
-                      className="p-1 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-                      title="Delete field"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={field.label}
-                    onChange={e => {
-                      const f = [...formFields];
-                      f[idx].label = e.target.value;
-                      f[idx].name = e.target.value.toLowerCase().trim().replace(/\s+/g, "_");
-                      setFormFields(f);
-                    }}
-                    placeholder="Field Name / Question"
-                    className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
-                  />
-
-                  <select
-                    value={field.type}
-                    onChange={e => {
-                      const f = [...formFields];
-                      f[idx].type = e.target.value;
-                      setFormFields(f);
-                    }}
-                    className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
-                  >
-                    <option value="text">Short Text</option>
-                    <option value="textarea">Paragraph</option>
-                    <option value="select">Dropdown Options</option>
-                    <option value="number">Number</option>
-                    <option value="date">Date</option>
-                    <option value="checkbox">Yes / No Checkbox</option>
-                  </select>
-                </div>
-
-                {field.type === "select" && (
-                  <div>
-                    <input
-                      type="text"
-                      value={field.options || ""}
-                      onChange={e => {
-                        const f = [...formFields];
-                        f[idx].options = e.target.value;
-                        setFormFields(f);
-                      }}
-                      placeholder="Options (comma separated, e.g. Option A, Option B)"
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
-                    />
-                  </div>
-                )}
-
-                <label className="flex items-center gap-2 pt-1 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={!!field.required}
-                    onChange={e => {
-                      const f = [...formFields];
-                      f[idx].required = e.target.checked;
-                      setFormFields(f);
-                    }}
-                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Required response</span>
-                </label>
-              </div>
-            ))}
           </div>
 
-          <button
-            onClick={() => createFormMutation.mutate({
-              title: formTitle,
-              description: formDesc,
-              fields: formFields.map(f => ({
-                ...f,
-                options: f.type === "select" && typeof f.options === "string"
-                  ? f.options.split(",").map(s => s.trim()).filter(Boolean)
-                  : f.options
-              }))
-            })}
-            disabled={createFormMutation.isPending || !formTitle.trim()}
-            className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 disabled:opacity-50"
-          >
-            {createFormMutation.isPending ? "Publishing Form..." : "Publish Form"}
-          </button>
-        </div>
-      </BottomSheet>
+          <MobileSearchBar value={studentSearch} onChange={setStudentSearch} placeholder="Search students..." />
 
+          <div className="space-y-2">
+            {filteredStudents.length === 0 ? (
+              <MobileEmptyState icon={Users} title="No students yet" description="No student profiles created yet." />
+            ) : (
+              filteredStudents.map(s => (
+                <MobileCard key={s.id} onClick={() => onEditStudent(s)}>
+                  <div className="flex items-center gap-3">
+                    <Avatar src={s.profile_picture} name={s.name} size="sm" className="w-9 h-9 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{s.name}</p>
+                      <div className="flex gap-2 mt-0.5">
+                        <span className="text-[10px] text-gray-400 font-mono">{s.roll_number || "—"}</span>
+                        <span className="text-[10px] text-gray-300">·</span>
+                        <span className="text-[10px] text-gray-400 font-mono">{s.register_number || "—"}</span>
+                      </div>
+                      {s.details?.gender && (
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+                          {s.details?.gender && <span className="text-[9px] text-gray-500">{s.details.gender}</span>}
+                          {s.details?.blood_group && <span className="text-[9px] text-gray-500">{s.details.blood_group}</span>}
+                          {s.details?.mobile_number && <span className="text-[9px] text-gray-500">{s.details.mobile_number}</span>}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${s.has_details ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400" : "bg-gray-100 text-gray-400 dark:bg-slate-800"}`}>
+                        {s.has_details ? "Filled" : "Pending"}
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                    </div>
+                  </div>
+                </MobileCard>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── FORM BUILDER ─── */}
+      {subTab === "builder" && (
+        <div className="space-y-3">
+          <MobileCard>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+                <PlusCircle className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Create & Publish a Form</h3>
+                <p className="text-[10px] text-gray-400 mt-0.5">Custom questionnaire, Mark sheets or Internship forms</p>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Create dynamic forms that can add columns to the student registry or be saved separately as Internship Reports and Exam Mark Sheets.
+            </p>
+            <button onClick={() => setCreateFormOpen(true)}
+              className="mobile-tappable w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold shadow-md">
+              Open Form Creator Builder
+            </button>
+          </MobileCard>
+        </div>
+      )}
+
+      {/* ─── FORM SUBMISSIONS ─── */}
+      {subTab === "responses" && (
+        <div className="space-y-3">
+          <p className="text-xs font-bold text-gray-700 dark:text-gray-200">Submissions Log</p>
+          {forms.length === 0 ? (
+            <MobileEmptyState icon={FileText} title="No forms published" description="No forms published for this class yet." />
+          ) : (
+            forms.map(form => (
+              <MobileCard key={form.id}>
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-indigo-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white">{form.title}</h4>
+                    <div className="flex flex-wrap gap-2 mt-1 text-[9px] text-gray-400 uppercase font-semibold">
+                      <span>Type: {form.form_type}</span>
+                      <span>·</span>
+                      <span>Target: {form.destination === "main_table" ? "Main Table" : "Separate"}</span>
+                      <span>·</span>
+                      <span className="text-indigo-500">{form.response_count || 0} submissions</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button onClick={() => setViewResponsesForm(form)}
+                    className="mobile-tappable flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 dark:border-slate-700 text-xs font-bold text-gray-600 dark:text-gray-300">
+                    <Eye className="w-3.5 h-3.5" /> View Answers
+                  </button>
+                  <button onClick={() => handleExportForm(form)}
+                    className="mobile-tappable flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">
+                    <FileSpreadsheet className="w-3.5 h-3.5" />
+                  </button>
+                  {form.form_type === "internship" && (
+                    <button onClick={async () => {
+                      try {
+                        const r = await api.get(`/classes/${className}/forms/${form.id}/download-certificates`, { responseType: "blob" });
+                        const blob = new Blob([r.data], { type: "application/zip" });
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url; link.download = `${form.title}_certificates.zip`;
+                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                      } catch (e) { console.error(e); }
+                    }} className="mobile-tappable flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-100 dark:bg-indigo-950/30 text-indigo-600 text-xs font-bold">
+                      <FileArchive className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button onClick={() => { if (window.confirm("Delete this form?")) deleteFormMutation.mutate(form.id); }}
+                    className="mobile-tappable px-3 py-2 rounded-xl text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </MobileCard>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Export Columns Sheet */}
+      <ExportColumnsSheet
+        open={exportSheetOpen}
+        onClose={() => setExportSheetOpen(false)}
+        className={className}
+        customColumns={customColumns}
+      />
+
+      {/* Create Form Sheet */}
+      <CreateFormSheet
+        open={createFormOpen}
+        onClose={() => setCreateFormOpen(false)}
+        className={className}
+        onSuccess={refetch}
+      />
+
+      {/* View Responses Sheet */}
+      <ViewResponsesSheet
+        form={viewResponsesForm}
+        className={className}
+        onClose={() => setViewResponsesForm(null)}
+      />
     </div>
   );
 }
 
-// ─── View Responses Sheet ───────────────────────────────────────────────────────
+// ─── Export Columns Bottom Sheet ──────────────────────────────────────────────
+
+function ExportColumnsSheet({ open, onClose, className, customColumns = [] }) {
+  const [selectedCols, setSelectedCols] = useState({});
+
+  useEffect(() => {
+    if (open) {
+      const def = { roll_number: true, name: true, register_number: true };
+      STUDENT_CORE_FIELDS.forEach(f => { def[f.name] = true; });
+      customColumns.forEach(c => { def[c.name] = true; });
+      setSelectedCols(def);
+    }
+  }, [open, customColumns]);
+
+  const allCols = [
+    { name: "roll_number", label: "Roll Number" },
+    { name: "name", label: "Name" },
+    { name: "register_number", label: "Register Number" },
+    ...STUDENT_CORE_FIELDS.map(f => ({ name: f.name, label: f.label })),
+    ...customColumns.map(c => ({ name: c.name, label: c.label, isCustom: true })),
+  ];
+
+  const selectedCount = Object.values(selectedCols).filter(Boolean).length;
+
+  const triggerExport = async () => {
+    const activeCols = Object.keys(selectedCols).filter(k => selectedCols[k]);
+    if (activeCols.length === 0) return;
+    try {
+      const response = await api.get(`/classes/${className}/export-students-data`, {
+        params: { columns: activeCols.join(",") }, responseType: "blob",
+      });
+      const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url; link.download = `${className}_students_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      onClose();
+    } catch (err) { console.error(err); }
+  };
+
+  return (
+    <BottomSheet open={open} onClose={onClose} title="Select Export Columns">
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          <button onClick={() => { const u = {}; allCols.forEach(c => { u[c.name] = true; }); setSelectedCols(u); }}
+            className="mobile-tappable px-3 py-1.5 text-[10px] font-bold border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-gray-600">
+            Select All
+          </button>
+          <button onClick={() => { const u = {}; allCols.forEach(c => { u[c.name] = false; }); setSelectedCols(u); }}
+            className="mobile-tappable px-3 py-1.5 text-[10px] font-bold border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-gray-600">
+            Deselect All
+          </button>
+        </div>
+
+        <div className="max-h-[50vh] overflow-y-auto mobile-hide-scrollbar space-y-1 border-t border-b border-gray-100 dark:border-slate-800 py-2">
+          {allCols.map(col => (
+            <label key={col.name} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/40 cursor-pointer">
+              <input type="checkbox" checked={!!selectedCols[col.name]}
+                onChange={() => setSelectedCols(prev => ({ ...prev, [col.name]: !prev[col.name] }))}
+                className="w-4 h-4 rounded border-gray-300 text-indigo-600" />
+              <span className={`text-xs font-semibold ${col.isCustom ? "text-indigo-600 dark:text-indigo-400" : "text-gray-700 dark:text-gray-300"}`}>
+                {col.label}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <button onClick={triggerExport} disabled={selectedCount === 0}
+          className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold disabled:opacity-40">
+          Download Excel ({selectedCount} columns)
+        </button>
+      </div>
+    </BottomSheet>
+  );
+}
+
+// ─── Create Form Builder Bottom Sheet ────────────────────────────────────────
+
+function CreateFormSheet({ open, onClose, className, onSuccess }) {
+  const [formType, setFormType] = useState("custom");
+  const [destination, setDestination] = useState("separate_table");
+  const [title, setTitle] = useState("");
+  const [questions, setQuestions] = useState([{ name: "", label: "", type: "text" }]);
+  const [examType, setExamType] = useState("CIA 1");
+  const [semesterType, setSemesterType] = useState("odd");
+  const [academicYear, setAcademicYear] = useState("2024-2025");
+  const [subjectsList, setSubjectsList] = useState(["English", "Mathematics"]);
+  const [internshipQuestions, setInternshipQuestions] = useState([]);
+
+  const createFormMutation = useMutation({
+    mutationFn: (payload) => createForm(className, payload),
+    onSuccess: () => {
+      onSuccess?.(); onClose();
+      setTitle(""); setFormType("custom"); setDestination("separate_table");
+      setQuestions([{ name: "", label: "", type: "text" }]);
+      setSubjectsList(["English", "Mathematics"]); setInternshipQuestions([]);
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let finalTitle = title;
+    let finalMetadata = {};
+
+    if (formType === "mark_analysis") {
+      finalTitle = `${examType} Mark Sheet`;
+      const validSubjs = subjectsList.filter(s => s.trim() !== "");
+      if (validSubjs.length === 0) { alert("Add at least one subject."); return; }
+      finalMetadata = {
+        exam_type: examType, semester_type: semesterType, academic_year: academicYear,
+        fields: validSubjs.map(s => ({ name: s.toLowerCase().replace(/[^a-zA-Z0-9]/g, "_"), label: `${s}'s Mark`, type: "number" }))
+      };
+    } else if (formType === "internship") {
+      finalTitle = title.trim() || "Internship Form";
+      finalMetadata = { fields: internshipQuestions.filter(q => q.label.trim() !== "") };
+    } else {
+      const validQ = questions.filter(q => q.label.trim() !== "");
+      if (validQ.length === 0) { alert("Add at least one question."); return; }
+      finalMetadata = { fields: validQ };
+    }
+
+    createFormMutation.mutate({
+      title: finalTitle, form_type: formType,
+      destination: formType === "custom" ? destination : "separate_table",
+      metadata: finalMetadata,
+    });
+  };
+
+  const templates = [
+    { id: "custom", label: "Custom Form Builder" },
+    { id: "mark_analysis", label: "CIA/Semester Mark Sheet" },
+    { id: "internship", label: "Internship Form" },
+  ];
+
+  return (
+    <BottomSheet open={open} onClose={onClose} title="Publish a Form / Table">
+      <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto mobile-hide-scrollbar pb-4">
+
+        {/* Template Selection */}
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Form / Table Template</label>
+          <div className="grid grid-cols-1 gap-2">
+            {templates.map(t => (
+              <button key={t.id} type="button" onClick={() => setFormType(t.id)}
+                className={`mobile-tappable p-3 rounded-xl border text-xs font-bold text-left transition-all ${
+                  formType === t.id ? "bg-indigo-600 text-white border-indigo-600" : "bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300"
+                }`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Form */}
+        {formType === "custom" && (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Form Title <span className="text-red-500">*</span></label>
+              <input type="text" required value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Student Extracurriculars"
+                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Data Target Destination</label>
+              <div className="grid grid-cols-1 gap-2">
+                {[{ id: "separate_table", label: "Maintain in Separate Table" }, { id: "main_table", label: "Add to Main Table (Create Columns)" }].map(d => (
+                  <button key={d.id} type="button" onClick={() => setDestination(d.id)}
+                    className={`mobile-tappable p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
+                      destination === d.id ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-500 text-indigo-700 dark:text-indigo-300" : "bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400"
+                    }`}>
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Dynamic Questions</label>
+                <button type="button" onClick={() => setQuestions(p => [...p, { name: "", label: "", type: "text" }])}
+                  className="text-xs font-bold text-indigo-600 flex items-center gap-1">
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
+              {questions.map((q, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <input type="text" required placeholder="Question label (e.g. Club Name)" value={q.label}
+                    onChange={e => {
+                      const updated = [...questions]; updated[idx].label = e.target.value;
+                      updated[idx].name = e.target.value.toLowerCase().replace(/[^a-zA-Z0-9]/g, "_");
+                      setQuestions(updated);
+                    }}
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white" />
+                  <select value={q.type} onChange={e => { const u = [...questions]; u[idx].type = e.target.value; setQuestions(u); }}
+                    className="w-24 px-2 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white">
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="tel">Phone</option>
+                  </select>
+                  {questions.length > 1 && (
+                    <button type="button" onClick={() => setQuestions(questions.filter((_, i) => i !== idx))} className="text-red-400 p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mark Sheet */}
+        {formType === "mark_analysis" && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Exam Type</label>
+                <select value={examType} onChange={e => setExamType(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white">
+                  <option value="CIA 1">CIA 1</option>
+                  <option value="CIA 2">CIA 2</option>
+                  <option value="Semester">Semester Examination</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Semester</label>
+                  <select value={semesterType} onChange={e => setSemesterType(e.target.value)}
+                    className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white">
+                    <option value="odd">Odd Semester</option>
+                    <option value="even">Even Semester</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Academic Year</label>
+                  <input type="text" value={academicYear} onChange={e => setAcademicYear(e.target.value)} placeholder="2024-2025"
+                    className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white" />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Subjects</label>
+                <button type="button" onClick={() => setSubjectsList(p => [...p, ""])} className="text-xs font-bold text-indigo-600 flex items-center gap-1">
+                  <Plus className="w-3.5 h-3.5" /> Add Subject
+                </button>
+              </div>
+              {subjectsList.map((subj, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <input type="text" required placeholder="e.g. Python Programming" value={subj}
+                    onChange={e => { const u = [...subjectsList]; u[idx] = e.target.value; setSubjectsList(u); }}
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white" />
+                  {subjectsList.length > 1 && (
+                    <button type="button" onClick={() => setSubjectsList(subjectsList.filter((_, i) => i !== idx))} className="text-red-400 p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Internship Form */}
+        {formType === "internship" && (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-gray-400 uppercase">Form Title</label>
+              <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Internship Form"
+                className="w-full px-3 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white" />
+            </div>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] text-gray-500 space-y-1">
+              <strong className="block text-gray-700 dark:text-gray-300 text-xs">Prefilled Fields (Ready-to-Go):</strong>
+              <p>Company Name, Start Date, End Date, Duration, Project Name, Website Link, Address, Certificate PDF Upload</p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-gray-400 uppercase">Additional Questions (Optional)</label>
+                <button type="button" onClick={() => setInternshipQuestions(p => [...p, { name: "", label: "", type: "text" }])}
+                  className="text-xs font-bold text-indigo-600 flex items-center gap-1">
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
+              {internshipQuestions.map((q, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <input type="text" required placeholder="e.g. Stipend Amount" value={q.label}
+                    onChange={e => {
+                      const u = [...internshipQuestions]; u[idx].label = e.target.value;
+                      u[idx].name = e.target.value.toLowerCase().replace(/[^a-zA-Z0-9]/g, "_");
+                      setInternshipQuestions(u);
+                    }}
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white" />
+                  <select value={q.type} onChange={e => { const u = [...internshipQuestions]; u[idx].type = e.target.value; setInternshipQuestions(u); }}
+                    className="w-24 px-2 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                  </select>
+                  <button type="button" onClick={() => setInternshipQuestions(internshipQuestions.filter((_, i) => i !== idx))} className="text-red-400 p-1">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button type="submit" disabled={createFormMutation.isPending}
+          className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2 sticky bottom-0">
+          {createFormMutation.isPending ? <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> : null}
+          {createFormMutation.isPending ? "Publishing..." : "Publish Form"}
+        </button>
+      </form>
+    </BottomSheet>
+  );
+}
+
+// ─── View Responses Bottom Sheet ──────────────────────────────────────────────
 
 function ViewResponsesSheet({ form, className, onClose }) {
   const { data: responsesData } = useQuery({
@@ -1108,8 +1331,11 @@ function ViewResponsesSheet({ form, className, onClose }) {
 
   return (
     <BottomSheet open={!!form} onClose={onClose} title={`Submissions — ${form.title}`}>
-      <div className="space-y-3 max-h-[65vh] overflow-y-auto mobile-hide-scrollbar pb-4">
-        <p className="text-xs text-gray-400 font-medium">{responses.length} student submission{responses.length !== 1 ? "s" : ""}</p>
+      <div className="space-y-3 max-h-[70vh] overflow-y-auto mobile-hide-scrollbar pb-4">
+        <p className="text-xs text-gray-400 font-medium">
+          {responses.length} student submission{responses.length !== 1 ? "s" : ""}
+          <span className="ml-2 text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500">{form.form_type}</span>
+        </p>
 
         {responses.length === 0 ? (
           <MobileEmptyState icon={FileText} title="No submissions yet" description="No students have submitted this form yet." />
@@ -1124,12 +1350,49 @@ function ViewResponsesSheet({ form, className, onClose }) {
                     <p className="text-[10px] text-gray-400">{resp.roll_number || "No roll number"}</p>
                   </div>
                 </div>
-                {fields.map(field => (
-                  <div key={field.name} className="pt-1">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">{field.label || field.name}</span>
-                    <p className="text-xs text-gray-800 dark:text-gray-200 font-medium mt-0.5">{resp.data?.[field.name] || "—"}</p>
+
+                {/* Mark Sheet */}
+                {form.form_type === "mark_analysis" && (
+                  <div className="grid grid-cols-2 gap-1.5 text-xs">
+                    <div><span className="text-[9px] text-gray-400 font-bold uppercase block">Exam</span>{form.metadata?.exam_type}</div>
+                    <div><span className="text-[9px] text-gray-400 font-bold uppercase block">Year</span>{form.metadata?.academic_year}</div>
+                    {fields.map(f => (
+                      <div key={f.name}><span className="text-[9px] text-gray-400 font-bold uppercase block">{f.label}</span>{resp.answers?.[f.name] || "—"}</div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Internship */}
+                {form.form_type === "internship" && (
+                  <div className="grid grid-cols-2 gap-1.5 text-xs">
+                    {[
+                      ["Company", "company_name"], ["Start", "start_date"], ["End", "end_date"],
+                      ["Duration", "duration"], ["Project", "project_name"],
+                    ].map(([lbl, key]) => (
+                      <div key={key}><span className="text-[9px] text-gray-400 font-bold uppercase block">{lbl}</span>{resp.answers?.[key] || "—"}</div>
+                    ))}
+                    {resp.attachment_url && (
+                      <div className="col-span-2">
+                        <a href={resp.attachment_url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-indigo-600 text-xs font-bold">
+                          <Eye className="w-3.5 h-3.5" /> View Certificate PDF
+                        </a>
+                      </div>
+                    )}
+                    {fields.map(f => (
+                      <div key={f.name}><span className="text-[9px] text-gray-400 font-bold uppercase block">{f.label}</span>{resp.answers?.[f.name] || "—"}</div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Custom */}
+                {form.form_type === "custom" && (
+                  <div className="grid grid-cols-2 gap-1.5 text-xs">
+                    {fields.map(f => (
+                      <div key={f.name}><span className="text-[9px] text-gray-400 font-bold uppercase block">{f.label || f.name}</span>{resp.answers?.[f.name] || resp.data?.[f.name] || "—"}</div>
+                    ))}
+                  </div>
+                )}
               </div>
             </MobileCard>
           ))
@@ -1138,6 +1401,3 @@ function ViewResponsesSheet({ form, className, onClose }) {
     </BottomSheet>
   );
 }
-
-
-
