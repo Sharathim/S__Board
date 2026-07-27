@@ -37,7 +37,7 @@ export default function MobileTopBar({ title: titleProp }) {
   const isDetail = DETAIL_PATTERNS.some((p) => location.pathname.startsWith(p) && location.pathname !== p.slice(0, -1));
   const rc = getRoleColor(user?.role);
   const [isMailOpen, setIsMailOpen] = useState(false);
-  const canComposeMail = user?.role === "HOD" || user?.role === "FACULTY";
+  const canComposeMail = user?.role === "HOD";
 
   return (
     <>

@@ -249,7 +249,7 @@ export function TopBar() {
         {/* ── Right Actions: Neomorphic Notification Bell & Profile Card ── */}
         <div className="flex items-center gap-3">
           {/* Neomorphic Tactile Compose Mail Button */}
-          {(user?.role === "HOD" || user?.role === "FACULTY") && (
+          {user?.role === "HOD" && (
             <button
               onClick={() => setIsMailModalOpen(true)}
               className="neomorph-bell-btn"

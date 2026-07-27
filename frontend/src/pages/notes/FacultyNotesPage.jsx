@@ -34,23 +34,23 @@ function getFileTypeDetails(type) {
     return {
       label: "PDF",
       icon: FileText,
-      badgeBg: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/40",
-      iconColor: "text-red-500",
+      badgeBg: "bg-[#F05A2B]/10 text-[#F05A2B] border-[#F05A2B]/20",
+      iconColor: "text-[#F05A2B]",
     };
   }
   if (["ppt", "pptx"].includes(ext)) {
     return {
       label: ext.toUpperCase(),
       icon: Presentation,
-      badgeBg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40",
-      iconColor: "text-amber-500",
+      badgeBg: "bg-[#F05A2B]/10 text-[#F05A2B] border-[#F05A2B]/20",
+      iconColor: "text-[#F05A2B]",
     };
   }
   return {
     label: ext.toUpperCase() || "DOC",
     icon: File,
-    badgeBg: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/40",
-    iconColor: "text-blue-500",
+    badgeBg: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700",
+    iconColor: "text-gray-500 dark:text-gray-400",
   };
 }
 
@@ -432,7 +432,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
         {/* Card Top Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#F05A2B] flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
               <BookMarked className="w-5 h-5" />
             </div>
             <div className="min-w-0">
