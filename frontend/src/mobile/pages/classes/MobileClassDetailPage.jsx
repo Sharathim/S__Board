@@ -429,10 +429,8 @@ export default function MobileClassDetailPage() {
       <AdminDetailSheet
         student={adminDetailSheet}
         className={className}
-        customColumns={studentsData?.custom_columns || []}
         onClose={() => setAdminDetailSheet(null)}
-        onSave={(studentId, details) => saveAdminDetailsMutation.mutate({ studentId, details })}
-        isPending={saveAdminDetailsMutation.isPending}
+        refetch={invalidate}
       />
 
       <ConfirmDialog
@@ -1090,13 +1088,6 @@ function StudentsDataTab({ className, stats, students, forms, onEditStudent, ref
         </div>
       </BottomSheet>
 
-      {/* Admin Edit Student Sheet */}
-      <AdminDetailSheet
-        student={adminDetailSheet}
-        className={className}
-        onClose={() => setAdminDetailSheet(null)}
-        refetch={invalidate}
-      />
     </div>
   );
 }
