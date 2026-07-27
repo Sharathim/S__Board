@@ -10,7 +10,7 @@ const getTabItemsForRole = (role) => {
     return [
       { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
+      { to: "/notes", icon: FileText, label: "Notes" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
     ];
   } else if (role === "FACULTY") {
@@ -24,7 +24,7 @@ const getTabItemsForRole = (role) => {
     // STUDENT
     return [
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
+      { to: "/notes", icon: FileText, label: "Notes" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
       { to: "/updates", icon: Megaphone, label: "Updates" },
     ];
@@ -62,15 +62,17 @@ export default function BottomTabBar() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${active ? "mobile-tab-active" : ""
-                  }`}
+                className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
+                  active ? "mobile-tab-active" : ""
+                }`}
               >
                 <div className="relative">
                   <Icon
-                    className={`w-5 h-5 transition-colors ${active
+                    className={`w-5 h-5 transition-colors ${
+                      active
                         ? "text-primary-600 dark:text-primary-400"
                         : "text-gray-400 dark:text-gray-500"
-                      }`}
+                    }`}
                   />
                   {showBadge && (
                     <span className="absolute -top-1 -right-2 min-w-[16px] h-4 rounded-full flex items-center justify-center text-white font-bold bg-rose-500 text-[9px] px-1">
@@ -79,10 +81,11 @@ export default function BottomTabBar() {
                   )}
                 </div>
                 <span
-                  className={`text-[10px] font-semibold tracking-tight transition-colors ${active
+                  className={`text-[10px] font-semibold tracking-tight transition-colors ${
+                    active
                       ? "text-primary-600 dark:text-primary-400"
                       : "text-gray-400 dark:text-gray-500"
-                    }`}
+                  }`}
                 >
                   {item.label}
                 </span>
@@ -93,20 +96,23 @@ export default function BottomTabBar() {
           {/* More tab button */}
           <button
             onClick={() => setIsMoreOpen(true)}
-            className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${isMoreOpen ? "mobile-tab-active" : ""
-              }`}
+            className={`mobile-tappable flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
+              isMoreOpen ? "mobile-tab-active" : ""
+            }`}
           >
             <Menu
-              className={`w-5 h-5 transition-colors ${isMoreOpen
+              className={`w-5 h-5 transition-colors ${
+                isMoreOpen
                   ? "text-primary-600 dark:text-primary-400"
                   : "text-gray-400 dark:text-gray-500"
-                }`}
+              }`}
             />
             <span
-              className={`text-[10px] font-semibold tracking-tight transition-colors ${isMoreOpen
+              className={`text-[10px] font-semibold tracking-tight transition-colors ${
+                isMoreOpen
                   ? "text-primary-600 dark:text-primary-400"
                   : "text-gray-400 dark:text-gray-500"
-                }`}
+              }`}
             >
               More
             </span>

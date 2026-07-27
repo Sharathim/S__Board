@@ -1,10 +1,16 @@
 import api from "./axios";
 
-// ─── Faculty Notes Hub ────────────────────────────────────────────────────
+// ─── All Notes (role-aware) ───────────────────────────────────────────────
 /**
- * Fetch all subjects grouped by class → academic_year → semester.
- * Only for FACULTY role. Powers the standalone /notes page.
+ * Fetch all notes organized by class → subject → unit → files.
+ * Backend returns data based on the user's role:
+ * - Faculty: subjects they created across their handled classes
+ * - HOD: everything across all classes
+ * - Student: all subjects for their class
  */
+export const getAllNotes = () => api.get("/classes/notes/all");
+
+// ─── Faculty Notes Hub ────────────────────────────────────────────────────
 export const getFacultyNotesHub = (params = {}) =>
   api.get("/notes/faculty/my-classes-subjects", { params });
 

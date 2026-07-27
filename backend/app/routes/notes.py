@@ -8,6 +8,8 @@ from ..utils.cloudinary_helper import upload_file, delete_file
 import json
 from datetime import datetime
 
+ALL_CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"]
+
 notes_bp = Blueprint("notes", __name__)
 
 # Helper to check if a user can view/access a class
@@ -124,6 +126,96 @@ def _serialize_subject(s):
         "file_count": file_count,
         "created_at": s.created_at.isoformat()
     }
+
+# ─── All Notes — role-aware aggregated view ───────────────────────────────────
+
+@notes_bp.route("/notes/all", methods=["GET"])
+@require_auth
+def get_all_notes():
+    """
+    Returns all subjects with their units and files, organized by class.
+    - FACULTY: subjects they created across their handled classes
+    - HOD: everything across all classes
+    - STUDENT: all subjects for their class
+    """
+    user = g.current_user
+
+    if user.role == UserRole.HOD:
+        target_classes = ALL_CLASSES
+        q = Subject.query.filter(Subject.class_name.in_(target_classes), Subject.is_archived == False)
+    elif user.role == UserRole.FACULTY:
+        fp = user.faculty_profile
+        if not fp:
+            return jsonify({"classes": []})
+        handled = list(fp.classes_handling or [])
+        incharge = fp.class_incharge_of
+        target_classes = list(set(handled + ([incharge] if incharge else [])))
+        target_classes.sort()
+        # Faculty sees only subjects they created
+        q = Subject.query.filter(
+            Subject.class_name.in_(target_classes),
+            Subject.is_archived == False,
+            Subject.created_by == user.id
+        )
+    elif user.role == UserRole.STUDENT:
+        sp = user.student_profile
+        if not sp:
+            return jsonify({"classes": []})
+        target_classes = [sp.class_name]
+        q = Subject.query.filter(
+            Subject.class_name == sp.class_name,
+            Subject.is_archived == False
+        )
+    else:
+        return jsonify({"error": "Unknown role"}), 403
+
+    subjects = q.order_by(Subject.class_name, Subject.name).all()
+
+    # Group by class
+    classes_map = {}
+    for s in subjects:
+        cn = s.class_name
+        if cn not in classes_map:
+            classes_map[cn] = []
+        units_list = []
+        for u in s.units.all():
+            files_list = [_serialize_file(f) for f in u.files.all()]
+            units_list.append({
+                "id": u.id,
+                "name": u.name,
+                "order_index": u.order_index,
+                "files": files_list,
+                "created_by": {
+                    "id": u.creator.id,
+                    "name": u.creator.name,
+                    "role": u.creator.role.value
+                },
+                "created_at": u.created_at.isoformat()
+            })
+        classes_map[cn].append({
+            "id": s.id,
+            "name": s.name,
+            "class_name": s.class_name,
+            "academic_year": s.academic_year,
+            "semester": s.semester,
+            "created_by": {
+                "id": s.creator.id,
+                "name": s.creator.name,
+                "role": s.creator.role.value
+            },
+            "units": units_list,
+            "created_at": s.created_at.isoformat()
+        })
+
+    result = []
+    for cn in sorted(classes_map.keys()):
+        result.append({
+            "class_name": cn,
+            "subjects": classes_map[cn]
+        })
+
+    return jsonify({"classes": result, "target_classes": sorted(target_classes)})
+
 
 # ─── Faculty Notes Hub — aggregated view across all handled classes ────────────
 
@@ -469,6 +561,11 @@ def create_unit(class_name, subject_id):
 
     if not name:
         return jsonify({"error": "Unit name is required"}), 400
+
+    # Duplicate unit name check within the same subject
+    existing_unit = Unit.query.filter_by(subject_id=subject_id, name=name).first()
+    if existing_unit:
+        return jsonify({"error": f"A unit named '{name}' already exists in this subject"}), 400
 
     # Calculate order index
     max_order = db.session.query(db.func.max(Unit.order_index)).filter_by(subject_id=subject_id).scalar() or 0
