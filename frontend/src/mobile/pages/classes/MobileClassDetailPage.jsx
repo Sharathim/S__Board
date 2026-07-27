@@ -879,9 +879,6 @@ function StudentsDataTab({ className, stats, students, customColumns = [], forms
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${s.has_details ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400" : "bg-gray-100 text-gray-400 dark:bg-slate-800"}`}>
-                        {s.has_details ? "Filled" : "Pending"}
-                      </span>
                       <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
                     </div>
                   </div>
