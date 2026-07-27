@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import gsap from "gsap";
 import {
   BookMarked, ChevronDown, ChevronRight, Plus, Trash2,
   FileText, File, Presentation, X, Check, Loader2,
-  FolderOpen, Download, AlertCircle, UploadCloud, Eye, Search
+  FolderOpen, Download, AlertCircle, UploadCloud, Eye, Search,
+  LayoutGrid, List, Filter, Layers, FileCode, User
 } from "lucide-react";
 import {
   getAllNotes, createSubject, createUnit, uploadFiles,
@@ -26,10 +27,30 @@ const CURRENT_ACADEMIC_YEAR = (() => {
 
 const UNIT_OPTIONS = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"];
 
-function getFileIcon(type) {
-  if (type === "pdf") return <FileText className="w-5 h-5 text-rose-500 shrink-0" />;
-  if (["ppt", "pptx"].includes(type)) return <Presentation className="w-5 h-5 text-orange-500 shrink-0" />;
-  return <File className="w-5 h-5 text-blue-500 shrink-0" />;
+function getFileTypeDetails(type) {
+  const ext = (type || "").toLowerCase();
+  if (ext === "pdf") {
+    return {
+      label: "PDF",
+      icon: FileText,
+      badgeBg: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/40",
+      iconColor: "text-red-500",
+    };
+  }
+  if (["ppt", "pptx"].includes(ext)) {
+    return {
+      label: ext.toUpperCase(),
+      icon: Presentation,
+      badgeBg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40",
+      iconColor: "text-amber-500",
+    };
+  }
+  return {
+    label: ext.toUpperCase() || "DOC",
+    icon: File,
+    badgeBg: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/40",
+    iconColor: "text-blue-500",
+  };
 }
 
 function getPreviewUrl(file) {
@@ -43,7 +64,7 @@ function getPreviewUrl(file) {
   return url;
 }
 
-// ─── Toast Hook ──────────────────────────────────────────────────────────────
+// ─── Toast System ─────────────────────────────────────────────────────────────
 function useToast() {
   const [toasts, setToasts] = useState([]);
   const add = useCallback((msg, type = "success") => {
@@ -78,7 +99,7 @@ function ToastStack({ toasts }) {
 // ─── Upload Modal ────────────────────────────────────────────────────────────
 function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess, toast }) {
   const [selectedClass, setSelectedClass] = useState("");
-  const [subjectMode, setSubjectMode] = useState("existing"); // existing | new
+  const [subjectMode, setSubjectMode] = useState("existing");
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
   const [newSubjectName, setNewSubjectName] = useState("");
   const [selectedUnit, setSelectedUnit] = useState("");
@@ -331,24 +352,37 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
   );
 }
 
-// ─── File Card ───────────────────────────────────────────────────────────────
-function FileCard({ file, canDelete, onDelete, onPreview }) {
+// ─── File Item ───────────────────────────────────────────────────────────────
+function FileItemCard({ file, canDelete, onDelete, onPreview }) {
+  const fileDetails = getFileTypeDetails(file.file_type);
+  const IconComponent = fileDetails.icon;
+
   return (
-    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800 hover:bg-gray-100/70 dark:hover:bg-gray-800/80 transition-all gap-3">
+    <div className="group flex items-center justify-between p-3 rounded-xl bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700/60 hover:border-gray-200 dark:hover:border-gray-600 shadow-sm hover:shadow transition-all gap-3">
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        {getFileIcon(file.file_type)}
+        <div className={`p-2.5 rounded-xl border ${fileDetails.badgeBg} flex items-center justify-center shrink-0`}>
+          <IconComponent className="w-5 h-5" />
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">{file.file_name}</p>
-          <p className="text-[11px] text-gray-400 dark:text-gray-500">
-            {file.file_type?.toUpperCase()} • {file.uploaded_by?.name || "Faculty"}
+          <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate group-hover:text-[#F05A2B] transition-colors">
+            {file.file_name}
           </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+              {fileDetails.label}
+            </span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
+              by {file.uploaded_by?.name || "Faculty"}
+            </span>
+          </div>
         </div>
       </div>
+
       <div className="flex items-center gap-1 shrink-0">
         <button
           onClick={() => onPreview(file)}
-          className="p-1.5 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
-          title="Preview"
+          className="p-2 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          title="Preview Document"
         >
           <Eye className="w-4 h-4" />
         </button>
@@ -357,18 +391,152 @@ function FileCard({ file, canDelete, onDelete, onPreview }) {
           download
           target="_blank"
           rel="noreferrer"
-          className="p-1.5 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
-          title="Download"
+          className="p-2 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          title="Download Document"
         >
           <Download className="w-4 h-4" />
         </a>
         {canDelete && (
           <button
             onClick={() => onDelete(file)}
-            className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-            title="Delete"
+            className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            title="Delete File"
           >
             <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Subject Card (With Unit Tabs) ───────────────────────────────────────────
+function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDeleteUnit, onDeleteFile, onPreviewFile }) {
+  const [activeUnitName, setActiveUnitName] = useState("all");
+
+  const units = subject.units || [];
+
+  // Filter files by active unit tab
+  const activeFiles = useMemo(() => {
+    if (activeUnitName === "all") {
+      return units.flatMap(u => u.files.map(f => ({ ...f, unit_name: u.name, unit_id: u.id })));
+    }
+    const matchingUnit = units.find(u => u.name === activeUnitName);
+    if (!matchingUnit) return [];
+    return matchingUnit.files.map(f => ({ ...f, unit_name: matchingUnit.name, unit_id: matchingUnit.id }));
+  }, [units, activeUnitName]);
+
+  const activeUnitObj = units.find(u => u.name === activeUnitName);
+
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/70 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+      <div>
+        {/* Card Top Header */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shrink-0">
+              <BookMarked className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#F05A2B] bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 rounded-md">
+                  {className.replace("_", " ")}
+                </span>
+                <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+                  {units.length} units
+                </span>
+              </div>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-base truncate mt-0.5">
+                {subject.name}
+              </h3>
+            </div>
+          </div>
+
+          {canDeleteItem(subject) && (
+            <button
+              onClick={() => onDeleteSubject({ type: "subject", id: subject.id, className, name: subject.name })}
+              className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+              title="Delete Subject"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Unit Filter Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none mb-4 border-b border-gray-100 dark:border-gray-700/60 pb-3">
+          <button
+            onClick={() => setActiveUnitName("all")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              activeUnitName === "all"
+                ? "bg-[#F05A2B] text-white shadow-sm"
+                : "bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+          >
+            All Units
+          </button>
+          {UNIT_OPTIONS.map(unitName => {
+            const hasUnit = units.some(u => u.name === unitName);
+            return (
+              <button
+                key={unitName}
+                onClick={() => setActiveUnitName(unitName)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                  activeUnitName === unitName
+                    ? "bg-[#F05A2B] text-white shadow-sm"
+                    : hasUnit
+                    ? "bg-gray-100 dark:bg-gray-700/60 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    : "bg-gray-50 dark:bg-gray-900/40 text-gray-300 dark:text-gray-600 cursor-default"
+                }`}
+              >
+                {unitName}
+                {hasUnit && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Files List in Active Unit */}
+        <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+          {activeFiles.length === 0 ? (
+            <div className="py-8 text-center text-gray-400 dark:text-gray-500 space-y-1">
+              <FolderOpen className="w-8 h-8 mx-auto opacity-50" />
+              <p className="text-xs font-medium">No notes uploaded for {activeUnitName === "all" ? "this subject" : activeUnitName}</p>
+            </div>
+          ) : (
+            activeFiles.map(file => (
+              <FileItemCard
+                key={file.id}
+                file={file}
+                canDelete={canDeleteItem(file)}
+                onDelete={(f) => onDeleteFile({
+                  type: "file", id: f.id,
+                  className,
+                  subjectId: subject.id,
+                  unitId: file.unit_id,
+                  name: f.file_name
+                })}
+                onPreview={onPreviewFile}
+              />
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Card Footer Meta */}
+      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
+        <span className="flex items-center gap-1">
+          <User className="w-3.5 h-3.5" /> Created by {subject.created_by?.name || "Faculty"}
+        </span>
+        {activeUnitObj && canDeleteItem(activeUnitObj) && activeUnitName !== "all" && (
+          <button
+            onClick={() => onDeleteUnit({
+              type: "unit", id: activeUnitObj.id,
+              className, subjectId: subject.id, name: activeUnitObj.name
+            })}
+            className="text-red-500 hover:underline text-[11px] font-medium flex items-center gap-1"
+          >
+            <Trash2 className="w-3 h-3" /> Delete {activeUnitName}
           </button>
         )}
       </div>
@@ -387,9 +555,12 @@ export default function FacultyNotesPage() {
   const [previewFile, setPreviewFile] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [expandedSubjects, setExpandedSubjects] = useState({});
-  const [expandedUnits, setExpandedUnits] = useState({});
+  
+  // Filter & Layout States
+  const [selectedClassFilter, setSelectedClassFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("grid"); // grid | list
+  const [expandedSubjects, setExpandedSubjects] = useState({});
 
   const isStaff = user?.role === "FACULTY" || user?.role === "HOD";
 
@@ -402,9 +573,28 @@ export default function FacultyNotesPage() {
   const classes = data?.classes || [];
   const targetClasses = data?.target_classes || [];
 
-  const allSubjects = classes.flatMap(c =>
-    c.subjects.map(s => ({ ...s, class_name: c.class_name }))
-  );
+  const allSubjects = useMemo(() => {
+    return classes.flatMap(c => c.subjects.map(s => ({ ...s, class_name: c.class_name })));
+  }, [classes]);
+
+  // Overall Statistics
+  const stats = useMemo(() => {
+    let totalSubjects = 0;
+    let totalUnits = 0;
+    let totalFiles = 0;
+
+    classes.forEach(c => {
+      totalSubjects += c.subjects.length;
+      c.subjects.forEach(s => {
+        totalUnits += s.units.length;
+        s.units.forEach(u => {
+          totalFiles += u.files.length;
+        });
+      });
+    });
+
+    return { totalSubjects, totalUnits, totalFiles };
+  }, [classes]);
 
   useEffect(() => {
     if (pageRef.current) {
@@ -414,10 +604,6 @@ export default function FacultyNotesPage() {
 
   const toggleSubject = (subjectId) => {
     setExpandedSubjects(prev => ({ ...prev, [subjectId]: !prev[subjectId] }));
-  };
-
-  const toggleUnit = (unitId) => {
-    setExpandedUnits(prev => ({ ...prev, [unitId]: !prev[unitId] }));
   };
 
   const handleDelete = async () => {
@@ -448,10 +634,18 @@ export default function FacultyNotesPage() {
     return false;
   };
 
-  const filterClasses = () => {
-    if (!searchQuery.trim()) return classes;
+  // Filter logic: Filter by Class pill & Search query
+  const filteredClasses = useMemo(() => {
+    let list = classes;
+
+    if (selectedClassFilter !== "ALL") {
+      list = list.filter(c => c.class_name === selectedClassFilter);
+    }
+
+    if (!searchQuery.trim()) return list;
+
     const q = searchQuery.toLowerCase();
-    return classes.map(c => ({
+    return list.map(c => ({
       ...c,
       subjects: c.subjects.filter(s =>
         s.name.toLowerCase().includes(q) ||
@@ -459,15 +653,13 @@ export default function FacultyNotesPage() {
         s.units.some(u => u.files.some(f => f.file_name.toLowerCase().includes(q)))
       )
     })).filter(c => c.subjects.length > 0);
-  };
-
-  const filteredClasses = filterClasses();
+  }, [classes, selectedClassFilter, searchQuery]);
 
   return (
     <div ref={pageRef} className="space-y-6 pb-12">
       <ToastStack toasts={toast.toasts} />
 
-      {/* Standard Header */}
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F05A2B] to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
@@ -481,26 +673,109 @@ export default function FacultyNotesPage() {
           </div>
         </div>
 
+        {/* Quick Stat Summary Pills */}
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search subjects, units, files..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
-            />
+          <div className="flex items-center gap-4 bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 px-4 py-2 rounded-2xl shadow-sm">
+            <div className="text-center">
+              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Subjects</p>
+              <p className="text-base font-black text-gray-900 dark:text-white">{stats.totalSubjects}</p>
+            </div>
+            <div className="w-px h-6 bg-gray-200 dark:bg-gray-700" />
+            <div className="text-center">
+              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Units</p>
+              <p className="text-base font-black text-gray-900 dark:text-white">{stats.totalUnits}</p>
+            </div>
+            <div className="w-px h-6 bg-gray-200 dark:bg-gray-700" />
+            <div className="text-center">
+              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Docs</p>
+              <p className="text-base font-black text-[#F05A2B]">{stats.totalFiles}</p>
+            </div>
           </div>
+
           {isStaff && (
-            <Button onClick={() => setUploadOpen(true)} className="gap-2">
+            <Button onClick={() => setUploadOpen(true)} className="gap-2 shrink-0">
               <Plus className="w-4 h-4" /> Upload Notes
             </Button>
           )}
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Control Bar: Class Filter Pills + Search + View Switcher */}
+      <div className="bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700/70 p-3 rounded-2xl shadow-sm space-y-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Class Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none">
+            <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5" /> Class:
+            </span>
+            <button
+              onClick={() => setSelectedClassFilter("ALL")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                selectedClassFilter === "ALL"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm"
+                  : "bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              }`}
+            >
+              All Classes
+            </button>
+            {targetClasses.map(c => (
+              <button
+                key={c}
+                onClick={() => setSelectedClassFilter(c)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  selectedClassFilter === c
+                    ? "bg-[#F05A2B] text-white shadow-sm"
+                    : "bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }`}
+              >
+                {c.replace("_", " ")}
+              </button>
+            ))}
+          </div>
+
+          {/* Right Controls: Search + View Switcher */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 md:w-64">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search subjects, files..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-xs focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B]"
+              />
+            </div>
+
+            {/* View Switcher */}
+            <div className="flex items-center p-1 bg-gray-100 dark:bg-gray-900 rounded-xl">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded-lg transition-all ${
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+                title="Grid View"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-1.5 rounded-lg transition-all ${
+                  viewMode === "list"
+                    ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+                title="List View"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Display Section */}
       <div>
         {isLoading ? (
           <div className="flex justify-center items-center py-24">
@@ -514,33 +789,62 @@ export default function FacultyNotesPage() {
         ) : filteredClasses.length === 0 ? (
           <EmptyState
             icon={FolderOpen}
-            title="No notes uploaded yet"
-            description={isStaff ? "Click 'Upload Notes' to share study materials with students." : "Your faculty hasn't uploaded any notes yet."}
+            title="No notes found"
+            description={isStaff ? "Upload notes or adjust your filter/search criteria." : "No study materials available for your criteria."}
             action={isStaff ? (
               <Button onClick={() => setUploadOpen(true)} className="gap-2 mt-2">
                 <Plus className="w-4 h-4" /> Upload Notes
               </Button>
             ) : null}
           />
+        ) : viewMode === "grid" ? (
+          /* GRID VIEW: Responsive grid of RedesignedSubjectCard components */
+          <div className="space-y-8">
+            {filteredClasses.map(cls => (
+              <div key={cls.class_name} className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 text-xs font-black uppercase tracking-wider text-white bg-gradient-to-r from-[#F05A2B] to-orange-600 rounded-lg shadow-sm">
+                    {cls.class_name.replace("_", " ")}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                    {cls.subjects.length} {cls.subjects.length === 1 ? "subject" : "subjects"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {cls.subjects.map(subject => (
+                    <RedesignedSubjectCard
+                      key={subject.id}
+                      subject={subject}
+                      className={cls.class_name}
+                      canDeleteItem={canDeleteItem}
+                      onDeleteSubject={setConfirmDelete}
+                      onDeleteUnit={setConfirmDelete}
+                      onDeleteFile={setConfirmDelete}
+                      onPreviewFile={setPreviewFile}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
+          /* LIST VIEW: Compact Accordion List */
           <div className="space-y-6">
             {filteredClasses.map(cls => (
               <div key={cls.class_name} className="bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60 rounded-2xl p-5 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#F05A2B] to-orange-600 rounded-lg shadow-sm">
-                      {cls.class_name.replace("_", " ")}
-                    </span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-                      {cls.subjects.length} {cls.subjects.length === 1 ? "subject" : "subjects"}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#F05A2B] to-orange-600 rounded-lg shadow-sm">
+                    {cls.class_name.replace("_", " ")}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                    {cls.subjects.length} {cls.subjects.length === 1 ? "subject" : "subjects"}
+                  </span>
                 </div>
 
                 <div className="space-y-3">
                   {cls.subjects.map(subject => (
                     <div key={subject.id} className="border border-gray-200/80 dark:border-gray-700/60 rounded-xl overflow-hidden bg-gray-50/50 dark:bg-gray-900/40">
-                      {/* Subject Accordion Header */}
                       <div
                         onClick={() => toggleSubject(subject.id)}
                         className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition-colors select-none"
@@ -554,7 +858,7 @@ export default function FacultyNotesPage() {
                           <BookMarked className="w-5 h-5 text-[#F05A2B] shrink-0" />
                           <span className="font-bold text-gray-900 dark:text-white text-base truncate">{subject.name}</span>
                           <span className="px-2 py-0.5 text-xs font-semibold bg-gray-200/70 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md">
-                            {subject.units.length} {subject.units.length === 1 ? "unit" : "units"}
+                            {subject.units.length} units
                           </span>
                         </div>
                         <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
@@ -573,71 +877,42 @@ export default function FacultyNotesPage() {
                         </div>
                       </div>
 
-                      {/* Units */}
                       {expandedSubjects[subject.id] && (
-                        <div className="p-4 pt-1 space-y-2 border-t border-gray-200/60 dark:border-gray-700/40">
-                          {subject.units.length === 0 ? (
-                            <p className="text-xs text-gray-400 dark:text-gray-500 italic py-2 text-center">No units added yet</p>
-                          ) : (
-                            subject.units.map(unit => (
-                              <div key={unit.id} className="border border-gray-200/60 dark:border-gray-700/40 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                                {/* Unit Accordion Header */}
-                                <div
-                                  onClick={() => toggleUnit(unit.id)}
-                                  className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors select-none"
-                                >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    {expandedUnits[unit.id] ? (
-                                      <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                    ) : (
-                                      <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                    )}
-                                    <FolderOpen className="w-4 h-4 text-amber-500 shrink-0" />
-                                    <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">{unit.name}</span>
-                                    <span className="px-1.5 py-0.5 text-[11px] font-semibold bg-gray-100 dark:bg-gray-700/70 text-gray-500 dark:text-gray-400 rounded">
-                                      {unit.files.length} {unit.files.length === 1 ? "file" : "files"}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                                    {canDeleteItem(unit) && (
-                                      <button
-                                        onClick={() => setConfirmDelete({ type: "unit", id: unit.id, className: cls.class_name, subjectId: subject.id, name: unit.name })}
-                                        className="p-1 text-gray-400 hover:text-red-500 rounded hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                                        title="Delete unit"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Files */}
-                                {expandedUnits[unit.id] && (
-                                  <div className="p-3 pt-1 space-y-1.5 border-t border-gray-100 dark:border-gray-700/30">
-                                    {unit.files.length === 0 ? (
-                                      <p className="text-xs text-gray-400 dark:text-gray-500 italic py-2 text-center">No files uploaded for this unit</p>
-                                    ) : (
-                                      unit.files.map(file => (
-                                        <FileCard
-                                          key={file.id}
-                                          file={file}
-                                          canDelete={canDeleteItem(file)}
-                                          onDelete={(f) => setConfirmDelete({
-                                            type: "file", id: f.id,
-                                            className: cls.class_name,
-                                            subjectId: subject.id,
-                                            unitId: unit.id,
-                                            name: f.file_name
-                                          })}
-                                          onPreview={setPreviewFile}
-                                        />
-                                      ))
-                                    )}
-                                  </div>
+                        <div className="p-4 pt-1 space-y-3 border-t border-gray-200/60 dark:border-gray-700/40">
+                          {subject.units.map(unit => (
+                            <div key={unit.id} className="space-y-2">
+                              <div className="flex items-center justify-between font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-wider pt-2">
+                                <span className="flex items-center gap-1.5">
+                                  <FolderOpen className="w-4 h-4 text-amber-500" /> {unit.name} ({unit.files.length} files)
+                                </span>
+                                {canDeleteItem(unit) && (
+                                  <button
+                                    onClick={() => setConfirmDelete({ type: "unit", id: unit.id, className: cls.class_name, subjectId: subject.id, name: unit.name })}
+                                    className="text-red-500 hover:underline text-[11px]"
+                                  >
+                                    Delete Unit
+                                  </button>
                                 )}
                               </div>
-                            ))
-                          )}
+                              <div className="space-y-2">
+                                {unit.files.map(file => (
+                                  <FileItemCard
+                                    key={file.id}
+                                    file={file}
+                                    canDelete={canDeleteItem(file)}
+                                    onDelete={(f) => setConfirmDelete({
+                                      type: "file", id: f.id,
+                                      className: cls.class_name,
+                                      subjectId: subject.id,
+                                      unitId: unit.id,
+                                      name: f.file_name
+                                    })}
+                                    onPreview={setPreviewFile}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>

@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import gsap from "gsap";
 import {
   BookMarked, ChevronDown, ChevronRight, Plus, Trash2,
   FileText, File, Presentation, X, Check, Loader2,
-  FolderOpen, Download, AlertCircle, UploadCloud, Eye, Search
+  FolderOpen, Download, AlertCircle, UploadCloud, Eye, Search,
+  Filter, Layers, User
 } from "lucide-react";
 import {
   getAllNotes, createSubject, createUnit, uploadFiles,
@@ -26,10 +27,27 @@ const CURRENT_ACADEMIC_YEAR = (() => {
 
 const UNIT_OPTIONS = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"];
 
-function getFileIcon(type) {
-  if (type === "pdf") return <FileText className="w-4 h-4 text-rose-500 shrink-0" />;
-  if (["ppt", "pptx"].includes(type)) return <Presentation className="w-4 h-4 text-orange-500 shrink-0" />;
-  return <File className="w-4 h-4 text-blue-500 shrink-0" />;
+function getFileTypeDetails(type) {
+  const ext = (type || "").toLowerCase();
+  if (ext === "pdf") {
+    return {
+      label: "PDF",
+      icon: FileText,
+      badgeBg: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/40",
+    };
+  }
+  if (["ppt", "pptx"].includes(ext)) {
+    return {
+      label: ext.toUpperCase(),
+      icon: Presentation,
+      badgeBg: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40",
+    };
+  }
+  return {
+    label: ext.toUpperCase() || "DOC",
+    icon: File,
+    badgeBg: "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/40",
+  };
 }
 
 function getPreviewUrl(file) {
@@ -328,6 +346,164 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
   );
 }
 
+// ─── Mobile Subject Card ─────────────────────────────────────────────────────
+function MobileSubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDeleteUnit, onDeleteFile, onPreviewFile }) {
+  const [activeUnitName, setActiveUnitName] = useState("all");
+  const units = subject.units || [];
+
+  const activeFiles = useMemo(() => {
+    if (activeUnitName === "all") {
+      return units.flatMap(u => u.files.map(f => ({ ...f, unit_name: u.name, unit_id: u.id })));
+    }
+    const matchingUnit = units.find(u => u.name === activeUnitName);
+    if (!matchingUnit) return [];
+    return matchingUnit.files.map(f => ({ ...f, unit_name: matchingUnit.name, unit_id: matchingUnit.id }));
+  }, [units, activeUnitName]);
+
+  const activeUnitObj = units.find(u => u.name === activeUnitName);
+
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/60 rounded-xl p-3.5 shadow-sm space-y-3">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-sm shrink-0">
+            <BookMarked className="w-4.5 h-4.5" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white bg-gradient-to-r from-[#F05A2B] to-orange-600 rounded">
+                {className.replace("_", " ")}
+              </span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                {units.length} units
+              </span>
+            </div>
+            <h3 className="font-extrabold text-gray-900 dark:text-white text-sm truncate mt-0.5">
+              {subject.name}
+            </h3>
+          </div>
+        </div>
+
+        {canDeleteItem(subject) && (
+          <button
+            onClick={() => onDeleteSubject({ type: "subject", id: subject.id, className, name: subject.name })}
+            className="p-1 text-gray-400 hover:text-red-500 rounded"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Unit Tab Selector */}
+      <div className="flex items-center gap-1 overflow-x-auto py-0.5 scrollbar-none border-b border-gray-100 dark:border-gray-700/50 pb-2">
+        <button
+          onClick={() => setActiveUnitName("all")}
+          className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all whitespace-nowrap ${
+            activeUnitName === "all"
+              ? "bg-[#F05A2B] text-white shadow-sm"
+              : "bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300"
+          }`}
+        >
+          All
+        </button>
+        {UNIT_OPTIONS.map(unitName => {
+          const hasUnit = units.some(u => u.name === unitName);
+          return (
+            <button
+              key={unitName}
+              onClick={() => setActiveUnitName(unitName)}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
+                activeUnitName === unitName
+                  ? "bg-[#F05A2B] text-white shadow-sm"
+                  : hasUnit
+                  ? "bg-gray-100 dark:bg-gray-700/60 text-gray-700 dark:text-gray-200"
+                  : "bg-gray-50 dark:bg-gray-900/40 text-gray-300 dark:text-gray-600"
+              }`}
+            >
+              {unitName.replace("Unit ", "U")}
+              {hasUnit && <span className="w-1 h-1 rounded-full bg-emerald-500" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Files */}
+      <div className="space-y-1.5">
+        {activeFiles.length === 0 ? (
+          <div className="py-4 text-center text-gray-400 dark:text-gray-500 text-xs italic">
+            No notes for {activeUnitName === "all" ? "this subject" : activeUnitName}
+          </div>
+        ) : (
+          activeFiles.map(file => {
+            const details = getFileTypeDetails(file.file_type);
+            const IconComp = details.icon;
+            return (
+              <div key={file.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800 gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className={`p-1.5 rounded-md border ${details.badgeBg} shrink-0`}>
+                    <IconComp className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-bold text-gray-900 dark:text-gray-100 truncate">{file.file_name}</p>
+                    <p className="text-[9px] text-gray-400 dark:text-gray-500 truncate">
+                      {file.uploaded_by?.name || "Faculty"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <button
+                    onClick={() => onPreviewFile(file)}
+                    className="p-1 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
+                  <a
+                    href={file.file_url}
+                    download
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </a>
+                  {canDeleteItem(file) && (
+                    <button
+                      onClick={() => onDeleteFile({
+                        type: "file", id: file.id,
+                        className, subjectId: subject.id, unitId: file.unit_id, name: file.file_name
+                      })}
+                      className="p-1 text-gray-400 hover:text-red-500"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="pt-2 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500">
+        <span>By {subject.created_by?.name || "Faculty"}</span>
+        {activeUnitObj && canDeleteItem(activeUnitObj) && activeUnitName !== "all" && (
+          <button
+            onClick={() => onDeleteUnit({
+              type: "unit", id: activeUnitObj.id,
+              className, subjectId: subject.id, name: activeUnitObj.name
+            })}
+            className="text-red-500 font-semibold"
+          >
+            Delete {activeUnitName}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function MobileFacultyNotesPage() {
   const { user } = useAuth();
@@ -338,8 +514,8 @@ export default function MobileFacultyNotesPage() {
   const [previewFile, setPreviewFile] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [expandedSubjects, setExpandedSubjects] = useState({});
-  const [expandedUnits, setExpandedUnits] = useState({});
+
+  const [selectedClassFilter, setSelectedClassFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   const isStaff = user?.role === "FACULTY" || user?.role === "HOD";
@@ -352,10 +528,7 @@ export default function MobileFacultyNotesPage() {
 
   const classes = data?.classes || [];
   const targetClasses = data?.target_classes || [];
-  const allSubjects = classes.flatMap(c => c.subjects.map(s => ({ ...s, class_name: c.class_name })));
-
-  const toggleSubject = (id) => setExpandedSubjects(p => ({ ...p, [id]: !p[id] }));
-  const toggleUnit = (id) => setExpandedUnits(p => ({ ...p, [id]: !p[id] }));
+  const allSubjects = useMemo(() => classes.flatMap(c => c.subjects.map(s => ({ ...s, class_name: c.class_name }))), [classes]);
 
   const handleDelete = async () => {
     if (!confirmDelete) return;
@@ -381,10 +554,15 @@ export default function MobileFacultyNotesPage() {
     return false;
   };
 
-  const filterClasses = () => {
-    if (!searchQuery.trim()) return classes;
+  const filteredClasses = useMemo(() => {
+    let list = classes;
+    if (selectedClassFilter !== "ALL") {
+      list = list.filter(c => c.class_name === selectedClassFilter);
+    }
+    if (!searchQuery.trim()) return list;
+
     const q = searchQuery.toLowerCase();
-    return classes.map(c => ({
+    return list.map(c => ({
       ...c,
       subjects: c.subjects.filter(s =>
         s.name.toLowerCase().includes(q) ||
@@ -392,9 +570,7 @@ export default function MobileFacultyNotesPage() {
         s.units.some(u => u.files.some(f => f.file_name.toLowerCase().includes(q)))
       )
     })).filter(c => c.subjects.length > 0);
-  };
-
-  const filteredClasses = filterClasses();
+  }, [classes, selectedClassFilter, searchQuery]);
 
   return (
     <div className="space-y-4 pb-20">
@@ -414,12 +590,39 @@ export default function MobileFacultyNotesPage() {
           </div>
         </div>
 
+        {/* Class Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 scrollbar-none">
+          <button
+            onClick={() => setSelectedClassFilter("ALL")}
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              selectedClassFilter === "ALL"
+                ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm"
+                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+            }`}
+          >
+            All
+          </button>
+          {targetClasses.map(c => (
+            <button
+              key={c}
+              onClick={() => setSelectedClassFilter(c)}
+              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                selectedClassFilter === c
+                  ? "bg-[#F05A2B] text-white shadow-sm"
+                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+              }`}
+            >
+              {c.replace("_", " ")}
+            </button>
+          ))}
+        </div>
+
         {/* Mobile Search */}
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search subjects, units, files..."
+            placeholder="Search subjects, files..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B]"
@@ -441,154 +644,35 @@ export default function MobileFacultyNotesPage() {
         ) : filteredClasses.length === 0 ? (
           <EmptyState
             icon={FolderOpen}
-            title="No notes yet"
+            title="No notes found"
             description={isStaff ? "Tap + to upload notes" : "No notes uploaded for your class yet."}
           />
         ) : (
           <div className="space-y-4">
             {filteredClasses.map(cls => (
-              <div key={cls.class_name} className="bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60 rounded-xl p-3.5 shadow-sm space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#F05A2B] to-orange-600 rounded-md shadow-sm">
-                    {cls.class_name.replace("_", " ")}
-                  </span>
-                  <span className="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                    {cls.subjects.length} {cls.subjects.length === 1 ? "subject" : "subjects"}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {cls.subjects.map(subject => (
-                    <div key={subject.id} className="border border-gray-200/80 dark:border-gray-700/60 rounded-lg overflow-hidden bg-gray-50/50 dark:bg-gray-900/40">
-                      {/* Subject Header */}
-                      <div
-                        onClick={() => toggleSubject(subject.id)}
-                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition-colors select-none"
-                      >
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          {expandedSubjects[subject.id] ? (
-                            <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                          ) : (
-                            <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                          )}
-                          <BookMarked className="w-4 h-4 text-[#F05A2B] shrink-0" />
-                          <span className="font-bold text-gray-900 dark:text-white text-xs truncate">{subject.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
-                          <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gray-200/70 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
-                            {subject.units.length}u
-                          </span>
-                          {canDeleteItem(subject) && (
-                            <button
-                              onClick={() => setConfirmDelete({ type: "subject", id: subject.id, className: cls.class_name, name: subject.name })}
-                              className="p-1 text-gray-400 hover:text-red-500 rounded"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Units */}
-                      {expandedSubjects[subject.id] && (
-                        <div className="p-2.5 pt-1 space-y-1.5 border-t border-gray-200/60 dark:border-gray-700/40">
-                          {subject.units.length === 0 ? (
-                            <p className="text-[11px] text-gray-400 dark:text-gray-500 italic py-1 text-center">No units</p>
-                          ) : (
-                            subject.units.map(unit => (
-                              <div key={unit.id} className="border border-gray-200/60 dark:border-gray-700/40 rounded-md overflow-hidden bg-white dark:bg-gray-800">
-                                {/* Unit Header */}
-                                <div
-                                  onClick={() => toggleUnit(unit.id)}
-                                  className="flex items-center justify-between px-2.5 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors select-none"
-                                >
-                                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    {expandedUnits[unit.id] ? (
-                                      <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
-                                    ) : (
-                                      <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
-                                    )}
-                                    <FolderOpen className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                    <span className="font-semibold text-gray-800 dark:text-gray-200 text-xs truncate">{unit.name}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
-                                    <span className="px-1 py-0.5 text-[9px] font-semibold bg-gray-100 dark:bg-gray-700/70 text-gray-500 dark:text-gray-400 rounded">
-                                      {unit.files.length}f
-                                    </span>
-                                    {canDeleteItem(unit) && (
-                                      <button
-                                        onClick={() => setConfirmDelete({ type: "unit", id: unit.id, className: cls.class_name, subjectId: subject.id, name: unit.name })}
-                                        className="p-1 text-gray-400 hover:text-red-500"
-                                      >
-                                        <Trash2 className="w-3 h-3" />
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Files */}
-                                {expandedUnits[unit.id] && (
-                                  <div className="p-2 pt-1 space-y-1 border-t border-gray-100 dark:border-gray-700/30">
-                                    {unit.files.length === 0 ? (
-                                      <p className="text-[10px] text-gray-400 dark:text-gray-500 italic py-1 text-center">No files</p>
-                                    ) : (
-                                      unit.files.map(file => (
-                                        <div key={file.id} className="flex items-center justify-between p-2 rounded bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800 gap-2">
-                                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                                            {getFileIcon(file.file_type)}
-                                            <div className="min-w-0 flex-1">
-                                              <p className="text-[11px] font-semibold text-gray-900 dark:text-gray-100 truncate">{file.file_name}</p>
-                                              <p className="text-[9px] text-gray-400 dark:text-gray-500">{file.file_type?.toUpperCase()}</p>
-                                            </div>
-                                          </div>
-                                          <div className="flex items-center gap-1 shrink-0">
-                                            <button
-                                              onClick={() => setPreviewFile(file)}
-                                              className="p-1 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400"
-                                            >
-                                              <Eye className="w-3.5 h-3.5" />
-                                            </button>
-                                            <a
-                                              href={file.file_url}
-                                              download
-                                              target="_blank"
-                                              rel="noreferrer"
-                                              className="p-1 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400"
-                                            >
-                                              <Download className="w-3.5 h-3.5" />
-                                            </a>
-                                            {canDeleteItem(file) && (
-                                              <button
-                                                onClick={() => setConfirmDelete({ type: "file", id: file.id, className: cls.class_name, subjectId: subject.id, unitId: unit.id, name: file.file_name })}
-                                                className="p-1 text-gray-400 hover:text-red-500"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </button>
-                                            )}
-                                          </div>
-                                        </div>
-                                      ))
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+              <div key={cls.class_name} className="space-y-3">
+                {cls.subjects.map(subject => (
+                  <MobileSubjectCard
+                    key={subject.id}
+                    subject={subject}
+                    className={cls.class_name}
+                    canDeleteItem={canDeleteItem}
+                    onDeleteSubject={setConfirmDelete}
+                    onDeleteUnit={setConfirmDelete}
+                    onDeleteFile={setConfirmDelete}
+                    onPreviewFile={setPreviewFile}
+                  />
+                ))}
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Floating FAB for Staff */}
+      {/* FAB */}
       {isStaff && <MobileFAB onClick={() => setUploadOpen(true)} label="Upload Notes" />}
 
-      {/* Upload Bottom Sheet */}
+      {/* Upload Sheet */}
       <UploadSheet
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
@@ -598,7 +682,7 @@ export default function MobileFacultyNotesPage() {
         toast={toast}
       />
 
-      {/* Preview Bottom Sheet */}
+      {/* Preview Sheet */}
       {previewFile && (
         <BottomSheet open={!!previewFile} onClose={() => setPreviewFile(null)} title={previewFile.file_name}>
           <div className="space-y-3 pb-4">
