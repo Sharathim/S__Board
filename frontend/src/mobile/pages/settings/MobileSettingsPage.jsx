@@ -222,6 +222,12 @@ export default function MobileSettingsPage() {
       {/* Preferences */}
       <SettingsSection title="Preferences">
         <SettingsRow
+          icon={theme === "dark" ? Moon : Sun}
+          title="Dark Mode"
+          subtitle={theme === "dark" ? "Dark mode active" : "Switch to dark theme"}
+          trailing={<ToggleSwitch checked={theme === "dark"} onChange={toggleTheme} />}
+        />
+        <SettingsRow
           icon={Smartphone}
           title="Push Notifications"
           subtitle="Real-time alerts on your device"

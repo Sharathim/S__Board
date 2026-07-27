@@ -173,6 +173,12 @@ export default function SettingsPage() {
       {/* Preferences Section */}
       <SectionCard title="Preferences" icon={Palette} accentColor="text-violet-500">
         <PreferenceRow
+          icon={theme === "dark" ? Moon : Sun}
+          title="Dark Theme"
+          description={theme === "dark" ? "Dark mode is currently enabled" : "Enable dark mode for lower eye strain"}
+          control={<Switch checked={theme === "dark"} onChange={toggleTheme} />}
+        />
+        <PreferenceRow
           icon={Smartphone}
           title="Push Notifications"
           description="Receive real-time alerts on your device"

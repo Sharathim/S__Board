@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100;0,14..32,200;0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,100;1,14..32,200;1,14..32,300;1,14..32,400;1,14..32,500;1,14..32,600;1,14..32,700;1,14..32,800;1,14..32,900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100;0,14..32,200;0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,100;1,14..32,200;1,14..32,300;1,14..32,400;1,14..32,500;1,14..32,600;1,14..32,700;1,14..32,800;1,14..32,900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -131,6 +131,22 @@
   --violet-800: var(--primary-800);
   --violet-900: var(--primary-900);
   --violet-950: var(--primary-900);
+}
+
+.dark {
+  --background: #090D16;
+  --surface: #0F172A;
+  --border: #1E293B;
+  --border-light: #1E293B;
+  --border-medium: #334155;
+  --border-color: #1E293B;
+  --text: #F8FAFC;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --sidebar-bg: #0F172A;
+  --sidebar-border: #1E293B;
+  --sidebar-hover: #1E293B;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
