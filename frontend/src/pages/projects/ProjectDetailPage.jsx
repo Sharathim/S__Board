@@ -1232,6 +1232,25 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="max-w-5xl mx-auto py-2 flex flex-col lg:flex-row gap-8 items-start">
+              {/* Right Column: Neomorphic percentage card - Ordered first on mobile (default) and last on lg desktop */}
+              <div className="w-full lg:w-80 shrink-0 lg:order-last">
+                <div className="p-6 rounded-[32px] bg-slate-50 dark:bg-slate-900/40 border border-slate-200/30 dark:border-slate-800/40 shadow-[10px_10px_20px_#d1d5db,-10px_-10px_20px_#ffffff] dark:shadow-[10px_10px_20px_#090d16,-10px_-10px_20px_#1b253b] text-center">
+                  <h4 className="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest mb-4">Latest Progress</h4>
+
+                  <div className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/40 shadow-[inset_6px_6px_12px_#d1d5db,inset_-6px_-6px_12px_#ffffff] dark:shadow-[inset_6px_6px_12px_#090d16,inset_-6px_-6px_12px_#1b253b] mb-4">
+                    <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                      {timelineNodes[0]?.percentage || 0}%
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed px-2">
+                    {timelineNodes[0]?.percentage
+                      ? `Project is ${timelineNodes[0].percentage}% complete based on the latest update.`
+                      : "No progress updates with completed percentage logged yet."}
+                  </p>
+                </div>
+              </div>
+
               {/* Left Column: Progress update card */}
               <div className="flex-1 w-full min-w-0">
                 <AnimatePresence mode="wait">
@@ -1256,25 +1275,6 @@ export default function ProjectDetailPage() {
                     />
                   </motion.div>
                 </AnimatePresence>
-              </div>
-
-              {/* Right Column: Neomorphic percentage card */}
-              <div className="w-full lg:w-80 shrink-0">
-                <div className="p-6 rounded-[32px] bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/80 shadow-[10px_10px_20px_#d1d5db,-10px_-10px_20px_#ffffff] dark:shadow-[10px_10px_20px_#090d16,-10px_-10px_20px_#1b253b] text-center">
-                  <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Latest Progress</h4>
-
-                  <div className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900 shadow-[inset_6px_6px_12px_#d1d5db,inset_-6px_-6px_12px_#ffffff] dark:shadow-[inset_6px_6px_12px_#090d16,inset_-6px_-6px_12px_#1b253b] mb-4">
-                    <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                      {timelineNodes[0]?.percentage || 0}%
-                    </span>
-                  </div>
-
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed px-2">
-                    {timelineNodes[0]?.percentage
-                      ? `Project is ${timelineNodes[0].percentage}% complete based on the latest update.`
-                      : "No progress updates with completed percentage logged yet."}
-                  </p>
-                </div>
               </div>
             </div>
           )}
