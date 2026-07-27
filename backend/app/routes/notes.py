@@ -10,6 +10,8 @@ from datetime import datetime
 
 notes_bp = Blueprint("notes", __name__)
 
+CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"]
+
 # Helper to check if a user can view/access a class
 def _can_access_class(user, class_name):
     if user.role == UserRole.HOD:
@@ -21,6 +23,8 @@ def _can_access_class(user, class_name):
         if fp.class_incharge_of == class_name:
             return True
         if class_name in (fp.classes_handling or []):
+            return True
+        if class_name in getattr(fp, "extra_class_access", []):
             return True
         return False
     if user.role == UserRole.STUDENT:
@@ -124,6 +128,343 @@ def _serialize_subject(s):
         "file_count": file_count,
         "created_at": s.created_at.isoformat()
     }
+
+# Helper to compute current academic year
+def _get_current_academic_year():
+    now = datetime.utcnow()
+    y = now.year
+    return f"{y}-{y+1}" if now.month >= 6 else f"{y-1}-{y}"
+
+# ─── New Unified Notes & Docs Endpoints ─────────────────────────────────────
+
+@notes_bp.route("/notes/classes", methods=["GET"])
+@require_auth
+def get_user_notes_classes():
+    """
+    Returns list of authorized classes for the logged-in user:
+    - STUDENT: [student_profile.class_name]
+    - FACULTY: handled classes + class_incharge_of + extra_class_access
+    - HOD: ALL_CLASSES
+    """
+    user = g.current_user
+    if user.role == UserRole.HOD:
+        return jsonify({"classes": CLASSES, "user_role": "HOD"})
+
+    if user.role == UserRole.FACULTY:
+        fp = user.faculty_profile
+        if not fp:
+            return jsonify({"classes": [], "user_role": "FACULTY"})
+        classes_set = set(fp.classes_handling or [])
+        if fp.class_incharge_of:
+            classes_set.add(fp.class_incharge_of)
+        if getattr(fp, "extra_class_access", None):
+            classes_set.update(fp.extra_class_access or [])
+        classes_list = sorted(list(classes_set))
+        return jsonify({"classes": classes_list, "user_role": "FACULTY"})
+
+    if user.role == UserRole.STUDENT:
+        if user.student_profile and user.student_profile.class_name:
+            return jsonify({"classes": [user.student_profile.class_name], "user_role": "STUDENT"})
+        return jsonify({"classes": [], "user_role": "STUDENT"})
+
+    return jsonify({"classes": [], "user_role": user.role.value})
+
+
+@notes_bp.route("/notes/class/<class_name>/tree", methods=["GET"])
+@require_auth
+def get_class_notes_tree(class_name):
+    """
+    Returns full nested tree of subjects -> units -> files for a specific class.
+    Combined and organized by Subject name and Unit name.
+    """
+    user = g.current_user
+    if not _can_access_class(user, class_name):
+        return jsonify({"error": f"Access denied to class {class_name}"}), 403
+
+    subjects = Subject.query.filter_by(class_name=class_name, is_archived=False)\
+        .order_by(Subject.name.asc()).all()
+
+    serialized_subjects = []
+    for subj in subjects:
+        units = subj.units.order_by(Unit.order_index.asc(), Unit.id.asc()).all()
+        serialized_units = []
+        for u in units:
+            serialized_units.append({
+                "id": u.id,
+                "name": u.name,
+                "order_index": u.order_index,
+                "created_by": {
+                    "id": u.creator.id,
+                    "name": u.creator.name,
+                    "role": u.creator.role.value
+                } if u.creator else None,
+                "files": [_serialize_file(f) for f in u.files.order_by(UnitFile.created_at.desc()).all()],
+                "created_at": u.created_at.isoformat()
+            })
+
+        serialized_subjects.append({
+            "id": subj.id,
+            "name": subj.name,
+            "academic_year": subj.academic_year,
+            "semester": subj.semester,
+            "created_by": {
+                "id": subj.creator.id,
+                "name": subj.creator.name,
+                "role": subj.creator.role.value
+            } if subj.creator else None,
+            "units": serialized_units,
+            "created_at": subj.created_at.isoformat()
+        })
+
+    return jsonify({
+        "class_name": class_name,
+        "subjects": serialized_subjects
+    })
+
+
+@notes_bp.route("/notes/upload-notes", methods=["POST"])
+@require_auth
+def upload_notes_unified():
+    """
+    Unified route for uploading notes (Faculty / HOD):
+    1. Select Class
+    2. Select / Create Subject (combines duplicate subject names within class)
+    3. Select Unit (Unit 1 .. Unit 5, combines duplicate unit names within subject)
+    4. Upload multiple files (PDF, PPT, PPTX, DOC, DOCX, PNG, JPG, JPEG)
+    """
+    user = g.current_user
+    if user.role == UserRole.STUDENT:
+        return jsonify({"error": "Students cannot upload notes"}), 403
+
+    class_name = request.form.get("class_name", "").strip()
+    subject_name = request.form.get("subject_name", "").strip()
+    unit_name = request.form.get("unit_name", "").strip()
+
+    if not class_name or not subject_name or not unit_name:
+        return jsonify({"error": "Class name, subject name, and unit name are required"}), 400
+
+    if not _can_access_class(user, class_name):
+        return jsonify({"error": f"Access denied to upload notes for class {class_name}"}), 403
+
+    files = request.files.getlist("files")
+    if not files or len(files) == 0:
+        return jsonify({"error": "Please select at least one file to upload"}), 400
+
+    # 1. Subject Resolution / Creation (case-insensitive name match within class)
+    subject = Subject.query.filter(
+        Subject.class_name == class_name,
+        db.func.lower(Subject.name) == subject_name.lower(),
+        Subject.is_archived == False
+    ).first()
+
+    if not subject:
+        acad_year = _get_current_academic_year()
+        subject = Subject(
+            class_name=class_name,
+            name=subject_name,
+            academic_year=acad_year,
+            semester=1,
+            created_by=user.id
+        )
+        db.session.add(subject)
+        db.session.commit()
+        _log_notes_action(
+            class_name=class_name,
+            action="created_subject",
+            target_type="subject",
+            target_name=subject_name,
+            performed_by=user.id
+        )
+
+    # 2. Unit Resolution / Creation (case-insensitive name match within subject)
+    unit = Unit.query.filter(
+        Unit.subject_id == subject.id,
+        db.func.lower(Unit.name) == unit_name.lower()
+    ).first()
+
+    if not unit:
+        order_idx = 1
+        if "1" in unit_name: order_idx = 1
+        elif "2" in unit_name: order_idx = 2
+        elif "3" in unit_name: order_idx = 3
+        elif "4" in unit_name: order_idx = 4
+        elif "5" in unit_name: order_idx = 5
+        else:
+            max_ord = db.session.query(db.func.max(Unit.order_index)).filter_by(subject_id=subject.id).scalar() or 0
+            order_idx = max_ord + 1
+
+        unit = Unit(
+            subject_id=subject.id,
+            name=unit_name,
+            order_index=order_idx,
+            created_by=user.id
+        )
+        db.session.add(unit)
+        db.session.commit()
+        _log_notes_action(
+            class_name=class_name,
+            action="created_unit",
+            target_type="unit",
+            target_name=unit_name,
+            performed_by=user.id,
+            details={"subject_id": subject.id}
+        )
+
+    # 3. Process File Uploads
+    allowed_extensions = {"pdf", "ppt", "pptx", "doc", "docx", "png", "jpg", "jpeg"}
+    uploaded_files = []
+
+    for file in files:
+        if not file or not file.filename:
+            continue
+
+        ext = file.filename.split(".")[-1].lower() if "." in file.filename else ""
+        if ext not in allowed_extensions:
+            return jsonify({"error": f"File type .{ext} is not supported. Allowed types: PDF, PPT, PPTX, DOC, DOCX, PNG, JPG, JPEG"}), 400
+
+        try:
+            res = upload_file(file, folder=f"dpms/notes/{class_name}")
+            if res:
+                unit_file = UnitFile(
+                    unit_id=unit.id,
+                    file_name=res.get("name") or file.filename,
+                    file_url=res["url"],
+                    file_type=ext,
+                    file_size=0,
+                    cloudinary_public_id=res.get("public_id"),
+                    uploaded_by=user.id
+                )
+                db.session.add(unit_file)
+                db.session.commit()
+                uploaded_files.append(_serialize_file(unit_file))
+
+                _log_notes_action(
+                    class_name=class_name,
+                    action="uploaded_file",
+                    target_type="file",
+                    target_name=unit_file.file_name,
+                    performed_by=user.id,
+                    details={"file_id": unit_file.id, "unit_id": unit.id, "subject_id": subject.id}
+                )
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": f"Upload failed for {file.filename}: {str(e)}"}), 500
+
+    return jsonify({
+        "message": "Notes uploaded successfully",
+        "subject_id": subject.id,
+        "unit_id": unit.id,
+        "uploaded_files": uploaded_files
+    })
+
+
+@notes_bp.route("/notes/subjects/<int:subject_id>", methods=["DELETE"])
+@require_auth
+def delete_subject_direct(subject_id):
+    user = g.current_user
+    if user.role == UserRole.STUDENT:
+        return jsonify({"error": "Students cannot delete subjects"}), 403
+
+    subject = Subject.query.get_or_404(subject_id)
+    if not _can_modify_resource(user, subject.class_name, subject.created_by):
+        return jsonify({"error": "Unauthorized to delete this subject"}), 403
+
+    for u in subject.units.all():
+        for f in u.files.all():
+            if f.cloudinary_public_id:
+                try:
+                    res_type = "raw" if f.file_type.lower() in ["ppt", "pptx", "doc", "docx"] else "image"
+                    delete_file(f.cloudinary_public_id, resource_type=res_type)
+                except Exception as e:
+                    print(f"Cloudinary file delete failed: {e}")
+
+    class_name = subject.class_name
+    subject_name = subject.name
+    db.session.delete(subject)
+    db.session.commit()
+
+    _log_notes_action(
+        class_name=class_name,
+        action="deleted_subject",
+        target_type="subject",
+        target_name=subject_name,
+        performed_by=user.id,
+        details={"subject_id": subject_id}
+    )
+
+    return jsonify({"success": True, "message": f"Subject '{subject_name}' deleted successfully"})
+
+
+@notes_bp.route("/notes/units/<int:unit_id>", methods=["DELETE"])
+@require_auth
+def delete_unit_direct(unit_id):
+    user = g.current_user
+    if user.role == UserRole.STUDENT:
+        return jsonify({"error": "Students cannot delete units"}), 403
+
+    unit = Unit.query.get_or_404(unit_id)
+    class_name = unit.subject.class_name
+    if not _can_modify_resource(user, class_name, unit.created_by):
+        return jsonify({"error": "Unauthorized to delete this unit"}), 403
+
+    for f in unit.files.all():
+        if f.cloudinary_public_id:
+            try:
+                res_type = "raw" if f.file_type.lower() in ["ppt", "pptx", "doc", "docx"] else "image"
+                delete_file(f.cloudinary_public_id, resource_type=res_type)
+            except Exception as e:
+                print(f"Cloudinary file delete failed: {e}")
+
+    unit_name = unit.name
+    db.session.delete(unit)
+    db.session.commit()
+
+    _log_notes_action(
+        class_name=class_name,
+        action="deleted_unit",
+        target_type="unit",
+        target_name=unit_name,
+        performed_by=user.id,
+        details={"unit_id": unit_id}
+    )
+
+    return jsonify({"success": True, "message": f"Unit '{unit_name}' deleted successfully"})
+
+
+@notes_bp.route("/notes/files/<int:file_id>", methods=["DELETE"])
+@require_auth
+def delete_file_direct(file_id):
+    user = g.current_user
+    if user.role == UserRole.STUDENT:
+        return jsonify({"error": "Students cannot delete files"}), 403
+
+    unit_file = UnitFile.query.get_or_404(file_id)
+    class_name = unit_file.unit.subject.class_name
+    if not _can_modify_resource(user, class_name, unit_file.uploaded_by):
+        return jsonify({"error": "Unauthorized to delete this file"}), 403
+
+    if unit_file.cloudinary_public_id:
+        try:
+            res_type = "raw" if unit_file.file_type.lower() in ["ppt", "pptx", "doc", "docx"] else "image"
+            delete_file(unit_file.cloudinary_public_id, resource_type=res_type)
+        except Exception as e:
+            print(f"Cloudinary delete failed: {e}")
+
+    file_name = unit_file.file_name
+    db.session.delete(unit_file)
+    db.session.commit()
+
+    _log_notes_action(
+        class_name=class_name,
+        action="deleted_file",
+        target_type="file",
+        target_name=file_name,
+        performed_by=user.id,
+        details={"file_id": file_id}
+    )
+
+    return jsonify({"success": True, "message": f"File '{file_name}' deleted successfully"})
+
 
 # ─── Faculty Notes Hub — aggregated view across all handled classes ────────────
 

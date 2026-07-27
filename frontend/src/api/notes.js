@@ -58,3 +58,22 @@ export const deleteFile = (className, subjectId, unitId, fileId) =>
 // ─── Logs ─────────────────────────────────────────────────────────────────
 export const getNotesLogs = (className, page = 1) =>
   api.get(`/classes/${className}/notes/logs`, { params: { page } });
+
+// ─── Unified Notes & Docs API Helpers ─────────────────────────────────────
+export const getNotesClasses = () => api.get("/notes/classes");
+
+export const getNotesTree = (className) => api.get(`/notes/class/${className}/tree`);
+
+export const uploadNotesUnified = (formData, onProgress) =>
+  api.post("/notes/upload-notes", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress: onProgress,
+    timeout: 180000, // 3 mins timeout
+  });
+
+export const deleteSubjectDirect = (subjectId) => api.delete(`/notes/subjects/${subjectId}`);
+
+export const deleteUnitDirect = (unitId) => api.delete(`/notes/units/${unitId}`);
+
+export const deleteFileDirect = (fileId) => api.delete(`/notes/files/${fileId}`);
+
