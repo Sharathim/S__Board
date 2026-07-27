@@ -645,7 +645,7 @@ function FillFormSheet({ form, className, studentName, studentRoll, onClose, onS
   const [errorMsg, setErrorMsg] = useState("");
   const [isPending, setIsPending] = useState(false);
 
-  const fields = form?.metadata?.fields || [];
+  const fields = form?.metadata?.fields || form?.fields || form?.data?.fields || [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();

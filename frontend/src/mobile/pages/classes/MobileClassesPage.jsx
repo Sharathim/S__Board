@@ -209,17 +209,35 @@ export default function MobileClassesPage() {
       )}
 
       {/* Assign Incharge Bottom Sheet */}
-      <BottomSheet open={!!inchargeSheet} onClose={() => { setInchargeSheet(null); setSelectedFacultyId(null); }} title="Assign Class Incharge">
+      <BottomSheet open={!!inchargeSheet} onClose={() => { setInchargeSheet(null); setSelectedFacultyId(null); }} title="">
         {inchargeSheet && (
-          <div>
-            <p className="text-xs text-gray-500 mb-3">
-              Select a faculty member for <span className="font-bold">{CLASS_META[inchargeSheet]?.label || inchargeSheet}</span>
+          <div className="space-y-4">
+            {/* Professional Header */}
+            <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100 dark:border-slate-800">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 shrink-0">
+                <Crown className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-gray-900 dark:text-white leading-tight">Assign Class Incharge</h3>
+                <p className="text-xs text-gray-400 font-medium mt-0.5">
+                  {CLASS_META[inchargeSheet]?.label || inchargeSheet} class
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Select a faculty member to manage and oversee <span className="font-bold text-gray-700 dark:text-gray-200">{CLASS_META[inchargeSheet]?.label || inchargeSheet}</span>
             </p>
-            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+
+            {/* Faculty list */}
+            <div className="space-y-2 max-h-[48vh] overflow-y-auto mobile-hide-scrollbar">
               {eligibleFaculty.length === 0 ? (
-                <div className="text-center py-8">
-                  <UserCog className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                  <p className="text-xs text-gray-500">All faculty are already assigned.</p>
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                    <UserCog className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <p className="text-sm font-bold text-gray-600 dark:text-gray-300">No eligible faculty</p>
+                  <p className="text-xs text-gray-400 mt-1">All faculty are already assigned as incharge.</p>
                 </div>
               ) : (
                 eligibleFaculty.map(f => {
@@ -228,35 +246,52 @@ export default function MobileClassesPage() {
                     <button
                       key={f.id}
                       onClick={() => setSelectedFacultyId(f.id)}
-                      className={`mobile-tappable w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all ${
+                      className={`mobile-tappable w-full flex items-center gap-3.5 p-3.5 rounded-2xl border-2 text-left transition-all active:scale-[0.98] ${
                         isSelected
-                          ? "border-[#F05A2B] bg-orange-50 dark:bg-orange-950/20"
-                          : "border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50"
+                          ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20 shadow-sm shadow-orange-500/10"
+                          : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-orange-200 dark:hover:border-orange-800"
                       }`}
                     >
-                      <Avatar src={f.profile_picture} name={f.name} size="sm" className="w-9 h-9 shrink-0" />
+                      <Avatar src={f.profile_picture} name={f.name} size="sm" className={`w-10 h-10 shrink-0 ring-2 transition-all ${isSelected ? "ring-orange-500/40" : "ring-transparent"}`} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{f.name}</p>
-                        <p className="text-[11px] text-gray-400 truncate">{f.designation}</p>
+                        <p className={`text-sm font-extrabold truncate transition-colors ${isSelected ? "text-orange-600 dark:text-orange-400" : "text-gray-900 dark:text-white"}`}>
+                          {f.name}
+                        </p>
+                        <p className="text-[11px] text-gray-400 truncate mt-0.5">{f.designation}</p>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        isSelected ? "border-[#F05A2B] bg-[#F05A2B]" : "border-gray-300 dark:border-slate-600"
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                        isSelected
+                          ? "border-orange-500 bg-orange-500 scale-110"
+                          : "border-gray-300 dark:border-slate-600"
                       }`}>
-                        {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
+                        {isSelected && <span className="w-2 h-2 bg-white rounded-full" />}
                       </div>
                     </button>
                   );
                 })
               )}
             </div>
+
+            {/* Action Buttons */}
             {eligibleFaculty.length > 0 && (
-              <button
-                onClick={() => assignInchargeMutation.mutate({ className: inchargeSheet, facultyId: selectedFacultyId })}
-                disabled={!selectedFacultyId || assignInchargeMutation.isPending}
-                className="mobile-tappable w-full mt-4 py-3 rounded-2xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] text-white text-sm font-bold disabled:opacity-50 active:scale-[0.98]"
-              >
-                {assignInchargeMutation.isPending ? "Assigning..." : "Confirm Assignment"}
-              </button>
+              <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+                <button
+                  onClick={() => { setInchargeSheet(null); setSelectedFacultyId(null); }}
+                  className="mobile-tappable flex-1 py-3 rounded-2xl border-2 border-gray-200 dark:border-slate-700 text-sm font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900">
+                  Cancel
+                </button>
+                <button
+                  onClick={() => assignInchargeMutation.mutate({ className: inchargeSheet, facultyId: selectedFacultyId })}
+                  disabled={!selectedFacultyId || assignInchargeMutation.isPending}
+                  className="mobile-tappable flex-1 py-3 rounded-2xl bg-gradient-to-r from-orange-400 to-orange-600 text-white text-sm font-black shadow-lg shadow-orange-500/25 disabled:opacity-40 active:scale-[0.98] transition-all">
+                  {assignInchargeMutation.isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      Assigning...
+                    </span>
+                  ) : "Confirm"}
+                </button>
+              </div>
             )}
           </div>
         )}
