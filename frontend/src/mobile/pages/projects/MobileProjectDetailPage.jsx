@@ -627,7 +627,6 @@ export default function MobileProjectDetailPage() {
           />
         ) : (
           <div className="space-y-3">
-            <MobileStreamShowcase milestoneCount={timelineNodes.length} />
             <AnimatePresence mode="wait">
               <motion.div
                 key={displayedNode.id}
@@ -776,69 +775,6 @@ export default function MobileProjectDetailPage() {
         confirmText="Delete"
         danger
       />
-    </div>
-  );
-}
-
-// ─── Mobile Stream Showcase (island + percentage + mini path) ─────────────────
-// Milestone target grows in chunks of 5 as updates are posted, since the final
-// count isn't known in advance (1-5 -> target 5, 6-10 -> target 10, etc).
-function getMilestoneTarget(count) {
-  return Math.max(5, Math.ceil(count / 5) * 5);
-}
-
-function MobileStreamShowcase({ milestoneCount }) {
-  const target = getMilestoneTarget(milestoneCount);
-  const pct = target > 0 ? Math.round((milestoneCount / target) * 100) : 0;
-  const pathSlots = Array.from({ length: target }, (_, i) => i < milestoneCount);
-
-  return (
-    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100 to-sky-50 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800">
-      <div className="relative flex items-center justify-center p-5 min-h-[180px]">
-        <div className="pointer-events-none absolute inset-0 opacity-60 dark:opacity-25">
-          <div className="absolute top-6 left-6 w-14 h-5 rounded-full bg-white dark:bg-slate-700 blur-sm" />
-          <div className="absolute bottom-10 right-8 w-16 h-6 rounded-full bg-white dark:bg-slate-700 blur-sm" />
-        </div>
-        <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-black shadow-sm border bg-white/90 dark:bg-slate-900/90 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
-          {milestoneCount} COMPLETED
-        </span>
-        <div className="relative w-40 h-40 flex items-center justify-center">
-          <span className="absolute inset-0 rounded-full bg-emerald-400 opacity-25 blur-2xl scale-75" />
-          <img src="/island.png" alt="Latest completed milestone" draggable={false} className="relative w-full h-full object-contain select-none drop-shadow-xl" />
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-slate-900 p-4 space-y-2 border-t border-slate-200/80 dark:border-slate-800">
-        <p className="text-[11px] font-black text-slate-700 dark:text-slate-300">
-          Milestone {milestoneCount} of {target}
-        </p>
-        <div className="flex items-end gap-1">
-          <span className="text-3xl font-black text-emerald-500 leading-none">{pct}</span>
-          <span className="text-base font-black text-emerald-500 leading-none mb-0.5">%</span>
-        </div>
-        <div className="relative h-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
-          <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-700 ease-out" style={{ width: `${pct}%` }} />
-        </div>
-        <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
-          {milestoneCount} Milestone{milestoneCount !== 1 ? "s" : ""} Completed
-        </p>
-      </div>
-
-      <div className="flex items-center gap-1.5 px-3 py-3 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200/80 dark:border-slate-800 overflow-x-auto mobile-hide-scrollbar">
-        {pathSlots.map((done, i) => {
-          const isLast = i === pathSlots.length - 1;
-          return (
-            <div key={i} className="flex items-center gap-1.5 shrink-0">
-              <span className={`flex items-center justify-center w-6 h-6 rounded-full border-2 shrink-0 ${
-                done ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600"
-              }`}>
-                {isLast ? <Flag className="w-3 h-3" /> : done ? <Check className="w-3 h-3 stroke-[3]" /> : <Lock className="w-2.5 h-2.5" />}
-              </span>
-              {!isLast && <span className="w-2.5 border-t-2 border-dashed border-slate-300 dark:border-slate-700" />}
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }
