@@ -277,11 +277,10 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
               <button
                 key={emoji}
                 onClick={() => isStudent && onReact(comment.id, emoji)}
-                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-all ${
-                  reacted
-                    ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300"
-                    : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400"
-                } ${isStudent ? "cursor-pointer hover:scale-105" : "cursor-default"}`}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-all ${reacted
+                  ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300"
+                  : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400"
+                  } ${isStudent ? "cursor-pointer hover:scale-105" : "cursor-default"}`}
               >
                 {emoji} {count > 0 && <span>{count}</span>}
               </button>
@@ -422,11 +421,10 @@ function ProgressPostItem({
             <button
               type="button"
               onClick={() => setIsExpandingComposer(prev => !prev)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-2xs ${
-                isExpandingComposer
-                  ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200"
-                  : "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600 active:scale-95 shadow-indigo-500/20"
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-2xs ${isExpandingComposer
+                ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600 active:scale-95 shadow-indigo-500/20"
+                }`}
             >
               {isExpandingComposer ? (
                 <>
@@ -569,13 +567,12 @@ function IslandNode({ node, index, isCompleted, isActive, onClick, onHoverChange
     >
       {/* Number badge */}
       <span
-        className={`mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black shadow-sm border transition-colors ${
-          isCompleted
-            ? isActive
-              ? "bg-indigo-600 text-white border-indigo-600"
-              : "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-            : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
-        }`}
+        className={`mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black shadow-sm border transition-colors ${isCompleted
+          ? isActive
+            ? "bg-indigo-600 text-white border-indigo-600"
+            : "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+          : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
+          }`}
       >
         {index + 1}
         {isCompleted && <span className="uppercase tracking-wider">{isActive ? "Viewing" : "Completed"}</span>}
@@ -583,9 +580,8 @@ function IslandNode({ node, index, isCompleted, isActive, onClick, onHoverChange
 
       {/* Island illustration */}
       <div
-        className={`relative w-44 h-44 flex items-center justify-center transition-transform duration-300 ${
-          isCompleted ? "group-hover:-translate-y-2 group-active:translate-y-0" : ""
-        }`}
+        className={`relative w-44 h-44 flex items-center justify-center transition-transform duration-300 ${isCompleted ? "group-hover:-translate-y-2 group-active:translate-y-0" : ""
+          }`}
       >
         {isCompleted && (
           <span className={`absolute inset-0 rounded-full bg-emerald-500 blur-2xl scale-75 transition-opacity duration-300 ${isActive ? "opacity-40" : "opacity-20"}`} />
@@ -594,9 +590,8 @@ function IslandNode({ node, index, isCompleted, isActive, onClick, onHoverChange
           src="/island.png"
           alt={isCompleted ? node.title || "Completed milestone" : "Locked milestone"}
           draggable={false}
-          className={`relative w-full h-full object-contain select-none transition-all duration-300 ${
-            isCompleted ? "drop-shadow-lg" : "grayscale contrast-75 brightness-95"
-          }`}
+          className={`relative w-full h-full object-contain select-none transition-all duration-300 ${isCompleted ? "drop-shadow-lg" : "grayscale contrast-75 brightness-95"
+            }`}
         />
         {!isCompleted && (
           <>
@@ -1017,47 +1012,78 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-4 space-y-4">
-      {/* ── Top Header & Actions Bar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between shrink-0 gap-3 pt-1 pb-4 border-b border-slate-200/70 dark:border-slate-800/70">
-        <div className="space-y-1.5">
+      {/* ── Integrated Project Header & Actions Bar ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between shrink-0 gap-4 pt-1 pb-4 border-b border-slate-200/70 dark:border-slate-800/70">
+        {/* Left Side: Navigation, Project Title, Status, Description & Team Meta */}
+        <div className="space-y-2 min-w-0 flex-1">
           <button
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Projects
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Projects
           </button>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
-              Progress Monitor
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none truncate">
+              {project.name}
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 shrink-0">
               <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
               {statusStyle.label}
             </span>
           </div>
+
+          <div className="flex items-center gap-4 text-xs flex-wrap pt-0.5">
+            {project.description && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 font-medium max-w-xl">
+                {project.description}
+              </p>
+            )}
+
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center -space-x-1.5">
+                  {allMembers.slice(0, 5).map((m) => (
+                    <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size="xs" />
+                  ))}
+                  {allMembers.length > 5 && (
+                    <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300">
+                      +{allMembers.length - 5}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 ml-1">
+                  {allMembers.length} member{allMembers.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+                {timelineNodes.length} Update{timelineNodes.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* View Switcher & Action Buttons */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Right Side: View Switcher & Actions */}
+        <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
           <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/50">
             <button
               onClick={() => setActiveTab("stream")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${
-                activeTab === "stream"
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-              }`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${activeTab === "stream"
+                ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
             >
               <Layers className="w-3.5 h-3.5" />
               Progress Stream
             </button>
             <button
               onClick={() => setActiveTab("roadmap")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${
-                activeTab === "roadmap"
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-              }`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${activeTab === "roadmap"
+                ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
             >
               <Map className="w-3.5 h-3.5" />
               Project Roadmap
@@ -1103,35 +1129,6 @@ export default function ProjectDetailPage() {
               )}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* ── Compact Project Info Summary Bar (No card bloat) ── */}
-      <div className="px-5 py-3.5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xs">
-        <div className="space-y-0.5 max-w-2xl">
-          <h2 className="text-base font-black text-slate-900 dark:text-white truncate">{project.name}</h2>
-          {project.description && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">{project.description}</p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-4 text-xs shrink-0">
-          <div className="flex items-center gap-2">
-            <Users className="w-3.5 h-3.5 text-slate-400" />
-            <div className="flex items-center -space-x-1.5">
-              {allMembers.slice(0, 5).map((m) => (
-                <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size="xs" />
-              ))}
-              {allMembers.length > 5 && (
-                <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300">
-                  +{allMembers.length - 5}
-                </span>
-              )}
-            </div>
-          </div>
-          <span className="text-[11px] font-semibold text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-4">
-            {timelineNodes.length} Progress Update{timelineNodes.length !== 1 ? "s" : ""}
-          </span>
         </div>
       </div>
 

@@ -550,48 +550,50 @@ export default function MobileProjectDetailPage() {
 
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
-      {/* Back + Title */}
-      <div className="flex items-center gap-2">
-        <button onClick={() => navigate("/projects")} className="mobile-tappable p-2 -ml-2 rounded-xl text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Project</p>
-          <h1 className="text-lg font-black text-slate-900 dark:text-white truncate leading-tight tracking-tight">{project.name}</h1>
-        </div>
-        {isHOD && (
-          <button onClick={() => setActionSheetOpen(true)} className="mobile-tappable p-2 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
-            <MoreVertical className="w-5 h-5" />
+      {/* Mobile Integrated Project Header */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <button onClick={() => navigate("/projects")} className="mobile-tappable flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 active:opacity-75">
+            <ArrowLeft className="w-4 h-4" /> Projects
           </button>
-        )}
-      </div>
+          {isHOD && (
+            <button onClick={() => setActionSheetOpen(true)} className="mobile-tappable p-1.5 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
-      {/* Status + Description Summary */}
-      <MobileCard>
-        <div className="flex items-center gap-2 mb-2.5">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${st.bg} ${st.text}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
-            {st.label}
-          </span>
-          <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 ml-auto flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {format(parseUTCDate(project.updated_at), "dd MMM yyyy")}
-          </span>
-        </div>
-        {project.description && (
-          <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">{project.description}</p>
-        )}
-        {/* Team avatars row */}
-        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Users className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
-          <div className="flex -space-x-1.5">
-            {allMembers.slice(0, 5).map(m => (
-              <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size={5} />
-            ))}
+        {/* Integrated Mobile Hero Card */}
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <h1 className="text-lg font-black text-slate-900 dark:text-white leading-tight tracking-tight flex-1 min-w-0">{project.name}</h1>
+            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 ${st.bg} ${st.text}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+              {st.label}
+            </span>
           </div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 ml-1">{allMembers.length} member{allMembers.length !== 1 ? "s" : ""}</span>
+
+          {project.description && (
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium line-clamp-2">{project.description}</p>
+          )}
+
+          <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-[10px]">
+            <div className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <div className="flex -space-x-1.5">
+                {allMembers.slice(0, 5).map(m => (
+                  <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size={5} />
+                ))}
+              </div>
+              <span className="font-bold text-slate-600 dark:text-slate-400">{allMembers.length} member{allMembers.length !== 1 ? "s" : ""}</span>
+            </div>
+
+            <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+              {timelineNodes.length} Update{timelineNodes.length !== 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
-      </MobileCard>
+      </div>
 
       {/* Tab bar */}
       <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 border border-slate-200/60 dark:border-slate-800">
