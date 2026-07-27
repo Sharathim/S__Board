@@ -118,26 +118,7 @@ export default function MobileFacultyPage() {
         </div>
       )}
 
-      {/* HOD Invite Banner */}
-      {isHOD && inviteData?.invite_link && inviteData?.is_active && (
-        <MobileCard className="!bg-indigo-50 dark:!bg-indigo-950/20 !border-indigo-200/60 dark:!border-indigo-800/40">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
-              <Link2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">Faculty Invite Link Active</p>
-              <p className="text-[10px] text-indigo-500 dark:text-indigo-400 truncate mt-0.5">{inviteData.invite_link}</p>
-            </div>
-            <button
-              onClick={copyInviteLink}
-              className="mobile-tappable p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
-            >
-              {inviteCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </button>
-          </div>
-        </MobileCard>
-      )}
+
 
       {/* Search */}
       <MobileSearchBar

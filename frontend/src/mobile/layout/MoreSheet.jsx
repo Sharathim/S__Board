@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import {
   GraduationCap, BookOpen, Settings, Bell, Sun, Moon,
-  LogOut, Monitor, ChevronRight, Sparkles, Megaphone
+  LogOut, Monitor, ChevronRight, Sparkles, Megaphone, FileText
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -13,12 +13,14 @@ import { useState } from "react";
 const getMoreItemsForRole = (role) => {
   if (role === "HOD") {
     return [
+      { icon: FileText, label: "Notes & Docs", to: "/notes" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
   } else {
     // FACULTY or STUDENT
     return [
+      { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
   }

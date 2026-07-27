@@ -348,13 +348,10 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
 
 // ─── Mobile Subject Card ─────────────────────────────────────────────────────
 function MobileSubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDeleteUnit, onDeleteFile, onPreviewFile }) {
-  const [activeUnitName, setActiveUnitName] = useState("all");
+  const [activeUnitName, setActiveUnitName] = useState("Unit 1");
   const units = subject.units || [];
 
   const activeFiles = useMemo(() => {
-    if (activeUnitName === "all") {
-      return units.flatMap(u => u.files.map(f => ({ ...f, unit_name: u.name, unit_id: u.id })));
-    }
     const matchingUnit = units.find(u => u.name === activeUnitName);
     if (!matchingUnit) return [];
     return matchingUnit.files.map(f => ({ ...f, unit_name: matchingUnit.name, unit_id: matchingUnit.id }));
@@ -397,16 +394,6 @@ function MobileSubjectCard({ subject, className, canDeleteItem, onDeleteSubject,
 
       {/* Unit Tab Selector */}
       <div className="flex items-center gap-1 overflow-x-auto py-0.5 scrollbar-none border-b border-gray-100 dark:border-gray-700/50 pb-2">
-        <button
-          onClick={() => setActiveUnitName("all")}
-          className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all whitespace-nowrap ${
-            activeUnitName === "all"
-              ? "bg-[#F05A2B] text-white shadow-sm"
-              : "bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300"
-          }`}
-        >
-          All
-        </button>
         {UNIT_OPTIONS.map(unitName => {
           const hasUnit = units.some(u => u.name === unitName);
           return (
@@ -432,7 +419,7 @@ function MobileSubjectCard({ subject, className, canDeleteItem, onDeleteSubject,
       <div className="space-y-1.5">
         {activeFiles.length === 0 ? (
           <div className="py-4 text-center text-gray-400 dark:text-gray-500 text-xs italic">
-            No notes for {activeUnitName === "all" ? "this subject" : activeUnitName}
+            No notes for {activeUnitName}
           </div>
         ) : (
           activeFiles.map(file => {
@@ -488,7 +475,7 @@ function MobileSubjectCard({ subject, className, canDeleteItem, onDeleteSubject,
       {/* Footer */}
       <div className="pt-2 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between text-[10px] text-gray-400 dark:text-gray-500">
         <span>By {subject.created_by?.name || "Faculty"}</span>
-        {activeUnitObj && canDeleteItem(activeUnitObj) && activeUnitName !== "all" && (
+        {activeUnitObj && canDeleteItem(activeUnitObj) && (
           <button
             onClick={() => onDeleteUnit({
               type: "unit", id: activeUnitObj.id,

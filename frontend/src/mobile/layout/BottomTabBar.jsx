@@ -10,23 +10,23 @@ const getTabItemsForRole = (role) => {
     return [
       { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/notes", icon: FileText, label: "Notes" },
+      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
     ];
   } else if (role === "FACULTY") {
     return [
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/notes", icon: FileText, label: "Notes" },
+      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
-      { to: "/updates", icon: Megaphone, label: "Updates" },
+      { to: "/notes", icon: FileText, label: "Notes" },
     ];
   } else {
     // STUDENT
     return [
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/notes", icon: FileText, label: "Notes" },
+      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
-      { to: "/updates", icon: Megaphone, label: "Updates" },
+      { to: "/notes", icon: FileText, label: "Notes" },
     ];
   }
 };
