@@ -448,45 +448,168 @@ export default function MobileClassDetailPage() {
   );
 }
 
-// ─── Admin Detail Sheet ────────────────────────────────────────────────────────
+// ─── Admin Edit Student Details Bottom Sheet ────────────────────────────────────
 
-function AdminDetailSheet({ student, className, customColumns, onClose, onSave, isPending }) {
+function AdminDetailSheet({ student, className, onClose, refetch }) {
   const [form, setForm] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (student) {
-      setForm(student.details || {});
+      setForm({
+        roll_number: student.roll_number || "",
+        register_number: student.register_number || "",
+        gender: student.gender || student.details?.gender || "",
+        blood_group: student.blood_group || student.details?.blood_group || "",
+        mobile_number: student.mobile_number || student.details?.mobile_number || "",
+        father_name: student.father_name || student.details?.father_name || "",
+        mother_name: student.mother_name || student.details?.mother_name || "",
+        communication_address: student.communication_address || student.details?.communication_address || "",
+        nationality: student.nationality || student.details?.nationality || "Indian",
+        religion: student.religion || student.details?.religion || "",
+        community: student.community || student.details?.community || "",
+        caste: student.caste || student.details?.caste || "",
+      });
     }
   }, [student]);
 
   if (!student) return null;
 
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await saveStudentDetailsAdmin(className, student.user_id || student.id, form);
+      refetch();
+      onClose();
+    } catch (err) {
+      alert("Failed to save student details: " + (err.response?.data?.message || err.message));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <BottomSheet open={!!student} onClose={onClose} title={`Edit: ${student.name}`}>
-      <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-        {STUDENT_CORE_FIELDS.map(field => (
-          <div key={field.name}>
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">{field.label}</label>
-            {field.type === "select" ? (
-              <select value={form[field.name] || ""} onChange={e => setForm(p => ({ ...p, [field.name]: e.target.value }))}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none">
-                <option value="">Select...</option>
-                {field.options.map(o => <option key={o} value={o}>{o}</option>)}
-              </select>
-            ) : field.type === "textarea" ? (
-              <textarea value={form[field.name] || ""} onChange={e => setForm(p => ({ ...p, [field.name]: e.target.value }))} rows={2}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none" />
-            ) : (
-              <input type={field.type || "text"} value={form[field.name] || ""} onChange={e => setForm(p => ({ ...p, [field.name]: e.target.value }))}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none" />
-            )}
+    <BottomSheet open={!!student} onClose={onClose} title={`Edit Details — ${student.name}`}>
+      <form onSubmit={handleSave} className="space-y-3 max-h-[65vh] overflow-y-auto mobile-hide-scrollbar pb-4">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Roll No</label>
+            <input
+              type="text"
+              value={form.roll_number}
+              onChange={e => setForm(f => ({ ...f, roll_number: e.target.value }))}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
           </div>
-        ))}
-        <button onClick={() => onSave(student.id, form)} disabled={isPending}
-          className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-[#FF8365] to-[#F05A2B] text-white text-sm font-bold disabled:opacity-50 sticky bottom-0">
-          {isPending ? "Saving..." : "Save Changes"}
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Register No</label>
+            <input
+              type="text"
+              value={form.register_number}
+              onChange={e => setForm(f => ({ ...f, register_number: e.target.value }))}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Gender</label>
+            <select
+              value={form.gender}
+              onChange={e => setForm(f => ({ ...f, gender: e.target.value }))}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Blood Group</label>
+            <input
+              type="text"
+              value={form.blood_group}
+              onChange={e => setForm(f => ({ ...f, blood_group: e.target.value }))}
+              placeholder="e.g. O+ve"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="text-[10px] font-bold text-gray-400 uppercase">Student Mobile</label>
+          <input
+            type="text"
+            value={form.mobile_number}
+            onChange={e => setForm(f => ({ ...f, mobile_number: e.target.value }))}
+            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Father's Name</label>
+            <input
+              type="text"
+              value={form.father_name}
+              onChange={e => setForm(f => ({ ...f, father_name: e.target.value }))}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Mother's Name</label>
+            <input
+              type="text"
+              value={form.mother_name}
+              onChange={e => setForm(f => ({ ...f, mother_name: e.target.value }))}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="text-[10px] font-bold text-gray-400 uppercase">Communication Address</label>
+          <textarea
+            value={form.communication_address}
+            onChange={e => setForm(f => ({ ...f, communication_address: e.target.value }))}
+            rows={2}
+            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Community</label>
+            <input
+              type="text"
+              value={form.community}
+              onChange={e => setForm(f => ({ ...f, community: e.target.value }))}
+              placeholder="e.g. BC / MBC / SC"
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase">Caste</label>
+            <input
+              type="text"
+              value={form.caste}
+              onChange={e => setForm(f => ({ ...f, caste: e.target.value }))}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+        >
+          {saving ? "Saving Details..." : "Save Student Details"}
         </button>
-      </div>
+      </form>
     </BottomSheet>
   );
 }
@@ -495,69 +618,146 @@ function AdminDetailSheet({ student, className, customColumns, onClose, onSave, 
 
 function ActiveFormsTab({ className, forms, studentId, user, refetch }) {
   const [fillForm, setFillForm] = useState(null);
-  const [responses, setResponses] = useState({});
-  const queryClient = useQueryClient();
+  const [formResponses, setFormResponses] = useState({});
+  const [userSubmissions, setUserSubmissions] = useState({});
+
+  useEffect(() => {
+    async function checkSubmissions() {
+      if (!forms || forms.length === 0) return;
+      const subMap = {};
+      for (const f of forms) {
+        try {
+          const r = await getFormResponses(className, f.id);
+          const userResp = (r.data?.responses || []).find(
+            x => (studentId && (x.student_id === studentId || x.id === studentId)) ||
+                 (user?.id && (x.user_id === user.id || x.student_id === user.id))
+          );
+          if (userResp) {
+            subMap[f.id] = userResp;
+          }
+        } catch (e) {}
+      }
+      setUserSubmissions(subMap);
+    }
+    checkSubmissions();
+  }, [forms, className, studentId, user]);
 
   const submitMutation = useMutation({
     mutationFn: ({ formId, data }) => submitFormResponse(className, formId, data),
-    onSuccess: () => { setFillForm(null); setResponses({}); refetch(); },
+    onSuccess: (_, variables) => {
+      setUserSubmissions(prev => ({ ...prev, [variables.formId]: true }));
+      setFillForm(null);
+      setFormResponses({});
+      refetch();
+    },
   });
 
   const activeForms = forms.filter(f => !f.is_expired);
+  const fields = fillForm?.metadata?.fields || fillForm?.fields || [];
 
   return (
     <div className="space-y-3">
       {activeForms.length === 0 ? (
         <MobileEmptyState icon={FileText} title="No active forms" description="There are no forms to fill out right now." />
       ) : (
-        activeForms.map(form => (
-          <MobileCard key={form.id}>
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white">{form.title}</h3>
-            {form.description && <p className="text-xs text-gray-500 mt-1">{form.description}</p>}
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-[10px] text-gray-400">{form.response_count || 0} responses</span>
-              {form.has_responded ? (
-                <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Submitted</span>
-              ) : (
-                <button onClick={() => setFillForm(form)}
-                  className="mobile-tappable px-3 py-1.5 rounded-xl bg-primary-600 text-white text-xs font-bold">
-                  Fill Form
-                </button>
-              )}
-            </div>
-          </MobileCard>
-        ))
+        activeForms.map(form => {
+          const isSubmitted = !!userSubmissions[form.id] || !!form.has_responded;
+          return (
+            <MobileCard key={form.id}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">{form.title}</h3>
+                  {form.description && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{form.description}</p>}
+                  <p className="text-[10px] text-gray-400 mt-2 font-medium">{form.response_count || 0} response{form.response_count !== 1 ? "s" : ""}</p>
+                </div>
+                <div className="shrink-0 pt-0.5">
+                  {isSubmitted ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-200/50 dark:border-emerald-800/30">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Completed
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => { setFillForm(form); setFormResponses({}); }}
+                      className="mobile-tappable px-3.5 py-1.5 rounded-xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-600/20"
+                    >
+                      Fill Form
+                    </button>
+                  )}
+                </div>
+              </div>
+            </MobileCard>
+          );
+        })
       )}
 
-      <BottomSheet open={!!fillForm} onClose={() => setFillForm(null)} title={fillForm?.title || "Form"}>
+      <BottomSheet open={!!fillForm} onClose={() => setFillForm(null)} title={fillForm?.title || "Fill Form"}>
         {fillForm && (
-          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-            {(fillForm.fields || []).map((field, idx) => (
-              <div key={idx}>
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
-                  {field.label || field.name} {field.required && <span className="text-red-500">*</span>}
-                </label>
-                {field.type === "select" ? (
-                  <select value={responses[field.name] || ""} onChange={e => setResponses(p => ({ ...p, [field.name]: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none">
-                    <option value="">Select...</option>
-                    {(field.options || []).map(o => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                ) : field.type === "textarea" ? (
-                  <textarea value={responses[field.name] || ""} onChange={e => setResponses(p => ({ ...p, [field.name]: e.target.value }))} rows={3}
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none" />
-                ) : (
-                  <input type="text" value={responses[field.name] || ""} onChange={e => setResponses(p => ({ ...p, [field.name]: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none" />
-                )}
-              </div>
-            ))}
-            <button onClick={() => submitMutation.mutate({ formId: fillForm.id, data: responses })}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitMutation.mutate({ formId: fillForm.id, data: formResponses });
+            }}
+            className="space-y-3.5 max-h-[65vh] overflow-y-auto mobile-hide-scrollbar pb-4"
+          >
+            {fillForm.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800">
+                {fillForm.description}
+              </p>
+            )}
+
+            {fields.length === 0 ? (
+              <p className="text-xs text-gray-400 italic text-center py-4">No fields in this form.</p>
+            ) : (
+              fields.map((field, idx) => (
+                <div key={idx} className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">
+                    {field.label || field.name} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  {field.type === "select" ? (
+                    <select
+                      value={formResponses[field.name] || ""}
+                      required={field.required}
+                      onChange={e => setFormResponses(p => ({ ...p, [field.name]: e.target.value }))}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
+                    >
+                      <option value="">Select option...</option>
+                      {(Array.isArray(field.options) ? field.options : (field.options || "").split(",")).map(o => {
+                        const opt = typeof o === "string" ? o.trim() : o;
+                        return <option key={opt} value={opt}>{opt}</option>;
+                      })}
+                    </select>
+                  ) : field.type === "textarea" ? (
+                    <textarea
+                      value={formResponses[field.name] || ""}
+                      required={field.required}
+                      onChange={e => setFormResponses(p => ({ ...p, [field.name]: e.target.value }))}
+                      rows={3}
+                      placeholder={`Enter ${field.label?.toLowerCase() || field.name}`}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none resize-none"
+                    />
+                  ) : (
+                    <input
+                      type={field.type || "text"}
+                      value={formResponses[field.name] || ""}
+                      required={field.required}
+                      onChange={e => setFormResponses(p => ({ ...p, [field.name]: e.target.value }))}
+                      placeholder={`Enter ${field.label?.toLowerCase() || field.name}`}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
+                    />
+                  )}
+                </div>
+              ))
+            )}
+
+            <button
+              type="submit"
               disabled={submitMutation.isPending}
-              className="mobile-tappable w-full py-3 rounded-2xl bg-gradient-to-r from-primary-600 to-violet-600 text-white text-sm font-bold disabled:opacity-50">
-              {submitMutation.isPending ? "Submitting..." : "Submit"}
+              className="mobile-tappable w-full py-3 rounded-2xl bg-indigo-600 active:bg-indigo-700 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+            >
+              {submitMutation.isPending ? "Submitting Response..." : "Submit Form"}
             </button>
-          </div>
+          </form>
         )}
       </BottomSheet>
     </div>
