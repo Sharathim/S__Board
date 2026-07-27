@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, Bell } from "lucide-react";
+import { ChevronLeft, Bell, Mail } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState } from "react";
+import MailComposerModal from "../../pages/dashboard/MailComposerModal";
 
 
 const ROUTE_TITLES = {
@@ -35,6 +36,8 @@ export default function MobileTopBar({ title: titleProp }) {
   const { unreadCount } = useNotificationContext();
   const isDetail = DETAIL_PATTERNS.some((p) => location.pathname.startsWith(p) && location.pathname !== p.slice(0, -1));
   const rc = getRoleColor(user?.role);
+  const [isMailOpen, setIsMailOpen] = useState(false);
+  const canComposeMail = user?.role === "HOD" || user?.role === "FACULTY";
 
   return (
     <>
@@ -67,6 +70,18 @@ export default function MobileTopBar({ title: titleProp }) {
 
         {/* Right */}
         <div className="flex items-center gap-1">
+          {/* Compose Mail Button - HOD & Faculty only */}
+          {canComposeMail && (
+            <button
+              onClick={() => setIsMailOpen(true)}
+              className="mobile-tappable relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+              aria-label="Compose Mail"
+              title="Compose Mail"
+            >
+              <Mail className="w-4.5 h-4.5 text-indigo-500 dark:text-indigo-400" />
+            </button>
+          )}
+
           {/* Bell */}
           <button
             onClick={() => navigate("/notifications")}
@@ -98,6 +113,11 @@ export default function MobileTopBar({ title: titleProp }) {
           </button>
         </div>
       </header>
+
+      {/* Mail Composer Modal */}
+      {canComposeMail && (
+        <MailComposerModal isOpen={isMailOpen} onClose={() => setIsMailOpen(false)} />
+      )}
     </>
   );
 }

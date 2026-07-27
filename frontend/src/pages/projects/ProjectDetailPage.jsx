@@ -1232,23 +1232,69 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="max-w-5xl mx-auto py-2 flex flex-col lg:flex-row gap-8 items-start">
-              {/* Right Column: Neomorphic percentage card - Ordered first on mobile (default) and last on lg desktop */}
-              <div className="w-full lg:w-80 shrink-0 lg:order-last">
-                <div className="p-6 rounded-[32px] bg-slate-50 dark:bg-slate-900/40 border border-slate-200/30 dark:border-slate-800/40 shadow-[10px_10px_20px_#d1d5db,-10px_-10px_20px_#ffffff] dark:shadow-[10px_10px_20px_#090d16,-10px_-10px_20px_#1b253b] text-center">
-                  <h4 className="text-xs font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest mb-4">Latest Progress</h4>
+              {/* Right Column: Clean premium progress card - Ordered first on mobile (default) and last on lg desktop */}
+              <div className="w-full lg:w-72 shrink-0 lg:order-last">
+                {(() => {
+                  const latestPct = timelineNodes[0]?.percentage || 0;
+                  const latestTitle = timelineNodes[0]?.title || "No updates yet";
+                  const circumference = 2 * Math.PI * 36; // r=36
+                  const strokeDash = (latestPct / 100) * circumference;
+                  return (
+                    <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_4px_24px_rgba(79,70,229,0.09)]">
+                      {/* Top accent bar */}
+                      <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-600" />
 
-                  <div className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900/40 shadow-[inset_6px_6px_12px_#d1d5db,inset_-6px_-6px_12px_#ffffff] dark:shadow-[inset_6px_6px_12px_#090d16,inset_-6px_-6px_12px_#1b253b] mb-4">
-                    <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                      {timelineNodes[0]?.percentage || 0}%
-                    </span>
-                  </div>
+                      <div className="p-5">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Latest Progress</span>
+                          {latestPct === 100 && (
+                            <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full">COMPLETED</span>
+                          )}
+                        </div>
 
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed px-2">
-                    {timelineNodes[0]?.percentage
-                      ? `Project is ${timelineNodes[0].percentage}% complete based on the latest update.`
-                      : "No progress updates with completed percentage logged yet."}
-                  </p>
-                </div>
+                        {/* SVG Ring centered */}
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="relative w-24 h-24">
+                            <svg className="w-24 h-24 -rotate-90" viewBox="0 0 80 80">
+                              <circle cx="40" cy="40" r="36" fill="none" strokeWidth="6" className="stroke-slate-100 dark:stroke-slate-800" />
+                              <circle
+                                cx="40" cy="40" r="36"
+                                fill="none" strokeWidth="6" strokeLinecap="round"
+                                stroke="url(#desktopProgressGradient)"
+                                strokeDasharray={`${strokeDash} ${circumference}`}
+                                style={{ transition: "stroke-dasharray 0.7s ease" }}
+                              />
+                              <defs>
+                                <linearGradient id="desktopProgressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                  <stop offset="0%" stopColor="#6366f1" />
+                                  <stop offset="100%" stopColor="#8b5cf6" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                            <span className="absolute inset-0 flex items-center justify-center text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                              {latestPct}%
+                            </span>
+                          </div>
+
+                          <div className="text-center">
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2">{latestTitle}</p>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                              {latestPct > 0 ? `${latestPct}% of project completed` : "No percentage logged yet"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="mt-4 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-700"
+                            style={{ width: `${latestPct}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Left Column: Progress update card */}

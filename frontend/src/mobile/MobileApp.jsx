@@ -28,6 +28,7 @@ import MobileUpdatesPage from "./pages/updates/MobileUpdatesPage";
 import MobileNotificationsPage from "./pages/notifications/MobileNotificationsPage";
 import MobileSettingsPage from "./pages/settings/MobileSettingsPage";
 import MobileFacultyNotesPage from "./pages/notes/MobileFacultyNotesPage";
+import ProjectWorkflowPage from "../pages/projects/ProjectWorkflowPage";
 
 // Stylesheet
 import "./mobile.css";
@@ -88,6 +89,10 @@ export default function MobileApp() {
           <Route path="/settings" element={<MobileSettingsPage />} />
           <Route path="/notes" element={<MobileFacultyNotesPage />} />
         </Route>
+
+        {/* Standalone full-screen routes — no MobileShell tab bar */}
+        <Route path="/projects/new" element={<MobileProtectedRoute><ProjectWorkflowPage /></MobileProtectedRoute>} />
+        <Route path="/projects/:id/workflow" element={<MobileProtectedRoute><ProjectWorkflowPage /></MobileProtectedRoute>} />
 
         {/* Catch-all redirects to Home */}
         <Route path="*" element={<Navigate to="/" replace />} />

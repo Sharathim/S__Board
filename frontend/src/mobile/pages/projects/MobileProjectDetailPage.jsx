@@ -641,22 +641,79 @@ export default function MobileProjectDetailPage() {
           />
         ) : (
           <div className="space-y-4">
-            {/* Neomorphic Card in Mobile progress stream */}
-            <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-900 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] dark:shadow-[6px_6px_12px_#090d16,-6px_-6px_12px_#1b253b] text-center border border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-4">
-              <div className="flex-1 text-left">
-                <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Latest Progress</h4>
-                <p className="text-xs font-bold text-slate-705 dark:text-slate-200 mt-1">
-                  {timelineNodes[0]?.percentage
-                    ? `Project is ${timelineNodes[0].percentage}% complete based on the latest update.`
-                    : "No progress updates logged with completion percentage."}
-                </p>
-              </div>
-              <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900 shadow-[inset_3px_3px_6px_#d1d5db,inset_-3px_-3px_6px_#ffffff] dark:shadow-[inset_3px_3px_6px_#090d16,inset_-3px_-3px_6px_#1b253b] shrink-0">
-                <span className="text-base font-black text-indigo-600 dark:text-indigo-400">
-                  {timelineNodes[0]?.percentage || 0}%
-                </span>
-              </div>
-            </div>
+            {/* ── Latest Progress Premium Card ── */}
+            {(() => {
+              const latestPct = timelineNodes[0]?.percentage || 0;
+              const latestTitle = timelineNodes[0]?.title || "No updates yet";
+              const circumference = 2 * Math.PI * 24; // r=24
+              const strokeDash = (latestPct / 100) * circumference;
+              return (
+                <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(79,70,229,0.08)] mb-1">
+                  {/* Left accent bar */}
+                  <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b from-indigo-500 via-violet-500 to-indigo-600" />
+
+                  <div className="pl-5 pr-4 py-4 flex items-center gap-4">
+                    {/* Text content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Latest Progress</span>
+                        {latestPct === 100 && (
+                          <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-full">DONE</span>
+                        )}
+                      </div>
+                      <p className="text-[13px] font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-1">
+                        {latestTitle}
+                      </p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                        {latestPct > 0
+                          ? `${latestPct}% of project completed`
+                          : "No percentage logged yet"}
+                      </p>
+                    </div>
+
+                    {/* Circular progress ring */}
+                    <div className="relative w-14 h-14 shrink-0">
+                      <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                        {/* Track */}
+                        <circle
+                          cx="28" cy="28" r="24"
+                          fill="none"
+                          strokeWidth="4"
+                          className="stroke-slate-100 dark:stroke-slate-800"
+                        />
+                        {/* Progress arc */}
+                        <circle
+                          cx="28" cy="28" r="24"
+                          fill="none"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          stroke="url(#progressGradient)"
+                          strokeDasharray={`${strokeDash} ${circumference}`}
+                          style={{ transition: "stroke-dasharray 0.6s ease" }}
+                        />
+                        <defs>
+                          <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#6366f1" />
+                            <stop offset="100%" stopColor="#8b5cf6" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-indigo-600 dark:text-indigo-400">
+                        {latestPct}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bottom progress bar */}
+                  <div className="mx-5 mb-3.5 h-1 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-700"
+                      style={{ width: `${latestPct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
 
             <AnimatePresence mode="wait">
               <motion.div

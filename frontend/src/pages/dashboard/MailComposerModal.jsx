@@ -19,11 +19,8 @@ export default function MailComposerModal({ isOpen, onClose }) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   
-  // Preload attachments to match the reference image exactly (Exam_Schedule.pdf and Poster.png)
-  const [attachments, setAttachments] = useState([
-    { id: "attach-pdf-1", name: "Exam_Schedule.pdf", size: 1.2 * 1024 * 1024, type: "application/pdf", preloaded: true },
-    { id: "attach-img-1", name: "Poster.png", size: 1.2 * 1024 * 1024, type: "image/png", preloaded: true }
-  ]);
+  // Attachments state — starts empty (users will upload their own files)
+  const [attachments, setAttachments] = useState([]);
   
   // Custom selection states
   const [recipientsList, setRecipientsList] = useState([]);
