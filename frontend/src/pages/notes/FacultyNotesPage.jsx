@@ -17,7 +17,6 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Button } from "../../components/ui/Button";
 import { Spinner } from "../../components/ui/Spinner";
 import { EmptyState } from "../../components/ui/EmptyState";
-import { DesktopFAB } from "../../components/ui/DesktopFAB";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const CURRENT_ACADEMIC_YEAR = (() => {
@@ -926,7 +925,15 @@ export default function FacultyNotesPage() {
       </div>
 
       {/* Floating Action Button (FAB) for Staff */}
-      {isStaff && <DesktopFAB onClick={() => setUploadOpen(true)} label="Upload Notes" />}
+      {isStaff && (
+        <button
+          onClick={() => setUploadOpen(true)}
+          className="fixed right-6 bottom-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#F05A2B] to-orange-600 text-white shadow-xl shadow-orange-500/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
+          title="Upload Notes"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
 
       {/* Upload Modal */}
       <UploadModal

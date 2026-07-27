@@ -16,10 +16,10 @@ import {
   Clock,
 } from "lucide-react";
 import { format } from "date-fns";
+import { parseUTCDate } from "../../utils/dateUtils";
 import { Avatar } from "../../components/ui/Avatar";
 import BottomSheet from "../../mobile/layout/BottomSheet";
 import { ProjectFormCard } from "./ProjectWorkflowPage";
-import { DesktopFAB } from "../../components/ui/DesktopFAB";
 
 const statusOptions = [
   { value: "IN_PROGRESS", label: "In Progress", color: "#F05A2B" },
@@ -290,7 +290,15 @@ export default function ProjectsPage() {
 
 
       {/* Floating Plus Button for Project Creation (Terracotta Orange themed) */}
-      {canCreateProject && <DesktopFAB onClick={openCreate} label="Create New Project" />}
+      {canCreateProject && (
+        <button
+          onClick={openCreate}
+          className="fixed bottom-24 md:bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-[#F05A2B] to-[#C93D14] text-white flex items-center justify-center shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          title="Create New Project"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
 
       {/* Mobile Project Creation Bottom Sheet */}
       <BottomSheet
