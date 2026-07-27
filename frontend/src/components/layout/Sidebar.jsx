@@ -75,29 +75,29 @@ export function Sidebar() {
             .filter((item) => item.to !== "/dashboard" || user?.role === "HOD")
             .map((item) => {
               const Icon = item.icon;
-            const isActive = location.pathname === item.to;
+              const isActive = location.pathname === item.to;
 
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onMouseDown={handleMouseDown}
-                className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
-              >
-                <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  onMouseDown={handleMouseDown}
+                  className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
 
-                {/* High Contrast Crystal Clear Tooltip */}
-                <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
-                  {item.label}
-                  <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
-                </div>
-              </NavLink>
-            );
-          })}
-          {/* Notes & Docs navigation for FACULTY, HOD, and STUDENT */}
-          {(user?.role === "FACULTY" || user?.role === "HOD" || user?.role === "STUDENT") && facultyNavItems.map((item) => {
+                  {/* High Contrast Crystal Clear Tooltip */}
+                  <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                    {item.label}
+                    <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                  </div>
+                </NavLink>
+              );
+            })}
+          {/* Faculty-only extra nav items */}
+          {user?.role === "FACULTY" && facultyNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
             return (
