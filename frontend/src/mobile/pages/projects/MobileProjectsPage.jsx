@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { listProjects, deleteProject } from "../../../api/projects";
@@ -32,8 +32,8 @@ const getStatusTheme = (status) => {
     IN_PROGRESS: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-[#F05A2B] dark:text-orange-400", dot: "bg-[#F05A2B]" },
     REVIEW: { bg: "bg-purple-50 dark:bg-purple-950/30", text: "text-purple-700 dark:text-purple-400", dot: "bg-purple-500" },
     COMPLETED: { bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
-    ON_HOLD: { bg: "bg-yellow-50 dark:bg-yellow-950/30", text: "text-yellow-700 dark:text-yellow-400", dot: "bg-yellow-500" },
-    CANCELLED: { bg: "bg-red-50 dark:bg-red-950/30", text: "text-red-700 dark:text-red-400", dot: "bg-red-500" },
+    ON_HOLD: { bg: "bg-yellow-50 dark:bg-yellow-950/30", text: "text-yellow-700 dark:text-yellow-400", dot: "bg-yellow-550" },
+    CANCELLED: { bg: "bg-red-50 dark:bg-red-950/30", text: "text-red-700 dark:text-red-400", dot: "bg-red-550" },
   };
   return map[status] || map.NOT_STARTED;
 };
@@ -46,13 +46,22 @@ export default function MobileProjectsPage() {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("");
   const [createSheetOpen, setCreateSheetOpen] = useState(false);
   const [actionSheet, setActionSheet] = useState(null);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", { page, search, status }],
-    queryFn: () => listProjects({ page, search, status, per_page: 15 }).then(r => r.data),
+    queryKey: ["projects", { page, search: debouncedSearch, status }],
+    queryFn: () => listProjects({ page, search: debouncedSearch, status, per_page: 15 }).then(r => r.data),
   });
 
   const deleteMutation = useMutation({

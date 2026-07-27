@@ -122,6 +122,7 @@ export default function ProjectsPage() {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("");
   const [createSheetOpen, setCreateSheetOpen] = useState(false);
 
@@ -133,9 +134,17 @@ export default function ProjectsPage() {
     }
   };
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 200);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", { page, search, status }],
-    queryFn: () => listProjects({ page, search, status, per_page: 10 }).then(r => r.data),
+    queryKey: ["projects", { page, search: debouncedSearch, status }],
+    queryFn: () => listProjects({ page, search: debouncedSearch, status, per_page: 10 }).then(r => r.data),
   });
 
   const canCreateProject = isHOD || (user?.role === "STUDENT" && user?.student?.forum_role?.toLowerCase() === "placement coordinator");
