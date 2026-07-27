@@ -1,40 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  BookMarked, ChevronDown, Plus, Upload, Trash2,
+  BookMarked, ChevronDown, ChevronRight, Plus, Upload, Trash2,
   FileText, File, Presentation, X, Check, Loader2,
-  Archive, ArchiveRestore, FolderOpen, BookOpen, Layers,
-  RefreshCw, Download, AlertCircle, Sparkles, UploadCloud, BookPlus
+  FolderOpen, BookOpen, Layers, RefreshCw, Download, AlertCircle,
+  UploadCloud, Eye, ShieldAlert
 } from "lucide-react";
 import {
-  getFacultyNotesHub, createSubject, createUnit, listUnits,
-  uploadFiles, deleteFile, deleteSubject, deleteUnit,
-  archiveSubject, unarchiveSubject
+  getNotesHub, getSubjectNames, uploadNotesBatch,
+  deleteFile, deleteSubject, deleteUnit
 } from "../../../api/notes";
 import { useAuth } from "../../../context/AuthContext";
 
-const CURRENT_ACADEMIC_YEAR = (() => {
-  const now = new Date();
-  const y = now.getFullYear();
-  return now.getMonth() >= 5 ? `${y}-${y + 1}` : `${y - 1}-${y}`;
-})();
-
-const CLASS_PALETTE = [
-  "from-violet-500 to-purple-600",
-  "from-blue-500 to-cyan-500",
-  "from-emerald-500 to-teal-500",
-  "from-rose-500 to-pink-500",
-  "from-amber-500 to-orange-500",
-  "from-indigo-500 to-blue-600",
-];
-
 function getFileIcon(type) {
-  if (type === "pdf") return <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />;
-  if (["ppt", "pptx"].includes(type)) return <Presentation className="w-3.5 h-3.5 text-orange-500 shrink-0" />;
-  return <File className="w-3.5 h-3.5 text-blue-500 shrink-0" />;
+  const t = (type || "").toLowerCase();
+  if (t === "pdf") return <FileText className="w-4 h-4 text-red-500 shrink-0" />;
+  if (["ppt", "pptx"].includes(t)) return <Presentation className="w-4 h-4 text-amber-500 shrink-0" />;
+  return <File className="w-4 h-4 text-blue-500 shrink-0" />;
 }
 
-// ─── Toast ────────────────────────────────────────────────────────────────────
+// ─── Toast System ─────────────────────────────────────────────────────────────
 function useToast() {
   const [toasts, setToasts] = useState([]);
   const add = useCallback((msg, type = "success") => {
@@ -45,513 +30,501 @@ function useToast() {
   return { toasts, add };
 }
 
-// ─── Inline Input ─────────────────────────────────────────────────────────────
-function MobileInput({ placeholder, onSave, onCancel }) {
-  const [val, setVal] = useState("");
-  const ref = useRef(null);
-  useEffect(() => { ref.current?.focus(); }, []);
+function ToastStack({ toasts }) {
+  if (!toasts.length) return null;
   return (
-    <div className="mnd-inline-row">
-      <input
-        ref={ref}
-        value={val}
-        onChange={e => setVal(e.target.value)}
-        onKeyDown={e => { if (e.key === "Enter" && val.trim()) onSave(val.trim()); if (e.key === "Escape") onCancel(); }}
-        placeholder={placeholder}
-        className="mnd-input flex-1"
-      />
-      <button onClick={() => val.trim() && onSave(val.trim())} className="mnd-icon-btn mnd-icon-confirm">
-        <Check className="w-4 h-4" />
-      </button>
-      <button onClick={onCancel} className="mnd-icon-btn mnd-icon-cancel">
-        <X className="w-4 h-4" />
-      </button>
+    <div className="fixed bottom-24 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+      {toasts.map(t => (
+        <div
+          key={t.id}
+          className={`pointer-events-auto flex items-center gap-2 px-3.5 py-2.5 rounded-xl shadow-lg border text-xs font-medium ${
+            t.type === "success"
+              ? "bg-slate-900/95 text-emerald-300 border-emerald-800/60 backdrop-blur-md"
+              : "bg-slate-900/95 text-rose-300 border-rose-800/60 backdrop-blur-md"
+          }`}
+        >
+          {t.type === "success" ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />}
+          <span>{t.msg}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
-// ─── Mobile Unit Item ─────────────────────────────────────────────────────────
-function MobileUnitItem({ unit, className: cls, subjectId, onDelete, addToast, onRefresh }) {
-  const [expanded, setExpanded] = useState(false);
+// ─── Document Preview Sheet Modal ─────────────────────────────────────────────
+function MobileDocumentPreviewModal({ file, onClose }) {
+  if (!file) return null;
+  const isPdf = file.file_type?.toLowerCase() === "pdf";
+  const previewUrl = isPdf
+    ? file.file_url
+    : `https://docs.google.com/viewer?url=${encodeURIComponent(file.file_url)}&embedded=true`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-200">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900">
+        <div className="flex items-center gap-2 overflow-hidden">
+          {getFileIcon(file.file_type)}
+          <span className="font-semibold text-slate-100 truncate text-xs">{file.file_name}</span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={file.file_url}
+            download
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-xs font-medium"
+          >
+            <Download className="w-3 h-3" />
+            <span>Save</span>
+          </a>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-800 text-slate-400">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+      <div className="flex-1 bg-slate-950">
+        <iframe src={previewUrl} title={file.file_name} className="w-full h-full border-0" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Mobile Upload Bottom Sheet ───────────────────────────────────────────────
+function MobileUploadBottomSheet({ isOpen, onClose, availableClasses, onUploadSuccess, addToast }) {
+  const [selectedClass, setSelectedClass] = useState("");
+  const [existingSubjects, setExistingSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [customSubjectName, setCustomSubjectName] = useState("");
+  const [selectedUnit, setSelectedUnit] = useState("Unit 1");
   const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadPct, setUploadPct] = useState(0);
-  const fileRef = useRef(null);
-
-  const loadFiles = useCallback(async () => {
-    if (!expanded) return;
-    setLoading(true);
-    try {
-      const res = await listUnits(cls, subjectId);
-      const found = (res.data.units || []).find(u => u.id === unit.id);
-      setFiles(found?.files || []);
-    } finally { setLoading(false); }
-  }, [cls, subjectId, unit.id, expanded]);
-
-  useEffect(() => { loadFiles(); }, [loadFiles]);
-
-  const doUpload = async (fileList) => {
-    const valid = Array.from(fileList).filter(f =>
-      ["pdf", "ppt", "pptx", "doc", "docx"].includes(f.name.split(".").pop().toLowerCase())
-    );
-    if (!valid.length) { addToast("Only PDF, PPT, PPTX, DOC, DOCX.", "error"); return; }
-    const fd = new FormData();
-    valid.forEach(f => fd.append("files", f));
-    setUploading(true); setUploadPct(0);
-    try {
-      await uploadFiles(cls, subjectId, unit.id, fd, evt => {
-        if (evt.total) setUploadPct(Math.round(evt.loaded / evt.total * 100));
-      });
-      addToast(`${valid.length} file(s) uploaded!`);
-      setExpanded(true);
-      onRefresh?.();
-      await loadFiles();
-    } catch { addToast("Upload failed.", "error"); }
-    finally { setUploading(false); }
-  };
-
-  const handleDeleteFile = async (fileId) => {
-    try {
-      await deleteFile(cls, subjectId, unit.id, fileId);
-      setFiles(p => p.filter(f => f.id !== fileId));
-    } catch { addToast("Failed.", "error"); }
-  };
-
-  return (
-    <div className="mnd-unit-card">
-      {/* Header */}
-      <div className="mnd-unit-header">
-        <button className="mnd-unit-toggle" onClick={() => setExpanded(v => !v)}>
-          <Layers className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
-          <span className="mnd-unit-name">{unit.name}</span>
-          <span className="mnd-unit-count">{unit.file_count ?? files.length}</span>
-          <ChevronDown className={`w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 transition-transform${expanded ? " rotate-180" : ""}`} />
-        </button>
-        <button onClick={() => fileRef.current?.click()} className="mnd-icon-btn mnd-icon-upload" title="Upload">
-          <Upload className="w-3.5 h-3.5" />
-        </button>
-        <button onClick={() => { if (window.confirm("Delete unit?")) onDelete(); }} className="mnd-icon-btn mnd-icon-danger">
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
-        <input ref={fileRef} type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx" className="hidden"
-          onChange={e => { doUpload(e.target.files); e.target.value = ""; }} />
-      </div>
-
-      {/* Upload progress */}
-      {uploading && (
-        <div className="mnd-progress-wrap">
-          <div className="mnd-progress-label">
-            <span>Uploading…</span><span className="font-bold text-[var(--primary)]">{uploadPct}%</span>
-          </div>
-          <div className="mnd-progress-track">
-            <div className="mnd-progress-fill" style={{ width: `${uploadPct}%` }} />
-          </div>
-        </div>
-      )}
-
-      {/* Files */}
-      {expanded && (
-        <div className="mnd-files-wrap">
-          {loading ? (
-            <div className="mnd-loading"><Loader2 className="w-3 h-3 animate-spin" /><span>Loading…</span></div>
-          ) : files.length === 0 ? (
-            <p className="mnd-empty-files">No files yet — tap Upload above</p>
-          ) : files.map(f => (
-            <div key={f.id} className="mnd-file-row">
-              {getFileIcon(f.file_type)}
-              <span className="mnd-file-name">{f.file_name}</span>
-              <a href={f.file_url} target="_blank" rel="noreferrer" className="mnd-icon-btn">
-                <Download className="w-3 h-3" />
-              </a>
-              <button onClick={() => handleDeleteFile(f.id)} className="mnd-icon-btn mnd-icon-danger">
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Mobile Subject Card ──────────────────────────────────────────────────────
-function MobileSubjectCard({ subject, className: cls, colorIdx, onDelete, onArchive, addToast, refetch }) {
-  const [expanded, setExpanded] = useState(false);
-  const [units, setUnits] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [addingUnit, setAddingUnit] = useState(false);
-
-  const loadUnits = useCallback(async () => {
-    if (!expanded) return;
-    setLoading(true);
-    try {
-      const res = await listUnits(cls, subject.id);
-      setUnits(res.data.units || []);
-    } finally { setLoading(false); }
-  }, [cls, subject.id, expanded]);
-
-  useEffect(() => { loadUnits(); }, [loadUnits]);
-
-  const handleAddUnit = async (name) => {
-    try {
-      const res = await createUnit(cls, subject.id, { name });
-      setUnits(p => [...p, res.data.unit]);
-      setAddingUnit(false);
-      addToast(`Unit "${name}" created!`);
-    } catch { addToast("Failed.", "error"); }
-  };
-
-  const handleDeleteUnit = async (unitId) => {
-    try {
-      await deleteUnit(cls, subject.id, unitId);
-      setUnits(p => p.filter(u => u.id !== unitId));
-      refetch();
-    } catch { addToast("Failed.", "error"); }
-  };
-
-  const grad = CLASS_PALETTE[colorIdx % CLASS_PALETTE.length];
-
-  return (
-    <div className="mnd-subject-card">
-      {/* Header */}
-      <div className="mnd-subject-header" onClick={() => setExpanded(v => !v)}>
-        <div className={`mnd-subject-icon bg-gradient-to-br ${grad}`}>
-          <BookOpen className="w-4 h-4 text-white" />
-        </div>
-        <div className="mnd-subject-info">
-          <p className="mnd-subject-name">{subject.name}</p>
-          <p className="mnd-subject-meta">{subject.unit_count} units · {subject.file_count} files</p>
-        </div>
-        <div className="mnd-subject-actions" onClick={e => e.stopPropagation()}>
-          <button className="mnd-icon-btn" onClick={() => onArchive(subject.id, subject.is_archived)}>
-            {subject.is_archived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
-          </button>
-          <button className="mnd-icon-btn mnd-icon-danger" onClick={() => { if (window.confirm(`Delete "${subject.name}"?`)) onDelete(subject.id); }}>
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-        <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform${expanded ? " rotate-180" : ""}`} />
-      </div>
-
-      {/* Body */}
-      {expanded && (
-        <div className="mnd-subject-body">
-          {loading ? (
-            <div className="mnd-loading"><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Loading units…</span></div>
-          ) : (
-            <>
-              {units.length === 0 && !addingUnit && (
-                <p className="mnd-empty-units">No units yet.</p>
-              )}
-              {units.map(u => (
-                <MobileUnitItem
-                  key={u.id}
-                  unit={u}
-                  className={cls}
-                  subjectId={subject.id}
-                  onDelete={() => handleDeleteUnit(u.id)}
-                  addToast={addToast}
-                  onRefresh={refetch}
-                />
-              ))}
-              {addingUnit ? (
-                <MobileInput
-                  placeholder="Unit name…"
-                  onSave={handleAddUnit}
-                  onCancel={() => setAddingUnit(false)}
-                />
-              ) : (
-                <button className="mnd-add-unit-btn" onClick={() => setAddingUnit(true)}>
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add unit</span>
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── New Subject Sheet (slide up) ────────────────────────────────────────────
-function NewSubjectSheet({ className: cls, defaultYear, defaultSem, onDone, onCancel, addToast }) {
-  const [name, setName] = useState("");
-  const [year, setYear] = useState(defaultYear || CURRENT_ACADEMIC_YEAR);
-  const [sem, setSem] = useState(defaultSem || 1);
-  const [saving, setSaving] = useState(false);
-  const inputRef = useRef(null);
-  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 300); }, []);
-
-  const handleSave = async () => {
-    if (!name.trim()) { addToast("Enter a subject name.", "error"); return; }
-    setSaving(true);
-    try {
-      await createSubject(cls, { name: name.trim(), academic_year: year, semester: sem });
-      addToast(`"${name.trim()}" created!`);
-      onDone();
-    } catch (e) {
-      addToast(e?.response?.data?.error || "Failed.", "error");
-    } finally { setSaving(false); }
-  };
-
-  return (
-    <>
-      {/* Backdrop */}
-      <div className="mnd-sheet-backdrop" onClick={onCancel} />
-      {/* Sheet */}
-      <div className="mnd-sheet">
-        <div className="mnd-sheet-handle" />
-        <div className="mnd-sheet-header">
-          <BookPlus className="w-5 h-5 text-[var(--primary)]" />
-          <h2 className="mnd-sheet-title">New Subject</h2>
-          <button onClick={onCancel} className="mnd-icon-btn ml-auto"><X className="w-4 h-4" /></button>
-        </div>
-
-        <div className="mnd-sheet-body">
-          <div className="mnd-field">
-            <label className="mnd-label">Academic Year</label>
-            <input value={year} onChange={e => setYear(e.target.value)}
-              placeholder="e.g. 2025-26" className="mnd-input" />
-          </div>
-          <div className="mnd-field">
-            <label className="mnd-label">Semester</label>
-            <div className="mnd-sem-row">
-              {[1, 2].map(s => (
-                <button key={s} onClick={() => setSem(s)}
-                  className={`mnd-sem-btn${sem === s ? " mnd-sem-btn-active" : ""}`}>
-                  Semester {s}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="mnd-field">
-            <label className="mnd-label">Subject Name</label>
-            <input
-              ref={inputRef}
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleSave(); }}
-              placeholder="e.g. Software Engineering"
-              className="mnd-input"
-            />
-          </div>
-          <div className="mnd-sheet-actions">
-            <button onClick={onCancel} className="mnd-btn-outline flex-1">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="mnd-btn-primary flex-1">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              {saving ? "Saving…" : "Create"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// ─── Main Mobile Page ─────────────────────────────────────────────────────────
-export default function MobileFacultyNotesPage() {
-  const { user } = useAuth();
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(CURRENT_ACADEMIC_YEAR);
-  const [selectedSem, setSelectedSem] = useState(1);
-  const [addingSubject, setAddingSubject] = useState(false);
-  const { toasts, add: addToast } = useToast();
-
-  const { data: classes = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ["faculty-notes-hub"],
-    queryFn: () => getFacultyNotesHub(),
-    select: d => d.data.classes || [],
-    staleTime: 60000,
-  });
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (classes.length && !selectedClass) {
-      const first = classes[0];
-      setSelectedClass(first.class_name);
-      const yr = first.academic_years?.[0];
-      if (yr) { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }
+    if (availableClasses && availableClasses.length > 0 && !selectedClass) {
+      setSelectedClass(availableClasses[0]);
     }
-  }, [classes, selectedClass]);
+  }, [availableClasses, selectedClass]);
 
-  const classData = classes.find(c => c.class_name === selectedClass);
-  const allYears = classData?.academic_years || [];
-  const yearData = allYears.find(y => y.year === selectedYear);
-  const bothSems = yearData
-    ? [1, 2].map(s => ({ sem: s, count: yearData.semesters.find(x => x.semester === s)?.subjects.length || 0 }))
-    : [{ sem: 1, count: 0 }, { sem: 2, count: 0 }];
-  const semData = yearData?.semesters.find(s => s.semester === selectedSem);
-  const subjects = semData?.subjects || [];
+  useEffect(() => {
+    if (!selectedClass) return;
+    setLoadingSubjects(true);
+    getSubjectNames(selectedClass)
+      .then(res => {
+        const subList = res.data.subjects || [];
+        setExistingSubjects(subList);
+        setSelectedSubject(subList.length > 0 ? subList[0].name : "__NEW__");
+      })
+      .catch(() => setExistingSubjects([]))
+      .finally(() => setLoadingSubjects(false));
+  }, [selectedClass]);
 
-  const handleSelectClass = (cn) => {
-    setSelectedClass(cn);
-    setAddingSubject(false);
-    const cd = classes.find(c => c.class_name === cn);
-    const yr = cd?.academic_years?.[0];
-    if (yr) { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }
+  if (!isOpen) return null;
+
+  const handleFileSelect = (e) => {
+    const selected = Array.from(e.target.files || []);
+    const valid = selected.filter(f => {
+      const ext = f.name.split(".").pop().toLowerCase();
+      return ["pdf", "ppt", "pptx", "doc", "docx"].includes(ext);
+    });
+    if (valid.length < selected.length) {
+      addToast("Some unsupported files were skipped (PDF, PPT, DOC only).", "warning");
+    }
+    setFiles(prev => [...prev, ...valid]);
   };
 
-  const handleDeleteSubject = async (id) => {
-    try { await deleteSubject(selectedClass, id); addToast("Deleted."); refetch(); }
-    catch { addToast("Failed.", "error"); }
-  };
+  const removeFile = (idx) => setFiles(prev => prev.filter((_, i) => i !== idx));
 
-  const handleArchiveSubject = async (id, isArchived) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedClass) return addToast("Please select a class", "error");
+    const finalSubjectName = selectedSubject === "__NEW__" ? customSubjectName.trim() : selectedSubject;
+    if (!finalSubjectName) return addToast("Please enter a subject name", "error");
+    if (!selectedUnit) return addToast("Please select a unit", "error");
+    if (files.length === 0) return addToast("Please select at least one file", "error");
+
+    const formData = new FormData();
+    formData.append("class_name", selectedClass);
+    formData.append("subject_name", finalSubjectName);
+    formData.append("unit_name", selectedUnit);
+    files.forEach(f => formData.append("files", f));
+
+    setUploading(true);
+    setUploadPct(0);
     try {
-      if (isArchived) { await unarchiveSubject(selectedClass, id); addToast("Restored."); }
-      else { await archiveSubject(selectedClass, id); addToast("Archived."); }
-      refetch();
-    } catch { addToast("Failed.", "error"); }
+      const res = await uploadNotesBatch(formData, evt => {
+        if (evt.total) setUploadPct(Math.round((evt.loaded / evt.total) * 100));
+      });
+      addToast(res.data.message || "Uploaded successfully!");
+      setFiles([]);
+      setCustomSubjectName("");
+      onUploadSuccess();
+      onClose();
+    } catch (err) {
+      addToast(err.response?.data?.error || "Upload failed.", "error");
+    } finally {
+      setUploading(false);
+    }
   };
-
-  if (user?.role !== "FACULTY") {
-    return (
-      <div className="mnd-guard">
-        <BookMarked className="w-10 h-10 text-[var(--text-muted)]" />
-        <p>Faculty only</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="mnd-root">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-lg bg-slate-900 border-t border-slate-800 rounded-t-3xl p-5 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-100">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div className="flex items-center gap-2">
+            <UploadCloud className="w-5 h-5 text-indigo-400" />
+            <h3 className="font-bold text-sm text-slate-100">Upload Notes & Docs</h3>
+          </div>
+          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-200">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-      {/* ── Header ── */}
-      <div className="mnd-header">
-        <div className="mnd-header-left">
-          <div className="mnd-header-icon">
-            <BookMarked className="w-4 h-4 text-white" />
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          {/* Class */}
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Target Class</label>
+            <select
+              value={selectedClass}
+              onChange={e => setSelectedClass(e.target.value)}
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none"
+            >
+              {availableClasses.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          {/* Subject */}
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Subject Name</label>
+            {loadingSubjects ? (
+              <div className="text-slate-400 py-1 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Loading subjects...</div>
+            ) : (
+              <select
+                value={selectedSubject}
+                onChange={e => setSelectedSubject(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none"
+              >
+                {existingSubjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                <option value="__NEW__">➕ Create New Subject...</option>
+              </select>
+            )}
+
+            {selectedSubject === "__NEW__" && (
+              <input
+                type="text"
+                value={customSubjectName}
+                onChange={e => setCustomSubjectName(e.target.value)}
+                placeholder="Enter Subject Name"
+                className="mt-2 w-full px-3 py-2 bg-slate-950 border border-indigo-500/40 rounded-xl text-slate-100 text-xs focus:outline-none"
+              />
+            )}
+          </div>
+
+          {/* Unit */}
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Unit</label>
+            <select
+              value={selectedUnit}
+              onChange={e => setSelectedUnit(e.target.value)}
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none"
+            >
+              <option value="Unit 1">Unit 1</option>
+              <option value="Unit 2">Unit 2</option>
+              <option value="Unit 3">Unit 3</option>
+              <option value="Unit 4">Unit 4</option>
+              <option value="Unit 5">Unit 5</option>
+            </select>
+          </div>
+
+          {/* Files */}
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Select Files</label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              multiple
+              accept=".pdf,.ppt,.pptx,.doc,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full py-3 bg-slate-950 border border-dashed border-slate-800 rounded-xl text-slate-300 font-medium flex items-center justify-center gap-2"
+            >
+              <Upload className="w-4 h-4 text-indigo-400" />
+              <span>Choose Files (PDF, PPT, DOC)</span>
+            </button>
+
+            {files.length > 0 && (
+              <div className="mt-2 space-y-1.5 max-h-28 overflow-y-auto">
+                {files.map((f, i) => (
+                  <div key={i} className="flex items-center justify-between px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg">
+                    <span className="truncate text-[11px] text-slate-200">{f.name}</span>
+                    <button type="button" onClick={() => removeFile(i)} className="text-slate-400 hover:text-rose-400">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {uploading && (
+            <div className="space-y-1 pt-1">
+              <div className="flex justify-between text-[11px] text-indigo-400 font-medium">
+                <span>Uploading...</span>
+                <span>{uploadPct}%</span>
+              </div>
+              <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                <div className="h-full bg-indigo-500 transition-all duration-200" style={{ width: `${uploadPct}%` }} />
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+            <button type="button" onClick={onClose} disabled={uploading} className="px-3 py-1.5 text-slate-400">Cancel</button>
+            <button
+              type="submit"
+              disabled={uploading}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold flex items-center gap-1.5"
+            >
+              {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+              <span>{uploading ? "Uploading" : "Submit"}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Mobile Component ────────────────────────────────────────────────────
+export default function MobileFacultyNotesPage() {
+  const { user } = useAuth();
+  const { toasts, add: addToast } = useToast();
+
+  const [activeClassFilter, setActiveClassFilter] = useState("");
+  const [previewFile, setPreviewFile] = useState(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const canManage = user?.role === "FACULTY" || user?.role === "HOD";
+
+  const { data: hubData, isLoading, isError, refetch } = useQuery({
+    queryKey: ["mobileNotesHub", activeClassFilter],
+    queryFn: () => getNotesHub({ class_name: activeClassFilter || undefined }),
+    refetchOnWindowFocus: false
+  });
+
+  const classes = hubData?.data?.classes || [];
+  const availableClasses = hubData?.data?.available_classes || [];
+
+  const handleDeleteSubject = async (clsName, subjId, subjName) => {
+    if (!window.confirm(`Delete subject "${subjName}"?`)) return;
+    setDeletingId(`subj-${subjId}`);
+    try {
+      await deleteSubject(clsName, subjId);
+      addToast(`Deleted "${subjName}"`);
+      refetch();
+    } catch (err) {
+      addToast(err.response?.data?.error || "Failed to delete", "error");
+    } finally { setDeletingId(null); }
+  };
+
+  const handleDeleteUnit = async (clsName, subjId, unitId, unitName) => {
+    if (!window.confirm(`Delete "${unitName}"?`)) return;
+    setDeletingId(`unit-${unitId}`);
+    try {
+      await deleteUnit(clsName, subjId, unitId);
+      addToast(`Deleted "${unitName}"`);
+      refetch();
+    } catch (err) {
+      addToast(err.response?.data?.error || "Failed to delete", "error");
+    } finally { setDeletingId(null); }
+  };
+
+  const handleDeleteFile = async (clsName, subjId, unitId, fileId, fileName) => {
+    if (!window.confirm(`Delete "${fileName}"?`)) return;
+    setDeletingId(`file-${fileId}`);
+    try {
+      await deleteFile(clsName, subjId, unitId, fileId);
+      addToast(`Deleted "${fileName}"`);
+      refetch();
+    } catch (err) {
+      addToast(err.response?.data?.error || "Failed to delete", "error");
+    } finally { setDeletingId(null); }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 pb-28">
+      <ToastStack toasts={toasts} />
+      <MobileDocumentPreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+
+      {canManage && (
+        <MobileUploadBottomSheet
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          availableClasses={availableClasses}
+          onUploadSuccess={() => refetch()}
+          addToast={addToast}
+        />
+      )}
+
+      {/* Mobile Top Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <BookMarked className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="mnd-header-title">Notes & Docs</h1>
-            <p className="mnd-header-sub">Manage class resources</p>
+            <h1 className="text-base font-bold text-slate-100">Notes & Docs</h1>
+            <p className="text-[11px] text-slate-400">
+              {user?.role === "STUDENT" ? "Your class study materials" : "Manage subject notes"}
+            </p>
           </div>
         </div>
-        <button onClick={() => refetch()} className="mnd-icon-btn">
+
+        <button onClick={() => refetch()} className="p-2 text-slate-400 hover:text-slate-200">
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      {isLoading ? (
-        <div className="mnd-state">
-          <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
-          <p>Loading…</p>
+      {/* Available Class Pills */}
+      {availableClasses.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none">
+          <button
+            onClick={() => setActiveClassFilter("")}
+            className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+              !activeClassFilter ? "bg-indigo-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800"
+            }`}
+          >
+            All Classes
+          </button>
+          {availableClasses.map(cls => (
+            <button
+              key={cls}
+              onClick={() => setActiveClassFilter(cls)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+                activeClassFilter === cls ? "bg-indigo-600 text-white" : "bg-slate-900 text-slate-400 border border-slate-800"
+              }`}
+            >
+              {cls}
+            </button>
+          ))}
         </div>
-      ) : isError ? (
-        <div className="mnd-state">
-          <AlertCircle className="w-8 h-8 text-red-400" />
-          <p>Failed to load</p>
-          <button onClick={() => refetch()} className="mnd-btn-primary mnd-btn-sm">Retry</button>
+      )}
+
+      {/* Main List */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16 text-xs text-slate-400">
+          <Loader2 className="w-5 h-5 animate-spin text-indigo-500 mr-2" /> Loading notes...
         </div>
       ) : classes.length === 0 ? (
-        <div className="mnd-state">
-          <Sparkles className="w-10 h-10 text-[var(--primary)] opacity-50" />
-          <p className="font-semibold">No classes assigned</p>
+        <div className="p-8 text-center bg-slate-900/40 border border-slate-800 rounded-2xl my-6">
+          <FolderOpen className="w-10 h-10 mx-auto text-slate-600 mb-2" />
+          <p className="text-xs text-slate-300 font-semibold">No Notes Found</p>
+          <p className="text-[11px] text-slate-500 mt-1">No notes uploaded yet for this view.</p>
         </div>
       ) : (
-        <>
-          {/* Class chips */}
-          <div className="mnd-chip-scroll">
-            {classes.map((cls, idx) => {
-              const grad = CLASS_PALETTE[idx % CLASS_PALETTE.length];
-              const active = cls.class_name === selectedClass;
-              return (
-                <button
-                  key={cls.class_name}
-                  onClick={() => handleSelectClass(cls.class_name)}
-                  className={`mnd-class-chip${active ? " mnd-class-chip-active" : ""}`}
-                >
-                  <span className={`mnd-chip-dot bg-gradient-to-br ${grad}`} />
-                  {cls.class_name.replace("_", " ")}
-                  {cls.is_incharge && <span className="mnd-chip-star">★</span>}
-                </button>
-              );
-            })}
-          </div>
+        <div className="space-y-6">
+          {classes.map(clsData => (
+            <div key={clsData.class_name} className="space-y-4">
+              <div className="text-xs font-bold text-indigo-400 tracking-wider uppercase border-b border-slate-800/80 pb-1">
+                Class {clsData.class_name}
+              </div>
 
-          {/* Year tabs */}
-          {allYears.length > 0 && (
-            <div className="mnd-year-scroll">
-              {allYears.map(yr => (
-                <button
-                  key={yr.year}
-                  onClick={() => { setSelectedYear(yr.year); setSelectedSem(yr.semesters?.[0]?.semester || 1); }}
-                  className={`mnd-year-chip${selectedYear === yr.year ? " mnd-year-chip-active" : ""}`}
-                >
-                  {yr.year}
-                </button>
+              {clsData.academic_years.map(yrData => (
+                <div key={yrData.year} className="space-y-4">
+                  {yrData.semesters.map(semData => (
+                    <div key={semData.semester} className="space-y-3">
+                      {semData.subjects.map(subject => (
+                        <div key={subject.id} className="bg-slate-900 border border-slate-800/80 rounded-2xl p-4 shadow-md">
+                          {/* Subject Title */}
+                          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="w-4 h-4 text-indigo-400" />
+                              <span className="font-bold text-sm text-slate-100">{subject.name}</span>
+                            </div>
+                            {canManage && (
+                              <button
+                                onClick={() => handleDeleteSubject(clsData.class_name, subject.id, subject.name)}
+                                className="p-1 text-slate-500 hover:text-rose-400"
+                              >
+                                {deletingId === `subj-${subject.id}` ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Units */}
+                          <div className="mt-3 space-y-2.5">
+                            {subject.units.map(unit => (
+                              <div key={unit.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-bold text-indigo-300">{unit.name}</span>
+                                  {canManage && (
+                                    <button
+                                      onClick={() => handleDeleteUnit(clsData.class_name, subject.id, unit.id, unit.name)}
+                                      className="p-1 text-slate-500 hover:text-rose-400"
+                                    >
+                                      {deletingId === `unit-${unit.id}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                                    </button>
+                                  )}
+                                </div>
+
+                                {/* Files */}
+                                {unit.files.map(file => (
+                                  <div key={file.id} className="flex items-center justify-between py-1.5 text-xs border-t border-slate-900">
+                                    <div onClick={() => setPreviewFile(file)} className="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer">
+                                      {getFileIcon(file.file_type)}
+                                      <span className="truncate text-slate-200">{file.file_name}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1 ml-2">
+                                      <button onClick={() => setPreviewFile(file)} className="p-1 text-slate-400 hover:text-indigo-300">
+                                        <Eye className="w-3.5 h-3.5" />
+                                      </button>
+                                      <a href={file.file_url} download target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-emerald-400">
+                                        <Download className="w-3.5 h-3.5" />
+                                      </a>
+                                      {canManage && (
+                                        <button
+                                          onClick={() => handleDeleteFile(clsData.class_name, subject.id, unit.id, file.id, file.file_name)}
+                                          className="p-1 text-slate-500 hover:text-rose-400"
+                                        >
+                                          {deletingId === `file-${file.id}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
-          )}
-
-          {/* Semester toggle */}
-          <div className="mnd-sem-toggle-row">
-            {bothSems.map(({ sem, count }) => (
-              <button
-                key={sem}
-                onClick={() => setSelectedSem(sem)}
-                className={`mnd-sem-tile${selectedSem === sem ? " mnd-sem-tile-active" : ""}`}
-              >
-                <span className="mnd-sem-label">Semester {sem}</span>
-                <span className="mnd-sem-badge">{count} subjects</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Add subject button */}
-          <button className="mnd-add-subject-btn" onClick={() => setAddingSubject(true)}>
-            <BookPlus className="w-4 h-4" />
-            <span>New Subject</span>
-          </button>
-
-          {/* Subject list */}
-          {subjects.length === 0 ? (
-            <div className="mnd-empty">
-              <FolderOpen className="w-10 h-10 text-[var(--text-muted)] opacity-40" />
-              <p className="font-semibold text-[var(--text-primary)]">No subjects for Semester {selectedSem}</p>
-              <p className="text-sm text-[var(--text-muted)]">Tap "New Subject" above.</p>
-            </div>
-          ) : (
-            <div className="mnd-subject-list">
-              {subjects.map((s, idx) => (
-                <MobileSubjectCard
-                  key={s.id}
-                  subject={s}
-                  className={selectedClass}
-                  colorIdx={idx}
-                  onDelete={handleDeleteSubject}
-                  onArchive={handleArchiveSubject}
-                  addToast={addToast}
-                  refetch={refetch}
-                />
-              ))}
-            </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
 
-      {/* New Subject Sheet */}
-      {addingSubject && (
-        <NewSubjectSheet
-          className={selectedClass}
-          defaultYear={selectedYear}
-          defaultSem={selectedSem}
-          addToast={addToast}
-          onDone={() => { setAddingSubject(false); refetch(); }}
-          onCancel={() => setAddingSubject(false)}
-        />
+      {/* Floating Action Button (+) for Mobile */}
+      {canManage && availableClasses.length > 0 && (
+        <button
+          onClick={() => setIsUploadModalOpen(true)}
+          className="fixed bottom-20 right-4 z-40 p-4 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-2xl active:scale-90 transition-all duration-200 flex items-center justify-center"
+          title="Upload Notes"
+        >
+          <Plus className="w-6 h-6 stroke-[3]" />
+        </button>
       )}
-
-      {/* Toasts — fixed above bottom tab bar */}
-      <div className="mnd-toast-stack">
-        {toasts.map(t => (
-          <div key={t.id} className={`mnd-toast${t.type === "error" ? " mnd-toast-error" : " mnd-toast-success"}`}>
-            {t.type === "success" ? <Check className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
-            <span>{t.msg}</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

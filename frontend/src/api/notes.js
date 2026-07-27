@@ -1,14 +1,33 @@
 import api from "./axios";
 
-// ─── Faculty Notes Hub ────────────────────────────────────────────────────
+// ─── Notes Hub ────────────────────────────────────────────────────────────
 /**
  * Fetch all subjects grouped by class → academic_year → semester.
- * Only for FACULTY role. Powers the standalone /notes page.
+ * Works for FACULTY, HOD, and STUDENT roles.
  */
-export const getFacultyNotesHub = (params = {}) =>
-  api.get("/notes/faculty/my-classes-subjects", { params });
+export const getNotesHub = (params = {}) =>
+  api.get("/notes/my-classes-subjects", { params });
 
-// ─── Subjects ─────────────────────────────────────────────────────────────
+export const getFacultyNotesHub = (params = {}) =>
+  api.get("/notes/my-classes-subjects", { params });
+
+/**
+ * Fetch distinct subject names existing in a given class for upload dropdown.
+ */
+export const getSubjectNames = (className) =>
+  api.get(`/notes/classes/${className}/subject-names`);
+
+/**
+ * Batch upload notes (class_name, subject_name, unit_name, files).
+ */
+export const uploadNotesBatch = (formData, onProgress) =>
+  api.post("/notes/upload-notes", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress: onProgress,
+    timeout: 120000,
+  });
+
+// ─── Legacy Subjects / Units / Files Endpoints ────────────────────────────
 export const listSubjects = (className, params = {}) =>
   api.get(`/classes/${className}/notes/subjects`, { params });
 
@@ -48,7 +67,7 @@ export const uploadFiles = (className, subjectId, unitId, formData, onProgress) 
     {
       headers: { "Content-Type": "multipart/form-data" },
       onUploadProgress: onProgress,
-      timeout: 120000, // 2 min for large files
+      timeout: 120000,
     }
   );
 

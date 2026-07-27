@@ -10,7 +10,7 @@ const getTabItemsForRole = (role) => {
     return [
       { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
+      { to: "/notes", icon: FileText, label: "Notes" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
     ];
   } else if (role === "FACULTY") {
@@ -24,7 +24,7 @@ const getTabItemsForRole = (role) => {
     // STUDENT
     return [
       { to: "/projects", icon: FolderKanban, label: "Projects" },
-      { to: "/faculty", icon: GraduationCap, label: "Faculty" },
+      { to: "/notes", icon: FileText, label: "Notes" },
       { to: "/classes", icon: BookOpen, label: "Classes" },
       { to: "/updates", icon: Megaphone, label: "Updates" },
     ];

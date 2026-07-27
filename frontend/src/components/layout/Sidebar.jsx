@@ -96,8 +96,8 @@ export function Sidebar() {
               </NavLink>
             );
           })}
-          {/* Faculty-only extra nav items */}
-          {user?.role === "FACULTY" && facultyNavItems.map((item) => {
+          {/* Notes & Docs navigation for FACULTY, HOD, and STUDENT */}
+          {(user?.role === "FACULTY" || user?.role === "HOD" || user?.role === "STUDENT") && facultyNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
             return (
