@@ -11,6 +11,11 @@ import {
   deleteFile, deleteSubject, deleteUnit
 } from "../../api/notes";
 import { useAuth } from "../../context/AuthContext";
+import { Modal } from "../../components/ui/Modal";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Button } from "../../components/ui/Button";
+import { Spinner } from "../../components/ui/Spinner";
+import { EmptyState } from "../../components/ui/EmptyState";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const CURRENT_ACADEMIC_YEAR = (() => {
@@ -22,19 +27,13 @@ const CURRENT_ACADEMIC_YEAR = (() => {
 const UNIT_OPTIONS = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"];
 
 function getFileIcon(type) {
-  if (type === "pdf") return <FileText className="nd-file-icon nd-file-pdf" />;
-  if (["ppt", "pptx"].includes(type)) return <Presentation className="nd-file-icon nd-file-ppt" />;
-  return <File className="nd-file-icon nd-file-doc" />;
-}
-
-function formatFileSize(bytes) {
-  if (!bytes || bytes === 0) return "—";
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-  return (bytes / 1048576).toFixed(1) + " MB";
+  if (type === "pdf") return <FileText className="w-5 h-5 text-rose-500 shrink-0" />;
+  if (["ppt", "pptx"].includes(type)) return <Presentation className="w-5 h-5 text-orange-500 shrink-0" />;
+  return <File className="w-5 h-5 text-blue-500 shrink-0" />;
 }
 
 function getPreviewUrl(file) {
+  if (!file) return "";
   const url = file.file_url;
   const ext = file.file_type?.toLowerCase();
   if (ext === "pdf") return url;
@@ -44,7 +43,7 @@ function getPreviewUrl(file) {
   return url;
 }
 
-// ─── Toast System ─────────────────────────────────────────────────────────────
+// ─── Toast Hook ──────────────────────────────────────────────────────────────
 function useToast() {
   const [toasts, setToasts] = useState([]);
   const add = useCallback((msg, type = "success") => {
@@ -58,62 +57,20 @@ function useToast() {
 function ToastStack({ toasts }) {
   if (!toasts.length) return null;
   return (
-    <div className="nd-toast-stack">
+    <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-2 max-w-sm pointer-events-none">
       {toasts.map(t => (
-        <div key={t.id} className={`nd-toast nd-toast-${t.type}`}>
-          {t.type === "success" ? <Check className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
-          <span>{t.msg}</span>
+        <div
+          key={t.id}
+          className={`flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl border text-sm font-semibold transition-all duration-200 pointer-events-auto ${
+            t.type === "success"
+              ? "bg-emerald-600 text-white border-emerald-500"
+              : "bg-red-600 text-white border-red-500"
+          }`}
+        >
+          {t.type === "success" ? <Check className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+          <span className="flex-1">{t.msg}</span>
         </div>
       ))}
-    </div>
-  );
-}
-
-// ─── Confirm Dialog ──────────────────────────────────────────────────────────
-function ConfirmModal({ open, title, message, onConfirm, onCancel, loading }) {
-  if (!open) return null;
-  return (
-    <div className="nd-modal-overlay" onClick={onCancel}>
-      <div className="nd-modal nd-modal-sm" onClick={e => e.stopPropagation()}>
-        <h3 className="nd-modal-title">{title}</h3>
-        <p className="nd-modal-text">{message}</p>
-        <div className="nd-modal-actions">
-          <button className="nd-btn nd-btn-ghost" onClick={onCancel} disabled={loading}>Cancel</button>
-          <button className="nd-btn nd-btn-danger" onClick={onConfirm} disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Preview Modal ───────────────────────────────────────────────────────────
-function PreviewModal({ file, onClose }) {
-  if (!file) return null;
-  const previewUrl = getPreviewUrl(file);
-  return (
-    <div className="nd-modal-overlay" onClick={onClose}>
-      <div className="nd-modal nd-modal-preview" onClick={e => e.stopPropagation()}>
-        <div className="nd-preview-header">
-          <span className="nd-preview-name">{file.file_name}</span>
-          <div className="nd-preview-actions">
-            <a href={file.file_url} download target="_blank" rel="noreferrer" className="nd-btn nd-btn-sm nd-btn-ghost">
-              <Download className="w-4 h-4" /> Download
-            </a>
-            <button className="nd-btn nd-btn-sm nd-btn-ghost" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        <div className="nd-preview-body">
-          {file.file_type === "pdf" ? (
-            <iframe src={previewUrl} title={file.file_name} className="nd-preview-iframe" />
-          ) : (
-            <iframe src={previewUrl} title={file.file_name} className="nd-preview-iframe" />
-          )}
-        </div>
-      </div>
     </div>
   );
 }
@@ -130,7 +87,6 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
   const [progress, setProgress] = useState(0);
   const fileRef = useRef(null);
 
-  // Reset when class changes
   useEffect(() => {
     setSelectedSubjectId("");
     setNewSubjectName("");
@@ -138,10 +94,8 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
     setSelectedUnit("");
   }, [selectedClass]);
 
-  // Get subjects for selected class
   const classSubjects = existingSubjects.filter(s => s.class_name === selectedClass);
 
-  // If no existing subjects, auto-switch to new
   useEffect(() => {
     if (selectedClass && classSubjects.length === 0) {
       setSubjectMode("new");
@@ -179,7 +133,6 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
     try {
       let subjectId = selectedSubjectId;
 
-      // Create new subject if needed
       if (subjectMode === "new") {
         const res = await createSubject(selectedClass, {
           name: newSubjectName.trim(),
@@ -189,15 +142,12 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
         subjectId = res.data.subject.id;
       }
 
-      // Create unit (or find existing)
       let unitId;
       try {
         const unitRes = await createUnit(selectedClass, subjectId, { name: selectedUnit });
         unitId = unitRes.data.unit.id;
       } catch (err) {
-        // Unit might already exist — try to find it
         if (err.response?.data?.error?.includes("already exists")) {
-          // Fetch units for this subject to find the existing one
           const { listUnits } = await import("../../api/notes");
           const unitsRes = await listUnits(selectedClass, subjectId);
           const existing = unitsRes.data.units.find(u => u.name === selectedUnit);
@@ -211,7 +161,6 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
         }
       }
 
-      // Upload files
       const formData = new FormData();
       files.forEach(f => formData.append("files", f));
       await uploadFiles(selectedClass, subjectId, unitId, formData, (e) => {
@@ -231,169 +180,194 @@ function UploadModal({ open, onClose, targetClasses, existingSubjects, onSuccess
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div className="nd-modal-overlay" onClick={onClose}>
-      <div className="nd-modal nd-modal-upload" onClick={e => e.stopPropagation()}>
-        <div className="nd-modal-header">
-          <h3 className="nd-modal-title">Upload Notes</h3>
-          <button className="nd-btn-icon" onClick={onClose}><X className="w-5 h-5" /></button>
+    <Modal open={open} onClose={onClose} title="Upload Notes & Docs" size="md">
+      <div className="space-y-4 py-1">
+        {/* Class Selection */}
+        <div>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+            Class
+          </label>
+          <select
+            className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
+            value={selectedClass}
+            onChange={e => setSelectedClass(e.target.value)}
+          >
+            <option value="">Select class...</option>
+            {targetClasses.map(c => <option key={c} value={c}>{c.replace("_", " ")}</option>)}
+          </select>
         </div>
 
-        <div className="nd-modal-body">
-          {/* Class Selection */}
-          <div className="nd-form-group">
-            <label className="nd-form-label">Class</label>
+        {/* Subject Selection */}
+        {selectedClass && (
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+              Subject
+            </label>
+            {classSubjects.length > 0 && (
+              <div className="flex p-1 bg-gray-100 dark:bg-gray-900 rounded-xl mb-2">
+                <button
+                  type="button"
+                  onClick={() => setSubjectMode("existing")}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all ${
+                    subjectMode === "existing"
+                      ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                  }`}
+                >
+                  Existing Subject
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSubjectMode("new")}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all ${
+                    subjectMode === "new"
+                      ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                  }`}
+                >
+                  Create New Subject
+                </button>
+              </div>
+            )}
+            {subjectMode === "existing" ? (
+              <select
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
+                value={selectedSubjectId}
+                onChange={e => setSelectedSubjectId(e.target.value)}
+              >
+                <option value="">Select subject...</option>
+                {classSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            ) : (
+              <input
+                className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
+                placeholder="Enter new subject name..."
+                value={newSubjectName}
+                onChange={e => setNewSubjectName(e.target.value)}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Unit Selection */}
+        {selectedClass && (
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+              Unit
+            </label>
             <select
-              className="nd-select"
-              value={selectedClass}
-              onChange={e => setSelectedClass(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
+              value={selectedUnit}
+              onChange={e => setSelectedUnit(e.target.value)}
             >
-              <option value="">Select class...</option>
-              {targetClasses.map(c => <option key={c} value={c}>{c.replace("_", " ")}</option>)}
+              <option value="">Select unit...</option>
+              {UNIT_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
             </select>
           </div>
+        )}
 
-          {/* Subject Selection */}
-          {selectedClass && (
-            <div className="nd-form-group">
-              <label className="nd-form-label">Subject</label>
-              {classSubjects.length > 0 && (
-                <div className="nd-toggle-group">
-                  <button
-                    className={`nd-toggle-btn ${subjectMode === "existing" ? "active" : ""}`}
-                    onClick={() => setSubjectMode("existing")}
-                  >Existing</button>
-                  <button
-                    className={`nd-toggle-btn ${subjectMode === "new" ? "active" : ""}`}
-                    onClick={() => setSubjectMode("new")}
-                  >Create New</button>
-                </div>
-              )}
-              {subjectMode === "existing" ? (
-                <select
-                  className="nd-select"
-                  value={selectedSubjectId}
-                  onChange={e => setSelectedSubjectId(e.target.value)}
-                >
-                  <option value="">Select subject...</option>
-                  {classSubjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-              ) : (
-                <input
-                  className="nd-input"
-                  placeholder="Enter new subject name..."
-                  value={newSubjectName}
-                  onChange={e => setNewSubjectName(e.target.value)}
-                />
-              )}
+        {/* File Upload Zone */}
+        {selectedClass && (
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1.5">
+              Select Files
+            </label>
+            <div
+              onClick={() => fileRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const droppedFiles = Array.from(e.dataTransfer.files);
+                setFiles(prev => [...prev, ...droppedFiles]);
+              }}
+              className="border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-[#F05A2B] dark:hover:border-[#F05A2B] rounded-2xl p-6 text-center bg-gray-50/50 dark:bg-gray-900/50 cursor-pointer transition-all flex flex-col items-center justify-center gap-2"
+            >
+              <UploadCloud className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Click or drag files here</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">PDF, PPT, PPTX, DOC, DOCX</p>
             </div>
-          )}
-
-          {/* Unit Selection */}
-          {selectedClass && (
-            <div className="nd-form-group">
-              <label className="nd-form-label">Unit</label>
-              <select
-                className="nd-select"
-                value={selectedUnit}
-                onChange={e => setSelectedUnit(e.target.value)}
-              >
-                <option value="">Select unit...</option>
-                {UNIT_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-          )}
-
-          {/* File Upload */}
-          {selectedClass && (
-            <div className="nd-form-group">
-              <label className="nd-form-label">Files (PDF, PPT, DOC)</label>
-              <div
-                className="nd-drop-zone"
-                onClick={() => fileRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add("nd-drop-active"); }}
-                onDragLeave={e => e.currentTarget.classList.remove("nd-drop-active")}
-                onDrop={e => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove("nd-drop-active");
-                  const droppedFiles = Array.from(e.dataTransfer.files);
-                  setFiles(prev => [...prev, ...droppedFiles]);
-                }}
-              >
-                <UploadCloud className="w-8 h-8 text-gray-400" />
-                <p className="nd-drop-text">Click or drag files here</p>
-                <p className="nd-drop-hint">PDF, PPT, PPTX, DOC, DOCX</p>
+            <input
+              ref={fileRef}
+              type="file"
+              multiple
+              accept=".pdf,.ppt,.pptx,.doc,.docx"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {files.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {files.map((f, i) => (
+                  <div key={i} className="flex items-center justify-between p-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl">
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[300px]">{f.name}</span>
+                    <button onClick={() => removeFile(i)} className="text-gray-400 hover:text-red-500 p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
-              <input
-                ref={fileRef}
-                type="file"
-                multiple
-                accept=".pdf,.ppt,.pptx,.doc,.docx"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              {files.length > 0 && (
-                <div className="nd-file-list">
-                  {files.map((f, i) => (
-                    <div key={i} className="nd-file-item">
-                      <span className="nd-file-item-name">{f.name}</span>
-                      <button className="nd-btn-icon-sm" onClick={() => removeFile(i)}>
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Upload Progress */}
-          {uploading && progress > 0 && (
-            <div className="nd-progress-bar">
-              <div className="nd-progress-fill" style={{ width: `${progress}%` }} />
-            </div>
-          )}
-        </div>
-
-        <div className="nd-modal-footer">
-          <button className="nd-btn nd-btn-ghost" onClick={onClose} disabled={uploading}>Cancel</button>
-          <button className="nd-btn nd-btn-primary" onClick={handleUpload} disabled={uploading}>
-            {uploading ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
-            ) : (
-              <><UploadCloud className="w-4 h-4" /> Upload</>
             )}
-          </button>
+          </div>
+        )}
+
+        {/* Progress Bar */}
+        {uploading && progress > 0 && (
+          <div className="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+            <div className="bg-[#F05A2B] h-full transition-all duration-200" style={{ width: `${progress}%` }} />
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-3">
+          <Button variant="secondary" onClick={onClose} disabled={uploading}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleUpload} loading={uploading} disabled={uploading}>
+            <UploadCloud className="w-4 h-4 mr-1.5" /> Upload Notes
+          </Button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
 // ─── File Card ───────────────────────────────────────────────────────────────
 function FileCard({ file, canDelete, onDelete, onPreview }) {
   return (
-    <div className="nd-file-card">
-      <div className="nd-file-card-left">
+    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800 hover:bg-gray-100/70 dark:hover:bg-gray-800/80 transition-all gap-3">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         {getFileIcon(file.file_type)}
-        <div className="nd-file-card-info">
-          <span className="nd-file-card-name">{file.file_name}</span>
-          <span className="nd-file-card-meta">
-            {file.file_type?.toUpperCase()} • {file.uploaded_by?.name || "Unknown"}
-          </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">{file.file_name}</p>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500">
+            {file.file_type?.toUpperCase()} • {file.uploaded_by?.name || "Faculty"}
+          </p>
         </div>
       </div>
-      <div className="nd-file-card-actions">
-        <button className="nd-btn-icon-sm" onClick={() => onPreview(file)} title="Preview">
+      <div className="flex items-center gap-1 shrink-0">
+        <button
+          onClick={() => onPreview(file)}
+          className="p-1.5 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
+          title="Preview"
+        >
           <Eye className="w-4 h-4" />
         </button>
-        <a href={file.file_url} download target="_blank" rel="noreferrer" className="nd-btn-icon-sm" title="Download">
+        <a
+          href={file.file_url}
+          download
+          target="_blank"
+          rel="noreferrer"
+          className="p-1.5 text-gray-500 hover:text-[#F05A2B] dark:text-gray-400 dark:hover:text-[#F05A2B] rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
+          title="Download"
+        >
           <Download className="w-4 h-4" />
         </a>
         {canDelete && (
-          <button className="nd-btn-icon-sm nd-btn-icon-danger" onClick={() => onDelete(file)} title="Delete">
+          <button
+            onClick={() => onDelete(file)}
+            className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            title="Delete"
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         )}
@@ -411,7 +385,7 @@ export default function FacultyNotesPage() {
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null); // { type, id, className, subjectId, unitId, name }
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [expandedSubjects, setExpandedSubjects] = useState({});
   const [expandedUnits, setExpandedUnits] = useState({});
@@ -419,7 +393,6 @@ export default function FacultyNotesPage() {
 
   const isStaff = user?.role === "FACULTY" || user?.role === "HOD";
 
-  // Fetch all notes
   const { data, isLoading, error } = useQuery({
     queryKey: ["notes-all"],
     queryFn: () => getAllNotes().then(r => r.data),
@@ -429,15 +402,13 @@ export default function FacultyNotesPage() {
   const classes = data?.classes || [];
   const targetClasses = data?.target_classes || [];
 
-  // Flatten all subjects for the upload modal's existing subject dropdown
   const allSubjects = classes.flatMap(c =>
     c.subjects.map(s => ({ ...s, class_name: c.class_name }))
   );
 
-  // Entrance animation
   useEffect(() => {
     if (pageRef.current) {
-      gsap.from(pageRef.current, { opacity: 0, y: 20, duration: 0.5, ease: "power3.out" });
+      gsap.from(pageRef.current, { opacity: 0, y: 15, duration: 0.4, ease: "power3.out" });
     }
   }, []);
 
@@ -477,7 +448,6 @@ export default function FacultyNotesPage() {
     return false;
   };
 
-  // Filter subjects by search
   const filterClasses = () => {
     if (!searchQuery.trim()) return classes;
     const q = searchQuery.toLowerCase();
@@ -494,173 +464,196 @@ export default function FacultyNotesPage() {
   const filteredClasses = filterClasses();
 
   return (
-    <div className="nd-root" ref={pageRef}>
+    <div ref={pageRef} className="space-y-6 pb-12">
       <ToastStack toasts={toast.toasts} />
 
-      {/* Header */}
-      <div className="nd-page-header">
-        <div className="nd-page-header-left">
-          <div className="nd-page-icon">
-            <BookMarked className="w-5 h-5 text-white" />
+      {/* Standard Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F05A2B] to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
+            <BookMarked className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="nd-page-title">Notes & Docs</h1>
-            <p className="nd-page-subtitle">
-              {isStaff ? "Manage and share study materials" : "Access your class study materials"}
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Notes & Docs</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+              {isStaff ? "Manage and share subject study materials" : "Access your class study materials"}
             </p>
           </div>
         </div>
-        <div className="nd-header-right">
-          <div className="nd-search-box">
-            <Search className="w-4 h-4" />
+
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              className="nd-search-input"
+              type="text"
               placeholder="Search subjects, units, files..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
             />
           </div>
+          {isStaff && (
+            <Button onClick={() => setUploadOpen(true)} className="gap-2">
+              <Plus className="w-4 h-4" /> Upload Notes
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="nd-content">
+      {/* Main Content */}
+      <div>
         {isLoading ? (
-          <div className="nd-empty-state">
-            <Loader2 className="w-10 h-10 animate-spin text-primary-500" />
-            <p>Loading notes...</p>
+          <div className="flex justify-center items-center py-24">
+            <Spinner size="lg" />
           </div>
         ) : error ? (
-          <div className="nd-empty-state">
-            <AlertCircle className="w-10 h-10 text-rose-500" />
-            <p>Failed to load notes</p>
+          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/40 rounded-2xl p-8 text-center text-red-600 dark:text-red-400">
+            <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-80" />
+            <p className="font-semibold">Failed to load notes</p>
           </div>
         ) : filteredClasses.length === 0 ? (
-          <div className="nd-empty-state">
-            <FolderOpen className="w-12 h-12 text-gray-300 dark:text-gray-600" />
-            <p className="nd-empty-title">No notes yet</p>
-            <p className="nd-empty-text">
-              {isStaff
-                ? "Click the + button to upload your first notes"
-                : "Your faculty hasn't uploaded any notes yet"}
-            </p>
-          </div>
+          <EmptyState
+            icon={FolderOpen}
+            title="No notes uploaded yet"
+            description={isStaff ? "Click 'Upload Notes' to share study materials with students." : "Your faculty hasn't uploaded any notes yet."}
+            action={isStaff ? (
+              <Button onClick={() => setUploadOpen(true)} className="gap-2 mt-2">
+                <Plus className="w-4 h-4" /> Upload Notes
+              </Button>
+            ) : null}
+          />
         ) : (
-          filteredClasses.map(cls => (
-            <div key={cls.class_name} className="nd-class-section">
-              <div className="nd-class-header">
-                <span className="nd-class-tag">{cls.class_name.replace("_", " ")}</span>
-                <span className="nd-class-count">{cls.subjects.length} subject{cls.subjects.length !== 1 ? "s" : ""}</span>
-              </div>
-
-              <div className="nd-subjects-list">
-                {cls.subjects.map(subject => (
-                  <div key={subject.id} className="nd-subject-card">
-                    {/* Subject Header */}
-                    <div className="nd-subject-header" onClick={() => toggleSubject(subject.id)}>
-                      <div className="nd-subject-left">
-                        {expandedSubjects[subject.id]
-                          ? <ChevronDown className="w-4 h-4 nd-chevron" />
-                          : <ChevronRight className="w-4 h-4 nd-chevron" />}
-                        <BookMarked className="w-4 h-4 nd-subject-icon" />
-                        <span className="nd-subject-name">{subject.name}</span>
-                        <span className="nd-subject-badge">{subject.units.length} unit{subject.units.length !== 1 ? "s" : ""}</span>
-                      </div>
-                      <div className="nd-subject-right" onClick={e => e.stopPropagation()}>
-                        <span className="nd-subject-meta">by {subject.created_by?.name}</span>
-                        {canDeleteItem(subject) && (
-                          <button
-                            className="nd-btn-icon-sm nd-btn-icon-danger"
-                            onClick={() => setConfirmDelete({
-                              type: "subject", id: subject.id,
-                              className: cls.class_name, name: subject.name
-                            })}
-                            title="Delete subject"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Units */}
-                    {expandedSubjects[subject.id] && (
-                      <div className="nd-units-list">
-                        {subject.units.length === 0 ? (
-                          <p className="nd-no-items">No units yet</p>
-                        ) : (
-                          subject.units.map(unit => (
-                            <div key={unit.id} className="nd-unit-card">
-                              {/* Unit Header */}
-                              <div className="nd-unit-header" onClick={() => toggleUnit(unit.id)}>
-                                <div className="nd-unit-left">
-                                  {expandedUnits[unit.id]
-                                    ? <ChevronDown className="w-3.5 h-3.5 nd-chevron" />
-                                    : <ChevronRight className="w-3.5 h-3.5 nd-chevron" />}
-                                  <FolderOpen className="w-3.5 h-3.5 nd-unit-icon" />
-                                  <span className="nd-unit-name">{unit.name}</span>
-                                  <span className="nd-unit-badge">{unit.files.length} file{unit.files.length !== 1 ? "s" : ""}</span>
-                                </div>
-                                <div className="nd-unit-right" onClick={e => e.stopPropagation()}>
-                                  {canDeleteItem(unit) && (
-                                    <button
-                                      className="nd-btn-icon-sm nd-btn-icon-danger"
-                                      onClick={() => setConfirmDelete({
-                                        type: "unit", id: unit.id,
-                                        className: cls.class_name,
-                                        subjectId: subject.id,
-                                        name: unit.name
-                                      })}
-                                      title="Delete unit"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Files */}
-                              {expandedUnits[unit.id] && (
-                                <div className="nd-files-list">
-                                  {unit.files.length === 0 ? (
-                                    <p className="nd-no-items">No files uploaded</p>
-                                  ) : (
-                                    unit.files.map(file => (
-                                      <FileCard
-                                        key={file.id}
-                                        file={file}
-                                        canDelete={canDeleteItem(file)}
-                                        onDelete={(f) => setConfirmDelete({
-                                          type: "file", id: f.id,
-                                          className: cls.class_name,
-                                          subjectId: subject.id,
-                                          unitId: unit.id,
-                                          name: f.file_name
-                                        })}
-                                        onPreview={setPreviewFile}
-                                      />
-                                    ))
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
+          <div className="space-y-6">
+            {filteredClasses.map(cls => (
+              <div key={cls.class_name} className="bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/60 rounded-2xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-white bg-gradient-to-r from-[#F05A2B] to-orange-600 rounded-lg shadow-sm">
+                      {cls.class_name.replace("_", " ")}
+                    </span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                      {cls.subjects.length} {cls.subjects.length === 1 ? "subject" : "subjects"}
+                    </span>
                   </div>
-                ))}
+                </div>
+
+                <div className="space-y-3">
+                  {cls.subjects.map(subject => (
+                    <div key={subject.id} className="border border-gray-200/80 dark:border-gray-700/60 rounded-xl overflow-hidden bg-gray-50/50 dark:bg-gray-900/40">
+                      {/* Subject Accordion Header */}
+                      <div
+                        onClick={() => toggleSubject(subject.id)}
+                        className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition-colors select-none"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {expandedSubjects[subject.id] ? (
+                            <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                          )}
+                          <BookMarked className="w-5 h-5 text-[#F05A2B] shrink-0" />
+                          <span className="font-bold text-gray-900 dark:text-white text-base truncate">{subject.name}</span>
+                          <span className="px-2 py-0.5 text-xs font-semibold bg-gray-200/70 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md">
+                            {subject.units.length} {subject.units.length === 1 ? "unit" : "units"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
+                          <span className="text-xs text-gray-400 dark:text-gray-500 font-medium hidden sm:inline">
+                            by {subject.created_by?.name}
+                          </span>
+                          {canDeleteItem(subject) && (
+                            <button
+                              onClick={() => setConfirmDelete({ type: "subject", id: subject.id, className: cls.class_name, name: subject.name })}
+                              className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              title="Delete subject"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Units */}
+                      {expandedSubjects[subject.id] && (
+                        <div className="p-4 pt-1 space-y-2 border-t border-gray-200/60 dark:border-gray-700/40">
+                          {subject.units.length === 0 ? (
+                            <p className="text-xs text-gray-400 dark:text-gray-500 italic py-2 text-center">No units added yet</p>
+                          ) : (
+                            subject.units.map(unit => (
+                              <div key={unit.id} className="border border-gray-200/60 dark:border-gray-700/40 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+                                {/* Unit Accordion Header */}
+                                <div
+                                  onClick={() => toggleUnit(unit.id)}
+                                  className="flex items-center justify-between px-3.5 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors select-none"
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    {expandedUnits[unit.id] ? (
+                                      <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                    ) : (
+                                      <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                    )}
+                                    <FolderOpen className="w-4 h-4 text-amber-500 shrink-0" />
+                                    <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">{unit.name}</span>
+                                    <span className="px-1.5 py-0.5 text-[11px] font-semibold bg-gray-100 dark:bg-gray-700/70 text-gray-500 dark:text-gray-400 rounded">
+                                      {unit.files.length} {unit.files.length === 1 ? "file" : "files"}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                                    {canDeleteItem(unit) && (
+                                      <button
+                                        onClick={() => setConfirmDelete({ type: "unit", id: unit.id, className: cls.class_name, subjectId: subject.id, name: unit.name })}
+                                        className="p-1 text-gray-400 hover:text-red-500 rounded hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                        title="Delete unit"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Files */}
+                                {expandedUnits[unit.id] && (
+                                  <div className="p-3 pt-1 space-y-1.5 border-t border-gray-100 dark:border-gray-700/30">
+                                    {unit.files.length === 0 ? (
+                                      <p className="text-xs text-gray-400 dark:text-gray-500 italic py-2 text-center">No files uploaded for this unit</p>
+                                    ) : (
+                                      unit.files.map(file => (
+                                        <FileCard
+                                          key={file.id}
+                                          file={file}
+                                          canDelete={canDeleteItem(file)}
+                                          onDelete={(f) => setConfirmDelete({
+                                            type: "file", id: f.id,
+                                            className: cls.class_name,
+                                            subjectId: subject.id,
+                                            unitId: unit.id,
+                                            name: f.file_name
+                                          })}
+                                          onPreview={setPreviewFile}
+                                        />
+                                      ))
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
-      {/* FAB for Faculty/HOD */}
+      {/* Floating Action Button (FAB) for Staff */}
       {isStaff && (
         <button
-          className="nd-fab"
           onClick={() => setUploadOpen(true)}
+          className="fixed right-6 bottom-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#F05A2B] to-orange-600 text-white shadow-xl shadow-orange-500/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200"
           title="Upload Notes"
         >
           <Plus className="w-6 h-6" />
@@ -677,17 +670,40 @@ export default function FacultyNotesPage() {
         toast={toast}
       />
 
-      {/* Preview Modal */}
-      <PreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+      {/* File Preview Modal */}
+      <Modal open={!!previewFile} onClose={() => setPreviewFile(null)} title={previewFile?.file_name || "File Preview"} size="xl">
+        <div className="flex flex-col h-[75vh]">
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-200 dark:border-gray-700 shrink-0">
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              {previewFile?.file_type?.toUpperCase()} Document
+            </span>
+            <a
+              href={previewFile?.file_url}
+              download
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#F05A2B] rounded-lg hover:bg-[#E04A1B] transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" /> Download File
+            </a>
+          </div>
+          <iframe
+            src={getPreviewUrl(previewFile)}
+            title={previewFile?.file_name}
+            className="w-full flex-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+          />
+        </div>
+      </Modal>
 
-      {/* Delete Confirm */}
-      <ConfirmModal
+      {/* Delete Confirmation */}
+      <ConfirmDialog
         open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={handleDelete}
         title={`Delete ${confirmDelete?.type}?`}
         message={`Are you sure you want to delete "${confirmDelete?.name}"? This action cannot be undone.`}
-        onConfirm={handleDelete}
-        onCancel={() => setConfirmDelete(null)}
-        loading={deleting}
+        danger
+        confirmText="Delete"
       />
     </div>
   );
