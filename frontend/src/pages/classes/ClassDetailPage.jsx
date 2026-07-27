@@ -91,12 +91,17 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
         isOwn ? "cursor-pointer ring-2 ring-indigo-500/20 bg-indigo-50/5 dark:bg-indigo-950/5 border-indigo-200 dark:border-indigo-800" : ""
       }`}
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className={`flex flex-col lg:grid ${
+        canManage 
+          ? "lg:grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr_100px]" 
+          : "lg:grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr]"
+      } gap-4 items-center`}>
+        {/* Student Info */}
+        <div className="flex items-center gap-3 min-w-0 w-full">
           {s.profile_picture ? (
             <img src={s.profile_picture} alt={s.name} className="w-9 h-9 rounded-xl object-cover shrink-0 ring-2 ring-indigo-500/10" />
           ) : (
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-xs">
               {initials}
             </div>
           )}
@@ -109,29 +114,33 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
           </div>
         </div>
 
-        <div className="flex items-center">
+        {/* Roll No */}
+        <div className="flex items-center w-full">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Roll No:</span>
-          <span className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2 py-0.5 rounded-lg border border-slate-100 dark:border-gray-800/40">
+          <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-gray-700">
             {s.roll_number || "—"}
           </span>
         </div>
 
-        <div className="flex items-center">
+        {/* Reg. No */}
+        <div className="flex items-center w-full">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Reg. No:</span>
-          <span className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2 py-0.5 rounded-lg border border-slate-100 dark:border-gray-800/40">
+          <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-gray-700">
             {s.register_number || "—"}
           </span>
         </div>
 
-        <div className="flex items-center">
+        {/* Status */}
+        <div className="flex items-center w-full">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Status:</span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-gray-700/40 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
             Student
           </span>
         </div>
 
+        {/* Actions */}
         {canManage && (
-          <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-start lg:justify-end gap-1 w-full" onClick={e => e.stopPropagation()}>
             <a
               href={`mailto:${s.email}`}
               className="p-1.5 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30"
@@ -147,8 +156,6 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
             >
               <Pencil className="w-3.5 h-3.5" />
             </button>
-
-
 
             <button
               onClick={() => onRemove(s)}

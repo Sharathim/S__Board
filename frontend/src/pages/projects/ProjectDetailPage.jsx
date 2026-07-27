@@ -85,18 +85,25 @@ function MemberAvatarWithTooltip({ member, size = "xs" }) {
       <AnimatePresence>
         {isHovered && (
           <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.92 }}
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.92 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-44 p-2.5 rounded-2xl bg-slate-900/95 dark:bg-slate-950/95 text-white shadow-xl ring-1 ring-white/10 z-50 pointer-events-none backdrop-blur-md space-y-1 text-center"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2.5 w-48 p-3 rounded-2xl bg-slate-900 text-white shadow-2xl ring-1 ring-slate-700/60 z-50 pointer-events-none text-center space-y-1.5"
           >
-            <div className="flex justify-center">
+            {/* Top Caret Arrow */}
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 rotate-45 border-t border-l border-slate-700/60" />
+
+            <div className="flex justify-center relative z-10">
               <AvatarCircle name={name} picture={picture} size="sm" />
             </div>
-            <p className="text-xs font-black truncate text-white leading-tight">{name}</p>
-            <RoleBadge role={role} />
-            {email && <p className="text-[10px] text-slate-400 truncate pt-0.5">{email}</p>}
+            <p className="text-xs font-black truncate text-white leading-tight relative z-10">{name}</p>
+            <div className="relative z-10">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                {role === "faculty" ? "FACULTY" : role}
+              </span>
+            </div>
+            {email && <p className="text-[10px] text-slate-400 truncate pt-0.5 relative z-10">{email}</p>}
           </motion.div>
         )}
       </AnimatePresence>
