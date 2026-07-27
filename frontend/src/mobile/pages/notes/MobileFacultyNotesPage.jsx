@@ -545,33 +545,47 @@ export default function MobileFacultyNotesPage() {
       {/* ── Page Top Header ── */}
       <div className="bg-white dark:bg-slate-900 px-4 pt-3 pb-3 border-b border-slate-100 dark:border-slate-800 space-y-3">
 
-        {/* Title & Stats Bar */}
+        {/* Title & Upload Action Bar */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-[#F05A2B] text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0">
               <BookMarked className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h1 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">Notes & Docs</h1>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
                 {isStaff ? "Manage study materials" : "Your class study materials"}
               </p>
             </div>
           </div>
 
-          {/* Stats Badges */}
-          <div className="flex items-center gap-1">
-            <div className="text-center px-2 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60">
-              <p className="text-[11px] font-black text-slate-900 dark:text-white">{stats.subjects}</p>
-              <p className="text-[8px] text-slate-400 uppercase tracking-wider font-extrabold">Subj</p>
+          {/* Upload Button in Header */}
+          {isStaff && (
+            <button
+              onClick={() => setUploadOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-[#F05A2B] text-white shadow-md shadow-orange-500/20 active:scale-95 transition-all text-xs font-extrabold flex items-center gap-1.5 shrink-0"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Upload</span>
+            </button>
+          )}
+        </div>
+
+        {/* Stats Badges */}
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Overview</span>
+          <div className="flex items-center gap-1.5">
+            <div className="text-center px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5">
+              <span className="text-[11px] font-black text-slate-900 dark:text-white">{stats.subjects}</span>
+              <span className="text-[9px] text-slate-400 font-extrabold uppercase">Subj</span>
             </div>
-            <div className="text-center px-2 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60">
-              <p className="text-[11px] font-black text-slate-900 dark:text-white">{stats.units}</p>
-              <p className="text-[8px] text-slate-400 uppercase tracking-wider font-extrabold">Units</p>
+            <div className="text-center px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5">
+              <span className="text-[11px] font-black text-slate-900 dark:text-white">{stats.units}</span>
+              <span className="text-[9px] text-slate-400 font-extrabold uppercase">Units</span>
             </div>
-            <div className="text-center px-2 py-1 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-900/40">
-              <p className="text-[11px] font-black text-[#F05A2B]">{stats.docs}</p>
-              <p className="text-[8px] text-[#F05A2B]/70 uppercase tracking-wider font-extrabold">Docs</p>
+            <div className="text-center px-2.5 py-1 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-900/40 flex items-center gap-1.5">
+              <span className="text-[11px] font-black text-[#F05A2B]">{stats.docs}</span>
+              <span className="text-[9px] text-[#F05A2B]/70 font-extrabold uppercase">Docs</span>
             </div>
           </div>
         </div>
@@ -660,18 +674,6 @@ export default function MobileFacultyNotesPage() {
           )
         )}
       </div>
-
-      {/* ── Sleek Floating Action Button (FAB) ── */}
-      {isStaff && (
-        <button
-          onClick={() => setUploadOpen(true)}
-          className="fixed bottom-[76px] right-4 z-40 px-4 py-3 rounded-full bg-[#F05A2B] text-white shadow-lg shadow-orange-500/30 border border-orange-400/30 backdrop-blur-md flex items-center gap-2 text-xs font-extrabold active:scale-95 transition-all hover:scale-105"
-          aria-label="Upload Notes"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>Upload Notes</span>
-        </button>
-      )}
 
       {/* ── Upload Sheet ── */}
       <UploadSheet
