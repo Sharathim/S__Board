@@ -427,12 +427,23 @@ function ProgressPostItem({
         </div>
       </div>
 
-      {/* Progress Title */}
-      {node.title && (
-        <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-snug tracking-tight">
-          {node.title}
-        </h3>
-      )}
+      {/* Progress Title & Percentage */}
+      <div className="space-y-2">
+        {node.title && (
+          <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-snug tracking-tight">
+            {node.title}
+          </h3>
+        )}
+
+        {node.percentage !== undefined && node.percentage > 0 && (
+          <div className="flex items-center gap-3 bg-indigo-50/50 dark:bg-indigo-950/20 px-4 py-2.5 rounded-2xl border border-indigo-100/60 dark:border-indigo-900/30 max-w-md">
+            <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 shrink-0">{node.percentage}% Done</span>
+            <div className="flex-1 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+              <div className="bg-indigo-600 dark:bg-indigo-500 h-2 rounded-full transition-all duration-500" style={{ width: `${node.percentage}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Progress Description / Details */}
       {node.accomplishment && (
@@ -679,8 +690,7 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   const [hoveredId, setHoveredId] = useState(null);
   // timelineNodes is newest-first; the roadmap must read oldest -> newest (island 1 = first milestone achieved).
   const chronological = [...timelineNodes].reverse();
-  const totalSlots = Math.max(ISLAND_MIN_SLOTS, chronological.length);
-  const slots = Array.from({ length: totalSlots }, (_, i) => chronological[i] || null);
+  const slots = chronological;
   const latestNode = chronological[chronological.length - 1];
   // Hovering always wins; otherwise fall back to the latest milestone (never "stuck" on an old click).
   const activeNode = (hoveredId ? chronological.find((n) => n.id === hoveredId) : null) || latestNode;
@@ -824,6 +834,7 @@ export default function ProjectDetailPage() {
   const [formTitle, setFormTitle] = useState("");
   const [formAccomplishment, setFormAccomplishment] = useState("");
   const [formFiles, setFormFiles] = useState([]);
+  const [formPercentage, setFormPercentage] = useState(0);
 
   // Fetch data
   const { data: project, isLoading } = useQuery({
@@ -852,12 +863,14 @@ export default function ProjectDetailPage() {
       let parsed = {};
       try { parsed = JSON.parse(editingMsg.content); } catch { parsed = {}; }
       setFormAccomplishment(
-        parsed.completed_this_week || parsed.accomplishment || parsed.summary ||
+        parsed.accomplishment || parsed.completed_this_week || parsed.summary ||
         editingMsg.content || ""
       );
+      setFormPercentage(parsed.percentage || 0);
     } else {
       setFormTitle("");
       setFormAccomplishment("");
+      setFormPercentage(0);
     }
     setFormFiles([]);
   }, [editingMsg]);
@@ -963,16 +976,21 @@ export default function ProjectDetailPage() {
       }
     }
 
+    const contentPayload = JSON.stringify({
+      accomplishment: formAccomplishment,
+      percentage: Number(formPercentage)
+    });
+
     if (editingMsg) {
       editMutation.mutate({
         messageId: editingMsg.id,
         title: formTitle,
-        content: formAccomplishment,
+        content: contentPayload,
       });
     } else {
       const formData = new FormData();
       formData.append("title", formTitle);
-      formData.append("content", formAccomplishment);
+      formData.append("content", contentPayload);
       for (const file of formFiles) {
         formData.append("attachments", file);
       }
@@ -984,12 +1002,15 @@ export default function ProjectDetailPage() {
   const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
     let title = msg.title || "";
     let accomplishment = "";
+    let percentage = 0;
     try {
       const parsed = JSON.parse(msg.content);
-      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
+      accomplishment = parsed.accomplishment || parsed.completed_this_week || parsed.summary || msg.content || "";
       if (!title && parsed.title) title = parsed.title;
+      percentage = parsed.percentage || 0;
     } catch {
       accomplishment = msg.content || "";
+      percentage = 0;
     }
 
     if (!title && accomplishment) {
@@ -1021,6 +1042,7 @@ export default function ProjectDetailPage() {
       is_edited: msg.is_edited,
       isOwn,
       canEdit,
+      percentage,
     };
   });
 
@@ -1209,29 +1231,51 @@ export default function ProjectDetailPage() {
               )}
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto py-2">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={displayedNode.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                >
-                  <ProgressPostItem
-                    node={displayedNode}
-                    projectId={id}
-                    isStudent={isStudent}
-                    isFaculty={isFaculty}
-                    isHOD={isHOD}
-                    currentUserId={user?.id}
-                    isOwn={displayedNode.isOwn}
-                    canEdit={displayedNode.canEdit}
-                    isLatest={displayedNode.id === timelineNodes[0]?.id}
-                    {...progressHandlers}
-                  />
-                </motion.div>
-              </AnimatePresence>
+            <div className="max-w-5xl mx-auto py-2 flex flex-col lg:flex-row gap-8 items-start">
+              {/* Left Column: Progress update card */}
+              <div className="flex-1 w-full min-w-0">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={displayedNode.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                  >
+                    <ProgressPostItem
+                      node={displayedNode}
+                      projectId={id}
+                      isStudent={isStudent}
+                      isFaculty={isFaculty}
+                      isHOD={isHOD}
+                      currentUserId={user?.id}
+                      isOwn={displayedNode.isOwn}
+                      canEdit={displayedNode.canEdit}
+                      isLatest={displayedNode.id === timelineNodes[0]?.id}
+                      {...progressHandlers}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Right Column: Neomorphic percentage card */}
+              <div className="w-full lg:w-80 shrink-0">
+                <div className="p-6 rounded-[32px] bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/80 shadow-[10px_10px_20px_#d1d5db,-10px_-10px_20px_#ffffff] dark:shadow-[10px_10px_20px_#090d16,-10px_-10px_20px_#1b253b] text-center">
+                  <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Latest Progress</h4>
+
+                  <div className="relative w-36 h-36 mx-auto flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900 shadow-[inset_6px_6px_12px_#d1d5db,inset_-6px_-6px_12px_#ffffff] dark:shadow-[inset_6px_6px_12px_#090d16,inset_-6px_-6px_12px_#1b253b] mb-4">
+                    <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                      {timelineNodes[0]?.percentage || 0}%
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed px-2">
+                    {timelineNodes[0]?.percentage
+                      ? `Project is ${timelineNodes[0].percentage}% complete based on the latest update.`
+                      : "No progress updates with completed percentage logged yet."}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1288,6 +1332,30 @@ export default function ProjectDetailPage() {
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
               rows={4}
             />
+          </div>
+
+          {/* Progress Completed Slider */}
+          <div className="space-y-1.5 text-left">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Progress Completed (%)
+              </label>
+              <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">{formPercentage}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              value={formPercentage}
+              onChange={e => setFormPercentage(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-650"
+            />
+            <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 font-bold">
+              <span>0% (Kickoff)</span>
+              <span>50% (Halfway)</span>
+              <span>100% (Completed)</span>
+            </div>
           </div>
 
           {/* File attachments */}

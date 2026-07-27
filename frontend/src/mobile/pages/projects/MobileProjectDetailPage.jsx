@@ -204,8 +204,7 @@ const ISLAND_MIN_SLOTS = 5;
 function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
   // timelineNodes is newest-first; the roadmap must read oldest -> newest (island 1 = first milestone achieved).
   const chronological = [...timelineNodes].reverse();
-  const totalSlots = Math.max(ISLAND_MIN_SLOTS, chronological.length);
-  const slots = Array.from({ length: totalSlots }, (_, i) => chronological[i] || null);
+  const slots = chronological;
 
   const initialIdx = (() => {
     if (selectedId) {
@@ -388,6 +387,7 @@ export default function MobileProjectDetailPage() {
   const [formTitle, setFormTitle] = useState("");
   const [formText, setFormText] = useState("");
   const [formFiles, setFormFiles] = useState([]);
+  const [formPercentage, setFormPercentage] = useState(0);
 
   // Edit project form
   const [editName, setEditName] = useState("");
@@ -418,10 +418,12 @@ export default function MobileProjectDetailPage() {
       setFormTitle(editingMsg.title || "");
       let parsed = {};
       try { parsed = JSON.parse(editingMsg.content); } catch {}
-      setFormText(parsed.completed_this_week || parsed.accomplishment || parsed.summary || editingMsg.content || "");
+      setFormText(parsed.accomplishment || parsed.completed_this_week || parsed.summary || editingMsg.content || "");
+      setFormPercentage(parsed.percentage || 0);
     } else {
       setFormTitle("");
       setFormText("");
+      setFormPercentage(0);
     }
     setFormFiles([]);
   }, [editingMsg]);
@@ -493,12 +495,13 @@ export default function MobileProjectDetailPage() {
 
   const handleSubmit = () => {
     if (!formText.trim() && formFiles.length === 0 && !formTitle.trim()) return;
+    const contentPayload = JSON.stringify({ accomplishment: formText, percentage: Number(formPercentage) });
     if (editingMsg) {
-      editMutation.mutate({ messageId: editingMsg.id, title: formTitle, content: formText });
+      editMutation.mutate({ messageId: editingMsg.id, title: formTitle, content: contentPayload });
     } else {
       const formData = new FormData();
       formData.append("title", formTitle);
-      formData.append("content", formText);
+      formData.append("content", contentPayload);
       for (const file of formFiles) formData.append("attachments", file);
       sendMutation.mutate(formData);
     }
@@ -514,12 +517,15 @@ export default function MobileProjectDetailPage() {
   const timelineNodes = reversedMessages.filter(msg => !msg.is_deleted).map(msg => {
     let title = msg.title || "";
     let accomplishment = "";
+    let percentage = 0;
     try {
       const parsed = JSON.parse(msg.content);
-      accomplishment = parsed.completed_this_week || parsed.accomplishment || parsed.summary || msg.content || "";
+      accomplishment = parsed.accomplishment || parsed.completed_this_week || parsed.summary || msg.content || "";
       if (!title && parsed.title) title = parsed.title;
+      percentage = parsed.percentage || 0;
     } catch {
       accomplishment = msg.content || "";
+      percentage = 0;
     }
     if (!title && accomplishment) {
       const firstLine = accomplishment.split('\n')[0];
@@ -537,6 +543,7 @@ export default function MobileProjectDetailPage() {
       avatar: msg.sender?.profile_picture, title, accomplishment, attachments,
       comments: msg.comments || [], is_edited: msg.is_edited,
       isOwn: msg.sender?.id === user?.id, canEdit: msg.can_edit && msg.sender?.id === user?.id,
+      percentage,
     };
   });
 
@@ -633,7 +640,24 @@ export default function MobileProjectDetailPage() {
             description={isStudent ? "Post your first update to get started." : "Students haven't posted any updates yet."}
           />
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* Neomorphic Card in Mobile progress stream */}
+            <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-900 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] dark:shadow-[6px_6px_12px_#090d16,-6px_-6px_12px_#1b253b] text-center border border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-4">
+              <div className="flex-1 text-left">
+                <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Latest Progress</h4>
+                <p className="text-xs font-bold text-slate-705 dark:text-slate-200 mt-1">
+                  {timelineNodes[0]?.percentage
+                    ? `Project is ${timelineNodes[0].percentage}% complete based on the latest update.`
+                    : "No progress updates logged with completion percentage."}
+                </p>
+              </div>
+              <div className="relative w-16 h-16 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900 shadow-[inset_3px_3px_6px_#d1d5db,inset_-3px_-3px_6px_#ffffff] dark:shadow-[inset_3px_3px_6px_#090d16,inset_-3px_-3px_6px_#1b253b] shrink-0">
+                <span className="text-base font-black text-indigo-600 dark:text-indigo-400">
+                  {timelineNodes[0]?.percentage || 0}%
+                </span>
+              </div>
+            </div>
+
             <AnimatePresence mode="wait">
               <motion.div
                 key={displayedNode.id}
@@ -697,6 +721,26 @@ export default function MobileProjectDetailPage() {
               rows={3}
               className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
             />
+          </div>
+          <div className="space-y-1 text-left">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Progress Completed (%)</label>
+              <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">{formPercentage}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              value={formPercentage}
+              onChange={e => setFormPercentage(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-650"
+            />
+            <div className="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 font-bold">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
           </div>
           {!editingMsg && (
             <div>
@@ -871,10 +915,20 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
         </div>
       </div>
 
-      {/* Title */}
-      {node.title && (
-        <h3 className="text-xs font-black text-slate-900 dark:text-white leading-snug mb-1">{node.title}</h3>
-      )}
+      {/* Title & Percentage */}
+      <div className="space-y-1.5 mb-1.5">
+        {node.title && (
+          <h3 className="text-xs font-black text-slate-900 dark:text-white leading-snug">{node.title}</h3>
+        )}
+        {node.percentage !== undefined && node.percentage > 0 && (
+          <div className="flex items-center gap-2 bg-indigo-50/50 dark:bg-indigo-950/20 px-2.5 py-1.5 rounded-xl border border-indigo-100/60 dark:border-indigo-900/30">
+            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 shrink-0">{node.percentage}% Done</span>
+            <div className="flex-1 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+              <div className="bg-indigo-600 dark:bg-indigo-500 h-1.5 rounded-full" style={{ width: `${node.percentage}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Description */}
       {node.accomplishment && (
