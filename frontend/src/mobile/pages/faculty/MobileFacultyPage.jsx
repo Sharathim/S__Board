@@ -6,6 +6,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { Spinner } from "../../../components/ui/Spinner";
 import { Avatar } from "../../../components/ui/Avatar";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
+import { Switch } from "../../../components/ui/Switch";
 import MobileSearchBar from "../../components/MobileSearchBar";
 import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
@@ -101,25 +102,51 @@ export default function MobileFacultyPage() {
 
   return (
     <div className="mobile-fade-in pb-6 space-y-4">
-      {/* HOD Invite Banner */}
-      {isHOD && inviteData?.invite_link && inviteData?.is_active && (
-        <MobileCard className="!bg-indigo-50 dark:!bg-indigo-950/20 !border-indigo-200/60 dark:!border-indigo-800/40">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
-              <Link2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+      {/* HOD Invite Toggle & Banner */}
+      {isHOD && inviteData && (
+        <div className="space-y-2">
+          <MobileCard>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
+                  <Users className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">New Faculty Registration</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                    {inviteData.is_active ? "Registration is OPEN" : "Registration is CLOSED"}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={inviteData.is_active}
+                onChange={() => toggleInviteMutation.mutate()}
+                loading={toggleInviteMutation.isPending}
+                size="sm"
+              />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">Faculty Invite Link Active</p>
-              <p className="text-[10px] text-indigo-500 dark:text-indigo-400 truncate mt-0.5">{inviteData.invite_link}</p>
-            </div>
-            <button
-              onClick={copyInviteLink}
-              className="mobile-tappable p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
-            >
-              {inviteCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </button>
-          </div>
-        </MobileCard>
+          </MobileCard>
+
+          {inviteData.is_active && inviteData.invite_link && (
+            <MobileCard className="!bg-indigo-50 dark:!bg-indigo-950/20 !border-indigo-200/60 dark:!border-indigo-800/40">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
+                  <Link2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">Invite Link Active</p>
+                  <p className="text-[10px] text-indigo-500 dark:text-indigo-400 truncate mt-0.5">{inviteData.invite_link}</p>
+                </div>
+                <button
+                  onClick={copyInviteLink}
+                  className="mobile-tappable p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold"
+                >
+                  {inviteCopied ? <CheckCheck className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </MobileCard>
+          )}
+        </div>
       )}
 
       {/* Search */}
