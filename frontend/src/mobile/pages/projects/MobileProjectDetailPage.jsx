@@ -382,6 +382,7 @@ export default function MobileProjectDetailPage() {
   const [activeTab, setActiveTab] = useState("progress"); // "progress" | "roadmap"
   const [previewAttachment, setPreviewAttachment] = useState(null);
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
+  const [membersSheetOpen, setMembersSheetOpen] = useState(false);
 
   // Progress form
   const [formTitle, setFormTitle] = useState("");
@@ -578,15 +579,19 @@ export default function MobileProjectDetailPage() {
           )}
 
           <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-[10px]">
-            <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setMembersSheetOpen(true)}
+              className="mobile-tappable flex items-center gap-1.5 active:opacity-75"
+            >
               <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <div className="flex -space-x-1.5">
-                {allMembers.slice(0, 5).map(m => (
-                  <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size={5} />
+                {allMembers.slice(0, 5).map((m, idx) => (
+                  <AvatarCircle key={m.id || m.user_id || idx} name={m.name || m.user?.name} picture={m.profile_picture || m.user?.profile_picture} size={5} />
                 ))}
               </div>
               <span className="font-bold text-slate-600 dark:text-slate-400">{allMembers.length} member{allMembers.length !== 1 ? "s" : ""}</span>
-            </div>
+            </button>
 
             <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
               {timelineNodes.length} Update{timelineNodes.length !== 1 ? "s" : ""}
@@ -777,6 +782,36 @@ export default function MobileProjectDetailPage() {
         confirmText="Delete"
         danger
       />
+
+      {/* Project Members BottomSheet */}
+      <BottomSheet open={membersSheetOpen} onClose={() => setMembersSheetOpen(false)} title={`Project Members (${allMembers.length})`}>
+        <div className="space-y-3 pb-3">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Team members assigned to this project:</p>
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto mobile-hide-scrollbar">
+            {allMembers.map((m, idx) => {
+              const name = m.name || m.user?.name || "Member";
+              const picture = m.profile_picture || m.user?.profile_picture;
+              const role = m.role_in_project || m.role || m.user?.role || "STUDENT";
+              const email = m.email || m.user?.email || "";
+
+              return (
+                <div key={m.id || m.user_id || idx} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <AvatarCircle name={name} picture={picture} size={6} />
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{name}</p>
+                      {email && <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{email}</p>}
+                    </div>
+                  </div>
+                  <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${ROLE_COLORS[role] || ROLE_COLORS.STUDENT}`}>
+                    {role === "faculty" ? "Faculty" : role}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

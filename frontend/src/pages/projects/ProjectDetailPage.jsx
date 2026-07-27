@@ -67,6 +67,43 @@ function AvatarCircle({ name = "?", picture, size = "md", colorSeed }) {
   );
 }
 
+function MemberAvatarWithTooltip({ member, size = "xs" }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const name = member?.name || member?.user?.name || "Member";
+  const picture = member?.profile_picture || member?.user?.profile_picture;
+  const role = member?.role_in_project || member?.role || member?.user?.role || "STUDENT";
+  const email = member?.email || member?.user?.email || "";
+
+  return (
+    <div
+      className="relative flex items-center shrink-0"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <AvatarCircle name={name} picture={picture} size={size} />
+
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.92 }}
+            transition={{ duration: 0.15 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-44 p-2.5 rounded-2xl bg-slate-900/95 dark:bg-slate-950/95 text-white shadow-xl ring-1 ring-white/10 z-50 pointer-events-none backdrop-blur-md space-y-1 text-center"
+          >
+            <div className="flex justify-center">
+              <AvatarCircle name={name} picture={picture} size="sm" />
+            </div>
+            <p className="text-xs font-black truncate text-white leading-tight">{name}</p>
+            <RoleBadge role={role} />
+            {email && <p className="text-[10px] text-slate-400 truncate pt-0.5">{email}</p>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function RoleBadge({ role }) {
   const map = {
     HOD: "bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800/60",
@@ -770,6 +807,7 @@ export default function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState("stream"); // "stream" | "roadmap"
   const [previewAttachment, setPreviewAttachment] = useState(null);
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
 
   // Edit project fields
   const [editProjectName, setEditProjectName] = useState("");
@@ -1041,22 +1079,27 @@ export default function ProjectDetailPage() {
             )}
 
             <div className="flex items-center gap-3 shrink-0">
-              <div className="flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-slate-400" />
+              <button
+                type="button"
+                onClick={() => setMembersModalOpen(true)}
+                className="flex items-center gap-1.5 p-1 -ml-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors group cursor-pointer"
+                title="Click to view all project members"
+              >
+                <Users className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
                 <div className="flex items-center -space-x-1.5">
-                  {allMembers.slice(0, 5).map((m) => (
-                    <AvatarCircle key={m.id} name={m.name} picture={m.profile_picture} size="xs" />
+                  {allMembers.slice(0, 5).map((m, idx) => (
+                    <MemberAvatarWithTooltip key={m.id || m.user_id || idx} member={m} size="xs" />
                   ))}
                   {allMembers.length > 5 && (
-                    <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300">
+                    <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300 ring-2 ring-white dark:ring-slate-900">
                       +{allMembers.length - 5}
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 ml-1">
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ml-1">
                   {allMembers.length} member{allMembers.length !== 1 ? "s" : ""}
                 </span>
-              </div>
+              </button>
 
               <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
                 {timelineNodes.length} Update{timelineNodes.length !== 1 ? "s" : ""}
@@ -1325,6 +1368,61 @@ export default function ProjectDetailPage() {
         confirmText="Delete"
         danger
       />
+
+      {/* ── Project Members Details Modal ── */}
+      <Modal open={membersModalOpen} onClose={() => setMembersModalOpen(false)}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+              <Users className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight">
+                Project Team Members ({allMembers.length})
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Assigned team members for {project.name}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2.5 max-h-[55vh] overflow-y-auto scrollbar-premium pr-1">
+            {allMembers.map((m, idx) => {
+              const name = m.name || m.user?.name || "Member";
+              const picture = m.profile_picture || m.user?.profile_picture;
+              const role = m.role_in_project || m.role || m.user?.role || "STUDENT";
+              const email = m.email || m.user?.email || "";
+
+              return (
+                <div
+                  key={m.id || m.user_id || idx}
+                  className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <AvatarCircle name={name} picture={picture} size="md" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-slate-900 dark:text-white truncate">{name}</p>
+                      {email ? (
+                        <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 truncate">{email}</p>
+                      ) : (
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 capitalize">Project Member</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <RoleBadge role={role} />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+            <Button variant="ghost" onClick={() => setMembersModalOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
