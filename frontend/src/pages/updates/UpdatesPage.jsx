@@ -729,12 +729,12 @@ export default function UpdatesPage() {
 
       {/* ─── Content Feed ─── */}
       {finalUpdates.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl border border-gray-150 dark:border-gray-700/60 shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-700/40 flex items-center justify-center mb-4 border border-gray-100 dark:border-gray-700/40">
-            <Megaphone className="w-8 h-8 text-gray-300 dark:text-gray-600" />
+        <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 dark:bg-[#121722]/80 backdrop-blur-md rounded-3xl border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center mb-4 border border-gray-100 dark:border-white/[0.06]">
+            <Megaphone className="w-8 h-8 text-gray-300 dark:text-slate-500" />
           </div>
-          <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">No updates available</h4>
-          <p className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
+          <h4 className="text-sm font-bold text-gray-700 dark:text-slate-200">No updates available</h4>
+          <p className="text-xs text-gray-400 dark:text-slate-400 mt-1 max-w-xs leading-relaxed">
             Department updates published by the department will appear here.
           </p>
         </div>

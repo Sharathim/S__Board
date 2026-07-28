@@ -182,10 +182,10 @@ export default function ProjectsPage() {
           description="Create a new project to get started."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[24px] border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_24px_rgba(0,0,0,0.015)]">
+        <div className="overflow-x-auto rounded-[24px] border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#121722] shadow-sm">
           <table className="w-full text-left border-collapse min-w-[950px]">
             <thead>
-              <tr className="border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/35 text-gray-400 dark:text-gray-500 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
+              <tr className="border-b border-gray-200/80 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.02] text-gray-400 dark:text-slate-400 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
                 <th className="py-4 px-6">Project Name</th>
                 <th className="py-4 px-5">Faculty</th>
                 <th className="py-4 px-5">Forum Member</th>
@@ -195,7 +195,7 @@ export default function ProjectsPage() {
                 <th className="py-4 px-6 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-850">
+            <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
               {projects.map((project, idx) => {
                 const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
                 const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
@@ -207,7 +207,7 @@ export default function ProjectsPage() {
                   <tr
                     key={project.id}
                     onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
-                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/20 cursor-pointer transition-all duration-150"
+                    className="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] cursor-pointer transition-all duration-150"
                   >
                     {/* Project Name (Index styled as a rounded pill) */}
                     <td className="px-6" style={{ paddingTop: "clamp(12px, 1.8vw, 17px)", paddingBottom: "clamp(12px, 1.8vw, 17px)" }}>

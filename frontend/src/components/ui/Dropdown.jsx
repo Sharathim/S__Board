@@ -22,7 +22,7 @@ export function Dropdown({ trigger, children, align = "left" }) {
       {open && (
         <div
           className={clsx(
-            "absolute z-50 mt-1.5 min-w-[180px] bg-white dark:bg-[#1A2438] rounded-xl shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-white/10 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150",
+            "absolute z-50 mt-1.5 min-w-[180px] bg-white dark:bg-[#171E2E] rounded-xl shadow-xl border border-gray-200/80 dark:border-white/[0.06] py-1.5 animate-in fade-in slide-in-from-top-2 duration-150",
             align === "right" ? "right-0" : "left-0"
           )}
           onClick={() => setOpen(false)}
@@ -42,7 +42,7 @@ export function DropdownItem({ children, onClick, danger }) {
         "w-full text-left px-4 py-2 text-sm font-medium transition-colors",
         danger
           ? "text-red-600 hover:bg-red-50 dark:text-rose-400 dark:hover:bg-rose-500/15"
-          : "text-gray-700 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800/90"
+          : "text-gray-700 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-white/[0.06]"
       )}
     >
       {children}

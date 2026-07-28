@@ -163,53 +163,53 @@ html.dark,
 body.dark,
 :root.dark,
 .dark {
-  --background: #0B0F17;
-  --surface: #131C2E;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.08);
-  --border-medium: rgba(255, 255, 255, 0.15);
-  --border-color: rgba(255, 255, 255, 0.08);
+  --background: #0A0D14;
+  --surface: #121722;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --border-color: rgba(255, 255, 255, 0.06);
 
-  --bg-base: #0B0F17;
-  --bg-surface: #131C2E;
-  --bg-surface-hover: #1E2A42;
-  --bg-surface-elevated: #1A2438;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: rgba(255, 255, 255, 0.15);
+  --bg-base: #0A0D14;
+  --bg-surface: #121722;
+  --bg-surface-hover: #171E2E;
+  --bg-surface-elevated: #171E2E;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.08);
 
-  --text: #F8FAFC;
-  --text-primary: #F8FAFC;
+  --text: #FFFFFF;
+  --text-primary: #FFFFFF;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
 
-  --accent-hover: #FF7043;
-  --accent-muted: rgba(240, 90, 43, 0.22);
+  --accent-hover: #FF6B3D;
+  --accent-muted: rgba(240, 90, 43, 0.18);
 
-  --sidebar-bg: #131C2E;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-hover: #1E2A42;
-  --surface-hover: #1E2A42;
-  --surface-secondary: #131C2E;
+  --sidebar-bg: #121722;
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-hover: #171E2E;
+  --surface-hover: #171E2E;
+  --surface-secondary: #121722;
 
   /* Dark mode safe status colors */
-  --status-success-bg: rgba(16, 185, 129, 0.16);
+  --status-success-bg: rgba(16, 185, 129, 0.14);
   --status-success-text: #34D399;
-  --status-success-border: rgba(52, 211, 153, 0.3);
+  --status-success-border: rgba(52, 211, 153, 0.25);
 
-  --status-warning-bg: rgba(245, 158, 11, 0.16);
+  --status-warning-bg: rgba(245, 158, 11, 0.14);
   --status-warning-text: #FBBF24;
-  --status-warning-border: rgba(251, 191, 36, 0.3);
+  --status-warning-border: rgba(251, 191, 36, 0.25);
 
-  --status-danger-bg: rgba(239, 68, 68, 0.16);
+  --status-danger-bg: rgba(239, 68, 68, 0.14);
   --status-danger-text: #F87171;
-  --status-danger-border: rgba(248, 113, 113, 0.3);
+  --status-danger-border: rgba(248, 113, 113, 0.25);
 
-  --status-info-bg: rgba(59, 130, 246, 0.16);
+  --status-info-bg: rgba(59, 130, 246, 0.14);
   --status-info-text: #60A5FA;
-  --status-info-border: rgba(96, 165, 250, 0.3);
+  --status-info-border: rgba(96, 165, 250, 0.25);
 
-  background-color: #0B0F17;
-  color: #F8FAFC;
+  background-color: #0A0D14;
+  color: #FFFFFF;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */

@@ -312,7 +312,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
   const totalFiles = units.reduce((acc, u) => acc + (u.files?.length || 0), 0);
 
   return (
-    <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-4 shadow-sm transition-all mb-3.5">
+    <div className="relative overflow-hidden bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] rounded-3xl p-4 shadow-sm transition-all mb-3.5">
       {/* Top Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-orange-400" />
 
@@ -349,7 +349,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       </div>
 
       {/* Unit Segmented Pills Bar */}
-      <div className="bg-slate-100/80 dark:bg-slate-800/60 p-1 rounded-2xl flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
+      <div className="bg-slate-100/80 dark:bg-white/[0.04] p-1 rounded-2xl flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
         {UNIT_OPTIONS.map(unitName => {
           const hasUnit = units.some(u => u.name === unitName);
           const isActive = activeUnit === unitName;
@@ -361,7 +361,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
                 isActive
                   ? "bg-[#F05A2B] text-white shadow-xs"
                   : hasUnit
-                  ? "bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300"
+                  ? "bg-white/60 dark:bg-white/[0.06] text-slate-700 dark:text-slate-300"
                   : "text-slate-400 dark:text-slate-600"
               }`}
             >
@@ -375,9 +375,9 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       {/* Files List */}
       <div>
         {activeFiles.length === 0 ? (
-          <div className="py-6 text-center bg-slate-50/50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+          <div className="py-6 text-center bg-slate-50/50 dark:bg-white/[0.02] border border-dashed border-gray-200/80 dark:border-white/[0.06] rounded-2xl">
             <FolderOpen className="w-6 h-6 mx-auto mb-1 text-slate-300 dark:text-slate-700" />
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-600">No files uploaded in {activeUnit}</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">No files uploaded in {activeUnit}</p>
           </div>
         ) : (
           activeFiles.map(file => (

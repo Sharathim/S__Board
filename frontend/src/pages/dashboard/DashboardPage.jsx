@@ -164,31 +164,25 @@ export default function DashboardPage() {
            ═══════════════════════════════════════════════════ */}
         <div className="da grid grid-cols-4 gap-3 shrink-0">
 
-          {/* Card 1 — Active Projects (orange gradient hero) */}
+          {/* Card 1 — Active Projects */}
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="relative rounded-[20px] p-4 cursor-pointer group overflow-hidden shrink-0"
-            style={{
-              background: "linear-gradient(135deg, #F05A2B 0%, #D94517 100%)",
-              boxShadow: "0 8px 24px rgba(240,90,43,0.22)",
-            }}
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm relative overflow-hidden shrink-0"
           >
-            <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-2.5">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/80">Active Projects</span>
-                <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <FolderKanban className="w-3.5 h-3.5 text-white" />
-                </div>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-[#FF8365]" />
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#F05A2B] dark:text-[#FF8365]">Active Projects</span>
+              <div className="w-6 h-6 rounded-lg bg-[#FFEEE9] dark:bg-[#F05A2B]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FolderKanban className="w-3.5 h-3.5 text-[#F05A2B] dark:text-[#FF8365]" />
               </div>
-              <p className="text-4xl font-black text-white leading-none tabular-nums">{inProgress}</p>
-              <div className="mt-2.5">
-                <div className="flex justify-between mb-1">
-                  <span className="text-[9px] font-bold text-white/70">{activePercent}% of {total} total</span>
-                </div>
-                <div className="h-1 rounded-full bg-white/25">
-                  <div className="h-full rounded-full bg-white/90" style={{ width: `${activePercent}%`, transition: "width 1s ease" }} />
-                </div>
+            </div>
+            <p className="text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums">{inProgress}</p>
+            <div className="mt-2.5">
+              <div className="flex justify-between mb-1">
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{activePercent}% of {total} total</span>
+              </div>
+              <div className="h-1 rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="h-full rounded-full bg-[#F05A2B]" style={{ width: `${activePercent}%`, transition: "width 1s ease" }} />
               </div>
             </div>
           </div>
@@ -196,12 +190,11 @@ export default function DashboardPage() {
           {/* Card 2 — Completed */}
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-900"
-            style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Completed</span>
-              <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
@@ -212,12 +205,11 @@ export default function DashboardPage() {
           {/* Card 3 — Students */}
           <div
             onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-900"
-            style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Students Portal</span>
-              <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <GraduationCap className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
               </div>
             </div>
@@ -228,12 +220,11 @@ export default function DashboardPage() {
           {/* Card 4 — Faculty */}
           <div
             onClick={() => navigateWithTransition("/faculty", "Faculty", Users)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-slate-900"
-            style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Faculty Board</span>
-              <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Building2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
@@ -253,10 +244,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-3 shrink-0" style={{ width: "clamp(240px, 30%, 310px)" }}>
 
             {/* Project Status Breakdown */}
-            <div
-              className="da rounded-[20px] p-4 bg-white dark:bg-slate-900 shrink-0"
-              style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
-            >
+            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm shrink-0">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Project Status</span>
                 <BarChart3 className="w-3.5 h-3.5 text-[#F05A2B]" />
@@ -289,7 +277,7 @@ export default function DashboardPage() {
                   </div>
                   <StatusBar value={pending} max={total} color="#94A3B8" />
                 </div>
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="pt-2 border-t border-slate-100 dark:border-white/[0.05]">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">Total Projects</span>
                     <span className="text-xs font-black text-slate-900 dark:text-white tabular-nums">{total}</span>
@@ -299,10 +287,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Project Activity (Replaced Top Classrooms section) */}
-            <div
-              className="da rounded-[20px] p-4 bg-white dark:bg-slate-900 flex-1 min-h-0 flex flex-col"
-              style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
-            >
+            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex-1 min-h-0 flex flex-col">
               <div className="flex items-center justify-between mb-3 shrink-0">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Recent Projects</span>
                 <MessageSquare className="w-3.5 h-3.5 text-[#F05A2B]" />
@@ -316,7 +301,7 @@ export default function DashboardPage() {
                       <div
                         key={act.id}
                         onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-                        className="p-2 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100/60 dark:border-slate-800/80 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600/50 cursor-pointer transition-all duration-150 group"
+                        className="p-2 rounded-xl bg-slate-50/70 dark:bg-white/[0.03] border border-slate-100/60 dark:border-white/[0.05] hover:bg-white dark:hover:bg-white/[0.06] hover:border-slate-200 dark:hover:border-white/10 cursor-pointer transition-all duration-150 group"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#F05A2B] transition-colors truncate max-w-[130px]">
@@ -350,12 +335,9 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Right: Department Announcements (3 items, no scroll) ── */}
-          <div
-            className="da flex-1 rounded-[20px] bg-white dark:bg-slate-900 flex flex-col min-h-0"
-            style={{ border: "1.5px solid #EBEBEB", boxShadow: "0 4px 16px rgba(0,0,0,0.04)" }}
-          >
+          <div className="da flex-1 rounded-[20px] bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex flex-col min-h-0">
             {/* Header — no live badge */}
-            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 dark:border-white/[0.05] shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-[#F05A2B]/10 flex items-center justify-center">
                   <Megaphone className="w-3.5 h-3.5 text-[#F05A2B]" />
