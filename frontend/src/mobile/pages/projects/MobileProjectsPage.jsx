@@ -86,7 +86,7 @@ export default function MobileProjectsPage() {
   const projects = data?.projects || [];
 
   return (
-    <div className="mobile-fade-in pb-6 space-y-4">
+    <div className="mobile-fade-in pt-3 pb-6 space-y-4">
       {/* Search */}
       <MobileSearchBar
         value={search}

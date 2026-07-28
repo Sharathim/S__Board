@@ -12,7 +12,7 @@ import { useThemeContext } from "../../context/ThemeContext";
  *   Light: /LightModeLogo.png
  *   Dark:  /DarkModeLogo.png
  */
-export function Logo({ variant = "full", className, alt = "Hive", ...props }) {
+export function Logo({ variant = "full", className, alt = "Hive", style, ...props }) {
   const themeContext = useThemeContext();
   const theme = themeContext?.theme || "light";
 
@@ -24,11 +24,19 @@ export function Logo({ variant = "full", className, alt = "Hive", ...props }) {
     src = theme === "dark" ? "/dark-mode-website-name-logo.png" : "/LightModewebsite-name-logo.png";
   }
 
+  // For the full wordmark PNG in light mode, blend away the white background
+  // using multiply blend mode so the logo text/icon floats cleanly over any header colour.
+  const blendStyle =
+    variant === "full" && theme === "light"
+      ? { mixBlendMode: "multiply", ...style }
+      : style;
+
   return (
     <img
       src={src}
       alt={alt}
       className={className || (variant === "icon" ? "w-8 h-8 object-contain" : "h-10 w-auto object-contain")}
+      style={blendStyle}
       {...props}
     />
   );
