@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
-  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText
+  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText, CalendarDays
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
@@ -12,6 +12,7 @@ const mainNavItems = [
   { to: "/projects", label: "Projects Registry", icon: FolderKanban },
   { to: "/faculty", label: "Faculty Directory", icon: GraduationCap },
   { to: "/classes", label: "Classrooms", icon: BookOpen },
+  { to: "/timetable", label: "ChronoGrid", icon: CalendarDays, hodOnly: true },
   { to: "/updates", label: "Announcements", icon: Megaphone },
   { to: "/notes", label: "Notes & Docs", icon: FileText },
 ];
@@ -56,7 +57,11 @@ export function Sidebar() {
       >
         <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
           {mainNavItems
-            .filter((item) => item.to !== "/dashboard" || user?.role === "HOD")
+            .filter((item) => {
+              if (item.to === "/dashboard" && user?.role !== "HOD") return false;
+              if (item.hodOnly && user?.role !== "HOD") return false;
+              return true;
+            })
             .map((item) => {
               const Icon = item.icon;
             const isActive = location.pathname === item.to;

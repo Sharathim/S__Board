@@ -24,6 +24,7 @@ import NotificationsPage from "./pages/notifications/NotificationsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import GoatPage from "./pages/developer/GoatPage";
 import FacultyNotesPage from "./pages/notes/FacultyNotesPage";
+import TimetablePage from "./pages/timetable/TimetablePage";
 
 import NotFoundPage from "./pages/public/NotFoundPage";
 
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/notes" element={<FacultyNotesPage />} />
+          <Route path="/timetable" element={<TimetablePage />} />
           <Route path="/GOAT" element={<GoatPage />} />
         </Route>
 

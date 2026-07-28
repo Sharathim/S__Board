@@ -11,6 +11,7 @@ class Faculty(db.Model):
     designation = db.Column(db.String(100), default="Professor")
     classes_handling = db.Column(ARRAY(db.String), default=[])
     is_update_coordinator = db.Column(db.Boolean, default=False)
+    weekly_hours_limit  = db.Column(db.Integer, default=20)     # max teaching periods per week for timetable
     class_incharge_of = db.Column(db.String(20), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

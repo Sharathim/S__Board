@@ -21,6 +21,13 @@ export function ToastContainer() {
     return () => window.removeEventListener("api-error", handler);
   }, [addToast]);
 
+  useEffect(() => {
+    const handler = (e) => addToast({ message: e.detail.message, type: e.detail.type || "error" });
+    window.addEventListener("app-toast", handler);
+    return () => window.removeEventListener("app-toast", handler);
+  }, [addToast]);
+
+
   const remove = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
   if (toasts.length === 0) return null;
