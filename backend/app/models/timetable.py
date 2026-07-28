@@ -4,11 +4,13 @@ from datetime import datetime
 
 def get_lab_room_for_class(class_name: str) -> int:
     """
-    Deterministically assign lab room based on section letter.
-    All A-section classes (UG_1A, UG_2A, UG_3A, PG_1A) → Lab 1
-    All B-section classes (UG_1B, UG_2B, UG_3B, PG_2A... PG_2A ends in A but is PG year 2 A) → Lab 1
-    Rule: class_name ends with 'A' → Lab 1 else Lab 2
+    Lab room assignment:
+      PG classes (PG_1A, PG_2A, ...)  → Lab 3  (PG dedicated lab)
+      UG A-section (UG_1A, UG_2A, UG_3A) → Lab 1
+      UG B-section (UG_1B, UG_2B, UG_3B) → Lab 2
     """
+    if class_name.startswith("PG"):
+        return 3
     return 1 if class_name.endswith("A") else 2
 
 

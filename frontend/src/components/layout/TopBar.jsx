@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
   Bell, Moon, Sun, LogOut, X, Sparkles, Settings, ChevronRight, Search, ChevronDown, Info,
-  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, MessageSquare, Megaphone, Mail
+  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, MessageSquare, Megaphone, Mail, CalendarDays
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -133,12 +133,13 @@ function DrawerSignOutLink({ idx, drawerOpen, setDrawerOpen, setLogoutConfirmOpe
 }
 
 const allNavItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["HOD"] },
-  { to: "/projects", label: "Projects", icon: FolderKanban, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/faculty", label: "Faculty", icon: GraduationCap, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/classes", label: "Classes", icon: BookOpen, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/forum", label: "Forum", icon: MessageSquare, roles: ["HOD", "FACULTY", "STUDENT"] },
-  { to: "/updates", label: "Updates", icon: Megaphone, roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/dashboard", label: "Dashboard",  icon: LayoutDashboard, roles: ["HOD"] },
+  { to: "/projects",  label: "Projects",   icon: FolderKanban,    roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/faculty",   label: "Faculty",    icon: GraduationCap,   roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/classes",   label: "Classes",    icon: BookOpen,        roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/timetable", label: "Timetable",  icon: CalendarDays,   roles: ["HOD"] },
+  { to: "/forum",     label: "Forum",      icon: MessageSquare,   roles: ["HOD", "FACULTY", "STUDENT"] },
+  { to: "/updates",   label: "Updates",    icon: Megaphone,       roles: ["HOD", "FACULTY", "STUDENT"] },
 ];
 
 export function TopBar() {

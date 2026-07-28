@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays, Zap, Trash2, Plus, Pencil, X, FlaskConical,
-  BookOpen, UserMinus, UserCheck, RotateCcw,
-  AlertTriangle, CheckCircle2, Save, Info
+  BookOpen, UserMinus, UserCheck, RotateCcw, AlertTriangle,
+  CheckCircle2, Save, Info, ChevronRight
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Spinner } from "../../components/ui/Spinner";
@@ -17,152 +17,182 @@ import {
   findSubstitutes, getLabConfig, saveLabConfig,
 } from "../../api/timetable";
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-const CLASSES    = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"];
-const DAYS       = [1, 2, 3, 4, 5, 6];
-const DAY_LABELS = { 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat" };
-const PERIODS    = [1, 2, 3, 4, 5];
-const TABS       = ["Lab Setup", "Subjects", "Schedule", "Leave Manager"];
+// ─── Constants ────────────────────────────────────────────────────────────────
+const CLASSES    = ["UG_1A","UG_1B","UG_2A","UG_2B","UG_3A","UG_3B","PG_1A","PG_2A"];
+const DAYS       = [1,2,3,4,5,6];
+const DAY_LABELS = {1:"Mon",2:"Tue",3:"Wed",4:"Thu",5:"Fri",6:"Sat"};
+const PERIODS    = [1,2,3,4,5];
+const TABS       = ["Lab Setup","Subjects","Schedule","Leave"];
 
-// Lab room badge colours
-const LAB_ROOM_STYLE = {
-  1: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
-  2: "bg-amber-50  dark:bg-amber-950/40  text-amber-700  dark:text-amber-300  border-amber-200  dark:border-amber-800",
+function getLabRoom(cn) {
+  if (cn.startsWith("PG")) return 3;
+  return cn.endsWith("A") ? 1 : 2;
+}
+
+const LAB_META = {
+  1: { label:"Lab 1",  desc:"UG A-sections",  color:"emerald", bg:"bg-emerald-50 dark:bg-emerald-950/30", border:"border-emerald-200 dark:border-emerald-800/50", text:"text-emerald-700 dark:text-emerald-300", dot:"bg-emerald-500" },
+  2: { label:"Lab 2",  desc:"UG B-sections",  color:"amber",   bg:"bg-amber-50 dark:bg-amber-950/30",   border:"border-amber-200 dark:border-amber-800/50",   text:"text-amber-700 dark:text-amber-300",   dot:"bg-amber-500" },
+  3: { label:"PG Lab", desc:"PG classes only", color:"purple",  bg:"bg-purple-50 dark:bg-purple-950/30", border:"border-purple-200 dark:border-purple-800/50", text:"text-purple-700 dark:text-purple-300", dot:"bg-purple-500" },
 };
 
-function getLabRoom(className) {
-  return className.endsWith("A") ? 1 : 2;
+function cls(...a) { return a.filter(Boolean).join(" "); }
+function toast(type, msg) {
+  window.dispatchEvent(new CustomEvent("app-toast",{detail:{type,message:msg}}));
 }
 
-// ─── Utils ───────────────────────────────────────────────────────────────────
-function cls(...args) { return args.filter(Boolean).join(" "); }
-
-function toastErr(msg) {
-  window.dispatchEvent(new CustomEvent("app-toast", { detail: { type: "error",   message: msg } }));
-}
-function toastOk(msg) {
-  window.dispatchEvent(new CustomEvent("app-toast", { detail: { type: "success", message: msg } }));
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-function ClassPill({ name, active, onClick }) {
+// ─── STANDALONE Subject Form (MUST be outside parent component to prevent focus loss) ─
+function SubjectForm({ form, onChange, onSubmit, onClose, faculties, isPending, isEdit }) {
+  const isLab = form.subject_type === "lab";
   return (
-    <button onClick={onClick} className={cls(
-      "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
-      active
-        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-        : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300"
-    )}>{name.replace("_", " ")}</button>
+    <form onSubmit={onSubmit} className="space-y-4 pt-1">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="label-xs">Subject Name</label>
+          <input required autoFocus
+            value={form.subject_name}
+            onChange={e => onChange("subject_name", e.target.value)}
+            placeholder="e.g. Operating Systems"
+            className="input-field text-sm" />
+        </div>
+        <div className="space-y-1.5">
+          <label className="label-xs">Subject Code</label>
+          <input required
+            value={form.subject_code}
+            onChange={e => onChange("subject_code", e.target.value.toUpperCase())}
+            placeholder="e.g. OS"
+            className="input-field text-sm" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="label-xs">Type</label>
+          <select value={form.subject_type} onChange={e => onChange("subject_type", e.target.value)} className="input-field text-sm">
+            <option value="theory">Theory</option>
+            <option value="lab">Lab / Practical</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label className="label-xs">Weekly Periods</label>
+          <input required type="number" min={1} max={30}
+            value={form.weekly_hours}
+            onChange={e => onChange("weekly_hours", e.target.value)}
+            className="input-field text-sm" />
+        </div>
+      </div>
+
+      {isLab && (
+        <div className="space-y-1.5">
+          <label className="label-xs">Lab Block Size (consecutive periods)</label>
+          <select value={form.lab_block_size} onChange={e => onChange("lab_block_size", e.target.value)} className="input-field text-sm">
+            <option value="">Auto (2 periods)</option>
+            <option value="2">2 periods</option>
+            <option value="3">3 periods</option>
+          </select>
+        </div>
+      )}
+
+      <div className="space-y-1.5">
+        <label className="label-xs">
+          Faculty {isLab && <span className="text-[10px] text-gray-400 normal-case ml-1">— optional for lab</span>}
+        </label>
+        <select value={form.faculty_id} onChange={e => onChange("faculty_id", e.target.value)} className="input-field text-sm">
+          <option value="">{isLab ? "— TBD / Unassigned —" : "— Select Faculty —"}</option>
+          {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+        </select>
+      </div>
+
+      <div className="flex gap-3 pt-2">
+        <button type="button" onClick={onClose}
+          className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors">
+          Cancel
+        </button>
+        <button type="submit" disabled={isPending}
+          className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-60 shadow-sm">
+          {isPending ? "Saving…" : isEdit ? "Update Subject" : "Add Subject"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function SubjectBadge({ type }) {
-  return (
-    <span className={cls(
-      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider",
-      type === "lab"
-        ? "bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800"
-        : "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
-    )}>
-      {type === "lab" ? <FlaskConical className="w-2.5 h-2.5" /> : <BookOpen className="w-2.5 h-2.5" />}
-      {type}
-    </span>
-  );
-}
+const EMPTY_FORM = { subject_name:"", subject_code:"", subject_type:"theory", weekly_hours:5, lab_block_size:"", faculty_id:"" };
 
 // ─── Lab Setup Tab ────────────────────────────────────────────────────────────
 function LabSetupTab({ className }) {
-  const qc     = useQueryClient();
+  const qc      = useQueryClient();
   const labRoom = getLabRoom(className);
+  const meta    = LAB_META[labRoom];
+  const [hours, setHours] = useState("");
+  const [notes, setNotes] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["lab-config", className],
     queryFn:  () => getLabConfig(className).then(r => r.data.config),
   });
 
-  const [hours, setHours] = useState("");
-  const [notes, setNotes] = useState("");
-
-  // Sync form when data loads
-  useMemo(() => {
-    if (data) {
-      setHours(data.weekly_lab_hours ?? "");
-      setNotes(data.notes ?? "");
-    }
-  }, [data]);
+  useState(() => { if (data) { setHours(String(data.weekly_lab_hours ?? "")); setNotes(data.notes ?? ""); } }, [data]);
 
   const saveMut = useMutation({
-    mutationFn: () => saveLabConfig(className, { weekly_lab_hours: Number(hours), notes }),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["lab-config", className] }); toastOk("Lab configuration saved!"); },
-    onError:    (e) => toastErr(e.response?.data?.error || "Save failed"),
+    mutationFn: () => saveLabConfig(className, { weekly_lab_hours: Number(hours)||0, notes }),
+    onSuccess: () => { qc.invalidateQueries({queryKey:["lab-config",className]}); toast("success","Lab config saved!"); },
+    onError: e => toast("error", e.response?.data?.error || "Save failed"),
   });
 
   return (
-    <div className="space-y-5">
-      {/* Lab Room Banner */}
-      <div className={cls(
-        "flex items-center gap-3 p-4 rounded-2xl border",
-        LAB_ROOM_STYLE[labRoom]
-      )}>
-        <FlaskConical className="w-5 h-5 shrink-0" />
+    <div className="space-y-4">
+      {/* Lab room card */}
+      <div className={cls("flex items-start gap-3 p-4 rounded-2xl border", meta.bg, meta.border)}>
+        <div className={cls("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", meta.bg, "border", meta.border)}>
+          <FlaskConical className={cls("w-4.5 h-4.5", meta.text)} />
+        </div>
         <div>
-          <p className="text-sm font-extrabold">Lab {labRoom} assigned to {className.replace("_", " ")}</p>
-          <p className="text-xs mt-0.5 opacity-80">
-            {labRoom === 1
-              ? "All A-section classes (UG 1A, UG 2A, UG 3A, PG 1A) share Lab 1"
-              : "All B-section classes (UG 1B, UG 2B, UG 3B, PG 2B) share Lab 2"}
-            . The auto-generator will prevent conflicts with other classes using this lab.
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className={cls("text-sm font-extrabold", meta.text)}>{meta.label} assigned</span>
+            <span className={cls("px-2 py-0.5 rounded-full text-[10px] font-bold border", meta.bg, meta.border, meta.text)}>{meta.desc}</span>
+          </div>
+          <p className={cls("text-xs leading-relaxed opacity-80", meta.text)}>
+            {labRoom === 1 && "UG 1A, UG 2A, UG 3A share Lab 1. A-section class cannot use Lab 1 simultaneously."}
+            {labRoom === 2 && "UG 1B, UG 2B, UG 3B share Lab 2. B-section class cannot use Lab 2 simultaneously."}
+            {labRoom === 3 && "PG 1A, PG 2A share the dedicated PG Lab. No conflict with UG labs."}
+            {" "}Auto-generator prevents conflicts automatically.
           </p>
         </div>
       </div>
 
-      {/* Info panel */}
-      <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-800/30">
-        <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-          <strong>Lab faculty can be unassigned.</strong> Add lab subjects in the Subjects tab and leave
-          the faculty field blank if the lab instructor is not yet decided. The system will still
-          schedule the lab time block — only the lab room availability is checked as a hard constraint.
+      <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-800/30">
+        <Info className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
+        <p className="text-xs text-sky-700 dark:text-sky-300 leading-relaxed">
+          <strong>Lab faculty can be left blank.</strong> Add lab subjects in Subjects tab with no faculty — the system schedules the lab time slot using only the lab room constraint.
         </p>
       </div>
 
       {isLoading ? <Spinner /> : (
-        <div className="p-5 rounded-2xl border border-gray-150 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Lab Period Configuration</h3>
-
+        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 text-indigo-500" />
+            Lab Period Configuration
+          </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="label-xs">Total Weekly Lab Hours</label>
-              <input
-                type="number" min={0} max={30}
-                value={hours}
+              <input type="number" min={0} max={30} value={hours}
                 onChange={e => setHours(e.target.value)}
                 placeholder="e.g. 10"
-                className="input-field text-sm"
-              />
-              <p className="text-[10px] text-gray-400">
-                Total lab periods across ALL lab subjects for this class per week.
-                E.g., if RDBMS Lab = 5 hrs and ASP Lab = 5 hrs, enter 10.
-              </p>
+                className="input-field text-sm" />
+              <p className="text-[11px] text-gray-400 mt-1">Total across ALL lab subjects for this class. E.g. RDBMS Lab(5hrs) + ASP Lab(5hrs) = 10.</p>
             </div>
             <div className="space-y-1.5">
               <label className="label-xs">Notes (optional)</label>
-              <input
-                type="text"
-                value={notes}
+              <input type="text" value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="e.g. RDBMS Lab + ASP Lab"
-                className="input-field text-sm"
-              />
-              <p className="text-[10px] text-gray-400">Reminder for yourself about which labs this class has.</p>
+                className="input-field text-sm" />
+              <p className="text-[11px] text-gray-400 mt-1">Reminder of which labs this class has.</p>
             </div>
           </div>
-
-          <button
-            onClick={() => saveMut.mutate()}
-            disabled={saveMut.isPending || hours === ""}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-60 shadow-sm"
-          >
+          <button onClick={() => saveMut.mutate()} disabled={saveMut.isPending || hours === ""}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-60 shadow-sm">
             <Save className="w-3.5 h-3.5" />
             {saveMut.isPending ? "Saving…" : "Save Lab Config"}
           </button>
@@ -172,19 +202,19 @@ function LabSetupTab({ className }) {
   );
 }
 
-// ─── Subjects Tab (formerly Setup) ───────────────────────────────────────────
+// ─── Subjects Tab ─────────────────────────────────────────────────────────────
+// NOTE: SubjectForm is defined OUTSIDE this component (above) to prevent React
+// from unmounting it on every keystroke (which would cause cursor focus loss).
 function SubjectsTab({ className, faculties }) {
   const qc = useQueryClient();
-  const labRoom = getLabRoom(className);
+  const [addOpen,  setAddOpen]  = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [delItem,  setDelItem]  = useState(null);
+  const [form,     setForm]     = useState(EMPTY_FORM);
 
-  const emptyForm = {
-    subject_name: "", subject_code: "", subject_type: "theory",
-    weekly_hours: 5, lab_block_size: "", faculty_id: "",
-  };
-  const [addModal,   setAddModal]   = useState(false);
-  const [editModal,  setEditModal]  = useState(null);
-  const [delConfirm, setDelConfirm] = useState(null);
-  const [form,       setForm]       = useState(emptyForm);
+  const handleChange = useCallback((field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const { data: mapData, isLoading } = useQuery({
     queryKey: ["timetable-mappings", className],
@@ -192,137 +222,100 @@ function SubjectsTab({ className, faculties }) {
   });
 
   const createMut = useMutation({
-    mutationFn: (data) => createMapping(className, data),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable-mappings", className] }); setAddModal(false); setForm(emptyForm); toastOk("Subject added!"); },
-    onError:    (e) => toastErr(e.response?.data?.error || "Failed to add"),
+    mutationFn: (d) => createMapping(className, d),
+    onSuccess: () => { qc.invalidateQueries({queryKey:["timetable-mappings",className]}); setAddOpen(false); setForm(EMPTY_FORM); toast("success","Subject added!"); },
+    onError: e => toast("error", e.response?.data?.error || "Failed"),
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ id, data }) => updateMapping(id, data),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable-mappings", className] }); setEditModal(null); toastOk("Subject updated!"); },
-    onError:    (e) => toastErr(e.response?.data?.error || "Failed"),
+    mutationFn: ({id,d}) => updateMapping(id,d),
+    onSuccess: () => { qc.invalidateQueries({queryKey:["timetable-mappings",className]}); setEditItem(null); toast("success","Updated!"); },
+    onError: e => toast("error", e.response?.data?.error || "Failed"),
   });
 
   const deleteMut = useMutation({
-    mutationFn: (id) => deleteMapping(id),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable-mappings", className] }); setDelConfirm(null); toastOk("Subject removed"); },
+    mutationFn: id => deleteMapping(id),
+    onSuccess: () => { qc.invalidateQueries({queryKey:["timetable-mappings",className]}); setDelItem(null); toast("success","Removed"); },
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     const payload = {
       ...form,
       weekly_hours:  Number(form.weekly_hours),
-      lab_block_size: form.subject_type === "lab" ? (Number(form.lab_block_size) || null) : null,
+      lab_block_size: form.subject_type==="lab" ? (Number(form.lab_block_size)||null) : null,
       faculty_id:    form.faculty_id || null,
     };
-    editModal
-      ? updateMut.mutate({ id: editModal.id, data: payload })
+    editItem
+      ? updateMut.mutate({id: editItem.id, d: payload})
       : createMut.mutate(payload);
   };
 
-  const openEdit = (m) => {
-    setForm({
-      subject_name:  m.subject_name,
-      subject_code:  m.subject_code,
-      subject_type:  m.subject_type,
-      weekly_hours:  m.weekly_hours,
-      lab_block_size: m.lab_block_size || "",
-      faculty_id:    m.faculty_id || "",
-    });
-    setEditModal(m);
+  const openEdit = m => {
+    setForm({ subject_name:m.subject_name, subject_code:m.subject_code, subject_type:m.subject_type, weekly_hours:m.weekly_hours, lab_block_size:m.lab_block_size||"", faculty_id:m.faculty_id||"" });
+    setEditItem(m);
   };
 
   const mappings = mapData || [];
-  const theorySubjects = mappings.filter(m => m.subject_type === "theory");
-  const labSubjects    = mappings.filter(m => m.subject_type === "lab");
+  const theory   = mappings.filter(m => m.subject_type === "theory");
+  const labs     = mappings.filter(m => m.subject_type === "lab");
 
-  const MappingForm = ({ onClose }) => (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1"><label className="label-xs">Subject Name</label>
-          <input required value={form.subject_name} onChange={e => setForm(p => ({ ...p, subject_name: e.target.value }))}
-            placeholder="e.g. Operating Systems" className="input-field text-sm" /></div>
-        <div className="space-y-1"><label className="label-xs">Subject Code</label>
-          <input required value={form.subject_code} onChange={e => setForm(p => ({ ...p, subject_code: e.target.value.toUpperCase() }))}
-            placeholder="e.g. OS" className="input-field text-sm" /></div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1"><label className="label-xs">Type</label>
-          <select value={form.subject_type} onChange={e => setForm(p => ({ ...p, subject_type: e.target.value }))} className="input-field text-sm">
-            <option value="theory">Theory</option>
-            <option value="lab">Lab / Practical</option>
-          </select></div>
-        <div className="space-y-1"><label className="label-xs">Weekly Periods</label>
-          <input required type="number" min={1} max={30} value={form.weekly_hours}
-            onChange={e => setForm(p => ({ ...p, weekly_hours: e.target.value }))} className="input-field text-sm" /></div>
-      </div>
-      {form.subject_type === "lab" && (
-        <div className="space-y-1"><label className="label-xs">Lab Block Size (consecutive periods)</label>
-          <select value={form.lab_block_size} onChange={e => setForm(p => ({ ...p, lab_block_size: e.target.value }))} className="input-field text-sm">
-            <option value="">— Auto (2) —</option><option value="2">2 periods</option><option value="3">3 periods</option>
-          </select>
-          <p className="text-[10px] text-violet-600 dark:text-violet-400 mt-1 flex items-center gap-1">
-            <FlaskConical className="w-3 h-3" />Will use Lab {labRoom} — conflicts with other classes auto-prevented
-          </p>
-        </div>
+  const MappingRow = ({ m }) => (
+    <tr className="border-b border-gray-50 dark:border-gray-700/30 hover:bg-gray-50/60 dark:hover:bg-gray-700/20 transition-colors">
+      <td className="px-4 py-3">
+        <p className="text-sm font-semibold text-gray-900 dark:text-white">{m.subject_name}</p>
+      </td>
+      <td className="px-4 py-3">
+        <span className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-mono font-bold">{m.subject_code}</span>
+      </td>
+      <td className="px-4 py-3 text-center">
+        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{m.weekly_hours}</span>
+      </td>
+      {m.subject_type==="lab" && (
+        <td className="px-4 py-3 text-center">
+          <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{m.lab_block_size||2}hr</span>
+        </td>
       )}
-      <div className="space-y-1"><label className="label-xs">
-        Assigned Faculty {form.subject_type === "lab" && <span className="text-[10px] text-gray-400 normal-case">(optional — can leave blank for lab)</span>}
-      </label>
-        <select value={form.faculty_id} onChange={e => setForm(p => ({ ...p, faculty_id: e.target.value }))} className="input-field text-sm">
-          <option value="">— {form.subject_type === "lab" ? "Unassigned / TBD" : "Select Faculty"} —</option>
-          {faculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-        </select></div>
-      <div className="flex gap-3 pt-1">
-        <button type="button" onClick={onClose}
-          className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Cancel</button>
-        <button type="submit" disabled={createMut.isPending || updateMut.isPending}
-          className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold disabled:opacity-60 shadow-sm hover:from-indigo-700 hover:to-violet-700 transition-all">
-          {createMut.isPending || updateMut.isPending ? "Saving…" : "Save Subject"}</button>
-      </div>
-    </form>
+      <td className="px-4 py-3 text-sm">
+        {m.faculty_name
+          ? <span className="text-gray-700 dark:text-gray-300">{m.faculty_name}</span>
+          : <span className="text-amber-500 dark:text-amber-400 italic text-xs">TBD</span>}
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-1 justify-end">
+          <button onClick={() => openEdit(m)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-400 hover:text-indigo-500 transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
+          <button onClick={() => setDelItem(m)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+        </div>
+      </td>
+    </tr>
   );
 
-  const SubjectTable = ({ items, title, emptyMsg }) => (
-    <div className="space-y-2">
-      <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{title}</p>
+  const SubjectSection = ({ items, label, isLab }) => (
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+      <div className={cls(
+        "px-4 py-3 flex items-center gap-2 border-b border-gray-100 dark:border-gray-700/60",
+        isLab ? "bg-violet-50/60 dark:bg-violet-950/20" : "bg-indigo-50/60 dark:bg-indigo-950/20"
+      )}>
+        {isLab ? <FlaskConical className="w-4 h-4 text-violet-500" /> : <BookOpen className="w-4 h-4 text-indigo-500" />}
+        <span className={cls("text-xs font-bold uppercase tracking-wider", isLab?"text-violet-700 dark:text-violet-300":"text-indigo-700 dark:text-indigo-300")}>{label}</span>
+        <span className={cls("ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold", isLab?"bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300":"bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300")}>{items.length}</span>
+      </div>
       {items.length === 0 ? (
-        <p className="text-xs text-gray-400 italic pl-1">{emptyMsg}</p>
+        <div className="px-4 py-6 text-center text-sm text-gray-400 bg-white dark:bg-gray-800/40">
+          No {label.toLowerCase()} added yet
+        </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-150 dark:border-gray-700/60">
-          <table className="w-full text-sm min-w-[500px]">
-            <thead><tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/60">
-              <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase">Subject</th>
-              <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase">Code</th>
-              <th className="text-center px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase">Wk Hrs</th>
-              {title.includes("Lab") && <th className="text-center px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase">Block</th>}
-              <th className="text-left px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase">Faculty</th>
-              <th className="px-4 py-2.5" />
+        <div className="overflow-x-auto bg-white dark:bg-gray-800/40">
+          <table className="w-full text-sm min-w-[480px]">
+            <thead><tr className="border-b border-gray-100 dark:border-gray-700/50">
+              <th className="text-left px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Subject</th>
+              <th className="text-left px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Code</th>
+              <th className="text-center px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Hrs/Wk</th>
+              {isLab && <th className="text-center px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Block</th>}
+              <th className="text-left px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Faculty</th>
+              <th className="px-4 py-2" />
             </tr></thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-700/40">
-              {items.map(m => (
-                <tr key={m.id} className="bg-white dark:bg-gray-800/40 hover:bg-gray-50/60 dark:hover:bg-gray-800/80 transition-colors">
-                  <td className="px-4 py-2.5 font-semibold text-gray-900 dark:text-white text-sm">{m.subject_name}</td>
-                  <td className="px-4 py-2.5"><span className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-mono font-bold">{m.subject_code}</span></td>
-                  <td className="px-4 py-2.5 text-center"><span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{m.weekly_hours}</span></td>
-                  {title.includes("Lab") && (
-                    <td className="px-4 py-2.5 text-center">
-                      {m.lab_block_size
-                        ? <span className="px-2 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 text-xs font-bold">{m.lab_block_size}hr</span>
-                        : <span className="text-gray-300 text-xs">auto</span>}
-                    </td>
-                  )}
-                  <td className="px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300">
-                    {m.faculty_name || <span className="text-amber-500 dark:text-amber-400 italic text-xs">TBD / Unassigned</span>}
-                  </td>
-                  <td className="px-4 py-2.5"><div className="flex items-center gap-1.5 justify-end">
-                    <button onClick={() => openEdit(m)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setDelConfirm(m)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div></td>
-                </tr>
-              ))}
-            </tbody>
+            <tbody>{items.map(m => <MappingRow key={m.id} m={m} />)}</tbody>
           </table>
         </div>
       )}
@@ -330,32 +323,48 @@ function SubjectsTab({ className, faculties }) {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-bold text-gray-900 dark:text-white">Subject — Faculty Assignments</h3>
-          <p className="text-xs text-gray-400 mt-0.5">The auto-generator reads this to build the conflict-free schedule.</p>
+          <p className="text-xs text-gray-400 mt-0.5">Auto-generator reads this to build the conflict-free timetable.</p>
         </div>
-        <button onClick={() => { setForm(emptyForm); setAddModal(true); }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm">
+        <button onClick={() => { setForm(EMPTY_FORM); setAddOpen(true); }}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm">
           <Plus className="w-3.5 h-3.5" /> Add Subject
         </button>
       </div>
 
       {isLoading ? <Spinner /> : (
-        <div className="space-y-5">
-          <SubjectTable items={theorySubjects} title="Theory Subjects" emptyMsg="No theory subjects yet. Add using the button above." />
-          <SubjectTable items={labSubjects}    title="Lab / Practical Subjects" emptyMsg="No lab subjects yet. Lab faculty can be left unassigned." />
+        <div className="space-y-4">
+          <SubjectSection items={theory} label="Theory Subjects" isLab={false} />
+          <SubjectSection items={labs}   label="Lab / Practical Subjects" isLab={true} />
         </div>
       )}
 
-      <Modal open={addModal}    onClose={() => setAddModal(false)} title="Add Subject"><MappingForm onClose={() => setAddModal(false)} /></Modal>
-      <Modal open={!!editModal} onClose={() => setEditModal(null)} title="Edit Subject"><MappingForm onClose={() => setEditModal(null)} /></Modal>
+      {/* Add modal */}
+      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add Subject">
+        <SubjectForm
+          form={form} onChange={handleChange} onSubmit={handleSubmit}
+          onClose={() => setAddOpen(false)} faculties={faculties}
+          isPending={createMut.isPending} isEdit={false}
+        />
+      </Modal>
+
+      {/* Edit modal */}
+      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="Edit Subject">
+        <SubjectForm
+          form={form} onChange={handleChange} onSubmit={handleSubmit}
+          onClose={() => setEditItem(null)} faculties={faculties}
+          isPending={updateMut.isPending} isEdit={true}
+        />
+      </Modal>
+
       <ConfirmDialog
-        open={!!delConfirm} onClose={() => setDelConfirm(null)}
-        onConfirm={() => deleteMut.mutate(delConfirm.id)}
+        open={!!delItem} onClose={() => setDelItem(null)}
+        onConfirm={() => deleteMut.mutate(delItem.id)}
         title="Remove Subject"
-        message={`Remove "${delConfirm?.subject_name}" from ${className.replace("_", " ")}?`}
+        message={`Remove "${delItem?.subject_name}" from ${className.replace("_"," ")}?`}
         confirmText={deleteMut.isPending ? "Removing…" : "Remove"}
         danger
       />
@@ -366,53 +375,47 @@ function SubjectsTab({ className, faculties }) {
 // ─── Grid Cell ────────────────────────────────────────────────────────────────
 function GridCell({ entry, onCancel, onRestore }) {
   const [hov, setHov] = useState(false);
+
   if (!entry) return (
-    <div className="h-14 rounded-xl border border-dashed border-gray-200 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-900/20 flex items-center justify-center">
+    <div className="h-14 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/40 flex items-center justify-center">
       <span className="text-[10px] text-gray-300 dark:text-gray-600">—</span>
     </div>
   );
-  if (entry.is_lab_continuation) return <div />;
+  if (entry.is_lab_continuation) return <div className="h-0" />;
 
   const cancelled = entry.is_cancelled;
   const isLab     = entry.is_lab_anchor || entry.subject_type === "lab";
   const span       = entry.lab_span || 1;
-  const minH       = span === 3 ? "min-h-[11.5rem]" : span === 2 ? "min-h-[7.5rem]" : "min-h-[3.25rem]";
+  const minH       = span === 3 ? "min-h-[11rem]" : span === 2 ? "min-h-[7rem]" : "min-h-[3.25rem]";
 
   return (
     <div
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       className={cls(
-        "relative rounded-xl border p-2 transition-all duration-150 group", minH,
+        "relative rounded-lg border p-2 transition-all group select-none", minH,
         cancelled
-          ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800/50 opacity-70"
+          ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800/40 opacity-60"
           : isLab
-          ? "bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800/50"
-          : "bg-white dark:bg-gray-800/60 border-gray-150 dark:border-gray-700/60 hover:border-indigo-200 dark:hover:border-indigo-700"
+          ? "bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-700/50"
+          : "bg-white dark:bg-gray-800/70 border-gray-200 dark:border-gray-700/50 hover:border-indigo-300 dark:hover:border-indigo-700"
       )}
     >
       <p className={cls(
-        "text-[11px] font-extrabold leading-tight truncate",
+        "text-[11px] font-extrabold leading-none truncate",
         cancelled ? "line-through text-red-400" : isLab ? "text-violet-700 dark:text-violet-300" : "text-indigo-700 dark:text-indigo-300"
       )}>
         {entry.subject_code}
-        {isLab && <span className="ml-1 text-[9px] opacity-60">×{span}</span>}
+        {isLab && span > 1 && <span className="ml-1 text-[8px] opacity-50 font-semibold">×{span}</span>}
       </p>
-      <p className={cls(
-        "text-[10px] leading-tight mt-0.5 truncate",
-        cancelled ? "text-red-300 line-through" : "text-gray-500 dark:text-gray-400"
-      )}>
-        {entry.faculty_name || <span className="text-amber-500 italic">TBD</span>}
+      <p className={cls("text-[10px] mt-0.5 leading-none truncate", cancelled?"text-red-300 line-through":"text-gray-400 dark:text-gray-500")}>
+        {entry.faculty_name || <span className="text-amber-500">TBD</span>}
       </p>
-      {cancelled && (
-        <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-bold text-red-500 uppercase">
-          <AlertTriangle className="w-2.5 h-2.5" />Cancelled
-        </span>
-      )}
-      {hov && !entry.is_lab_continuation && (
-        <div className="absolute top-1 right-1 flex gap-0.5">
+      {cancelled && <span className="mt-1 flex items-center gap-0.5 text-[9px] font-bold text-red-500"><AlertTriangle className="w-2.5 h-2.5"/>Gap</span>}
+      {hov && (
+        <div className="absolute top-1 right-1">
           {cancelled
-            ? <button onClick={() => onRestore(entry)} className="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600"><RotateCcw className="w-2.5 h-2.5" /></button>
-            : <button onClick={() => onCancel(entry)}  className="w-5 h-5 rounded-lg bg-red-500    text-white flex items-center justify-center hover:bg-red-600"><X className="w-2.5 h-2.5" /></button>
+            ? <button onClick={() => onRestore(entry)} className="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600"><RotateCcw className="w-2.5 h-2.5"/></button>
+            : <button onClick={() => onCancel(entry)}  className="w-5 h-5 rounded bg-red-500    text-white flex items-center justify-center hover:bg-red-600"><X className="w-2.5 h-2.5"/></button>
           }
         </div>
       )}
@@ -424,9 +427,10 @@ function GridCell({ entry, onCancel, onRestore }) {
 function ScheduleTab({ className }) {
   const qc         = useQueryClient();
   const labRoom    = getLabRoom(className);
+  const meta       = LAB_META[labRoom];
   const [cancelModal, setCancelModal] = useState(null);
-  const [clearConfirm,setClearConfirm]= useState(false);
-  const [generating,  setGenerating]  = useState(false);
+  const [clearConfirm, setClearConfirm] = useState(false);
+  const [generating, setGenerating]  = useState(false);
 
   const { data: ttData, isLoading } = useQuery({
     queryKey: ["timetable", className],
@@ -436,100 +440,93 @@ function ScheduleTab({ className }) {
   const genMut = useMutation({
     mutationFn: () => generateTimetable(className),
     onMutate:   () => setGenerating(true),
-    onSuccess:  (r) => {
-      qc.invalidateQueries({ queryKey: ["timetable", className] });
-      toastOk(`✅ ${r.data.total} entries generated for ${className.replace("_", " ")} · Lab ${r.data.lab_room} assigned`);
+    onSuccess:  r  => {
+      qc.invalidateQueries({queryKey:["timetable",className]});
+      toast("success", `✅ ${r.data.total} entries generated · ${meta.label} assigned`);
       setGenerating(false);
     },
-    onError: (e) => { toastErr(e.response?.data?.error || "Generation failed"); setGenerating(false); },
+    onError: e => { toast("error", e.response?.data?.error||"Generation failed"); setGenerating(false); },
   });
 
   const clearMut = useMutation({
     mutationFn: () => clearTimetable(className),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable", className] }); setClearConfirm(false); toastOk("Timetable cleared"); },
+    onSuccess:  () => { qc.invalidateQueries({queryKey:["timetable",className]}); setClearConfirm(false); toast("success","Cleared"); },
   });
 
   const cancelMut = useMutation({
-    mutationFn: ({ id, reason }) => cancelEntry(className, id, reason),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable", className] }); setCancelModal(null); toastOk("Period marked cancelled"); },
-    onError:    (e) => toastErr(e.response?.data?.error || "Failed"),
+    mutationFn: ({id,reason}) => cancelEntry(className, id, reason),
+    onSuccess:  () => { qc.invalidateQueries({queryKey:["timetable",className]}); setCancelModal(null); toast("success","Marked as gap"); },
+    onError:    e  => toast("error", e.response?.data?.error||"Failed"),
   });
 
   const restoreMut = useMutation({
-    mutationFn: (id) => restoreEntry(className, id),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable", className] }); toastOk("Period restored"); },
+    mutationFn: id => restoreEntry(className, id),
+    onSuccess:  () => { qc.invalidateQueries({queryKey:["timetable",className]}); toast("success","Restored"); },
   });
 
-  const grid = useMemo(() => {
+  const grid = (() => {
     const g = {};
-    DAYS.forEach(d => { g[d] = {}; PERIODS.forEach(p => { g[d][p] = null; }); });
-    (ttData || []).forEach(e => { if (g[e.day]) g[e.day][e.period] = e; });
+    DAYS.forEach(d => { g[d]={}; PERIODS.forEach(p => { g[d][p]=null; }); });
+    (ttData||[]).forEach(e => { if(g[e.day]) g[e.day][e.period]=e; });
     return g;
-  }, [ttData]);
+  })();
 
-  const totalEntries    = (ttData || []).filter(e => !e.is_lab_continuation).length;
-  const cancelledCount  = (ttData || []).filter(e => e.is_cancelled && !e.is_lab_continuation).length;
+  const total     = (ttData||[]).filter(e=>!e.is_lab_continuation).length;
+  const cancelled = (ttData||[]).filter(e=>e.is_cancelled&&!e.is_lab_continuation).length;
 
   return (
     <div className="space-y-4">
-      {/* Lab room indicator */}
-      <div className={cls("inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold", LAB_ROOM_STYLE[labRoom])}>
-        <FlaskConical className="w-3.5 h-3.5" />
-        Lab {labRoom} · {className.replace("_", " ")}
-        <span className="opacity-60 font-normal">— conflicts with other {labRoom === 1 ? "A" : "B"}-section classes auto-blocked</span>
-      </div>
-
-      {/* Action bar */}
-      <div className="flex flex-wrap items-center gap-2 justify-between">
-        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-          {totalEntries > 0 && <>
-            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />{totalEntries - cancelledCount} active</span>
-            {cancelledCount > 0 && <span className="flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5 text-red-500" />{cancelledCount} cancelled</span>}
-          </>}
+      {/* Lab tag + stats */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className={cls("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold", meta.bg, meta.border, meta.text)}>
+          <FlaskConical className="w-3.5 h-3.5" />{meta.label}
+          <span className="opacity-60 font-normal">· {meta.desc}</span>
         </div>
-        <div className="flex items-center gap-2">
-          {totalEntries > 0 && (
+        {total > 0 && (
+          <div className="flex items-center gap-3 text-xs text-gray-400">
+            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500"/>{total-cancelled} active</span>
+            {cancelled>0 && <span className="flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5 text-red-500"/>{cancelled} gap</span>}
+          </div>
+        )}
+        <div className="ml-auto flex items-center gap-2">
+          {total > 0 && (
             <button onClick={() => setClearConfirm(true)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
-              <Trash2 className="w-3.5 h-3.5" />Clear
+              <Trash2 className="w-3.5 h-3.5"/>Clear
             </button>
           )}
           <button onClick={() => genMut.mutate()} disabled={generating}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm disabled:opacity-60">
-            <Zap className="w-3.5 h-3.5" />
-            {generating ? "Generating…" : totalEntries > 0 ? "Re-Generate" : "Auto-Generate"}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-60">
+            <Zap className="w-3.5 h-3.5"/>{generating?"Generating…":total>0?"Re-Generate":"Auto-Generate"}
           </button>
         </div>
       </div>
 
-      {isLoading ? <Spinner /> : totalEntries === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border-2 border-dashed border-indigo-200 dark:border-indigo-800 flex items-center justify-center mb-4">
-            <CalendarDays className="w-7 h-7 text-indigo-400" />
-          </div>
-          <p className="text-sm font-bold text-gray-700 dark:text-gray-200">No timetable generated yet</p>
-          <p className="text-xs text-gray-400 mt-1 max-w-xs">Configure lab settings and add subjects first, then click Auto-Generate.</p>
+      {isLoading ? <Spinner /> : total===0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-200 dark:border-gray-700/50 rounded-2xl">
+          <CalendarDays className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
+          <p className="text-sm font-bold text-gray-600 dark:text-gray-300">No timetable yet</p>
+          <p className="text-xs text-gray-400 mt-1 max-w-xs">Configure Lab Setup + add Subjects first, then click Auto-Generate.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-150 dark:border-gray-700/60">
-          <div className="min-w-[640px]">
+        <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
+          <div style={{minWidth:"640px"}}>
             {/* Header */}
-            <div className="grid bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-100 dark:border-gray-700" style={{ gridTemplateColumns: "60px repeat(6, 1fr)" }}>
-              <div className="p-3 text-[10px] font-bold text-gray-400 uppercase">Hr</div>
-              {DAYS.map(d => <div key={d} className="p-3 text-center text-xs font-extrabold text-gray-700 dark:text-gray-200">{DAY_LABELS[d]}</div>)}
+            <div className="grid bg-gray-50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700/60" style={{gridTemplateColumns:"52px repeat(6,1fr)"}}>
+              <div className="p-3 text-[10px] font-bold text-gray-400 text-center">Hr</div>
+              {DAYS.map(d=><div key={d} className="p-3 text-center text-xs font-black text-gray-600 dark:text-gray-300">{DAY_LABELS[d]}</div>)}
             </div>
-            {/* Rows */}
-            {PERIODS.map(period => (
-              <div key={period} className="grid border-b border-gray-50 dark:border-gray-700/40 last:border-0" style={{ gridTemplateColumns: "60px repeat(6, 1fr)" }}>
-                <div className="p-2 flex items-start justify-center">
-                  <span className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-extrabold flex items-center justify-center mt-1">{period}</span>
+            {PERIODS.map(period=>(
+              <div key={period} className="grid border-b border-gray-100 dark:border-gray-700/30 last:border-0" style={{gridTemplateColumns:"52px repeat(6,1fr)"}}>
+                <div className="flex items-center justify-center p-1">
+                  <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-black flex items-center justify-center">{period}</span>
                 </div>
-                {DAYS.map(day => {
+                {DAYS.map(day=>{
                   const entry = grid[day]?.[period];
-                  if (entry?.is_lab_continuation) return <div key={day} className="p-1" />;
+                  if(entry?.is_lab_continuation) return <div key={day} className="p-1 bg-violet-50/30 dark:bg-violet-950/10" />;
                   return (
                     <div key={day} className="p-1">
-                      <GridCell entry={entry} onCancel={setCancelModal} onRestore={e => restoreMut.mutate(e.id)} />
+                      <GridCell entry={entry} onCancel={setCancelModal} onRestore={e=>restoreMut.mutate(e.id)} />
                     </div>
                   );
                 })}
@@ -539,167 +536,144 @@ function ScheduleTab({ className }) {
         </div>
       )}
 
-      {/* Cancel modal */}
-      <Modal open={!!cancelModal} onClose={() => setCancelModal(null)} title="Mark Period Cancelled">
+      {/* Cancel period modal */}
+      <Modal open={!!cancelModal} onClose={() => setCancelModal(null)} title="Mark as Gap">
         {cancelModal && (
           <div className="space-y-4 pt-1">
-            <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-800/40">
-              <p className="text-sm font-bold text-gray-900 dark:text-white">Day {cancelModal.day} · Hour {cancelModal.period}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{cancelModal.subject_name} — {cancelModal.faculty_name || "Unassigned"}</p>
+            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-800/30">
+              <p className="text-sm font-bold text-gray-900 dark:text-white">{DAY_LABELS[cancelModal.day]} · Hour {cancelModal.period}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{cancelModal.subject_name} — {cancelModal.faculty_name||"Unassigned"}</p>
             </div>
-            <p className="text-xs text-gray-500">This period will be left as a <strong>gap</strong>. No messages sent.</p>
+            <p className="text-xs text-gray-500">This slot will show as a gap. <strong>No messages sent to faculty.</strong></p>
             <div className="flex gap-3">
-              <button onClick={() => setCancelModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-colors">Back</button>
-              <button onClick={() => cancelMut.mutate({ id: cancelModal.id, reason: "Faculty on leave" })} disabled={cancelMut.isPending}
+              <button onClick={()=>setCancelModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 transition-colors">Back</button>
+              <button onClick={()=>cancelMut.mutate({id:cancelModal.id,reason:"Faculty on leave"})} disabled={cancelMut.isPending}
                 className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-all disabled:opacity-60">
-                {cancelMut.isPending ? "Marking…" : "Mark Cancelled"}
+                {cancelMut.isPending?"Marking…":"Mark as Gap"}
               </button>
             </div>
           </div>
         )}
       </Modal>
 
-      <ConfirmDialog
-        open={clearConfirm} onClose={() => setClearConfirm(false)} onConfirm={() => clearMut.mutate()}
-        title="Clear Timetable"
-        message={`Delete all ${totalEntries} entries for ${className.replace("_", " ")}? You can regenerate anytime.`}
-        confirmText={clearMut.isPending ? "Clearing…" : "Clear Timetable"}
-        danger
-      />
+      <ConfirmDialog open={clearConfirm} onClose={()=>setClearConfirm(false)} onConfirm={()=>clearMut.mutate()}
+        title="Clear Timetable" message={`Delete all ${total} entries for ${className.replace("_"," ")}?`}
+        confirmText={clearMut.isPending?"Clearing…":"Clear"} danger />
     </div>
   );
 }
 
-// ─── Leave Manager Tab ────────────────────────────────────────────────────────
+// ─── Leave Tab ────────────────────────────────────────────────────────────────
 function LeaveTab({ className, faculties }) {
   const qc = useQueryClient();
-  const [selFaculty, setSelFaculty] = useState("");
-  const [selDay,     setSelDay]     = useState("");
-  const [subDay,     setSubDay]     = useState("");
-  const [subPeriod,  setSubPeriod]  = useState("");
+  const [selFac, setSelFac] = useState("");
+  const [selDay, setSelDay] = useState("");
+  const [subDay, setSubDay] = useState("");
+  const [subPer, setSubPer] = useState("");
 
-  const { data: ttData } = useQuery({
-    queryKey: ["timetable", className],
-    queryFn:  () => getTimetable(className).then(r => r.data.entries),
-  });
-
-  const { data: subsData, isLoading: subsLoading } = useQuery({
-    queryKey: ["substitutes", subDay, subPeriod],
-    queryFn:  () => findSubstitutes(Number(subDay), Number(subPeriod)).then(r => r.data.substitutes),
-    enabled:  !!subDay && !!subPeriod,
+  const {data:ttData} = useQuery({queryKey:["timetable",className],queryFn:()=>getTimetable(className).then(r=>r.data.entries)});
+  const {data:subsData, isLoading:subsLoad} = useQuery({
+    queryKey:["substitutes",subDay,subPer],
+    queryFn: ()=>findSubstitutes(Number(subDay),Number(subPer)).then(r=>r.data.substitutes),
+    enabled:!!subDay&&!!subPer,
   });
 
   const cancelDayMut = useMutation({
-    mutationFn: () => cancelFacultyDay(className, selFaculty, Number(selDay), "Faculty on leave"),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable", className] }); toastOk("Periods marked as gap — no messages sent"); },
-    onError:    (e) => toastErr(e.response?.data?.error || "Failed"),
+    mutationFn:()=>cancelFacultyDay(className,selFac,Number(selDay),"Faculty on leave"),
+    onSuccess:()=>{qc.invalidateQueries({queryKey:["timetable",className]});toast("success","Marked as gap — no messages sent");},
+    onError:e=>toast("error",e.response?.data?.error||"Failed"),
   });
-
   const restoreDayMut = useMutation({
-    mutationFn: () => restoreFacultyDay(className, selFaculty, Number(selDay)),
-    onSuccess:  () => { qc.invalidateQueries({ queryKey: ["timetable", className] }); toastOk("Periods restored"); },
-    onError:    (e) => toastErr(e.response?.data?.error || "Failed"),
+    mutationFn:()=>restoreFacultyDay(className,selFac,Number(selDay)),
+    onSuccess:()=>{qc.invalidateQueries({queryKey:["timetable",className]});toast("success","Restored");},
+    onError:e=>toast("error",e.response?.data?.error||"Failed"),
   });
 
-  const affectedPeriods = useMemo(() =>
-    (ttData || []).filter(e =>
-      String(e.faculty_id) === String(selFaculty) &&
-      e.day === Number(selDay) &&
-      !e.is_lab_continuation
-    ),
-  [ttData, selFaculty, selDay]);
-
-  const classFaculties = useMemo(() => {
-    if (!ttData) return faculties;
-    const fids = new Set((ttData || []).map(e => e.faculty_id).filter(Boolean));
-    return faculties.filter(f => fids.has(f.id));
-  }, [ttData, faculties]);
+  const affected = (ttData||[]).filter(e=>String(e.faculty_id)===String(selFac)&&e.day===Number(selDay)&&!e.is_lab_continuation);
+  const classFacs = (() => {
+    if(!ttData) return faculties;
+    const ids=new Set((ttData||[]).map(e=>e.faculty_id).filter(Boolean));
+    return faculties.filter(f=>ids.has(f.id));
+  })();
 
   return (
-    <div className="space-y-5">
-      {/* Faculty Leave */}
-      <div className="p-5 rounded-2xl border border-gray-150 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
-        <div className="flex items-center gap-2 mb-4">
-          <UserMinus className="w-4 h-4 text-red-500" />
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Mark Faculty Leave</h3>
-          <span className="text-[10px] text-gray-400">(leaves as gap — no messages sent)</span>
+    <div className="space-y-4">
+      {/* Leave section */}
+      <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
+        <div className="flex items-center gap-2">
+          <UserMinus className="w-4 h-4 text-red-500"/><h3 className="text-sm font-bold text-gray-900 dark:text-white">Faculty Leave</h3>
+          <span className="text-[11px] text-gray-400">— leaves gap, no messages</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-          <div className="space-y-1"><label className="label-xs">Faculty</label>
-            <select value={selFaculty} onChange={e => setSelFaculty(e.target.value)} className="input-field text-sm">
-              <option value="">— Select Faculty —</option>
-              {classFaculties.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5"><label className="label-xs">Faculty</label>
+            <select value={selFac} onChange={e=>setSelFac(e.target.value)} className="input-field text-sm">
+              <option value="">— Select —</option>
+              {classFacs.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}
             </select></div>
-          <div className="space-y-1"><label className="label-xs">Day</label>
-            <select value={selDay} onChange={e => setSelDay(e.target.value)} className="input-field text-sm">
-              <option value="">— Select Day —</option>
-              {DAYS.map(d => <option key={d} value={d}>{DAY_LABELS[d]}</option>)}
+          <div className="space-y-1.5"><label className="label-xs">Day</label>
+            <select value={selDay} onChange={e=>setSelDay(e.target.value)} className="input-field text-sm">
+              <option value="">— Select —</option>
+              {DAYS.map(d=><option key={d} value={d}>{DAY_LABELS[d]}</option>)}
             </select></div>
         </div>
 
-        {affectedPeriods.length > 0 && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-800/30">
-            <p className="text-xs font-bold text-red-700 dark:text-red-400 mb-2">Affected on {DAY_LABELS[selDay]}:</p>
+        {affected.length>0&&(
+          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-800/30">
+            <p className="text-xs font-bold text-red-600 dark:text-red-400 mb-2">Affected on {DAY_LABELS[selDay]}:</p>
             <div className="flex flex-wrap gap-2">
-              {affectedPeriods.map(e => (
-                <span key={e.id} className={cls(
-                  "px-2 py-1 rounded-lg text-xs font-semibold border",
-                  e.is_cancelled
-                    ? "bg-red-100 dark:bg-red-900/40 text-red-500 border-red-200 dark:border-red-800 line-through"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700"
-                )}>
-                  Hr {e.period}: {e.subject_code}{e.is_cancelled && " ✕"}
+              {affected.map(e=>(
+                <span key={e.id} className={cls("px-2.5 py-1 rounded-lg text-xs font-semibold border",
+                  e.is_cancelled?"bg-red-100 dark:bg-red-900/40 text-red-500 border-red-200 dark:border-red-800 line-through"
+                                :"bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700")}>
+                  Hr {e.period}: {e.subject_code}
                 </span>
               ))}
             </div>
           </div>
         )}
 
-        {selFaculty && selDay && (
+        {selFac&&selDay&&(
           <div className="flex gap-3">
-            <button onClick={() => restoreDayMut.mutate()} disabled={restoreDayMut.isPending || affectedPeriods.every(e => !e.is_cancelled)}
+            <button onClick={()=>restoreDayMut.mutate()} disabled={restoreDayMut.isPending||affected.every(e=>!e.is_cancelled)}
               className="flex-1 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 text-sm font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors disabled:opacity-40">
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
-              {restoreDayMut.isPending ? "Restoring…" : "Restore All"}
+              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5"/>Restore All
             </button>
-            <button onClick={() => cancelDayMut.mutate()} disabled={cancelDayMut.isPending || affectedPeriods.every(e => e.is_cancelled)}
+            <button onClick={()=>cancelDayMut.mutate()} disabled={cancelDayMut.isPending||affected.every(e=>e.is_cancelled)}
               className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-all disabled:opacity-40">
-              <X className="w-3.5 h-3.5 inline mr-1.5" />
-              {cancelDayMut.isPending ? "Cancelling…" : "Mark Leave (Gap)"}
+              <X className="w-3.5 h-3.5 inline mr-1.5"/>Mark Leave
             </button>
           </div>
         )}
       </div>
 
-      {/* Substitute Finder */}
-      <div className="p-5 rounded-2xl border border-gray-150 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
-        <div className="flex items-center gap-2 mb-4">
-          <UserCheck className="w-4 h-4 text-emerald-500" />
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Find Free Substitutes</h3>
-          <span className="text-xs text-gray-400">(department-wide)</span>
+      {/* Substitute finder */}
+      <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
+        <div className="flex items-center gap-2">
+          <UserCheck className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-gray-900 dark:text-white">Find Free Substitutes</h3>
+          <span className="text-xs text-gray-400">department-wide</span>
         </div>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="space-y-1"><label className="label-xs">Day</label>
-            <select value={subDay} onChange={e => setSubDay(e.target.value)} className="input-field text-sm">
-              <option value="">—</option>{DAYS.map(d => <option key={d} value={d}>{DAY_LABELS[d]}</option>)}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5"><label className="label-xs">Day</label>
+            <select value={subDay} onChange={e=>setSubDay(e.target.value)} className="input-field text-sm">
+              <option value="">—</option>{DAYS.map(d=><option key={d} value={d}>{DAY_LABELS[d]}</option>)}
             </select></div>
-          <div className="space-y-1"><label className="label-xs">Period</label>
-            <select value={subPeriod} onChange={e => setSubPeriod(e.target.value)} className="input-field text-sm">
-              <option value="">—</option>{PERIODS.map(p => <option key={p} value={p}>Hour {p}</option>)}
+          <div className="space-y-1.5"><label className="label-xs">Period</label>
+            <select value={subPer} onChange={e=>setSubPer(e.target.value)} className="input-field text-sm">
+              <option value="">—</option>{PERIODS.map(p=><option key={p} value={p}>Hour {p}</option>)}
             </select></div>
         </div>
-        {subDay && subPeriod && (subsLoading ? <Spinner /> : (
-          (subsData || []).length === 0
-            ? <p className="text-xs text-gray-400 text-center py-4">No free faculty on {DAY_LABELS[subDay]} Hour {subPeriod}</p>
-            : <div className="space-y-2">
-                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{subsData.length} free:</p>
-                {subsData.map(f => (
-                  <div key={f.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-800/30">
-                    <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-bold">{f.name[0]}</div>
-                    <div><p className="text-sm font-semibold text-gray-900 dark:text-white">{f.name}</p><p className="text-xs text-gray-400">{f.designation}</p></div>
-                  </div>
-                ))}
-              </div>
+        {subDay&&subPer&&(subsLoad?<Spinner/>:(
+          (subsData||[]).length===0
+            ?<p className="text-xs text-gray-400 text-center py-3">No free faculty found</p>
+            :<div className="space-y-2">
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{subsData.length} free faculty:</p>
+              {subsData.map(f=>(
+                <div key={f.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-800/30">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-black">{f.name[0]}</div>
+                  <div><p className="text-sm font-semibold text-gray-900 dark:text-white">{f.name}</p><p className="text-xs text-gray-400">{f.designation}</p></div>
+                </div>
+              ))}
+            </div>
         ))}
       </div>
     </div>
@@ -708,95 +682,110 @@ function LeaveTab({ className, faculties }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TimetablePage() {
-  const { user } = useAuth();
-  const isHOD    = user?.role === "HOD";
-
+  const { user }  = useAuth();
+  const isHOD     = user?.role === "HOD";
   const [activeClass, setActiveClass] = useState("UG_3B");
   const [activeTab,   setActiveTab]   = useState("Schedule");
 
-  const { data: facultyData } = useQuery({
-    queryKey: ["faculty"],
-    queryFn:  () => listFaculty().then(r => r.data.faculty),
-  });
+  const {data:facultyData} = useQuery({queryKey:["faculty"],queryFn:()=>listFaculty().then(r=>r.data.faculty)});
   const faculties = facultyData || [];
 
   if (!isHOD) return (
-    <div className="flex items-center justify-center min-h-[60vh] text-center">
+    <div className="flex items-center justify-center min-h-[60vh] text-center px-4">
       <div>
-        <CalendarDays className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-3">
+          <CalendarDays className="w-7 h-7 text-indigo-400"/>
+        </div>
         <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200">Timetable</h2>
         <p className="text-sm text-gray-400 mt-1">Available for HOD only.</p>
       </div>
     </div>
   );
 
+  const ugClasses = CLASSES.filter(c=>c.startsWith("UG"));
+  const pgClasses = CLASSES.filter(c=>c.startsWith("PG"));
+  const labRoom   = getLabRoom(activeClass);
+  const meta      = LAB_META[labRoom];
+
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-5 pb-6">
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-sm">
-          <CalendarDays className="w-5 h-5 text-white" />
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-md">
+          <CalendarDays className="w-5 h-5 text-white"/>
         </div>
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Timetable</h1>
-          <p className="text-xs text-gray-400 mt-0.5">Auto-generate conflict-free schedules · {CLASSES.length} classes · Lab 1 (A sections) · Lab 2 (B sections)</p>
+          <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">Timetable</h1>
+          <p className="text-[11px] text-gray-400 mt-0.5">Lab 1 · UG A-sections &nbsp;|&nbsp; Lab 2 · UG B-sections &nbsp;|&nbsp; PG Lab · PG classes</p>
         </div>
       </div>
 
       {/* Class Selector */}
-      <div className="p-4 rounded-2xl border border-gray-150 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
-        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Select Class</p>
+      <div className="p-4 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Select Class</p>
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] font-bold text-gray-400 uppercase w-5 shrink-0">UG</span>
-            {CLASSES.filter(c => c.startsWith("UG")).map(c => (
-              <ClassPill key={c} name={c} active={activeClass === c} onClick={() => setActiveClass(c)} />
+            <span className="text-[10px] font-black text-gray-400 w-6">UG</span>
+            {ugClasses.map(c=>(
+              <button key={c} onClick={()=>setActiveClass(c)} className={cls(
+                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
+                activeClass===c
+                  ?"bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                  :"bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
+              )}>{c.replace("_"," ")}</button>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] font-bold text-gray-400 uppercase w-5 shrink-0">PG</span>
-            {CLASSES.filter(c => c.startsWith("PG")).map(c => (
-              <ClassPill key={c} name={c} active={activeClass === c} onClick={() => setActiveClass(c)} />
+            <span className="text-[10px] font-black text-gray-400 w-6">PG</span>
+            {pgClasses.map(c=>(
+              <button key={c} onClick={()=>setActiveClass(c)} className={cls(
+                "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
+                activeClass===c
+                  ?"bg-purple-600 text-white border-purple-600 shadow-sm"
+                  :"bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+              )}>{c.replace("_"," ")}</button>
             ))}
           </div>
         </div>
       </div>
 
       {/* Active Class Panel */}
-      <div className="rounded-2xl border border-gray-150 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 overflow-hidden">
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 overflow-hidden">
 
-        {/* Banner + Tabs */}
-        <div className="px-5 pt-4 bg-gradient-to-r from-indigo-50/60 to-violet-50/40 dark:from-indigo-950/30 dark:to-violet-950/20 border-b border-gray-100 dark:border-gray-700/60">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="px-3 py-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
-              <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400">{activeClass.replace("_", " ")}</span>
-            </div>
+        {/* Class header strip */}
+        <div className="px-5 pt-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800/80 dark:to-gray-800/40 border-b border-gray-100 dark:border-gray-700/60">
+          <div className="flex flex-wrap items-center gap-2.5 mb-3">
+            <span className="px-3 py-1 rounded-xl bg-indigo-600 text-white text-sm font-extrabold shadow-sm">{activeClass.replace("_"," ")}</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {activeClass.startsWith("UG") ? "Undergraduate" : "Postgraduate"} ·{" "}
-              {activeClass.includes("1") ? "Year 1" : activeClass.includes("2") ? "Year 2" : "Year 3"} ·{" "}
-              Lab {getLabRoom(activeClass)}
+              {activeClass.startsWith("UG")?"Undergraduate":"Postgraduate"} ·{" "}
+              {activeClass.includes("1")?"Year 1":activeClass.includes("2")?"Year 2":"Year 3"}
             </span>
+            <div className={cls("ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold", meta.bg, meta.border, meta.text)}>
+              <div className={cls("w-1.5 h-1.5 rounded-full", meta.dot)} />
+              {meta.label}
+            </div>
           </div>
 
-          <div className="flex gap-0 border-b border-gray-100 dark:border-gray-700/60 -mb-px">
-            {TABS.map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)} className={cls(
-                "px-4 py-2.5 text-xs font-bold border-b-2 transition-all duration-150 whitespace-nowrap",
-                activeTab === tab
-                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          {/* Tabs */}
+          <div className="flex overflow-x-auto scrollbar-hide -mb-px">
+            {TABS.map(tab=>(
+              <button key={tab} onClick={()=>setActiveTab(tab)} className={cls(
+                "px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap shrink-0",
+                activeTab===tab
+                  ?"border-indigo-600 text-indigo-600 dark:text-indigo-400"
+                  :"border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               )}>{tab}</button>
             ))}
           </div>
         </div>
 
-        {/* Tab content */}
-        <div className="p-5">
-          {activeTab === "Lab Setup"      && <LabSetupTab  className={activeClass} />}
-          {activeTab === "Subjects"       && <SubjectsTab  className={activeClass} faculties={faculties} />}
-          {activeTab === "Schedule"       && <ScheduleTab  className={activeClass} />}
-          {activeTab === "Leave Manager"  && <LeaveTab     className={activeClass} faculties={faculties} />}
+        {/* Content */}
+        <div className="p-4 sm:p-5">
+          {activeTab==="Lab Setup" && <LabSetupTab className={activeClass} />}
+          {activeTab==="Subjects"  && <SubjectsTab className={activeClass} faculties={faculties} />}
+          {activeTab==="Schedule"  && <ScheduleTab className={activeClass} />}
+          {activeTab==="Leave"     && <LeaveTab    className={activeClass} faculties={faculties} />}
         </div>
       </div>
     </div>
