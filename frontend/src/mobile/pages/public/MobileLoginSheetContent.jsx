@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import { Logo } from "../../../components/ui/Logo";
 import {
   ShieldCheck, Users, BarChart3, Zap, ArrowRight,
   FolderKanban, MessageSquare, Activity, Bell
@@ -21,11 +22,9 @@ export default function MobileLoginSheetContent({ onClose }) {
     <div className="space-y-5 pb-4 mobile-fade-in">
       {/* Logo + Title */}
       <div className="text-center">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center shadow-lg mx-auto mb-3">
-          <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain brightness-0 invert" />
-        </div>
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Sign in to Hive</h2>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Department Project Management System</p>
+        <Logo variant="icon" className="w-12 h-12 object-contain mx-auto mb-2.5" />
+        <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">Sign in to Hive</h2>
+        <p className="text-xs font-medium text-gray-500 dark:text-slate-400 mt-1">Department Project Management System</p>
       </div>
 
       {/* Role Segmented Control */}

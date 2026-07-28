@@ -17,7 +17,7 @@ export function Avatar({ src, name, size = "md", className }) {
       <img
         src={src}
         alt={name || "Avatar"}
-        className={clsx("rounded-full object-cover", sizes[size], className)}
+        className={clsx("rounded-full object-cover border border-gray-200 dark:border-white/10", sizes[size], className)}
       />
     );
   }
@@ -25,7 +25,7 @@ export function Avatar({ src, name, size = "md", className }) {
   return (
     <div
       className={clsx(
-        "rounded-full bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 flex items-center justify-center font-medium",
+        "rounded-full bg-[#FFEEE9] dark:bg-[#F05A2B]/20 text-[#F05A2B] dark:text-[#FF8365] border border-[#FFDBD2] dark:border-[#F05A2B]/30 flex items-center justify-center font-bold tracking-tight shrink-0",
         sizes[size],
         className
       )}
@@ -34,3 +34,5 @@ export function Avatar({ src, name, size = "md", className }) {
     </div>
   );
 }
+
+export default Avatar;

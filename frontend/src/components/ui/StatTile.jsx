@@ -10,8 +10,8 @@ export function StatTile({ icon: Icon, value, label, accent, note, className, on
     <div
       onClick={onClick}
       className={clsx(
-        "h-full bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700",
-        isClickable && "cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all duration-200 active:scale-[0.98]",
+        "h-full bg-white dark:bg-[#131C2E] rounded-2xl p-4.5 border border-gray-200/80 dark:border-white/10 shadow-finexy dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)] transition-all duration-200",
+        isClickable && "cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-[#F05A2B]/40 dark:hover:border-[#F05A2B]/40 active:scale-[0.98]",
         className
       )}
       {...props}
@@ -19,20 +19,22 @@ export function StatTile({ icon: Icon, value, label, accent, note, className, on
       {Icon && (
         <div
           className={clsx(
-            "w-9 h-9 rounded-lg flex items-center justify-center mb-2",
-            accent || "text-gray-600 bg-gray-100 dark:text-gray-300 dark:bg-gray-700"
+            "w-9 h-9 rounded-xl flex items-center justify-center mb-2.5 transition-colors",
+            accent || "text-[#F05A2B] bg-[#FFEEE9] dark:text-[#FF8365] dark:bg-[#F05A2B]/15"
           )}
         >
           <Icon className="w-4.5 h-4.5" />
         </div>
       )}
-      <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+      <p className="text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-100 mb-0.5">{value}</p>
       <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+        <p className="text-xs font-medium text-gray-500 dark:text-slate-400">{label}</p>
         {note != null && (
-          <span className="text-xs font-medium text-gray-400 dark:text-gray-500">{note}</span>
+          <span className="text-xs font-semibold text-gray-400 dark:text-slate-500">{note}</span>
         )}
       </div>
     </div>
   );
 }
+
+export default StatTile;

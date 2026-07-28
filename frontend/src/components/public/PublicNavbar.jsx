@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Hexagon, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Logo } from "../ui/Logo";
 
 const NAV_SECTIONS = [
   { label: "Home", id: "hero" },
@@ -76,8 +77,8 @@ export function PublicNavbar() {
 
           {/* ── Logo ── */}
           <Link to="/" onClick={() => handleNavClick("hero")} className="flex items-center gap-2 group shrink-0">
-            <img
-              src="/website-name-logo.png"
+            <Logo
+              variant="full"
               alt="Hive Logo"
               className="h-[72px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
             />

@@ -5,10 +5,17 @@
 
 /* ─── Department Hub Design Tokens ─────────────────────────────────────── */
 :root {
-  /* Finexy Dashboard Architecture Tokens */
+  /* Surface elevation & background tokens (Light mode) */
   --background: #F3F3F5;
   --surface: #FFFFFF;
   --border: #EBEBEB;
+
+  --bg-base: #F3F3F5;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F9F9FB;
+  --bg-surface-elevated: #FFFFFF;
+  --border-subtle: #EBEBEB;
+  --border-default: #E0E0E0;
 
   --text: #171717;
   --text-primary: #171717;
@@ -19,6 +26,8 @@
   --primary-hover: #E04A1B;
   --primary-light: #FFEEE9;
   --primary-soft: #FFDBD2;
+  --accent-hover: #E04A1B;
+  --accent-muted: rgba(240, 90, 43, 0.12);
 
   --dark-pill: #171717;
   --dark-pill-hover: #000000;
@@ -26,6 +35,23 @@
   --success: #22C55E;
   --danger: #EF4444;
   --black: #171717;
+
+  /* Status Colors */
+  --status-success-bg: #ECFDF5;
+  --status-success-text: #047857;
+  --status-success-border: #A7F3D0;
+
+  --status-warning-bg: #FFFBEB;
+  --status-warning-text: #B45309;
+  --status-warning-border: #FDE68A;
+
+  --status-danger-bg: #FEF2F2;
+  --status-danger-text: #B91C1C;
+  --status-danger-border: #FCA5A5;
+
+  --status-info-bg: #EFF6FF;
+  --status-info-text: #1D4ED8;
+  --status-info-border: #BFDBFE;
 
   /* Compatibility mappings */
   --border-light: #EBEBEB;
@@ -137,20 +163,52 @@ html.dark,
 body.dark,
 :root.dark,
 .dark {
-  --background: #090D16;
-  --surface: #0F172A;
-  --border: #1E293B;
-  --border-light: #1E293B;
-  --border-medium: #334155;
-  --border-color: #1E293B;
+  --background: #0B0F17;
+  --surface: #131C2E;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  --bg-base: #0B0F17;
+  --bg-surface: #131C2E;
+  --bg-surface-hover: #1E2A42;
+  --bg-surface-elevated: #1A2438;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.15);
+
   --text: #F8FAFC;
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
-  --sidebar-bg: #0F172A;
-  --sidebar-border: #1E293B;
-  --sidebar-hover: #1E293B;
-  background-color: #090D16;
+
+  --accent-hover: #FF7043;
+  --accent-muted: rgba(240, 90, 43, 0.22);
+
+  --sidebar-bg: #131C2E;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-hover: #1E2A42;
+  --surface-hover: #1E2A42;
+  --surface-secondary: #131C2E;
+
+  /* Dark mode safe status colors */
+  --status-success-bg: rgba(16, 185, 129, 0.16);
+  --status-success-text: #34D399;
+  --status-success-border: rgba(52, 211, 153, 0.3);
+
+  --status-warning-bg: rgba(245, 158, 11, 0.16);
+  --status-warning-text: #FBBF24;
+  --status-warning-border: rgba(251, 191, 36, 0.3);
+
+  --status-danger-bg: rgba(239, 68, 68, 0.16);
+  --status-danger-text: #F87171;
+  --status-danger-border: rgba(248, 113, 113, 0.3);
+
+  --status-info-bg: rgba(59, 130, 246, 0.16);
+  --status-info-text: #60A5FA;
+  --status-info-border: rgba(96, 165, 250, 0.3);
+
+  background-color: #0B0F17;
   color: #F8FAFC;
 }
 

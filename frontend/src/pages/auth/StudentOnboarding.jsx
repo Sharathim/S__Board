@@ -5,6 +5,7 @@ import { onboardStudent } from "../../api/auth";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Spinner } from "../../components/ui/Spinner";
+import { Logo } from "../../components/ui/Logo";
 
 export default function StudentOnboarding() {
   const { user, loading: authLoading, onboardingData, setOnboardingData, setUser } = useAuth();
@@ -64,13 +65,13 @@ export default function StudentOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#F3F3F5] dark:bg-[#0B0F17] transition-colors duration-300">
       <div className="w-full max-w-lg">
 
         {/* ── Brand header ── */}
         <div className="text-center mb-8">
-          <img
-            src="/logo-full.png"
+          <Logo
+            variant="full"
             alt="DPMS — Department Project Management System"
             className="h-14 w-auto object-contain mx-auto mb-6"
           />

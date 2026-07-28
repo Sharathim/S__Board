@@ -12,6 +12,7 @@ import {
   Lock, AlertCircle, User, Star, TrendingUp, Database
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { Logo } from "../../components/ui/Logo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -1651,7 +1652,7 @@ export default function HomePage() {
       <footer className="border-t border-slate-100 dark:border-slate-800 py-10 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/website-name-logo.png" alt="Hive" className="h-10 w-auto object-contain" />
+            <Logo variant="full" alt="Hive" className="h-10 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-6 text-sm text-slate-400">
             {[{ label: "About", id: "about" }, { label: "Features", id: "features" }, { label: "Contact", id: "contact" }].map(({ label, id }) => (

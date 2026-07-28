@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { useState } from "react";
 import MailComposerModal from "../../pages/dashboard/MailComposerModal";
+import { Logo } from "../../components/ui/Logo";
 
 
 const ROUTE_TITLES = {
@@ -57,12 +58,12 @@ export default function MobileTopBar({ title: titleProp }) {
             </button>
           )}
           <div className="flex items-center gap-2">
-            <img
-              src="/logo-icon.png"
+            <Logo
+              variant="icon"
               alt="Hive"
               className="w-8 h-8 object-contain shrink-0"
             />
-            <span className="font-bold text-base text-gray-900 dark:text-white tracking-tight">
+            <span className="font-bold text-base text-gray-900 dark:text-slate-100 tracking-tight">
               Hive
             </span>
           </div>

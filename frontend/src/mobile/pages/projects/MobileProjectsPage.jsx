@@ -28,12 +28,12 @@ const STATUS_OPTIONS = [
 
 const getStatusTheme = (status) => {
   const map = {
-    NOT_STARTED: { bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400" },
-    IN_PROGRESS: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-[#F05A2B] dark:text-orange-400", dot: "bg-[#F05A2B]" },
-    REVIEW: { bg: "bg-purple-50 dark:bg-purple-950/30", text: "text-purple-700 dark:text-purple-400", dot: "bg-purple-500" },
-    COMPLETED: { bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-500" },
-    ON_HOLD: { bg: "bg-yellow-50 dark:bg-yellow-950/30", text: "text-yellow-700 dark:text-yellow-400", dot: "bg-yellow-550" },
-    CANCELLED: { bg: "bg-red-50 dark:bg-red-950/30", text: "text-red-700 dark:text-red-400", dot: "bg-red-550" },
+    NOT_STARTED: { bg: "bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10", text: "text-slate-700 dark:text-slate-200", dot: "bg-slate-400" },
+    IN_PROGRESS: { bg: "bg-[#FFEEE9] dark:bg-[#F05A2B]/15 border border-[#FFDBD2] dark:border-[#F05A2B]/30", text: "text-[#F05A2B] dark:text-[#FF8365]", dot: "bg-[#F05A2B]" },
+    REVIEW: { bg: "bg-purple-50 dark:bg-purple-500/15 border border-purple-200 dark:border-purple-500/30", text: "text-purple-700 dark:text-purple-300", dot: "bg-purple-500" },
+    COMPLETED: { bg: "bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30", text: "text-emerald-700 dark:text-emerald-300", dot: "bg-emerald-500" },
+    ON_HOLD: { bg: "bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30", text: "text-amber-700 dark:text-amber-300", dot: "bg-amber-500" },
+    CANCELLED: { bg: "bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30", text: "text-rose-700 dark:text-rose-300", dot: "bg-rose-500" },
   };
   return map[status] || map.NOT_STARTED;
 };

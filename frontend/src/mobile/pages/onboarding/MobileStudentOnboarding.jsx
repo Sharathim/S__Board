@@ -5,6 +5,7 @@ import { onboardStudent } from "../../../api/auth";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { Spinner } from "../../../components/ui/Spinner";
+import { Logo } from "../../../components/ui/Logo";
 import MobileCard from "../../components/MobileCard";
 
 export default function MobileStudentOnboarding() {
@@ -64,14 +65,12 @@ export default function MobileStudentOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#FFFFFF] dark:bg-[#000000] mobile-fade-in transition-colors duration-300">
+    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#F3F3F5] dark:bg-[#0B0F17] mobile-fade-in transition-colors duration-300">
       <div className="w-full max-w-md mx-auto space-y-6">
 
         {/* Brand header */}
         <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center shadow-lg mx-auto mb-4">
-            <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain brightness-0 invert" />
-          </div>
+          <Logo variant="icon" className="w-12 h-12 object-contain mx-auto mb-3" />
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             Complete Your Profile
           </h1>

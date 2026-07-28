@@ -1,8 +1,9 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react";
 import { useState, useEffect, useRef } from "react";
 import { Home, Info, Zap, Mail } from "lucide-react";
 import BottomSheet from "./BottomSheet";
 import MobileLoginSheetContent from "../pages/public/MobileLoginSheetContent";
+import { Logo } from "../../components/ui/Logo";
 
 /**
  * Public/marketing mobile shell.
@@ -21,14 +22,11 @@ export default function MobilePublicShell() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // If close to top (scrollY < 10), always show
       if (currentScrollY < 10) {
         setVisible(true);
       } else if (currentScrollY > lastScrollY.current) {
-        // Scrolling down
         setVisible(false);
       } else {
-        // Scrolling up
         setVisible(true);
       }
 
@@ -39,8 +37,6 @@ export default function MobilePublicShell() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
-
   const NAV_ITEMS = [
     { label: "Home", to: "/", icon: Home },
     { label: "About", to: "/about", icon: Info },
@@ -49,23 +45,23 @@ export default function MobilePublicShell() {
   ];
 
   return (
-    <div className="h-[100dvh] min-h-screen w-full flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
+    <div className="h-[100dvh] min-h-screen w-full flex flex-col overflow-hidden bg-[#F3F3F5] dark:bg-[#0B0F17] transition-colors duration-300 relative">
       {/* Top Bar */}
       <header
-        className="relative w-full shrink-0 z-30 bg-[#FFFFFF] dark:bg-[#000000] flex items-center justify-between px-4 select-none"
+        className="relative w-full shrink-0 z-30 bg-[#F3F3F5] dark:bg-[#0B0F17] border-b border-gray-200/60 dark:border-white/10 flex items-center justify-between px-4 select-none"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="flex items-center gap-2">
-          <img src="/logo-icon.png" alt="Hive" className="w-8 h-8 object-contain" />
-          <span className="font-bold text-base text-gray-900 dark:text-white tracking-tight">Hive</span>
+          <Logo variant="icon" alt="Hive" className="w-8 h-8 object-contain" />
+          <span className="font-bold text-base text-gray-900 dark:text-slate-100 tracking-tight">Hive</span>
         </div>
 
         {/* Redesigned Premium Glassmorphic Login Button */}
         <button
           onClick={() => setLoginOpen(true)}
           className="mobile-tappable min-h-[36px] px-4 py-1.5 rounded-full font-bold text-xs transition-all
-            bg-violet-50/80 hover:bg-violet-100/80 border border-violet-200 text-violet-700 hover:shadow-sm
-            dark:bg-slate-900/60 dark:hover:bg-violet-500/10 dark:border-violet-500/30 dark:hover:border-violet-500/50 dark:text-violet-400 dark:shadow-none"
+            bg-[#FFEEE9] hover:bg-[#FFDBD2] border border-[#FFDBD2] text-[#F05A2B] hover:shadow-sm
+            dark:bg-[#F05A2B]/15 dark:hover:bg-[#F05A2B]/25 dark:border-[#F05A2B]/30 dark:text-[#FF8365]"
         >
           Login
         </button>
@@ -82,7 +78,7 @@ export default function MobilePublicShell() {
 
       {/* Public Bottom Navigation Bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] dark:bg-[#000000] flex items-center justify-around px-2 select-none"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#131C2E]/90 backdrop-blur-md border-t border-gray-200/60 dark:border-white/10 flex items-center justify-around px-2 select-none"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
@@ -102,15 +98,15 @@ export default function MobilePublicShell() {
               <Icon
                 className={`w-5 h-5 transition-colors ${
                   active
-                    ? "text-primary-600 dark:text-primary-400"
-                    : "text-gray-400 dark:text-gray-500"
+                    ? "text-[#F05A2B] dark:text-[#FF8365]"
+                    : "text-gray-400 dark:text-slate-400"
                 }`}
               />
               <span
                 className={`text-[10px] font-semibold tracking-tight transition-colors ${
                   active
-                    ? "text-primary-600 dark:text-primary-400"
-                    : "text-gray-400 dark:text-gray-500"
+                    ? "text-[#F05A2B] dark:text-[#FF8365]"
+                    : "text-gray-400 dark:text-slate-400"
                 }`}
               >
                 {item.label}

@@ -1,5 +1,6 @@
 import { usePageTransition } from "../../context/TransitionContext";
 import { Check, FolderKanban } from "lucide-react";
+import { Logo } from "../ui/Logo";
 
 /**
  * PageTransitionOverlay
@@ -111,10 +112,10 @@ export default function PageTransitionOverlay() {
             <div className="portal-hexagon-outer" />
             <div className="portal-hexagon-inner">
               <div className="portal-hexagon-content">
-                <img
-                  src="/logo-icon.png"
+                <Logo
+                  variant="icon"
                   alt="Hive Logo"
-                  className="w-11 h-11 object-contain filter drop-shadow-[0_4px_10px_rgba(139,92,246,0.25)]"
+                  className="w-11 h-11 object-contain filter drop-shadow-[0_4px_10px_rgba(240,90,43,0.25)]"
                 />
               </div>
             </div>

@@ -11,6 +11,7 @@ import { useNotificationContext } from "../../context/NotificationContext";
 import { usePageTransition } from "../../context/TransitionContext";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { Logo } from "../ui/Logo";
 import MailComposerModal from "../../pages/dashboard/MailComposerModal";
 
 function getInitials(name) {
@@ -235,8 +236,8 @@ export function TopBar() {
             }}
             className="cursor-pointer hover:scale-[1.02] transition-transform"
           >
-            <img
-              src="/website-name-logo.png"
+            <Logo
+              variant="full"
               alt="Hive Brand Logo"
               className="h-20 w-auto object-contain flex-shrink-0"
             />
@@ -322,8 +323,8 @@ export function TopBar() {
         
         {/* Drawer Brand Logo */}
         <div className="absolute top-[22px] left-5 flex items-center gap-3 select-none">
-          <img
-            src="/logo-icon.png?v=2"
+          <Logo
+            variant="icon"
             alt="Hive Logo Icon"
             className="h-9 w-9 object-contain"
           />

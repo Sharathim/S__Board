@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { Logo } from "./Logo";
 
 const phrases = [
   "Restoring session",
@@ -116,7 +117,7 @@ export function SessionLoader() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FFFFFF] dark:bg-[#000000] overflow-hidden transition-colors duration-300"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FFFFFF] dark:bg-[#0B0F17] overflow-hidden transition-colors duration-300"
       style={{ opacity: 0 }}
     >
       {/* Background Particles */}
@@ -131,10 +132,9 @@ export function SessionLoader() {
         <div className="portal-hexagon-outer" />
         <div className="portal-hexagon-inner">
           <div className="portal-hexagon-content">
-            <img
-              src="/logo-icon.png"
-              alt="Hive Logo"
-              className="w-11 h-11 object-contain filter drop-shadow-[0_4px_10px_rgba(139,92,246,0.25)]"
+            <Logo
+              variant="icon"
+              className="w-11 h-11 object-contain filter drop-shadow-[0_4px_10px_rgba(240,90,43,0.25)]"
             />
           </div>
         </div>

@@ -102,14 +102,14 @@ function ProjectKebab({ project, isHOD }) {
 
 const getStatusTheme = (status) => {
   const map = {
-    NOT_STARTED: { bg: "bg-slate-50 text-slate-650 dark:bg-slate-800/85 dark:text-slate-400 border-slate-200/60", dot: "bg-slate-400" },
-    IN_PROGRESS: { bg: "bg-orange-50 text-[#F05A2B] dark:bg-orange-950/30 dark:text-orange-450 border-orange-100 dark:border-orange-900/35", dot: "bg-[#F05A2B]" },
-    REVIEW: { bg: "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border-purple-100", dot: "bg-purple-500" },
-    COMPLETED: { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-450 border-emerald-100/50", dot: "bg-emerald-500" },
-    ON_HOLD: { bg: "bg-yellow-50 text-yellow-750 dark:bg-yellow-950/40 dark:text-yellow-405 border-yellow-100/50", dot: "bg-yellow-550" },
-    CANCELLED: { bg: "bg-red-50 text-red-750 dark:bg-red-950/40 dark:text-red-405 border-red-100/50", dot: "bg-red-550" },
+    NOT_STARTED: { bg: "bg-slate-100 text-slate-700 dark:bg-slate-800/80 dark:text-slate-200 border border-slate-200 dark:border-white/10", dot: "bg-slate-400" },
+    IN_PROGRESS: { bg: "bg-[#FFEEE9] text-[#F05A2B] dark:bg-[#F05A2B]/15 dark:text-[#FF8365] border border-[#FFDBD2] dark:border-[#F05A2B]/30", dot: "bg-[#F05A2B]" },
+    REVIEW: { bg: "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30", dot: "bg-purple-500" },
+    COMPLETED: { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30", dot: "bg-emerald-500" },
+    ON_HOLD: { bg: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30", dot: "bg-amber-500" },
+    CANCELLED: { bg: "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30", dot: "bg-rose-500" },
   };
-  return map[status] || { bg: "bg-slate-100 text-slate-650 border-slate-200", dot: "bg-slate-450" };
+  return map[status] || { bg: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-white/10", dot: "bg-slate-400" };
 };
 
 // ─── Main Page Component ──────────────────────────────────────────────────────

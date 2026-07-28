@@ -5,70 +5,57 @@ import { onboardFaculty } from "../../api/auth";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Spinner } from "../../components/ui/Spinner";
+import { Logo } from "../../components/ui/Logo";
 
 const ALL_CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"];
 
 export default function FacultyOnboarding() {
-  const { user, loading: authLoading, onboardingData, setOnboardingData, setUser } = useAuth();
+  const { user, firebaseUser, setOnboardingData, setUser } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!authLoading) {
-      if (user) {
-        navigate("/faculty", { replace: true });
-      } else if (!onboardingData) {
-        navigate("/", { replace: true });
-      }
-    }
-  }, [user, onboardingData, authLoading, navigate]);
-
-  const [name, setName] = useState(onboardingData?.prefill?.name || "");
-  const [designation, setDesignation] = useState("Professor");
-  const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [department, setDepartment] = useState("");
+  const [designation, setDesignation] = useState("Assistant Professor");
+  const [assignedClasses, setAssignedClasses] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  if (!onboardingData || onboardingData.invite_type !== "faculty") {
-    return <Spinner fullScreen />;
-  }
+  useEffect(() => {
+    if (user?.role && user.role !== "STUDENT" && user.role !== "FACULTY") {
+      // Role already resolved — redirect
+    }
+  }, [user]);
 
   const toggleClass = (cls) => {
-    setClasses(prev => prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls]);
+    setAssignedClasses(prev =>
+      prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls]
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) { setError("Name is required"); return; }
-    setLoading(true);
+    if (!department) { setError("Please specify your department."); return; }
+    setSubmitting(true);
     setError(null);
     try {
-      const res = await onboardFaculty({
-        uid: onboardingData.prefill.uid,
-        email: onboardingData.prefill.email,
-        name: name.trim(),
-        profile_picture: onboardingData.prefill.profile_picture,
-        designation,
-        classes_handling: classes,
-      });
+      const data = await onboardFaculty({ department, designation, assignedClasses });
       setOnboardingData(null);
-      setUser(res.data.user);
-      sessionStorage.removeItem("loginRole");
-      navigate("/faculty");
+      if (data.user) setUser(data.user);
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.error || "Onboarding failed");
+      setError(err.response?.data?.message || err.message || "Onboarding failed");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[#F3F3F5] dark:bg-[#0B0F17] transition-colors duration-300">
       <div className="w-full max-w-lg">
 
         {/* ── Brand header ── */}
         <div className="text-center mb-8">
-          <img
-            src="/logo-full.png"
+          <Logo
+            variant="full"
             alt="DPMS — Department Project Management System"
             className="h-14 w-auto object-contain mx-auto mb-6"
           />
