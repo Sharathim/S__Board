@@ -248,7 +248,7 @@ export function TopBar() {
             <Logo
               variant="full"
               alt="Hive – Department Management Portal"
-              className="h-10 w-auto object-contain flex-shrink-0"
+              className="h-14 w-auto object-contain flex-shrink-0"
             />
           </div>
         </div>
