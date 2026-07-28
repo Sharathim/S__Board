@@ -1,5 +1,15 @@
 import api from "./axios";
 
+// ── Lab Configuration ─────────────────────────────────────────────────────
+export const getLabConfig = (className) =>
+  api.get(`/timetable/lab-config/${className}`);
+
+export const saveLabConfig = (className, data) =>
+  api.post(`/timetable/lab-config/${className}`, data);
+
+export const getAllLabConfigs = () =>
+  api.get(`/timetable/lab-config/all`);
+
 // ── Subject-Faculty Mappings ──────────────────────────────────────────────
 export const listMappings = (className) =>
   api.get(`/timetable/subject-mappings/${className}`);

@@ -2,6 +2,45 @@ from ..extensions import db
 from datetime import datetime
 
 
+def get_lab_room_for_class(class_name: str) -> int:
+    """
+    Deterministically assign lab room based on section letter.
+    All A-section classes (UG_1A, UG_2A, UG_3A, PG_1A) → Lab 1
+    All B-section classes (UG_1B, UG_2B, UG_3B, PG_2A... PG_2A ends in A but is PG year 2 A) → Lab 1
+    Rule: class_name ends with 'A' → Lab 1 else Lab 2
+    """
+    return 1 if class_name.endswith("A") else 2
+
+
+class ClassLabConfig(db.Model):
+    """
+    HOD-configurable lab settings per class, set before generating the timetable.
+    Stores how many weekly lab-periods the class has in total.
+    The lab room (1 or 2) is auto-determined from the class name (A→Lab1, B→Lab2).
+    """
+    __tablename__ = "class_lab_configs"
+
+    id              = db.Column(db.Integer, primary_key=True)
+    class_name      = db.Column(db.String(20), nullable=False, unique=True)
+    weekly_lab_hours= db.Column(db.Integer, default=0, nullable=False)  # total lab periods per week
+    notes           = db.Column(db.String(200), nullable=True)           # e.g. "RDBMS Lab + ASP Lab"
+    created_at      = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at      = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    @property
+    def lab_room(self):
+        return get_lab_room_for_class(self.class_name)
+
+    def to_dict(self):
+        return {
+            "id":               self.id,
+            "class_name":       self.class_name,
+            "weekly_lab_hours": self.weekly_lab_hours,
+            "lab_room":         self.lab_room,
+            "notes":            self.notes,
+        }
+
+
 class FacultySubjectMapping(db.Model):
     """
     HOD maps: for a given class, which faculty teaches which subject.

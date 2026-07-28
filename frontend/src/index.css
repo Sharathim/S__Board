@@ -3386,7 +3386,7 @@ label, .form-label-standard {
   animation: pm-glow-pulse 2.5s ease-in-out infinite;
 }
 
-/* ─── ChronoGrid Timetable Utilities ────────────────────────────────────── */
+/* ─── Timetable Utilities ────────────────────────────────────────────────── */
 .label-xs {
   @apply block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider;
 }
@@ -3394,7 +3394,7 @@ label, .form-label-standard {
 .input-field {
   @apply block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800
          text-gray-900 dark:text-gray-100 px-3 py-2.5
-         focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500
+         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
          transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500;
 }
 

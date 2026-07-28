@@ -12,7 +12,7 @@ const mainNavItems = [
   { to: "/projects", label: "Projects Registry", icon: FolderKanban },
   { to: "/faculty", label: "Faculty Directory", icon: GraduationCap },
   { to: "/classes", label: "Classrooms", icon: BookOpen },
-  { to: "/timetable", label: "ChronoGrid", icon: CalendarDays, hodOnly: true },
+  { to: "/timetable", label: "Timetable", icon: CalendarDays, hodOnly: true },
   { to: "/updates", label: "Announcements", icon: Megaphone },
   { to: "/notes", label: "Notes & Docs", icon: FileText },
 ];
