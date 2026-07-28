@@ -225,7 +225,7 @@ export function TopBar() {
   return (
     <>
       <header className="w-full h-20 pl-0.5 pr-4 lg:pl-0.5 lg:pr-4 z-[99] flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
-        {/* ── Left Brand Logo: Icon + Hive wordmark (mirrors mobile top bar) ── */}
+        {/* ── Left Brand: Larger icon + theme-aware wordmark PNG ── */}
         <div className="select-none flex items-center">
           <div
             onClick={() => {
@@ -234,21 +234,22 @@ export function TopBar() {
               const brandIcon = user?.role === "HOD" ? LayoutDashboard : user?.role === "FACULTY" ? GraduationCap : BookOpen;
               navigateWithTransition(brandDest, brandLabel, brandIcon);
             }}
-            className="cursor-pointer hover:scale-[1.02] transition-transform flex items-center gap-2.5 px-3"
+            className="cursor-pointer hover:scale-[1.02] transition-transform flex items-center gap-3 px-3"
           >
+            {/* Hexagonal icon — increased to h-12 w-12 */}
             <Logo
               variant="icon"
               alt="Hive"
-              className="h-9 w-9 object-contain flex-shrink-0"
+              className="h-12 w-12 object-contain flex-shrink-0"
             />
-            <div className="flex flex-col leading-none">
-              <span className="font-bold text-[18px] tracking-tight text-gray-900 dark:text-white">
-                Hive
-              </span>
-              <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-gray-400 dark:text-slate-500 mt-0.5">
-                Dept. Management
-              </span>
-            </div>
+            {/* Theme-aware wordmark PNG:
+                Light → LightModewebsite-name-logo.png (dark text, mix-blend-mode:multiply hides white bg)
+                Dark  → dark-mode-website-name-logo.png (white text, transparent bg) */}
+            <Logo
+              variant="full"
+              alt="Hive – Department Management Portal"
+              className="h-10 w-auto object-contain flex-shrink-0"
+            />
           </div>
         </div>
 
