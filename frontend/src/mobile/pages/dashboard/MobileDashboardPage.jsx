@@ -33,6 +33,21 @@ function timeAgo(isoStr) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
+function formatProjectMessageContent(rawContent) {
+  if (!rawContent) return "";
+  if (typeof rawContent !== "string") return String(rawContent);
+  const trimmed = rawContent.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return parsed.accomplishment || parsed.completed_this_week || parsed.summary || parsed.title || trimmed;
+    } catch {
+      return rawContent;
+    }
+  }
+  return rawContent;
+}
+
 function StatusProgressBar({ label, value, max, color, dotColor }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
@@ -224,7 +239,7 @@ export default function MobileDashboardPage() {
                   {act.last_message && (
                     <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-1.5">
                       <span className="font-semibold text-gray-500 dark:text-gray-400">{act.last_message.sender_name}: </span>
-                      {act.last_message.content}
+                      {formatProjectMessageContent(act.last_message.content)}
                     </p>
                   )}
                 </MobileCard>

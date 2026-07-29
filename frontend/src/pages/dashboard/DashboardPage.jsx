@@ -34,6 +34,21 @@ function timeAgo(isoStr) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
+function formatProjectMessageContent(rawContent) {
+  if (!rawContent) return "";
+  if (typeof rawContent !== "string") return String(rawContent);
+  const trimmed = rawContent.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return parsed.accomplishment || parsed.completed_this_week || parsed.summary || parsed.title || trimmed;
+    } catch {
+      return rawContent;
+    }
+  }
+  return rawContent;
+}
+
 /* ─── Thin horizontal bar for status breakdown ─────────────────── */
 function StatusBar({ value, max, color }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
@@ -293,7 +308,7 @@ export default function DashboardPage() {
                 <MessageSquare className="w-3.5 h-3.5 text-[#F05A2B]" />
               </div>
               
-              <div className="space-y-2.5 flex-1 overflow-hidden">
+              <div className="space-y-2.5 flex-1 overflow-y-auto max-h-[220px] custom-scrollbar pr-1">
                 {recentActivity && recentActivity.length > 0 ? (
                   recentActivity.map((act) => {
                     const statusClass = STATUS_CHIPS[act.status.toLowerCase()] || "bg-slate-50 text-slate-600";
@@ -315,7 +330,7 @@ export default function DashboardPage() {
                           {act.last_message ? (
                             <>
                               <span className="font-semibold text-slate-550 dark:text-slate-400">{act.last_message.sender_name}: </span>
-                              {act.last_message.content}
+                              {formatProjectMessageContent(act.last_message.content)}
                             </>
                           ) : (
                             "No messages logged yet."

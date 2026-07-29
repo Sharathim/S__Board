@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { Home, Info, Zap, Mail } from "lucide-react";
 import BottomSheet from "./BottomSheet";
