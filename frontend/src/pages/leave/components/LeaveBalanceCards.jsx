@@ -10,7 +10,6 @@ const TYPE_META = {
   MEDICAL:    { label: "Medical Leave",    icon: Stethoscope,   color: "from-rose-500 to-rose-700",    bg: "bg-rose-50/80 dark:bg-rose-950/30",    border: "border-rose-200/80 dark:border-rose-900/40",    text: "text-rose-700 dark:text-rose-300"    },
   ON_DUTY:    { label: "On Duty",          icon: Briefcase,     color: "from-amber-500 to-amber-700",  bg: "bg-amber-50/80 dark:bg-amber-950/30",  border: "border-amber-200/80 dark:border-amber-900/40",  text: "text-amber-700 dark:text-amber-300"  },
   PERMISSION: { label: "Permission",       icon: Clock,         color: "from-sky-500 to-sky-700",      bg: "bg-sky-50/80 dark:bg-sky-950/30",      border: "border-sky-200/80 dark:border-sky-900/40",      text: "text-sky-700 dark:text-sky-300"      },
-  COMP_OFF:   { label: "Comp-Off",         icon: Repeat,        color: "from-emerald-500 to-emerald-700", bg: "bg-emerald-50/80 dark:bg-emerald-950/30", border: "border-emerald-200/80 dark:border-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300" },
 };
 
 function BalanceCard({ balance }) {
@@ -75,6 +74,7 @@ function BalanceCard({ balance }) {
 
 export function LeaveBalanceCards({ balances, academicYear, showTitle = true }) {
   if (!balances) return null;
+  const filteredBalances = balances.filter((b) => b.leave_type !== "COMP_OFF");
   return (
     <div className="space-y-3">
       {showTitle && (
@@ -87,8 +87,8 @@ export function LeaveBalanceCards({ balances, academicYear, showTitle = true }) 
           )}
         </div>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
-        {balances.map((b) => (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-3.5">
+        {filteredBalances.map((b) => (
           <BalanceCard key={b.leave_type} balance={b} />
         ))}
       </div>

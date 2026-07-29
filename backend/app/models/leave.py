@@ -27,12 +27,11 @@ class LeaveDuration(enum.Enum):
 
 
 # Default yearly entitlements — used to seed LeaveBalance rows for a faculty/year.
-# ON_DUTY is effectively unlimited (tracked for reporting), COMP_OFF starts at 0 (earned only).
+# ON_DUTY is effectively unlimited (tracked for reporting).
 DEFAULT_ANNUAL_ENTITLEMENT = {
     LeaveType.CASUAL: 12,
     LeaveType.MEDICAL: 12,
     LeaveType.ON_DUTY: 999,
-    LeaveType.COMP_OFF: 0,
     LeaveType.PERMISSION: 3,   # reference only — enforcement is monthly via check_permission_quota
 }
 

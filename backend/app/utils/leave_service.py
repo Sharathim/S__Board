@@ -111,7 +111,6 @@ def get_or_create_balance(faculty_id: int, leave_type: LeaveType, academic_year:
         LeaveType.CASUAL: settings.default_casual_leave,
         LeaveType.MEDICAL: settings.default_medical_leave,
         LeaveType.ON_DUTY: settings.default_on_duty_leave,
-        LeaveType.COMP_OFF: 0,
         LeaveType.PERMISSION: settings.monthly_permission_quota,
     }
 

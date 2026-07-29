@@ -10,7 +10,6 @@ const TYPE_CONFIG = {
   MEDICAL:    { label: "Medical",    badge: "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800/50" },
   ON_DUTY:    { label: "On Duty",    badge: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800/50" },
   PERMISSION: { label: "Permission", badge: "bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border-sky-200 dark:border-sky-800/50" },
-  COMP_OFF:   { label: "Comp-Off",   badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50" },
 };
 
 function ActionRow({ leave }) {

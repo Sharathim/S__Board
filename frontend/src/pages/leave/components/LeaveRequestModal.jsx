@@ -14,7 +14,6 @@ const LEAVE_TYPES = [
   { value: "MEDICAL",    label: "Medical Leave",  icon: Stethoscope,  color: "rose"   },
   { value: "ON_DUTY",    label: "On Duty",        icon: Briefcase,    color: "amber"  },
   { value: "PERMISSION", label: "Permission",     icon: Clock,        color: "sky"    },
-  { value: "COMP_OFF",   label: "Comp-Off",       icon: Repeat,       color: "emerald"},
 ];
 
 const DURATIONS = [
@@ -207,7 +206,7 @@ function Step3({ form, setForm }) {
   );
 }
 
-const TYPE_LABELS = { CASUAL: "Casual Leave", MEDICAL: "Medical Leave", ON_DUTY: "On Duty", PERMISSION: "Permission", COMP_OFF: "Comp-Off" };
+const TYPE_LABELS = { CASUAL: "Casual Leave", MEDICAL: "Medical Leave", ON_DUTY: "On Duty", PERMISSION: "Permission" };
 const DUR_LABELS  = { FULL_DAY: "Full Day", HALF_DAY_FIRST: "First Half (Periods 1–2)", HALF_DAY_SECOND: "Second Half (Periods 3–5)", PERMISSION_HOURS: "Specific Periods" };
 
 function StepSummary({ form }) {

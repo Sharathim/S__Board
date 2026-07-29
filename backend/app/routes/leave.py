@@ -50,7 +50,7 @@ def my_balance():
     if not faculty:
         return jsonify({"error": "Not a faculty account"}), 403
     ay = svc.get_or_create_current_academic_year()
-    balances = [svc.get_or_create_balance(faculty.id, lt, ay) for lt in LeaveType]
+    balances = [svc.get_or_create_balance(faculty.id, lt, ay) for lt in LeaveType if lt != LeaveType.COMP_OFF]
     return jsonify({"academic_year": ay.to_dict(), "balances": [b.to_dict() for b in balances]})
 
 
@@ -283,7 +283,7 @@ def hod_grant_leave():
 def department_overview():
     """Balance grid — total leaves taken per faculty this academic year, grouped by type."""
     ay = svc.get_or_create_current_academic_year()
-    balances = LeaveBalance.query.filter_by(academic_year_id=ay.id).all()
+    balances = LeaveBalance.query.filter_by(academic_year_id=ay.id).filter(LeaveBalance.leave_type != LeaveType.COMP_OFF).all()
     by_faculty = {}
     for b in balances:
         fid = b.faculty_id

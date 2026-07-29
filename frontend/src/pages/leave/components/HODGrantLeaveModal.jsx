@@ -11,7 +11,6 @@ const LEAVE_TYPES = [
   { value: "MEDICAL",    label: "Medical Leave" },
   { value: "ON_DUTY",    label: "On Duty"       },
   { value: "PERMISSION", label: "Permission"    },
-  { value: "COMP_OFF",   label: "Comp-Off"      },
 ];
 const DURATIONS = [
   { value: "FULL_DAY",         label: "Full Day"         },

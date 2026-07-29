@@ -7,9 +7,9 @@ import { Modal } from "../../../components/ui/Modal";
 import { Button } from "../../../components/ui/Button";
 import { HODLeaveSettingsModal } from "./HODLeaveSettingsModal";
 
-const TYPE_ORDER = ["CASUAL", "MEDICAL", "ON_DUTY", "PERMISSION", "COMP_OFF"];
-const TYPE_SHORT = { CASUAL: "CL", MEDICAL: "ML", ON_DUTY: "OD", PERMISSION: "Perm", COMP_OFF: "CO" };
-const TYPE_NAMES = { CASUAL: "Casual Leave (days)", MEDICAL: "Medical Leave (days)", ON_DUTY: "On Duty (days)", PERMISSION: "Permission Quota (per month)", COMP_OFF: "Comp-Off (days)" };
+const TYPE_ORDER = ["CASUAL", "MEDICAL", "ON_DUTY", "PERMISSION"];
+const TYPE_SHORT = { CASUAL: "CL", MEDICAL: "ML", ON_DUTY: "OD", PERMISSION: "Perm" };
+const TYPE_NAMES = { CASUAL: "Casual Leave (days)", MEDICAL: "Medical Leave (days)", ON_DUTY: "On Duty (days)", PERMISSION: "Permission Quota (per month)" };
 
 function FacultyRow({ item, onClick, onEdit }) {
   const balanceMap = {};
@@ -69,6 +69,7 @@ export function DepartmentOverviewGrid() {
   const [selected, setSelected] = useState(null);
   const [editingFaculty, setEditingFaculty] = useState(null);
   const [editValues, setEditValues] = useState({});
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["leave", "overview"],
@@ -115,7 +116,7 @@ export function DepartmentOverviewGrid() {
   if (error) return <p className="text-sm text-rose-500">Failed to load overview.</p>;
   if (!data?.faculty?.length) return <p className="text-sm text-gray-400">No balance data yet for this academic year.</p>;
 
-  const selectedItem = data.faculty.find((f) => f.faculty_id === selectedId);
+  const selectedItem = data.faculty.find((f) => f.faculty_id === selected);
 
   return (
     <div className="space-y-4">
