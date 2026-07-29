@@ -6,12 +6,12 @@ import { SessionLoader } from "../components/ui/SessionLoader";
 import MobileShell from "./layout/MobileShell";
 import MobilePublicShell from "./layout/MobilePublicShell";
 
-// Public Pages (Shared full content with desktop view)
-import HomePage from "../pages/public/HomePage";
+// Mobile Specific Public Pages
+import MobileHomePage from "./pages/public/MobileHomePage";
+import MobileLoginPage from "./pages/public/MobileLoginPage";
 import AboutPage from "../pages/public/AboutPage";
 import FeaturesPage from "../pages/public/FeaturesPage";
 import ContactPage from "../pages/public/ContactPage";
-import MobileHomePage from "./pages/public/MobileHomePage";
 
 // Onboarding Pages
 import MobileFacultyOnboarding from "./pages/onboarding/MobileFacultyOnboarding";
@@ -65,9 +65,11 @@ export default function MobileApp() {
     <BrowserRouter>
       <Routes>
         <Route element={<MobilePublicRoute />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<MobileHomePage autoOpenLogin />} />
+          <Route path="/" element={<MobileHomePage />} />
         </Route>
+        
+        {/* Dedicated Mobile Login Page */}
+        <Route path="/login" element={<MobileLoginPage />} />
         
         {/* Public pages, no auth redirect */}
         <Route element={<MobilePublicShell />}>
