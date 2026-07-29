@@ -4,7 +4,7 @@ from ..models.timetable import TimetableEntry
 from ..models.faculty import Faculty
 from ..models.leave import (
     LeaveRequest, LeaveBalance, LeaveType, LeaveStatus, LeaveDuration,
-    AcademicYear, DEFAULT_ANNUAL_ENTITLEMENT
+    AcademicYear, DepartmentLeaveSettings, DEFAULT_ANNUAL_ENTITLEMENT
 )
 from .fcm_helper import send_notification
 
