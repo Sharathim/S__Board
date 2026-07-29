@@ -197,165 +197,96 @@ function MobileAttachmentList({ attachments, onPreview }) {
   );
 }
 
-// ─── Mobile Roadmap View (Game-Style Single Island + Arrows/Swipe) ────────────
+// ─── Mobile Roadmap View (Vertical Stacked Timeline) ─────────────────────────
 
-const ISLAND_MIN_SLOTS = 5;
+function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
+  const total = timelineNodes.length;
 
-function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId }) {
-  // timelineNodes is newest-first; the roadmap must read oldest -> newest (island 1 = first milestone achieved).
-  const chronological = [...timelineNodes].reverse();
-  const slots = chronological;
-
-  const initialIdx = (() => {
-    if (selectedId) {
-      const found = chronological.findIndex((n) => n.id === selectedId);
-      if (found >= 0) return found;
-    }
-    return Math.max(0, chronological.length - 1);
-  })();
-
-  const [cursor, setCursor] = useState(initialIdx);
-  const touchStartX = useRef(null);
-
-  useEffect(() => {
-    if (selectedId) {
-      const found = chronological.findIndex((n) => n.id === selectedId);
-      if (found >= 0) setCursor(found);
-    }
-  }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (timelineNodes.length === 0) {
+  if (total === 0) {
     return (
-      <MobileEmptyState
-        icon={Lock}
-        title="Everything Is Locked"
-        description="Post your first progress update to unlock the first island."
-      />
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+          <Map className="w-5 h-5" />
+        </div>
+        <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No Roadmap Milestones Logged</p>
+        <button
+          type="button"
+          onClick={onBack}
+          className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold"
+        >
+          Back to Progress
+        </button>
+      </div>
     );
   }
 
-  const goTo = (idx) => setCursor(Math.max(0, Math.min(slots.length - 1, idx)));
-  const node = slots[cursor];
-  const isCompleted = !!node;
-
-  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchEnd = (e) => {
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) goTo(cursor + 1);
-      else goTo(cursor - 1);
-    }
-    touchStartX.current = null;
-  };
-
   return (
-    <div className="space-y-3 mt-2">
-      <div className="px-1">
-        <div className="flex items-center gap-2">
-          <Map className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Project Roadmap</span>
-        </div>
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Track the journey of this project</p>
+    <div className="space-y-4 py-1">
+      {/* Back button & Header */}
+      <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all shadow-2xs"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Progress</span>
+        </button>
+        <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+          Project Roadmap ({total})
+        </span>
       </div>
 
-      <div
-        className="relative rounded-3xl bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800 p-6 overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20">
-          <div className="absolute top-4 left-8 w-12 h-5 rounded-full bg-white dark:bg-slate-700 blur-sm" />
-          <div className="absolute bottom-8 right-10 w-14 h-5 rounded-full bg-white dark:bg-slate-700 blur-sm" />
-        </div>
+      {/* Vertical Stacked Timeline */}
+      <div className="space-y-3">
+        {timelineNodes.map((node, idx) => {
+          const milestoneNum = total - idx;
+          const isSelected = node.id === selectedId;
 
-        {/* Left / Right arrows */}
-        <button
-          type="button"
-          onClick={() => goTo(cursor - 1)}
-          disabled={cursor === 0}
-          className="mobile-tappable absolute left-2 top-10 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
-          aria-label="Previous milestone"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => goTo(cursor + 1)}
-          disabled={cursor === slots.length - 1}
-          className="mobile-tappable absolute right-2 top-10 z-10 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95 transition-all"
-          aria-label="Next milestone"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={cursor}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="flex flex-col items-center gap-2 py-2"
-          >
-            <span
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm border ${
-                isCompleted
-                  ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                  : "bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700"
-              }`}
-            >
-              {cursor + 1} {isCompleted ? "· COMPLETED" : "· LOCKED"}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => isCompleted && onSelectMilestone(node)}
-              disabled={!isCompleted}
-              className="relative w-40 h-40 flex items-center justify-center"
-            >
-              {isCompleted && <span className="absolute inset-0 rounded-full bg-emerald-500 opacity-20 blur-2xl scale-75" />}
-              <img
-                src="/island.png"
-                alt={isCompleted ? node.title || "Completed milestone" : "Locked milestone"}
-                draggable={false}
-                className={`relative w-full h-full object-contain select-none ${
-                  isCompleted ? "drop-shadow-lg" : "grayscale contrast-75 brightness-95"
+          return (
+            <div key={node.id} className="flex flex-col items-center">
+              {/* Stacked Card */}
+              <div
+                onClick={() => onSelectMilestone(node)}
+                className={`w-full p-4 rounded-2xl transition-all duration-200 cursor-pointer text-left ${
+                  isSelected
+                    ? "bg-white dark:bg-slate-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
+                    : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs"
                 }`}
-              />
-              {!isCompleted && (
-                <>
-                  <span className="absolute top-[18%] w-16 h-16 rounded-full bg-slate-300/90 dark:bg-slate-700/90 backdrop-blur-[1px]" />
-                  <span className="absolute top-[18%] w-11 h-11 rounded-full bg-slate-500/90 dark:bg-slate-800/90 flex items-center justify-center shadow-md ring-4 ring-white/60 dark:ring-slate-900/60">
-                    <Lock className="w-5 h-5 text-slate-100" />
+              >
+                {/* 1. Number Badge & 4. Date */}
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-xs font-black border border-indigo-200/60 dark:border-indigo-800/60">
+                    {milestoneNum}
                   </span>
-                </>
-              )}
-            </button>
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                    {node.dateStr}
+                  </span>
+                </div>
 
-            {isCompleted ? (
-              <div className="text-center space-y-0.5 max-w-[220px]">
-                <p className="text-xs font-black text-slate-900 dark:text-white leading-snug">{node.title || "Progress update"}</p>
-                <p className="text-[10px] font-semibold text-slate-400">{format(parseUTCDate(node.dateRaw), "MMM d, yyyy · h:mm a")}</p>
-                <p className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 pt-1">Tap island to view details</p>
+                {/* 2. Title */}
+                <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">
+                  {node.title || "Progress Update"}
+                </h4>
+
+                {/* 3. Description */}
+                {node.accomplishment && (
+                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+                    {node.accomplishment}
+                  </p>
+                )}
               </div>
-            ) : (
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">Locked until a new update is posted</p>
-            )}
-          </motion.div>
-        </AnimatePresence>
 
-        {/* Dots pagination */}
-        <div className="flex items-center justify-center gap-1.5 pt-1">
-          {slots.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              className={`h-1.5 rounded-full transition-all ${i === cursor ? "w-5 bg-indigo-500" : "w-1.5 bg-slate-300 dark:bg-slate-700"}`}
-              aria-label={`Go to milestone ${i + 1}`}
-            />
-          ))}
-        </div>
+              {/* Connector line ↓ for next item */}
+              {idx < total - 1 && (
+                <div className="flex flex-col items-center my-1">
+                  <div className="w-0.5 h-4 bg-slate-300 dark:bg-slate-700" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 -mt-1" />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -607,30 +538,6 @@ export default function MobileProjectDetailPage() {
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 border border-slate-200/60 dark:border-slate-800">
-        <button
-          onClick={() => setActiveTab("progress")}
-          className={`pm-tab flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-            activeTab === "progress"
-              ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
-              : "text-slate-500 dark:text-slate-400"
-          }`}
-        >
-          Progress <span className="opacity-60">({timelineNodes.length})</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("roadmap")}
-          className={`pm-tab flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all ${
-            activeTab === "roadmap"
-              ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
-              : "text-slate-500 dark:text-slate-400"
-          }`}
-        >
-          <span className="flex items-center justify-center gap-1.5"><Map className="w-3.5 h-3.5" /> Roadmap</span>
-        </button>
-      </div>
-
       {/* Tab content */}
       {activeTab === "progress" ? (
         timelineNodes.length === 0 ? (
@@ -641,80 +548,6 @@ export default function MobileProjectDetailPage() {
           />
         ) : (
           <div className="space-y-4">
-            {/* ── Latest Progress Premium Card ── */}
-            {(() => {
-              const latestPct = timelineNodes[0]?.percentage || 0;
-              const latestTitle = timelineNodes[0]?.title || "No updates yet";
-              const circumference = 2 * Math.PI * 24; // r=24
-              const strokeDash = (latestPct / 100) * circumference;
-              return (
-                <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_4px_20px_rgba(79,70,229,0.08)] mb-1">
-                  {/* Left accent bar */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b from-indigo-500 via-violet-500 to-indigo-600" />
-
-                  <div className="pl-5 pr-4 py-4 flex items-center gap-4">
-                    {/* Text content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">Latest Progress</span>
-                        {latestPct === 100 && (
-                          <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-full">DONE</span>
-                        )}
-                      </div>
-                      <p className="text-[13px] font-bold text-slate-800 dark:text-slate-100 leading-snug line-clamp-1">
-                        {latestTitle}
-                      </p>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                        {latestPct > 0
-                          ? `${latestPct}% of project completed`
-                          : "No percentage logged yet"}
-                      </p>
-                    </div>
-
-                    {/* Circular progress ring */}
-                    <div className="relative w-14 h-14 shrink-0">
-                      <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
-                        {/* Track */}
-                        <circle
-                          cx="28" cy="28" r="24"
-                          fill="none"
-                          strokeWidth="4"
-                          className="stroke-slate-100 dark:stroke-slate-800"
-                        />
-                        {/* Progress arc */}
-                        <circle
-                          cx="28" cy="28" r="24"
-                          fill="none"
-                          strokeWidth="4"
-                          strokeLinecap="round"
-                          stroke="url(#progressGradient)"
-                          strokeDasharray={`${strokeDash} ${circumference}`}
-                          style={{ transition: "stroke-dasharray 0.6s ease" }}
-                        />
-                        <defs>
-                          <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#6366f1" />
-                            <stop offset="100%" stopColor="#8b5cf6" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-indigo-600 dark:text-indigo-400">
-                        {latestPct}%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Bottom progress bar */}
-                  <div className="mx-5 mb-3.5 h-1 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-700"
-                      style={{ width: `${latestPct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })()}
-
             <AnimatePresence mode="wait">
               <motion.div
                 key={displayedNode.id}
@@ -747,7 +580,23 @@ export default function MobileProjectDetailPage() {
           timelineNodes={timelineNodes}
           onSelectMilestone={handleSelectMilestone}
           selectedId={selectedMilestoneId ?? timelineNodes[0]?.id}
+          onBack={() => setActiveTab("progress")}
         />
+      )}
+
+      {/* Floating Action Button for Roadmap (Progress View only) */}
+      {activeTab === "progress" && (
+        <motion.button
+          type="button"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0 }}
+          onClick={() => setActiveTab("roadmap")}
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition-transform border border-white/20 dark:border-slate-700/50"
+          aria-label="Open Project Roadmap"
+        >
+          <Map className="w-6 h-6" />
+        </motion.button>
       )}
 
       {/* Student FAB to Post Progress */}
@@ -972,18 +821,15 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
         </div>
       </div>
 
-      {/* Title & Percentage */}
-      <div className="space-y-1.5 mb-1.5">
+      {/* Title & Completion */}
+      <div className="flex items-center justify-between gap-2 flex-wrap mb-1.5">
         {node.title && (
           <h3 className="text-xs font-black text-slate-900 dark:text-white leading-snug">{node.title}</h3>
         )}
-        {node.percentage !== undefined && node.percentage > 0 && (
-          <div className="flex items-center gap-2 bg-indigo-50/50 dark:bg-indigo-950/20 px-2.5 py-1.5 rounded-xl border border-indigo-100/60 dark:border-indigo-900/30">
-            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 shrink-0">{node.percentage}% Done</span>
-            <div className="flex-1 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-indigo-600 dark:bg-indigo-500 h-1.5 rounded-full" style={{ width: `${node.percentage}%` }} />
-            </div>
-          </div>
+        {node.percentage !== undefined && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0">
+            Completion: <strong className="font-black text-indigo-600 dark:text-indigo-400">{node.percentage}%</strong>
+          </span>
         )}
       </div>
 
