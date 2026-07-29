@@ -51,8 +51,8 @@ export default function MobilePublicShell() {
         className="relative w-full shrink-0 z-30 bg-[#F3F3F5] dark:bg-[#0B0F17] border-b border-gray-200/60 dark:border-white/10 flex items-center justify-between px-4 select-none"
         style={{ height: "56px", paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="flex items-center gap-2">
-          <Logo variant="icon" alt="Hive" className="w-8 h-8 object-contain" />
+        <div className="flex items-center gap-2 ml-1 sm:ml-2">
+          <Logo variant="icon" alt="Hive" className="w-9 h-9 object-contain" />
           <span className="font-bold text-base text-gray-900 dark:text-slate-100 tracking-tight">Hive</span>
         </div>
 

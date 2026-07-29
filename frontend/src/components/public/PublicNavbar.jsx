@@ -72,17 +72,15 @@ export function PublicNavbar() {
 
   return (
     <nav className={navbarClasses}>
-      <div className="w-full pl-0.5 pr-4 sm:pl-1 sm:pr-6 lg:pl-1 lg:pr-8">
+      <div className="w-full pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-8 lg:pr-8">
         <div className="flex items-center justify-between h-[80px]">
 
-          {/* ── Logo ── */}
-          <Link to="/" onClick={() => handleNavClick("hero")} className="flex items-center gap-2 group shrink-0">
+          {/* ── Logo Icon Only (Name PNG removed, added left spacing) ── */}
+          <Link to="/" onClick={() => handleNavClick("hero")} className="flex items-center gap-2 group shrink-0 ml-1 sm:ml-2">
             <Logo
-              variant="full"
+              variant="icon"
               alt="Hive Logo"
-              iconClassName="h-12 sm:h-14 md:h-16 w-auto object-contain shrink-0 filter drop-shadow-md"
-              textClassName="h-10 sm:h-12 md:h-14 w-auto object-contain shrink-0"
-              className="h-[76px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+              className="h-11 sm:h-13 md:h-14 w-auto object-contain transition-transform duration-200 group-hover:scale-105 filter drop-shadow-sm"
             />
           </Link>
 
