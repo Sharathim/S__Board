@@ -37,6 +37,32 @@ DEFAULT_ANNUAL_ENTITLEMENT = {
 }
 
 
+class DepartmentLeaveSettings(db.Model):
+    """
+    HOD-configurable default leave and permission settings for the department.
+    """
+    __tablename__ = "department_leave_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    monthly_permission_quota = db.Column(db.Integer, nullable=False, default=3)  # Max permissions per month
+    max_permission_hours = db.Column(db.Integer, nullable=False, default=2)      # Max periods per permission
+    default_casual_leave = db.Column(db.Float, nullable=False, default=12)        # Default annual CL
+    default_medical_leave = db.Column(db.Float, nullable=False, default=12)       # Default annual ML
+    default_on_duty_leave = db.Column(db.Float, nullable=False, default=999)      # Default annual OD
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "monthly_permission_quota": self.monthly_permission_quota,
+            "max_permission_hours": self.max_permission_hours,
+            "default_casual_leave": self.default_casual_leave,
+            "default_medical_leave": self.default_medical_leave,
+            "default_on_duty_leave": self.default_on_duty_leave,
+        }
+
+
 class AcademicYear(db.Model):
     """
     Explicit academic year row, e.g. start=2026-06-01, end=2027-05-31, label='2026-27'.

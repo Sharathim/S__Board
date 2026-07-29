@@ -86,14 +86,15 @@ def submit_leave():
     if leave_type == LeaveType.PERMISSION:
         if start_date != end_date:
             return jsonify({"error": "Permission requests must be single-day"}), 400
+        setting = svc.get_or_create_leave_settings()
         if not svc.check_permission_quota(faculty.id, start_date):
-            return jsonify({"error": "Permission quota exhausted for this month (max 3)"}), 400
+            return jsonify({"error": f"Permission quota exhausted for this month (max {setting.monthly_permission_quota})"}), 400
         try:
             period_numbers = json_lib.loads(form.get("period_numbers", "[]"))
         except ValueError:
             return jsonify({"error": "period_numbers must be a valid JSON array"}), 400
-        if not period_numbers or len(period_numbers) > 2:
-            return jsonify({"error": "Permission covers 1 or 2 periods"}), 400
+        if not period_numbers or len(period_numbers) > setting.max_permission_hours:
+            return jsonify({"error": f"Permission covers max {setting.max_permission_hours} periods"}), 400
 
     days_count = {
         LeaveDuration.FULL_DAY: (end_date - start_date).days + 1,
@@ -329,6 +330,51 @@ def set_faculty_entitlement():
     bal.entitled = entitled
     db.session.commit()
     return jsonify({"balance": bal.to_dict()})
+
+
+@leave_bp.route("/settings", methods=["GET"])
+@require_auth
+def get_leave_settings():
+    """Get HOD-configured default department leave and permission settings."""
+    setting = svc.get_or_create_leave_settings()
+    return jsonify({"settings": setting.to_dict()})
+
+
+@leave_bp.route("/settings", methods=["POST", "PUT", "PATCH"])
+@require_hod
+def update_leave_settings():
+    """
+    HOD sets default permission hours/quota and default leaves for the department.
+    """
+    data = request.get_json() or {}
+    setting = svc.get_or_create_leave_settings()
+
+    if "monthly_permission_quota" in data and data["monthly_permission_quota"] is not None:
+        setting.monthly_permission_quota = int(data["monthly_permission_quota"])
+    if "max_permission_hours" in data and data["max_permission_hours"] is not None:
+        setting.max_permission_hours = int(data["max_permission_hours"])
+    if "default_casual_leave" in data and data["default_casual_leave"] is not None:
+        setting.default_casual_leave = float(data["default_casual_leave"])
+    if "default_medical_leave" in data and data["default_medical_leave"] is not None:
+        setting.default_medical_leave = float(data["default_medical_leave"])
+    if "default_on_duty_leave" in data and data["default_on_duty_leave"] is not None:
+        setting.default_on_duty_leave = float(data["default_on_duty_leave"])
+
+    db.session.commit()
+
+    if data.get("apply_to_all"):
+        ay = svc.get_or_create_current_academic_year()
+        type_mapping = {
+            LeaveType.CASUAL: setting.default_casual_leave,
+            LeaveType.MEDICAL: setting.default_medical_leave,
+            LeaveType.ON_DUTY: setting.default_on_duty_leave,
+            LeaveType.PERMISSION: setting.monthly_permission_quota,
+        }
+        for lt, entitled in type_mapping.items():
+            LeaveBalance.query.filter_by(academic_year_id=ay.id, leave_type=lt).update({"entitled": entitled})
+        db.session.commit()
+
+    return jsonify({"settings": setting.to_dict(), "message": "Department default leave settings updated successfully"})
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -58,6 +58,12 @@ export const updateLeaveBalance = (balanceId, entitled) =>
 export const setFacultyEntitlement = (facultyId, leaveType, entitled) =>
   api.post("/leave/entitlement", { faculty_id: facultyId, leave_type: leaveType, entitled });
 
+/** Get HOD-configured default department leave and permission settings. */
+export const getLeaveSettings = () => api.get("/leave/settings");
+
+/** HOD updates default permission hours/quota and leave limits for the department. */
+export const updateLeaveSettings = (data) => api.post("/leave/settings", data);
+
 // ── Shared endpoints ──────────────────────────────────────────────────────
 
 /**

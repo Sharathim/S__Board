@@ -52,6 +52,24 @@ def get_or_create_current_academic_year():
     return ay
 
 
+def get_or_create_leave_settings():
+    """
+    Retrieves or initializes HOD-configurable department leave & permission settings.
+    """
+    setting = DepartmentLeaveSettings.query.first()
+    if not setting:
+        setting = DepartmentLeaveSettings(
+            monthly_permission_quota=3,
+            max_permission_hours=2,
+            default_casual_leave=12,
+            default_medical_leave=12,
+            default_on_duty_leave=999,
+        )
+        db.session.add(setting)
+        db.session.commit()
+    return setting
+
+
 def get_or_create_balance(faculty_id: int, leave_type: LeaveType, academic_year: AcademicYear = None):
     academic_year = academic_year or get_or_create_current_academic_year()
     bal = LeaveBalance.query.filter_by(
@@ -59,11 +77,21 @@ def get_or_create_balance(faculty_id: int, leave_type: LeaveType, academic_year:
     ).first()
     if bal:
         return bal
+
+    settings = get_or_create_leave_settings()
+    default_entitlements = {
+        LeaveType.CASUAL: settings.default_casual_leave,
+        LeaveType.MEDICAL: settings.default_medical_leave,
+        LeaveType.ON_DUTY: settings.default_on_duty_leave,
+        LeaveType.COMP_OFF: 0,
+        LeaveType.PERMISSION: settings.monthly_permission_quota,
+    }
+
     bal = LeaveBalance(
         faculty_id=faculty_id,
         academic_year_id=academic_year.id,
         leave_type=leave_type,
-        entitled=DEFAULT_ANNUAL_ENTITLEMENT.get(leave_type, 0),
+        entitled=default_entitlements.get(leave_type, 0),
         used=0,
     )
     db.session.add(bal)
@@ -75,10 +103,12 @@ def get_or_create_balance(faculty_id: int, leave_type: LeaveType, academic_year:
 
 def check_permission_quota(faculty_id: int, on_date: date):
     """
-    Permission: max 3 per calendar month.
+    Permission: max quota per calendar month (configurable by HOD).
     Counts APPROVED + PENDING requests in that month.
     Returns True if quota is still available.
     """
+    settings = get_or_create_leave_settings()
+    max_quota = settings.monthly_permission_quota
     month_start = on_date.replace(day=1)
     # First day of next month — safe calculation
     next_month = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
@@ -89,7 +119,7 @@ def check_permission_quota(faculty_id: int, on_date: date):
         LeaveRequest.start_date < next_month,
         LeaveRequest.status.in_([LeaveStatus.PENDING, LeaveStatus.APPROVED]),
     ).count()
-    return count < 3
+    return count < max_quota
 
 
 # ── Timetable integration ───────────────────────────────────────────────────

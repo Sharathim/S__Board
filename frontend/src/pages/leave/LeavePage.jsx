@@ -15,10 +15,11 @@ import { PendingApprovalTable } from "./components/PendingApprovalTable";
 import { LeaveCalendarView } from "./components/LeaveCalendarView";
 import { DepartmentOverviewGrid } from "./components/DepartmentOverviewGrid";
 import { HODGrantLeaveModal } from "./components/HODGrantLeaveModal";
+import { HODLeaveSettingsModal } from "./components/HODLeaveSettingsModal";
 
 import {
   CalendarClock, Clock, LayoutList, CalendarDays,
-  BarChart3, Plus, Gift
+  BarChart3, Plus, Gift, Sliders
 } from "lucide-react";
 
 // ── Tab button ──────────────────────────────────────────────────────────────
@@ -113,6 +114,7 @@ function FacultyLeaveView() {
 function HODLeaveView() {
   const [tab, setTab] = useState("pending");
   const [grantOpen, setGrantOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [allFilters, setAllFilters] = useState({ status: "", faculty_id: "" });
 
   const { data: pending, isLoading: pendingLoading } = useQuery({
@@ -141,10 +143,16 @@ function HODLeaveView() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <PageHeader title="Leave & Permission" subtitle="Review and approve faculty leave requests" />
-        <Button id="grant-leave-btn" variant="secondary" onClick={() => setGrantOpen(true)}>
-          <Gift className="w-4 h-4 mr-2" />
-          Grant Leave
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button id="settings-leave-btn" variant="secondary" onClick={() => setSettingsOpen(true)}>
+            <Sliders className="w-4 h-4 mr-2" />
+            Set Default Limits
+          </Button>
+          <Button id="grant-leave-btn" variant="secondary" onClick={() => setGrantOpen(true)}>
+            <Gift className="w-4 h-4 mr-2" />
+            Grant Leave
+          </Button>
+        </div>
       </div>
 
       {/* Tab bar */}
@@ -178,6 +186,7 @@ function HODLeaveView() {
       {tab === "overview" && <DepartmentOverviewGrid />}
 
       <HODGrantLeaveModal open={grantOpen} onClose={() => setGrantOpen(false)} />
+      <HODLeaveSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

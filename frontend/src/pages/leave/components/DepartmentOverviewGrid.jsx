@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDepartmentOverview, updateLeaveBalance, setFacultyEntitlement } from "../../../api/leave";
 import { LeaveBalanceCards } from "./LeaveBalanceCards";
-import { ChevronRight, Pencil, Save, X } from "lucide-react";
+import { ChevronRight, Pencil, Save, X, Sliders } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "../../../components/ui/Modal";
 import { Button } from "../../../components/ui/Button";
+import { HODLeaveSettingsModal } from "./HODLeaveSettingsModal";
 
 const TYPE_ORDER = ["CASUAL", "MEDICAL", "ON_DUTY", "PERMISSION", "COMP_OFF"];
 const TYPE_SHORT = { CASUAL: "CL", MEDICAL: "ML", ON_DUTY: "OD", PERMISSION: "Perm", COMP_OFF: "CO" };
@@ -114,7 +115,7 @@ export function DepartmentOverviewGrid() {
   if (error) return <p className="text-sm text-rose-500">Failed to load overview.</p>;
   if (!data?.faculty?.length) return <p className="text-sm text-gray-400">No balance data yet for this academic year.</p>;
 
-  const selectedItem = data.faculty.find((f) => f.faculty_id === selected);
+  const selectedItem = data.faculty.find((f) => f.faculty_id === selectedId);
 
   return (
     <div className="space-y-4">
@@ -127,7 +128,10 @@ export function DepartmentOverviewGrid() {
               {data.academic_year.label}
             </span>
           </div>
-          <span className="text-xs text-gray-400">Click pencil icon to edit faculty leave limits</span>
+          <Button size="sm" variant="secondary" onClick={() => setSettingsOpen(true)}>
+            <Sliders className="w-3.5 h-3.5 mr-1.5" />
+            Set Default Department Limits
+          </Button>
         </div>
       )}
 
@@ -216,6 +220,8 @@ export function DepartmentOverviewGrid() {
           </div>
         </div>
       </Modal>
+
+      <HODLeaveSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }
