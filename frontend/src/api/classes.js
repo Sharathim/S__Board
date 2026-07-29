@@ -80,3 +80,32 @@ export const submitFormResponse = (className, formId, formDataOrJson, isMultipar
 export const getFormResponses = (className, formId) =>
   api.get(`/classes/${className}/forms/${formId}/responses`);
 
+// ─── Accomplishments & Resume Endpoints ─────────────────────────────────
+export const listAccomplishments = (className, studentId) =>
+  api.get(`/classes/${className}/accomplishments`, { params: studentId ? { student_id: studentId } : {} });
+
+export const createAccomplishment = (className, formDataOrJson, isMultipart = false) => {
+  if (isMultipart) {
+    return api.post(`/classes/${className}/accomplishments`, formDataOrJson, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  }
+  return api.post(`/classes/${className}/accomplishments`, formDataOrJson);
+};
+
+export const updateAccomplishment = (accId, formDataOrJson, isMultipart = false) => {
+  if (isMultipart) {
+    return api.put(`/classes/accomplishments/${accId}`, formDataOrJson, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  }
+  return api.put(`/classes/accomplishments/${accId}`, formDataOrJson);
+};
+
+export const deleteAccomplishment = (accId) =>
+  api.delete(`/classes/accomplishments/${accId}`);
+
+export const getResumeData = (studentId) =>
+  api.get(`/classes/students/${studentId}/resume-data`);
+
+

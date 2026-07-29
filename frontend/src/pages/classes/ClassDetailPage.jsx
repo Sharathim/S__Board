@@ -5,7 +5,8 @@ import {
   listStudents, removeStudent,
   getStudentDetails, saveStudentDetails, saveStudentDetailsAdmin,
   getStudentsData, getClassStats,
-  createForm, listForms, deleteForm, submitFormResponse, getFormResponses
+  createForm, listForms, deleteForm, submitFormResponse, getFormResponses,
+  listAccomplishments, createAccomplishment, updateAccomplishment, deleteAccomplishment, getResumeData
 } from "../../api/classes";
 import { assignForumMember } from "../../api/forum";
 import { useAuth } from "../../context/AuthContext";
@@ -14,13 +15,17 @@ import { Avatar } from "../../components/ui/Avatar";
 import { Modal } from "../../components/ui/Modal";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import api from "../../api/axios";
+import { AddAccomplishmentModal } from "./components/AddAccomplishmentModal";
+import { AccomplishmentCard } from "./components/AccomplishmentCard";
+import { ResumeModal } from "./components/ResumeModal";
 import {
   Users, UserPlus, Trash2, MessageSquarePlus, ChevronLeft,
   Search, ShieldCheck, GraduationCap, X, BookOpen, Crown,
   Mail, MoreVertical, CheckCircle2, FileText, Download,
   Eye, Plus, Archive, History, Calendar, UploadCloud,
   Settings, Save, FileSpreadsheet, FileArchive, PlusCircle,
-  Lock, AlertCircle, Building, Columns, CheckCircle, Pencil
+  Lock, AlertCircle, Building, Columns, CheckCircle, Pencil,
+  Award, Trophy, Printer
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 
@@ -77,6 +82,192 @@ function getInitials(name) {
   return parts.length >= 2
     ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     : (parts[0]?.[0] || "?").toUpperCase();
+}
+
+function AccomplishmentsSection({ className, user, canManage, ownStudentId, studentList }) {
+  const queryClient = useQueryClient();
+  const [studentFilter, setStudentFilter] = useState("");
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editingAcc, setEditingAcc] = useState(null);
+  const [deleteAcc, setDeleteAcc] = useState(null);
+  const [resumeModal, setResumeModal] = useState({ open: false, studentId: null, studentName: "" });
+
+  const { data: accomplishments = [], isLoading } = useQuery({
+    queryKey: ["accomplishments", className, studentFilter],
+    queryFn: async () => {
+      const res = await listAccomplishments(className, studentFilter || null);
+      return res.data;
+    }
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (payload) => {
+      const formData = new FormData();
+      formData.append("title", payload.title);
+      formData.append("category", payload.category);
+      formData.append("organizer", payload.organizer);
+      formData.append("event_date", payload.event_date);
+      formData.append("position_achieved", payload.position_achieved);
+      formData.append("description", payload.description);
+      if (payload.file) {
+        formData.append("certificate", payload.file);
+      }
+      return createAccomplishment(className, formData, !!payload.file);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accomplishments", className]);
+      setAddModalOpen(false);
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }) => {
+      const formData = new FormData();
+      formData.append("title", payload.title);
+      formData.append("category", payload.category);
+      formData.append("organizer", payload.organizer);
+      formData.append("event_date", payload.event_date);
+      formData.append("position_achieved", payload.position_achieved);
+      formData.append("description", payload.description);
+      if (payload.file) {
+        formData.append("certificate", payload.file);
+      }
+      return updateAccomplishment(id, formData, !!payload.file);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accomplishments", className]);
+      setEditingAcc(null);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteAccomplishment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accomplishments", className]);
+      setDeleteAcc(null);
+    }
+  });
+
+  const isStudent = user?.role === "STUDENT";
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/60 rounded-2xl shadow-xs">
+        <div>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <Award className="w-4 h-4 text-primary-600" />
+            Extracurricular Accomplishments & Honors
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            Student achievements, hackathon awards, certifications, and automated resume building.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          {studentList && studentList.length > 0 && (
+            <select
+              value={studentFilter}
+              onChange={(e) => setStudentFilter(e.target.value)}
+              className="px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value="">All Class Students</option>
+              {studentList.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.roll_number})
+                </option>
+              ))}
+            </select>
+          )}
+
+          {isStudent && ownStudentId && (
+            <>
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="px-3.5 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" />
+                Add Accomplishment
+              </button>
+              <button
+                onClick={() => setResumeModal({ open: true, studentId: ownStudentId, studentName: user.name })}
+                className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+              >
+                <Printer className="w-4 h-4" />
+                Build My Resume
+              </button>
+            </>
+          )}
+
+          {!isStudent && studentFilter && (
+            <button
+              onClick={() => {
+                const st = studentList.find(s => String(s.id) === String(studentFilter));
+                setResumeModal({ open: true, studentId: studentFilter, studentName: st?.name || "Student" });
+              }}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+            >
+              <Printer className="w-4 h-4" />
+              Build Student Resume
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="py-12 flex justify-center">
+          <Spinner />
+        </div>
+      ) : accomplishments.length === 0 ? (
+        <div className="py-12 text-center text-xs text-gray-400 italic bg-white dark:bg-gray-800/60 border border-gray-150 dark:border-gray-700/60 rounded-2xl">
+          No accomplishments logged for this class yet.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {accomplishments.map((acc) => (
+            <AccomplishmentCard
+              key={acc.id}
+              accomplishment={acc}
+              canManage={isStudent ? acc.student_id === ownStudentId : canManage}
+              onEdit={(a) => setEditingAcc(a)}
+              onDelete={(a) => setDeleteAcc(a)}
+            />
+          ))}
+        </div>
+      )}
+
+      <AddAccomplishmentModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSubmit={(payload) => createMutation.mutate(payload)}
+        isPending={createMutation.isPending}
+      />
+
+      <AddAccomplishmentModal
+        open={!!editingAcc}
+        onClose={() => setEditingAcc(null)}
+        initialData={editingAcc}
+        onSubmit={(payload) => updateMutation.mutate({ id: editingAcc.id, payload })}
+        isPending={updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteAcc}
+        onClose={() => setDeleteAcc(null)}
+        onConfirm={() => deleteMutation.mutate(deleteAcc.id)}
+        title="Delete Accomplishment"
+        message={deleteAcc ? `Are you sure you want to delete "${deleteAcc.title}"?` : ""}
+        confirmText={deleteMutation.isPending ? "Deleting..." : "Delete"}
+        danger
+      />
+
+      <ResumeModal
+        open={resumeModal.open}
+        onClose={() => setResumeModal({ open: false, studentId: null, studentName: "" })}
+        studentId={resumeModal.studentId}
+        studentName={resumeModal.studentName}
+      />
+    </div>
+  );
 }
 
 function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, onRemove, onEdit, onClick }) {
@@ -341,6 +532,17 @@ export default function ClassDetailPage() {
           Students
         </button>
 
+        <button
+          onClick={() => setActiveTab("accomplishments")}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
+            activeTab === "accomplishments"
+              ? "border-primary-600 text-primary-600 font-bold"
+              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+          }`}
+        >
+          Accomplishments & Portfolio
+        </button>
+
         {user?.role === "STUDENT" && (
           <button
             onClick={() => { setActiveTab("forms"); refetchForms(); }}
@@ -455,6 +657,14 @@ export default function ClassDetailPage() {
           onCreateFormClick={() => setCreateFormOpen(true)}
           onViewResponsesClick={(f) => setViewResponses({ open: true, form: f })}
           refetch={invalidate}
+        />
+      ) : activeTab === "accomplishments" ? (
+        <AccomplishmentsSection
+          className={className}
+          user={user}
+          canManage={canManage}
+          ownStudentId={ownStudentId}
+          studentList={studentList}
         />
       ) : activeTab === "forms" ? (
         <ActiveFormsList

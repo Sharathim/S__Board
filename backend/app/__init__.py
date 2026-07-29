@@ -86,6 +86,7 @@ def create_app():
     from .routes.developer import developer_bp
     from .routes.timetable import timetable_bp
     from .routes.leave import leave_bp
+    from .routes.accomplishment import accomplishment_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(faculty_bp, url_prefix="/api/faculty")
@@ -93,6 +94,7 @@ def create_app():
     app.register_blueprint(notes_bp, url_prefix="/api/classes")
     app.register_blueprint(notes_hub_bp, url_prefix="/api/notes")
     app.register_blueprint(student_forms_bp, url_prefix="/api/classes")
+    app.register_blueprint(accomplishment_bp, url_prefix="/api/classes")
     app.register_blueprint(forum_bp, url_prefix="/api/forum")
     app.register_blueprint(projects_bp, url_prefix="/api/projects")
     app.register_blueprint(updates_bp, url_prefix="/api/updates")

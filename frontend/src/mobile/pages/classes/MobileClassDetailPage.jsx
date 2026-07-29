@@ -4,7 +4,8 @@ import {
   listStudents, removeStudent,
   getStudentDetails, saveStudentDetails, saveStudentDetailsAdmin,
   getStudentsData, getClassStats,
-  createForm, listForms, deleteForm, submitFormResponse, getFormResponses
+  createForm, listForms, deleteForm, submitFormResponse, getFormResponses,
+  listAccomplishments, createAccomplishment, updateAccomplishment, deleteAccomplishment, getResumeData
 } from "../../../api/classes";
 import { assignForumMember } from "../../../api/forum";
 import { useAuth } from "../../../context/AuthContext";
@@ -17,11 +18,14 @@ import MobileCard from "../../components/MobileCard";
 import MobileEmptyState from "../../components/MobileEmptyState";
 import MobileSectionHeader from "../../components/MobileSectionHeader";
 import BottomSheet from "../../layout/BottomSheet";
+import { AddAccomplishmentModal } from "../../../pages/classes/components/AddAccomplishmentModal";
+import { AccomplishmentCard } from "../../../pages/classes/components/AccomplishmentCard";
+import { ResumeModal } from "../../../pages/classes/components/ResumeModal";
 import {
   Users, Trash2, Mail, ArrowLeft, MessageSquarePlus, FileText, Eye,
   Download, Plus, Save, CheckCircle2, MoreVertical, Lock, AlertCircle,
   FileSpreadsheet, FileArchive, UploadCloud, CheckCircle, Columns,
-  PlusCircle, ChevronRight, X
+  PlusCircle, ChevronRight, X, Award, Trophy, Printer
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 
@@ -85,6 +89,191 @@ function FieldInput({ field, value, onChange, disabled = false }) {
   return (
     <input type={field.type || "text"} value={value} disabled={disabled} onChange={e => onChange(e.target.value)}
       placeholder={`Enter ${field.label.toLowerCase()}`} className={base} />
+  );
+}
+
+function MobileAccomplishmentsSection({ className, user, canManage, ownStudentId, studentList }) {
+  const queryClient = useQueryClient();
+  const [studentFilter, setStudentFilter] = useState("");
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editingAcc, setEditingAcc] = useState(null);
+  const [deleteAcc, setDeleteAcc] = useState(null);
+  const [resumeModal, setResumeModal] = useState({ open: false, studentId: null, studentName: "" });
+
+  const { data: accomplishments = [], isLoading } = useQuery({
+    queryKey: ["accomplishments", className, studentFilter],
+    queryFn: async () => {
+      const res = await listAccomplishments(className, studentFilter || null);
+      return res.data;
+    }
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (payload) => {
+      const formData = new FormData();
+      formData.append("title", payload.title);
+      formData.append("category", payload.category);
+      formData.append("organizer", payload.organizer);
+      formData.append("event_date", payload.event_date);
+      formData.append("position_achieved", payload.position_achieved);
+      formData.append("description", payload.description);
+      if (payload.file) {
+        formData.append("certificate", payload.file);
+      }
+      return createAccomplishment(className, formData, !!payload.file);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accomplishments", className]);
+      setAddModalOpen(false);
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }) => {
+      const formData = new FormData();
+      formData.append("title", payload.title);
+      formData.append("category", payload.category);
+      formData.append("organizer", payload.organizer);
+      formData.append("event_date", payload.event_date);
+      formData.append("position_achieved", payload.position_achieved);
+      formData.append("description", payload.description);
+      if (payload.file) {
+        formData.append("certificate", payload.file);
+      }
+      return updateAccomplishment(id, formData, !!payload.file);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accomplishments", className]);
+      setEditingAcc(null);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteAccomplishment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accomplishments", className]);
+      setDeleteAcc(null);
+    }
+  });
+
+  const isStudent = user?.role === "STUDENT";
+
+  return (
+    <div className="space-y-3">
+      <div className="p-3.5 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-2xl space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+            <Award className="w-4 h-4 text-primary-500" />
+            Accomplishments & Honors
+          </h3>
+        </div>
+
+        <div className="space-y-2">
+          {studentList && studentList.length > 0 && (
+            <select
+              value={studentFilter}
+              onChange={(e) => setStudentFilter(e.target.value)}
+              className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option value="">All Students in Class</option>
+              {studentList.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({s.roll_number})
+                </option>
+              ))}
+            </select>
+          )}
+
+          <div className="flex gap-2">
+            {isStudent && ownStudentId && (
+              <>
+                <button
+                  onClick={() => setAddModalOpen(true)}
+                  className="mobile-tappable flex-1 py-2 px-3 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </button>
+                <button
+                  onClick={() => setResumeModal({ open: true, studentId: ownStudentId, studentName: user.name })}
+                  className="mobile-tappable flex-1 py-2 px-3 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-sm"
+                >
+                  <Printer className="w-4 h-4" />
+                  Build Resume
+                </button>
+              </>
+            )}
+
+            {!isStudent && studentFilter && (
+              <button
+                onClick={() => {
+                  const st = studentList.find(s => String(s.id) === String(studentFilter));
+                  setResumeModal({ open: true, studentId: studentFilter, studentName: st?.name || "Student" });
+                }}
+                className="mobile-tappable w-full py-2 px-3 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-sm"
+              >
+                <Printer className="w-4 h-4" />
+                Build Student Resume
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="py-12 flex justify-center"><Spinner /></div>
+      ) : accomplishments.length === 0 ? (
+        <MobileEmptyState
+          icon={Award}
+          title="No Accomplishments"
+          description="No accomplishments recorded for this selection."
+        />
+      ) : (
+        <div className="space-y-3">
+          {accomplishments.map((acc) => (
+            <AccomplishmentCard
+              key={acc.id}
+              accomplishment={acc}
+              canManage={isStudent ? acc.student_id === ownStudentId : canManage}
+              onEdit={(a) => setEditingAcc(a)}
+              onDelete={(a) => setDeleteAcc(a)}
+            />
+          ))}
+        </div>
+      )}
+
+      <AddAccomplishmentModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSubmit={(payload) => createMutation.mutate(payload)}
+        isPending={createMutation.isPending}
+      />
+
+      <AddAccomplishmentModal
+        open={!!editingAcc}
+        onClose={() => setEditingAcc(null)}
+        initialData={editingAcc}
+        onSubmit={(payload) => updateMutation.mutate({ id: editingAcc.id, payload })}
+        isPending={updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteAcc}
+        onClose={() => setDeleteAcc(null)}
+        onConfirm={() => deleteMutation.mutate(deleteAcc.id)}
+        title="Delete Accomplishment"
+        message={deleteAcc ? `Delete "${deleteAcc.title}"?` : ""}
+        confirmText={deleteMutation.isPending ? "Deleting..." : "Delete"}
+        danger
+      />
+
+      <ResumeModal
+        open={resumeModal.open}
+        onClose={() => setResumeModal({ open: false, studentId: null, studentName: "" })}
+        studentId={resumeModal.studentId}
+        studentName={resumeModal.studentName}
+      />
+    </div>
   );
 }
 
@@ -196,6 +385,7 @@ export default function MobileClassDetailPage() {
 
   const TABS = [
     { key: "students", label: "Students" },
+    { key: "accomplishments", label: "Accomplishments" },
     ...(user?.role === "STUDENT" ? [{ key: "forms", label: "Forms" }] : []),
     ...(canManage ? [{ key: "students_data", label: "Data" }] : []),
   ];
@@ -288,6 +478,17 @@ export default function MobileClassDetailPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* ─── ACCOMPLISHMENTS TAB ─── */}
+      {activeTab === "accomplishments" && (
+        <MobileAccomplishmentsSection
+          className={className}
+          user={user}
+          canManage={canManage}
+          ownStudentId={ownStudentId}
+          studentList={studentList}
+        />
       )}
 
       {/* ─── FORMS TAB (Student) ─── */}
