@@ -235,22 +235,16 @@ export function TopBar() {
               const brandIcon = user?.role === "HOD" ? LayoutDashboard : user?.role === "FACULTY" ? GraduationCap : BookOpen;
               navigateWithTransition(brandDest, brandLabel, brandIcon);
             }}
-            className="cursor-pointer hover:scale-[1.02] transition-transform flex items-center gap-3 px-3"
+            className="cursor-pointer hover:scale-[1.02] transition-transform flex items-center gap-2.5 px-3"
           >
-            {/* Hexagonal icon — increased to h-12 w-12 */}
             <Logo
               variant="icon"
               alt="Hive"
-              className="h-12 w-12 object-contain flex-shrink-0"
+              className="h-11 w-11 object-contain flex-shrink-0"
             />
-            {/* Theme-aware wordmark PNG:
-                Light → LightModewebsite-name-logo.png (dark text, mix-blend-mode:multiply hides white bg)
-                Dark  → dark-mode-website-name-logo.png (white text, transparent bg) */}
-            <Logo
-              variant="full"
-              alt="Hive – Department Management Portal"
-              className="h-14 w-auto object-contain flex-shrink-0"
-            />
+            <span className="font-black text-xl text-slate-900 dark:text-white tracking-tight">
+              Hive
+            </span>
           </div>
         </div>
 

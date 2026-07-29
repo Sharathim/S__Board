@@ -12,14 +12,13 @@ import { useThemeContext } from "../../context/ThemeContext";
  *   Light: /LightModeLogo.png
  *   Dark:  /DarkModeLogo.png
  */
-export function Logo({ variant = "full", className, alt = "Hive", style, iconClassName, textClassName, ...props }) {
+export function Logo({ variant = "icon", className, alt = "Hive", style, showText = false, textClassName, ...props }) {
   const themeContext = useThemeContext();
   const theme = themeContext?.theme || "light";
 
   const iconSrc = theme === "dark" ? "/DarkModeLogo.png" : "/LightModeLogo.png";
-  const textSrc = theme === "dark" ? "/dark-mode-website-name-logo.png" : "/LightModewebsite-name-logo.png";
 
-  if (variant === "icon") {
+  if (!showText) {
     return (
       <img
         src={iconSrc}
@@ -31,21 +30,16 @@ export function Logo({ variant = "full", className, alt = "Hive", style, iconCla
     );
   }
 
-  const blendStyle = theme === "light" ? { mixBlendMode: "multiply", ...style } : style;
-
   return (
-    <div className={`flex items-center gap-2.5 ${className || "h-14"}`} style={style} {...props}>
+    <div className={`flex items-center gap-2.5 ${className || "h-10"}`} style={style} {...props}>
       <img
         src={iconSrc}
         alt={`${alt} Icon`}
-        className={iconClassName || "h-11 sm:h-13 md:h-14 w-auto object-contain shrink-0 filter drop-shadow-sm"}
+        className="h-9 w-auto object-contain shrink-0 filter drop-shadow-sm"
       />
-      <img
-        src={textSrc}
-        alt={alt}
-        className={textClassName || "h-9 sm:h-11 md:h-12 w-auto object-contain shrink-0"}
-        style={blendStyle}
-      />
+      <span className={textClassName || "font-black text-xl tracking-tight text-slate-900 dark:text-white"}>
+        Hive
+      </span>
     </div>
   );
 }
