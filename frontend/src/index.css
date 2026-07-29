@@ -1204,44 +1204,19 @@ button {
   }
 }
 
-/* ─── Page Transition Animations ─────────────────────────────────────────── */
-@keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-    filter: blur(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes page-exit {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(-8px);
-    filter: blur(4px);
-  }
-}
-
+/* ─── Page Transition Animations (Disabled for instant switching) ──────── */
 .page-enter-active {
-  animation: page-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: opacity, transform, filter;
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 .page-exit-active {
-  animation: page-exit 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
-  will-change: opacity, transform, filter;
-  pointer-events: none;
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 .app-page-bg-container {

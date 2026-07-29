@@ -76,8 +76,15 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await logOut();
+    try {
+      await logOut();
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
+    sessionStorage.removeItem("loginRole");
+    sessionStorage.removeItem("justLoggedIn");
     setUser(null);
+    setOnboardingData(null);
   };
 
   return (

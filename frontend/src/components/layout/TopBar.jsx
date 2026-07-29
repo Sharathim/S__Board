@@ -408,7 +408,7 @@ export function TopBar() {
         onClose={() => setLogoutConfirmOpen(false)}
         onConfirm={() => {
           setLogoutConfirmOpen(false);
-          triggerPortalTransition("logout", () => logout());
+          logout();
         }}
         title="Confirm Log Out"
         message="Are you sure you want to log out of your account?"

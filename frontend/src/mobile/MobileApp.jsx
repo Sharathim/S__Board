@@ -52,10 +52,10 @@ function MobileProtectedRoute({ children }) {
   const { user, loading, onboardingData } = useAuth();
   if (loading) return <SessionLoader />;
   if (onboardingData) {
-    if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" />;
-    if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" />;
+    if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" replace />;
+    if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
   }
-  if (!user) return <Navigate to="/" />;
+  if (!user) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -65,6 +65,7 @@ export default function MobileApp() {
       <Routes>
         <Route element={<MobilePublicRoute />}>
           <Route path="/" element={<MobileHomePage />} />
+          <Route path="/login" element={<MobileHomePage autoOpenLogin />} />
         </Route>
         
         {/* Public pages, no auth redirect */}

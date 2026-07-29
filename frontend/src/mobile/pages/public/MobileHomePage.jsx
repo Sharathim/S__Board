@@ -13,8 +13,8 @@ const FEATURES = [
   { icon: Zap, title: "Instant Updates", desc: "Live forum posts and announcements", gradient: "from-amber-500 to-orange-500" },
 ];
 
-export default function MobileHomePage() {
-  const [loginOpen, setLoginOpen] = useState(false);
+export default function MobileHomePage({ autoOpenLogin = false }) {
+  const [loginOpen, setLoginOpen] = useState(autoOpenLogin);
 
   return (
     <div className="mobile-fade-in">
