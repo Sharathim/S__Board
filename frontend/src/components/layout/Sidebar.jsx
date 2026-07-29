@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
-  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText, CalendarDays
+  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText, CalendarDays, CalendarClock
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
@@ -13,6 +13,7 @@ const mainNavItems = [
   { to: "/faculty", label: "Faculty Directory", icon: GraduationCap },
   { to: "/classes", label: "Classrooms", icon: BookOpen },
   { to: "/timetable", label: "Timetable", icon: CalendarDays, hodOnly: true },
+  { to: "/leave", label: "Leave & Permission", icon: CalendarClock, studentHidden: true },
   { to: "/updates", label: "Announcements", icon: Megaphone },
   { to: "/notes", label: "Notes & Docs", icon: FileText },
 ];
@@ -60,6 +61,7 @@ export function Sidebar() {
             .filter((item) => {
               if (item.to === "/dashboard" && user?.role !== "HOD") return false;
               if (item.hodOnly && user?.role !== "HOD") return false;
+              if (item.studentHidden && user?.role === "STUDENT") return false;
               return true;
             })
             .map((item) => {

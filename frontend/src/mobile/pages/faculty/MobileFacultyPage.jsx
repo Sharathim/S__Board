@@ -16,9 +16,10 @@ import {
   Users, Mail, GraduationCap, BookOpen,
   FolderKanban, Search, Copy, CheckCheck,
   Star, TrendingUp, MoreVertical, Trash2,
-  ChevronRight, ShieldCheck, Link2, X,
+  ChevronRight, ShieldCheck, Link2, X, CalendarClock,
 } from "lucide-react";
 import { useState, useMemo } from "react";
+import { LeaveRequestModal } from "../../../pages/leave/components/LeaveRequestModal";
 
 function DesignationBadge({ designation }) {
   const map = {
@@ -45,6 +46,7 @@ export default function MobileFacultyPage() {
   const [actionSheet, setActionSheet] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [inviteCopied, setInviteCopied] = useState(false);
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
 
   const { data: facultyData, isLoading } = useQuery({
     queryKey: ["faculty"],
@@ -253,6 +255,22 @@ export default function MobileFacultyPage() {
         confirmText="Remove"
         danger
       />
+
+      {/* Floating Action Button for Leave / Permission Request (Faculty only) */}
+      {user?.role === "FACULTY" && (
+        <div className="fixed bottom-20 right-4 z-40">
+          <button
+            onClick={() => setLeaveModalOpen(true)}
+            className="flex items-center gap-2 px-3.5 py-3 rounded-full bg-gradient-to-r from-[#5B5CEB] to-violet-600 text-white font-bold text-xs shadow-xl active:scale-95 transition-transform"
+            title="Request Leave or Permission"
+          >
+            <CalendarClock className="w-4 h-4" />
+            <span>Request Leave</span>
+          </button>
+        </div>
+      )}
+
+      <LeaveRequestModal open={leaveModalOpen} onClose={() => setLeaveModalOpen(false)} />
     </div>
   );
 }

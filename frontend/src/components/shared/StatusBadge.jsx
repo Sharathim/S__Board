@@ -8,6 +8,11 @@ const variants = {
   ON_HOLD: "warning",
   CANCELLED: "danger",
   LOW_ACTIVITY: "danger",
+  // Leave request statuses
+  PENDING: "warning",
+  APPROVED: "success",
+  REJECTED: "danger",
+  LEAVE_CANCELLED: "default",
 };
 
 const labels = {
@@ -18,6 +23,11 @@ const labels = {
   ON_HOLD: "On Hold",
   CANCELLED: "Cancelled",
   LOW_ACTIVITY: "Low Activity",
+  // Leave request statuses
+  PENDING: "Pending",
+  APPROVED: "Approved",
+  REJECTED: "Rejected",
+  LEAVE_CANCELLED: "Cancelled",
 };
 
 export function StatusBadge({ status }) {

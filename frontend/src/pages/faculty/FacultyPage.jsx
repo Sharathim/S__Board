@@ -17,9 +17,10 @@ import {
   Users, ToggleLeft, ToggleRight, MoreVertical, Trash2,
   UserCheck, UserX, Pencil, Mail, GraduationCap, BookOpen,
   FolderKanban, Search, Link2, Copy, CheckCheck, ChevronDown,
-  ShieldCheck, Star, TrendingUp, X, LayoutGrid, List
+  ShieldCheck, Star, TrendingUp, X, LayoutGrid, List, CalendarClock
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
+import { LeaveRequestModal } from "../leave/components/LeaveRequestModal";
 
 const CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"];
 
@@ -261,6 +262,7 @@ export default function FacultyPage() {
   const [deleteConfirm,setDeleteConfirm]= useState(null);
   const [viewMode,     setViewMode]     = useState("grid");
   const [openKebabId,  setOpenKebabId]  = useState(null);
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = (e) => { if (!e.target.closest(".kebab-container-list")) setOpenKebabId(null); };
@@ -729,6 +731,22 @@ export default function FacultyPage() {
         confirmText={deleteMutation.isPending ? "Removing…" : "Remove"}
         danger
       />
+
+      {/* Floating Action Button for Leave / Permission Request (Faculty only) */}
+      {user?.role === "FACULTY" && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            onClick={() => setLeaveModalOpen(true)}
+            className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#5B5CEB] to-violet-600 text-white font-bold text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200"
+            title="Request Leave or Permission"
+          >
+            <CalendarClock className="w-5 h-5" />
+            <span className="hidden sm:inline">Request Leave / Permission</span>
+          </button>
+        </div>
+      )}
+
+      <LeaveRequestModal open={leaveModalOpen} onClose={() => setLeaveModalOpen(false)} />
     </div>
   );
 }
