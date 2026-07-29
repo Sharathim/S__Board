@@ -55,19 +55,47 @@ def get_or_create_current_academic_year():
 def get_or_create_leave_settings():
     """
     Retrieves or initializes HOD-configurable department leave & permission settings.
+    Auto-creates table via db.create_all() if table missing in DB.
     """
-    setting = DepartmentLeaveSettings.query.first()
-    if not setting:
-        setting = DepartmentLeaveSettings(
-            monthly_permission_quota=3,
-            max_permission_hours=2,
-            default_casual_leave=12,
-            default_medical_leave=12,
-            default_on_duty_leave=999,
-        )
-        db.session.add(setting)
-        db.session.commit()
-    return setting
+    try:
+        setting = DepartmentLeaveSettings.query.first()
+        if not setting:
+            setting = DepartmentLeaveSettings(
+                monthly_permission_quota=3,
+                max_permission_hours=2,
+                default_casual_leave=12,
+                default_medical_leave=12,
+                default_on_duty_leave=999,
+            )
+            db.session.add(setting)
+            db.session.commit()
+        return setting
+    except Exception:
+        db.session.rollback()
+        try:
+            db.create_all()
+            setting = DepartmentLeaveSettings.query.first()
+            if not setting:
+                setting = DepartmentLeaveSettings(
+                    monthly_permission_quota=3,
+                    max_permission_hours=2,
+                    default_casual_leave=12,
+                    default_medical_leave=12,
+                    default_on_duty_leave=999,
+                )
+                db.session.add(setting)
+                db.session.commit()
+            return setting
+        except Exception:
+            db.session.rollback()
+            return DepartmentLeaveSettings(
+                id=1,
+                monthly_permission_quota=3,
+                max_permission_hours=2,
+                default_casual_leave=12,
+                default_medical_leave=12,
+                default_on_duty_leave=999,
+            )
 
 
 def get_or_create_balance(faculty_id: int, leave_type: LeaveType, academic_year: AcademicYear = None):
