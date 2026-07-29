@@ -7,7 +7,7 @@ import {
   FolderKanban, GraduationCap, Users, Megaphone,
   CalendarClock, FileText, CheckCircle2, Shield,
   ArrowRight, LogIn, ChevronRight, Zap, Sparkles,
-  Layers, Lock, Database, Compass
+  Layers, Lock, Database, Compass, Mail, Phone, Send
 } from "lucide-react";
 
 export default function MobileHomePage({ autoOpenLogin = false }) {
@@ -292,7 +292,75 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
         </div>
       </section>
 
-      {/* ── 5. Enterprise Security & Architecture Banner ── */}
+      {/* ── 5. Department Contact & Support Section ── */}
+      <section className="px-4 py-6">
+        <div className="text-center mb-5">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#F05A2B]">
+            Inquiries & Support
+          </span>
+          <h2 
+            className="font-bold text-slate-900 dark:text-white tracking-tight mt-1"
+            style={{ fontSize: "clamp(1.25rem, 3.5vw + 0.4rem, 1.65rem)" }}
+          >
+            Connect with Our Department
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto font-medium">
+            Have questions about projects, faculty invites, or portal access? Reach out anytime.
+          </p>
+        </div>
+
+        {/* Quick Contact Info Grid */}
+        <div className="grid grid-cols-2 gap-2.5 mb-4">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex flex-col items-center text-center">
+            <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/30 text-[#F05A2B] flex items-center justify-center mb-2">
+              <Mail className="w-4 h-4" />
+            </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Email Us</span>
+            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate w-full">hod.cs@shive.edu</span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex flex-col items-center text-center">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-600 flex items-center justify-center mb-2">
+              <Phone className="w-4 h-4" />
+            </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Call Desk</span>
+            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">+91 80 2555 0192</span>
+          </div>
+        </div>
+
+        {/* Contact Inquiry Card */}
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm space-y-3">
+          <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Send className="w-3.5 h-3.5 text-[#F05A2B]" />
+            Send an Inquiry Message
+          </h3>
+          <div className="space-y-2.5">
+            <input
+              type="text"
+              placeholder="Your Full Name"
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F05A2B]"
+            />
+            <input
+              type="email"
+              placeholder="Your Email Address"
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F05A2B]"
+            />
+            <textarea
+              rows={3}
+              placeholder="How can we assist you?"
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F05A2B] resize-none"
+            />
+            <button
+              onClick={() => alert("Thank you for your message! Department office will review your inquiry.")}
+              className="mobile-tappable w-full py-2.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-sm transition-all"
+            >
+              Submit Inquiry
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. Enterprise Security & Architecture Banner ── */}
       <section className="px-4 py-4">
         <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white shadow-xl relative overflow-hidden">
           <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none">

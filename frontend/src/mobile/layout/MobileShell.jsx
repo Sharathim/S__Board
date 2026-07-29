@@ -1,4 +1,5 @@
-import { Outlet } from "react-router-dom";
+import { useEffect, useRef, useCallback } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import MobileTopBar from "./MobileTopBar";
 import BottomTabBar from "./BottomTabBar";
 import { ToastContainer } from "../../components/ui/Toast";
@@ -7,7 +8,6 @@ import { TransitionProvider } from "../../context/TransitionContext";
 import PageTransitionOverlay from "../../components/transitions/PageTransitionOverlay";
 import PullToRefresh from "../components/PullToRefresh";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useCallback } from "react";
 
 /**
  * Authenticated mobile shell: top app bar + scrollable content + bottom tab bar.
@@ -15,6 +15,14 @@ import { useEffect, useRef, useCallback } from "react";
 export default function MobileShell() {
   const pageContentRef = useRef(null);
   const queryClient = useQueryClient();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (pageContentRef.current) {
+      pageContentRef.current.scrollTop = 0;
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
 
   useEffect(() => {
     const currentViews = parseInt(localStorage.getItem("dpms_total_views") || "1420", 10);
