@@ -1,4 +1,5 @@
 import json as json_lib
+import logging
 from flask import Blueprint, request, jsonify, g
 from datetime import date, datetime
 from ..extensions import db
@@ -10,6 +11,7 @@ from ..utils.cloudinary_helper import upload_file
 from ..utils.fcm_helper import send_notification
 from ..utils import leave_service as svc
 
+logger = logging.getLogger(__name__)
 leave_bp = Blueprint("leave", __name__)
 
 
