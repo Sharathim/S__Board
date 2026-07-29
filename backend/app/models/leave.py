@@ -71,7 +71,7 @@ class LeaveBalance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     faculty_id = db.Column(db.Integer, db.ForeignKey("faculty.id", ondelete="CASCADE"), nullable=False)
     academic_year_id = db.Column(db.Integer, db.ForeignKey("academic_years.id", ondelete="CASCADE"), nullable=False)
-    leave_type = db.Column(db.Enum(LeaveType), nullable=False)
+    leave_type = db.Column(db.Enum(LeaveType, name="leavetype"), nullable=False)
 
     entitled = db.Column(db.Float, nullable=False, default=0)   # total allotted (days)
     used = db.Column(db.Float, nullable=False, default=0)       # deducted on approval
@@ -110,8 +110,8 @@ class LeaveRequest(db.Model):
     faculty_id = db.Column(db.Integer, db.ForeignKey("faculty.id", ondelete="CASCADE"), nullable=False)
     academic_year_id = db.Column(db.Integer, db.ForeignKey("academic_years.id", ondelete="SET NULL"), nullable=True)
 
-    leave_type = db.Column(db.Enum(LeaveType), nullable=False)
-    duration = db.Column(db.Enum(LeaveDuration), nullable=False, default=LeaveDuration.FULL_DAY)
+    leave_type = db.Column(db.Enum(LeaveType, name="leavetype"), nullable=False)
+    duration = db.Column(db.Enum(LeaveDuration, name="leaveduration"), nullable=False, default=LeaveDuration.FULL_DAY)
 
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)   # == start_date unless multi-day
@@ -123,7 +123,7 @@ class LeaveRequest(db.Model):
     document_url = db.Column(db.String(500), nullable=True)     # Cloudinary secure_url
     document_name = db.Column(db.String(255), nullable=True)
 
-    status = db.Column(db.Enum(LeaveStatus), nullable=False, default=LeaveStatus.PENDING)
+    status = db.Column(db.Enum(LeaveStatus, name="leavestatus"), nullable=False, default=LeaveStatus.PENDING)
     hod_comment = db.Column(db.Text, nullable=True)
     decided_by = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     decided_at = db.Column(db.DateTime, nullable=True)
