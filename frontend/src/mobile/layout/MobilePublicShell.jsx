@@ -71,7 +71,7 @@ export default function MobilePublicShell() {
       <main
         className="flex-1 overflow-y-auto w-full mobile-page-enter mobile-hide-scrollbar overscroll-y-contain pb-[calc(60px+env(safe-area-inset-bottom,0px))]"
       >
-        <div className="px-4 py-3">
+        <div className="w-full">
           <Outlet />
         </div>
       </main>

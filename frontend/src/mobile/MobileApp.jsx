@@ -6,11 +6,12 @@ import { SessionLoader } from "../components/ui/SessionLoader";
 import MobileShell from "./layout/MobileShell";
 import MobilePublicShell from "./layout/MobilePublicShell";
 
-// Public Pages
+// Public Pages (Shared full content with desktop view)
+import HomePage from "../pages/public/HomePage";
+import AboutPage from "../pages/public/AboutPage";
+import FeaturesPage from "../pages/public/FeaturesPage";
+import ContactPage from "../pages/public/ContactPage";
 import MobileHomePage from "./pages/public/MobileHomePage";
-import MobileAboutPage from "./pages/public/MobileAboutPage";
-import MobileFeaturesPage from "./pages/public/MobileFeaturesPage";
-import MobileContactPage from "./pages/public/MobileContactPage";
 
 // Onboarding Pages
 import MobileFacultyOnboarding from "./pages/onboarding/MobileFacultyOnboarding";
@@ -64,15 +65,15 @@ export default function MobileApp() {
     <BrowserRouter>
       <Routes>
         <Route element={<MobilePublicRoute />}>
-          <Route path="/" element={<MobileHomePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<MobileHomePage autoOpenLogin />} />
         </Route>
         
         {/* Public pages, no auth redirect */}
         <Route element={<MobilePublicShell />}>
-          <Route path="/about" element={<MobileAboutPage />} />
-          <Route path="/features" element={<MobileFeaturesPage />} />
-          <Route path="/contact" element={<MobileContactPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Route>
 
         <Route path="/onboard/faculty" element={<MobileFacultyOnboarding />} />

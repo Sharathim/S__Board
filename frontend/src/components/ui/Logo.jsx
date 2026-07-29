@@ -16,29 +16,37 @@ export function Logo({ variant = "full", className, alt = "Hive", style, ...prop
   const themeContext = useThemeContext();
   const theme = themeContext?.theme || "light";
 
-  let src = "/LightModewebsite-name-logo.png";
+  const iconSrc = theme === "dark" ? "/DarkModeLogo.png" : "/LightModeLogo.png";
+  const textSrc = theme === "dark" ? "/dark-mode-website-name-logo.png" : "/LightModewebsite-name-logo.png";
 
   if (variant === "icon") {
-    src = theme === "dark" ? "/DarkModeLogo.png" : "/LightModeLogo.png";
-  } else {
-    src = theme === "dark" ? "/dark-mode-website-name-logo.png" : "/LightModewebsite-name-logo.png";
+    return (
+      <img
+        src={iconSrc}
+        alt={alt}
+        className={className || "w-8 h-8 object-contain"}
+        style={style}
+        {...props}
+      />
+    );
   }
 
-  // For the full wordmark PNG in light mode, blend away the white background
-  // using multiply blend mode so the logo text/icon floats cleanly over any header colour.
-  const blendStyle =
-    variant === "full" && theme === "light"
-      ? { mixBlendMode: "multiply", ...style }
-      : style;
+  const blendStyle = theme === "light" ? { mixBlendMode: "multiply", ...style } : style;
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={className || (variant === "icon" ? "w-8 h-8 object-contain" : "h-10 w-auto object-contain")}
-      style={blendStyle}
-      {...props}
-    />
+    <div className={`flex items-center gap-2 ${className || "h-10"}`} style={style} {...props}>
+      <img
+        src={iconSrc}
+        alt={`${alt} Icon`}
+        className="h-8 w-auto object-contain shrink-0 filter drop-shadow-sm"
+      />
+      <img
+        src={textSrc}
+        alt={alt}
+        className="h-7 w-auto object-contain shrink-0"
+        style={blendStyle}
+      />
+    </div>
   );
 }
 
