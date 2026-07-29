@@ -13,10 +13,11 @@ import { LeaveHistoryTable } from "../../../pages/leave/components/LeaveHistoryT
 import { PendingApprovalTable } from "../../../pages/leave/components/PendingApprovalTable";
 import { LeaveCalendarView } from "../../../pages/leave/components/LeaveCalendarView";
 import { HODGrantLeaveModal } from "../../../pages/leave/components/HODGrantLeaveModal";
+import { HODLeaveSettingsModal } from "../../../pages/leave/components/HODLeaveSettingsModal";
 
 import { StatusFilter } from "../../../components/shared/SearchFilter";
 import {
-  CalendarClock, Plus, Gift, Clock, LayoutList, CalendarDays, BarChart3
+  CalendarClock, Plus, Gift, Clock, LayoutList, CalendarDays, BarChart3, Sliders
 } from "lucide-react";
 
 const STATUS_OPTS = [
@@ -105,6 +106,7 @@ function MobileFacultyView() {
 // ── HOD mobile view ───────────────────────────────────────────────────────
 function MobileHODView() {
   const [grantOpen, setGrantOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [section, setSection] = useState("pending");
 
   const { data: pending, isLoading: pendingLoading } = useQuery({
@@ -129,13 +131,23 @@ function MobileHODView() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setGrantOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-violet-600 text-white text-xs font-bold shadow-sm active:scale-95 transition-transform"
-        >
-          <Gift className="w-3.5 h-3.5" />
-          Grant
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 text-xs font-bold border border-gray-200 dark:border-slate-700/80 active:scale-95 transition-transform"
+            title="Set Default Limits"
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            Limits
+          </button>
+          <button
+            onClick={() => setGrantOpen(true)}
+            className="flex items-center gap-1 px-3 py-2 rounded-xl bg-violet-600 text-white text-xs font-bold shadow-sm active:scale-95 transition-transform"
+          >
+            <Gift className="w-3.5 h-3.5" />
+            Grant
+          </button>
+        </div>
       </div>
 
       {/* Section tabs */}
@@ -173,6 +185,7 @@ function MobileHODView() {
       </div>
 
       <HODGrantLeaveModal open={grantOpen} onClose={() => setGrantOpen(false)} />
+      <HODLeaveSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

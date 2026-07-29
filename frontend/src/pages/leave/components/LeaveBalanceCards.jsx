@@ -6,11 +6,11 @@ import {
 } from "lucide-react";
 
 const TYPE_META = {
-  CASUAL:     { label: "Casual Leave",     icon: CalendarDays,  color: "from-violet-500 to-violet-700", bg: "bg-violet-50/70 dark:bg-violet-950/30", border: "border-violet-200/80 dark:border-violet-900/40", text: "text-violet-700 dark:text-violet-300" },
-  MEDICAL:    { label: "Medical Leave",    icon: Stethoscope,   color: "from-rose-500 to-rose-700",    bg: "bg-rose-50/70 dark:bg-rose-950/30",    border: "border-rose-200/80 dark:border-rose-900/40",    text: "text-rose-700 dark:text-rose-300"    },
-  ON_DUTY:    { label: "On Duty",          icon: Briefcase,     color: "from-amber-500 to-amber-700",  bg: "bg-amber-50/70 dark:bg-amber-950/30",  border: "border-amber-200/80 dark:border-amber-900/40",  text: "text-amber-700 dark:text-amber-300"  },
-  PERMISSION: { label: "Permission",       icon: Clock,         color: "from-sky-500 to-sky-700",      bg: "bg-sky-50/70 dark:bg-sky-950/30",      border: "border-sky-200/80 dark:border-sky-900/40",      text: "text-sky-700 dark:text-sky-300"      },
-  COMP_OFF:   { label: "Comp-Off",         icon: Repeat,        color: "from-emerald-500 to-emerald-700", bg: "bg-emerald-50/70 dark:bg-emerald-950/30", border: "border-emerald-200/80 dark:border-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300" },
+  CASUAL:     { label: "Casual Leave",     icon: CalendarDays,  color: "from-violet-500 to-violet-700", bg: "bg-violet-50/80 dark:bg-violet-950/30", border: "border-violet-200/80 dark:border-violet-900/40", text: "text-violet-700 dark:text-violet-300" },
+  MEDICAL:    { label: "Medical Leave",    icon: Stethoscope,   color: "from-rose-500 to-rose-700",    bg: "bg-rose-50/80 dark:bg-rose-950/30",    border: "border-rose-200/80 dark:border-rose-900/40",    text: "text-rose-700 dark:text-rose-300"    },
+  ON_DUTY:    { label: "On Duty",          icon: Briefcase,     color: "from-amber-500 to-amber-700",  bg: "bg-amber-50/80 dark:bg-amber-950/30",  border: "border-amber-200/80 dark:border-amber-900/40",  text: "text-amber-700 dark:text-amber-300"  },
+  PERMISSION: { label: "Permission",       icon: Clock,         color: "from-sky-500 to-sky-700",      bg: "bg-sky-50/80 dark:bg-sky-950/30",      border: "border-sky-200/80 dark:border-sky-900/40",      text: "text-sky-700 dark:text-sky-300"      },
+  COMP_OFF:   { label: "Comp-Off",         icon: Repeat,        color: "from-emerald-500 to-emerald-700", bg: "bg-emerald-50/80 dark:bg-emerald-950/30", border: "border-emerald-200/80 dark:border-emerald-900/40", text: "text-emerald-700 dark:text-emerald-300" },
 };
 
 function BalanceCard({ balance }) {
@@ -20,45 +20,50 @@ function BalanceCard({ balance }) {
   const pct = isUnlimited ? 0 : Math.min(100, (balance.used / (balance.entitled || 1)) * 100);
 
   return (
-    <div className={`rounded-2xl border ${meta.border} ${meta.bg} p-4 flex flex-col gap-3 transition-all hover:shadow-md backdrop-blur-xs`}>
-      <div className="flex items-center justify-between">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-md shadow-primary-500/20`}>
-          <Icon className="w-5 h-5 text-white" />
+    <div className={`rounded-2xl border ${meta.border} ${meta.bg} p-3.5 sm:p-4 flex flex-col justify-between gap-3 transition-all hover:shadow-md backdrop-blur-xs`}>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2">
+        <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${meta.color} flex items-center justify-center shadow-md shrink-0`}>
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </div>
-        <span className={`text-xs font-black uppercase tracking-wider ${meta.text}`}>
+        <span className={`text-[10px] sm:text-xs font-black uppercase tracking-wider text-right leading-tight ${meta.text}`}>
           {meta.label}
         </span>
       </div>
 
-      <div className="space-y-1">
-        <div className="flex items-end gap-1.5">
-          <span className="text-3xl font-black text-gray-900 dark:text-slate-100 leading-none">
+      {/* Count */}
+      <div className="space-y-0.5">
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-slate-100 leading-none">
             {isUnlimited ? "∞" : balance.remaining}
           </span>
           {!isUnlimited && (
-            <span className="text-xs font-bold text-gray-400 dark:text-slate-400 mb-0.5">
+            <span className="text-xs font-bold text-gray-400 dark:text-slate-400">
               / {balance.entitled} days
             </span>
           )}
         </div>
-        <p className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">remaining</p>
+        <p className="text-[10px] font-black text-gray-400 dark:text-slate-400 uppercase tracking-wider">
+          {isUnlimited ? "UNLIMITED" : "REMAINING"}
+        </p>
       </div>
 
+      {/* Progress & Stats */}
       {!isUnlimited && (
         <div className="space-y-1.5 pt-1">
-          <div className="w-full h-2 rounded-full bg-gray-200/80 dark:bg-slate-800/80 overflow-hidden p-0.5">
+          <div className="w-full h-1.5 sm:h-2 rounded-full bg-gray-200/80 dark:bg-slate-800/80 overflow-hidden p-0.5">
             <div
               className={`h-full rounded-full bg-gradient-to-r ${meta.color} transition-all duration-700`}
               style={{ width: `${pct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 dark:text-slate-400">
-            <span className="flex items-center gap-1">
-              <TrendingDown className="w-3 h-3 text-rose-500" />
+          <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 dark:text-slate-400">
+            <span className="flex items-center gap-0.5">
+              <TrendingDown className="w-3 h-3 text-rose-500 shrink-0" />
               {balance.used} used
             </span>
-            <span className="flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-emerald-500" />
+            <span className="flex items-center gap-0.5">
+              <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
               {balance.entitled} total
             </span>
           </div>
@@ -82,7 +87,7 @@ export function LeaveBalanceCards({ balances, academicYear, showTitle = true }) 
           )}
         </div>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
         {balances.map((b) => (
           <BalanceCard key={b.leave_type} balance={b} />
         ))}

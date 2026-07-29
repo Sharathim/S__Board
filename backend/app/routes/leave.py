@@ -3,7 +3,7 @@ import logging
 from flask import Blueprint, request, jsonify, g
 from datetime import date, datetime
 from ..extensions import db
-from ..models.leave import LeaveRequest, LeaveBalance, LeaveType, LeaveStatus, LeaveDuration, AcademicYear
+from ..models.leave import LeaveRequest, LeaveBalance, LeaveType, LeaveStatus, LeaveDuration, AcademicYear, DepartmentLeaveSettings
 from ..models.faculty import Faculty
 from ..models.user import User, UserRole
 from ..utils.auth_middleware import require_auth, require_hod
