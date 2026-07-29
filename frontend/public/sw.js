@@ -40,15 +40,23 @@ self.addEventListener("fetch", (event) => {
         return cached;
       }
 
-      const response = await fetch(event.request);
-      const isStaticAsset = ["style", "script", "image", "font", "manifest"].includes(event.request.destination);
+      try {
+        const response = await fetch(event.request);
+        const isStaticAsset = ["style", "script", "image", "font", "manifest"].includes(event.request.destination);
 
-      if (response.ok && url.origin === self.location.origin && isStaticAsset) {
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(event.request, response.clone());
+        if (response.ok && url.origin === self.location.origin && isStaticAsset) {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, response.clone());
+        }
+
+        return response;
+      } catch (err) {
+        if (event.request.mode === "navigate") {
+          const fallback = await caches.match("/");
+          if (fallback) return fallback;
+        }
+        return new Response("Network error", { status: 503, statusText: "Service Unavailable" });
       }
-
-      return response;
     })
   );
 });

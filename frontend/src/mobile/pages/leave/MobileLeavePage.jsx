@@ -69,10 +69,10 @@ function MobileFacultyView() {
           <button
             key={t.id}
             onClick={() => setSection(t.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               section === t.id
-                ? "bg-primary-600 text-white"
-                : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400"
+                ? "bg-primary-600 text-white shadow-sm shadow-primary-500/20"
+                : "bg-gray-100 dark:bg-slate-800/80 text-gray-600 dark:text-slate-300 border border-transparent dark:border-slate-700/60"
             }`}
           >
             <t.icon className="w-3.5 h-3.5" />
@@ -147,10 +147,10 @@ function MobileHODView() {
           <button
             key={t.id}
             onClick={() => setSection(t.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all relative ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all relative ${
               section === t.id
-                ? "bg-violet-600 text-white"
-                : "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400"
+                ? "bg-violet-600 text-white shadow-sm shadow-violet-500/20"
+                : "bg-gray-100 dark:bg-slate-800/80 text-gray-600 dark:text-slate-300 border border-transparent dark:border-slate-700/60"
             }`}
           >
             <t.icon className="w-3.5 h-3.5" />

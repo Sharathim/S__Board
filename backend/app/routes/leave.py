@@ -131,13 +131,15 @@ def submit_leave():
 
     hod = User.query.filter_by(role=UserRole.HOD).first()
     if hod:
+        notif_msg = f"{faculty.user.name} requested {leave_type.value.title()} leave for {start_date.isoformat()}."
         send_notification(
             recipient_id=hod.id,
             title="New Leave Request",
-            body=f"{faculty.user.name} requested {leave_type.value.title()} leave for {start_date.isoformat()}.",
+            body=notif_msg,
             notif_type="leave_requested",
             reference_id=leave.id,
         )
+        svc.send_leave_email_notification(hod, "New Faculty Leave Request", notif_msg)
     return jsonify({"leave": leave.to_dict()}), 201
 
 
