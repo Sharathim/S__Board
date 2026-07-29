@@ -200,6 +200,7 @@ function MobileAttachmentList({ attachments, onPreview }) {
 // ─── Mobile Roadmap View (Vertical Stacked Timeline) ─────────────────────────
 
 function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
+  const ascendingNodes = [...timelineNodes].reverse();
   const total = timelineNodes.length;
 
   if (total === 0) {
@@ -237,53 +238,42 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBac
         </span>
       </div>
 
-      {/* Vertical Stacked Timeline */}
+      {/* Simplified Mobile Stacked Timeline */}
       <div className="space-y-3">
-        {timelineNodes.map((node, idx) => {
-          const milestoneNum = total - idx;
+        {ascendingNodes.map((node, idx) => {
+          const milestoneNum = idx + 1;
           const isSelected = node.id === selectedId;
 
           return (
-            <div key={node.id} className="flex flex-col items-center">
-              {/* Stacked Card */}
-              <div
-                onClick={() => onSelectMilestone(node)}
-                className={`w-full p-4 rounded-2xl transition-all duration-200 cursor-pointer text-left ${
-                  isSelected
-                    ? "bg-white dark:bg-slate-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
-                    : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs"
-                }`}
-              >
-                {/* 1. Number Badge & 4. Date */}
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-xs font-black border border-indigo-200/60 dark:border-indigo-800/60">
-                    {milestoneNum}
+            <div
+              key={node.id}
+              onClick={() => onSelectMilestone(node)}
+              className={`w-full p-4 rounded-2xl transition-all duration-200 cursor-pointer text-left ${
+                isSelected
+                  ? "bg-white dark:bg-slate-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
+                  : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs"
+              }`}
+            >
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black border border-indigo-200/60 dark:border-indigo-800/60">
+                    Milestone #{milestoneNum}
                   </span>
                   <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
                     {node.dateStr}
                   </span>
                 </div>
 
-                {/* 2. Title */}
                 <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">
                   {node.title || "Progress Update"}
                 </h4>
 
-                {/* 3. Description */}
                 {node.accomplishment && (
-                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
                     {node.accomplishment}
                   </p>
                 )}
               </div>
-
-              {/* Connector line ↓ for next item */}
-              {idx < total - 1 && (
-                <div className="flex flex-col items-center my-1">
-                  <div className="w-0.5 h-4 bg-slate-300 dark:bg-slate-700" />
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 -mt-1" />
-                </div>
-              )}
             </div>
           );
         })}
@@ -584,7 +574,7 @@ export default function MobileProjectDetailPage() {
         />
       )}
 
-      {/* Floating Action Button for Roadmap (Progress View only) */}
+      {/* Floating Action Button for Roadmap (Progress View only, stacked above Student + button) */}
       {activeTab === "progress" && (
         <motion.button
           type="button"
@@ -592,7 +582,7 @@ export default function MobileProjectDetailPage() {
           animate={{ scale: 1 }}
           exit={{ scale: 0 }}
           onClick={() => setActiveTab("roadmap")}
-          className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition-transform border border-white/20 dark:border-slate-700/50"
+          className={`fixed ${isStudent ? "bottom-20" : "bottom-6"} right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition-all border border-white/20 dark:border-slate-700/50`}
           aria-label="Open Project Roadmap"
         >
           <Map className="w-6 h-6" />

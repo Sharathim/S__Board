@@ -605,6 +605,7 @@ function ProgressPostItem({
 // ─── Professional Vertical Timeline Roadmap View ────────────────────────────
 
 function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
+  const ascendingNodes = [...timelineNodes].reverse();
   const total = timelineNodes.length;
 
   if (total === 0) {
@@ -631,9 +632,9 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-2 space-y-6">
+    <div className="max-w-4xl mx-auto py-2 space-y-5">
       {/* Roadmap Navigation Header */}
-      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
+      <div className="flex items-center justify-between gap-4 pb-3">
         <button
           type="button"
           onClick={onBack}
@@ -654,28 +655,29 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
         </div>
       </div>
 
-      {/* Professional Vertical Timeline */}
-      <div className="relative pl-6 sm:pl-10 space-y-6">
-        {/* Timeline connector vertical line */}
+      {/* Professional Vertical Timeline (Ascending: Oldest #1 top -> Newest #N bottom) */}
+      <div className="relative pl-6 sm:pl-10 space-y-4">
+        {/* Single thin vertical timeline line */}
         <div className="absolute left-3.5 sm:left-5 top-4 bottom-6 w-0.5 bg-slate-200 dark:bg-slate-800" />
 
-        {timelineNodes.map((node, idx) => {
-          const milestoneNum = total - idx;
+        {ascendingNodes.map((node, idx) => {
+          const milestoneNum = idx + 1;
           const isSelected = node.id === selectedId;
+          const isLatest = idx === total - 1;
 
           return (
             <motion.div
               key={node.id}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2, delay: idx * 0.04 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18, delay: idx * 0.03 }}
               className="relative flex items-start gap-4 sm:gap-6 group"
             >
-              {/* Number Dot on Timeline */}
+              {/* Number Circle on Vertical Timeline Line */}
               <div
-                className={`absolute -left-6 sm:-left-10 top-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-black transition-all z-10 ${
+                className={`shrink-0 w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-black transition-all z-10 ${
                   isSelected
-                    ? "bg-indigo-600 text-white ring-4 ring-indigo-500/20 shadow-md shadow-indigo-500/30 scale-110"
+                    ? "bg-indigo-600 text-white ring-4 ring-indigo-500/20 shadow-md shadow-indigo-500/30 scale-105"
                     : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-2 border-slate-300 dark:border-slate-700 group-hover:border-indigo-500 dark:group-hover:border-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
                 }`}
               >
@@ -685,10 +687,10 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
               {/* Milestone Card on Right */}
               <div
                 onClick={() => onSelectMilestone(node)}
-                className={`flex-1 p-4 sm:p-5 rounded-2xl transition-all duration-200 cursor-pointer ${
+                className={`flex-1 p-4 sm:p-4.5 rounded-2xl transition-all duration-200 cursor-pointer ${
                   isSelected
                     ? "bg-white dark:bg-slate-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
-                    : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/80 shadow-sm hover:shadow-md"
+                    : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/80 shadow-2xs hover:shadow-xs"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -697,13 +699,13 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
                       <span className="text-[10px] font-black uppercase tracking-wider text-indigo-500 dark:text-indigo-400">
                         Milestone #{milestoneNum}
                       </span>
-                      {idx === 0 && (
+                      {isLatest && (
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
                           Latest
                         </span>
                       )}
                     </div>
-                    <h4 className="text-base font-black text-slate-900 dark:text-white leading-snug truncate">
+                    <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-snug truncate">
                       {node.title || "Progress Update"}
                     </h4>
                   </div>
@@ -713,7 +715,7 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
                 </div>
 
                 {node.accomplishment && (
-                  <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+                  <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
                     {node.accomplishment}
                   </p>
                 )}
@@ -1003,7 +1005,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-4 space-y-4">
       {/* ── Integrated Project Header & Actions Bar ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between shrink-0 gap-4 pt-1 pb-4 border-b border-slate-200/70 dark:border-slate-800/70">
+      <div className="flex flex-col md:flex-row md:items-center justify-between shrink-0 gap-4 pt-1 pb-4">
         {/* Left Side: Navigation, Project Title, Status, Description & Team Meta */}
         <div className="space-y-2 min-w-0 flex-1">
           <button
