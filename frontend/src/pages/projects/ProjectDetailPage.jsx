@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
@@ -1170,8 +1171,8 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
-      {/* ── Floating Action Button (FAB) for Roadmap View (Progress View only) ── */}
-      {(activeTab === "progress" || activeTab === "stream") && (
+      {/* ── Floating Action Button (FAB) for Roadmap View (Progress View only using Portal) ── */}
+      {(activeTab === "progress" || activeTab === "stream") && createPortal(
         <AnimatePresence>
           <motion.button
             type="button"
@@ -1180,13 +1181,14 @@ export default function ProjectDetailPage() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setActiveTab("roadmap")}
-            className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 border border-white/20 dark:border-slate-700/50 cursor-pointer"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 border border-white/20 dark:border-slate-700/50 cursor-pointer"
             title="Open Project Roadmap"
             aria-label="Open Project Roadmap"
           >
             <Map className="w-6 h-6" />
           </motion.button>
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
       )}
 
       {/* ── Edit Project Modal ── */}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
@@ -574,19 +575,27 @@ export default function MobileProjectDetailPage() {
         />
       )}
 
-      {/* Floating Action Button for Roadmap (Progress View only, stacked above Student + button) */}
-      {activeTab === "progress" && (
+      {/* Floating Action Button for Roadmap (Progress View only, stacked above Student + button using Portal) */}
+      {activeTab === "progress" && createPortal(
         <motion.button
           type="button"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           exit={{ scale: 0 }}
           onClick={() => setActiveTab("roadmap")}
-          className={`fixed ${isStudent ? "bottom-20" : "bottom-6"} right-6 z-40 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-95 transition-all border border-white/20 dark:border-slate-700/50`}
+          className="mobile-tappable fixed z-[90] w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-90 transition-all border border-white/20 dark:border-slate-700/50 cursor-pointer"
+          style={{
+            right: "16px",
+            bottom: isStudent
+              ? "calc(60px + env(safe-area-inset-bottom, 0px) + 16px + 64px)"
+              : "calc(60px + env(safe-area-inset-bottom, 0px) + 16px)",
+          }}
           aria-label="Open Project Roadmap"
+          title="Open Project Roadmap"
         >
           <Map className="w-6 h-6" />
-        </motion.button>
+        </motion.button>,
+        document.body
       )}
 
       {/* Student FAB to Post Progress */}
