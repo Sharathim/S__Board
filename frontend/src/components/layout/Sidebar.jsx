@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { Logo } from "../ui/Logo";
 
 const mainNavItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
