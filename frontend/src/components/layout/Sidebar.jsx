@@ -50,13 +50,33 @@ export function Sidebar() {
     });
   };
 
+  const brandDest = user?.role === "HOD" ? "/dashboard" : user?.role === "FACULTY" ? "/faculty" : "/classes";
+
   return (
     <>
-      {/* ── 1. Middle Main Routes Capsule Card (Vertically Centered with Clamp) ── */}
-      <aside
-        className="fixed left-3 side-nav-centered z-40 hidden lg:flex flex-col select-none transition-all duration-300"
-      >
-        <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
+      {/* ── Single Unified Left Navigation Pill Panel (Vertically Centered & Non-Scrollable) ── */}
+      <aside className="fixed left-3 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
+        <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-1.5 max-h-[96vh] overflow-hidden">
+          
+          {/* 1. Website Logo Badge at Top */}
+          <NavLink
+            to={brandDest}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onMouseDown={handleMouseDown}
+            className="w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-md border border-slate-100 dark:border-slate-700/80 flex items-center justify-center flex-shrink-0 transition-transform mb-2 mt-0.5 cursor-pointer relative group"
+            title="Hive"
+          >
+            <Logo variant="icon" alt="Hive Logo" className="w-6 h-6 object-contain" />
+            
+            {/* Tooltip */}
+            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+              Hive
+              <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+            </div>
+          </NavLink>
+
+          {/* 2. Main Navigation Links */}
           {mainNavItems
             .filter((item) => {
               if (item.to === "/dashboard" && user?.role !== "HOD") return false;
@@ -66,35 +86,32 @@ export function Sidebar() {
             })
             .map((item) => {
               const Icon = item.icon;
-            const isActive = location.pathname === item.to;
+              const isActive = location.pathname === item.to;
 
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onMouseDown={handleMouseDown}
-                className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
-              >
-                <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  onMouseDown={handleMouseDown}
+                  className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
 
-                {/* High Contrast Crystal Clear Tooltip */}
-                <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
-                  {item.label}
-                  <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
-                </div>
-              </NavLink>
-            );
-          })}
-        </div>
+                  {/* High Contrast Crystal Clear Tooltip */}
+                  <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                    {item.label}
+                    <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                  </div>
+                </NavLink>
+              );
+            })}
 
-      </aside>
+          {/* 3. Subtle Horizontal Divider */}
+          <div className="w-6 h-[1px] bg-slate-200/80 dark:bg-slate-700/80 my-1 rounded-full flex-shrink-0" />
 
-      {/* ── 2. Bottom Settings & Logout Capsule Card (Desktop Only) ── */}
-      <aside className="fixed left-3 bottom-6 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
-        <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-2">
-          {/* Settings Navigation Item */}
+          {/* 4. Settings Navigation Item */}
           <NavLink
             to="/settings"
             onMouseEnter={handleMouseEnter}
@@ -110,7 +127,7 @@ export function Sidebar() {
             </div>
           </NavLink>
 
-          {/* Sign Out Action Button */}
+          {/* 5. Sign Out Action Button */}
           <button
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}

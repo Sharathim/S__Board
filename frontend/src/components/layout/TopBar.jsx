@@ -227,7 +227,7 @@ export function TopBar() {
     <>
       <header className="w-full h-20 pl-0.5 pr-4 lg:pl-0.5 lg:pr-4 z-[99] flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
         {/* ── Left Brand: Larger icon + theme-aware wordmark PNG ── */}
-        <div className="select-none flex items-center">
+        <div className="select-none flex items-center lg:hidden">
           <div
             onClick={() => {
               const brandDest = user?.role === "HOD" ? "/dashboard" : user?.role === "FACULTY" ? "/faculty" : "/classes";
@@ -242,9 +242,6 @@ export function TopBar() {
               alt="Hive"
               className="h-11 w-11 object-contain flex-shrink-0"
             />
-            <span className="font-black text-xl text-slate-900 dark:text-white tracking-tight">
-              Hive
-            </span>
           </div>
         </div>
 
