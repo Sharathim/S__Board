@@ -192,8 +192,8 @@ def submit_resume_scan():
         return jsonify({"error": "File size exceeds 10MB limit."}), 400
 
     file.seek(0)
-    # Upload to Cloudinary (image resource type for PDF convention)
-    c_res = upload_file(file, folder="placement_resumes", resource_type="image")
+    # Upload to Cloudinary
+    c_res = upload_file(file, folder="placement_resumes")
 
     resume_text = _extract_pdf_text(file_bytes)
     if not resume_text or len(resume_text) < 50:
