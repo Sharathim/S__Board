@@ -688,43 +688,6 @@ button {
     inset 1px 1px 1px rgba(255, 255, 255, 0.07);
 }
 
-.neomorphic-logo-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 18px;
-  background: #f0f4f9;
-  box-shadow: 
-    4px 4px 9px rgba(166, 180, 200, 0.45),
-    -4px -4px 9px #ffffff;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  cursor: pointer;
-}
-
-.neomorphic-logo-btn:hover {
-  background: #e6ebf5;
-  box-shadow: 
-    inset 2.5px 2.5px 6px rgba(166, 180, 200, 0.4),
-    inset -2.5px -2.5px 6px #ffffff;
-}
-
-.dark .neomorphic-logo-btn {
-  background: #161922;
-  box-shadow: 
-    4px 4px 10px rgba(0, 0, 0, 0.55),
-    -4px -4px 10px rgba(255, 255, 255, 0.035);
-}
-
-.dark .neomorphic-logo-btn:hover {
-  background: #1c202d;
-  box-shadow: 
-    inset 2.5px 2.5px 6px rgba(0, 0, 0, 0.65),
-    inset -2.5px -2.5px 6px rgba(255, 255, 255, 0.04);
-}
-
 .side-item-btn {
   display: flex;
   align-items: center;

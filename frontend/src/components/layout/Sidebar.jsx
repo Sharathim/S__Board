@@ -68,10 +68,10 @@ export function Sidebar() {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               onMouseDown={handleMouseDown}
-              className="neomorphic-logo-btn relative group"
+              className="flex items-center justify-center flex-shrink-0 transition-transform cursor-pointer relative group p-1"
               title="Hive"
             >
-              <Logo variant="icon" alt="Hive Logo" className="w-8 h-8 object-contain" />
+              <Logo variant="icon" alt="Hive Logo" className="w-9 h-9 object-contain" />
               
               {/* Tooltip */}
               <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
