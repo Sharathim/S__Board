@@ -26,6 +26,7 @@ import GoatPage from "./pages/developer/GoatPage";
 import FacultyNotesPage from "./pages/notes/FacultyNotesPage";
 import TimetablePage from "./pages/timetable/TimetablePage";
 import LeavePage from "./pages/leave/LeavePage";
+import PlacementPage from "./pages/placement/PlacementPage";
 
 import NotFoundPage from "./pages/public/NotFoundPage";
 
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="/notes" element={<FacultyNotesPage />} />
           <Route path="/timetable" element={<TimetablePage />} />
           <Route path="/leave" element={<LeavePage />} />
+          <Route path="/placement" element={<PlacementPage />} />
           <Route path="/GOAT" element={<GoatPage />} />
         </Route>
 

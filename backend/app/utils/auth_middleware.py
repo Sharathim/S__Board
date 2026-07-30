@@ -60,3 +60,14 @@ def require_developer(f):
         return f(*args, **kwargs)
     return decorated
 
+
+def require_faculty_or_hod(f):
+    @wraps(f)
+    @require_auth
+    def decorated(*args, **kwargs):
+        from ..models.user import UserRole
+        if g.current_user.role not in (UserRole.FACULTY, UserRole.HOD):
+            return jsonify({"error": "Faculty or HOD access required"}), 403
+        return f(*args, **kwargs)
+    return decorated
+

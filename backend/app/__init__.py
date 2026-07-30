@@ -87,6 +87,7 @@ def create_app():
     from .routes.timetable import timetable_bp
     from .routes.leave import leave_bp
     from .routes.accomplishment import accomplishment_bp
+    from .routes.placement import placement_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(faculty_bp, url_prefix="/api/faculty")
@@ -104,6 +105,7 @@ def create_app():
     app.register_blueprint(developer_bp, url_prefix="/api/developer")
     app.register_blueprint(timetable_bp, url_prefix="/api/timetable")
     app.register_blueprint(leave_bp, url_prefix="/api/leave")
+    app.register_blueprint(placement_bp, url_prefix="/api/placement")
 
     # Socket handlers
     from .sockets import progress_monitor  # noqa

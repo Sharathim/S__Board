@@ -31,5 +31,12 @@ class Config:
     SMTP_USER = os.environ.get("SMTP_USER")
     SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
     SMTP_SENDER = os.environ.get("SMTP_SENDER", os.environ.get("SMTP_USER"))
-    SMTP_USE_TLS = os.environ.get("SMTP_USE_TLS", "True").lower() == "true"
+    # Groq API Keys (3 Keys with Failover Rotation)
+    GROQ_API_KEYS = [
+        k for k in [
+            os.environ.get("GROQ_API_KEY_1", ""),
+            os.environ.get("GROQ_API_KEY_2", ""),
+            os.environ.get("GROQ_API_KEY_3", "")
+        ] if k
+    ]
 

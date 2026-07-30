@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import {
   GraduationCap, BookOpen, Settings, Bell, Sun, Moon,
-  LogOut, Monitor, ChevronRight, Sparkles, Megaphone, FileText, CalendarClock
+  LogOut, Monitor, ChevronRight, Sparkles, Megaphone, FileText, CalendarClock, Target
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -13,6 +13,7 @@ import { useState } from "react";
 const getMoreItemsForRole = (role) => {
   if (role === "HOD") {
     return [
+      { icon: Target, label: "Placement AI", to: "/placement" },
       { icon: CalendarClock, label: "Leave & Permission", to: "/leave" },
       { icon: FileText, label: "Notes & Docs", to: "/notes" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
@@ -20,13 +21,15 @@ const getMoreItemsForRole = (role) => {
     ];
   } else if (role === "FACULTY") {
     return [
+      { icon: Target, label: "Placement AI", to: "/placement" },
       { icon: CalendarClock, label: "Leave & Permission", to: "/leave" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
   } else {
-    // STUDENT — no leave access
+    // STUDENT
     return [
+      { icon: Target, label: "Placement AI", to: "/placement" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];

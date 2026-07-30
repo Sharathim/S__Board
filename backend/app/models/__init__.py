@@ -13,6 +13,7 @@ from .notes import Subject, Unit, UnitFile, NotesLog
 from .timetable import TimetableEntry, FacultySubjectMapping, ClassLabConfig
 from .leave import LeaveRequest, LeaveBalance, LeaveType, LeaveStatus, LeaveDuration, AcademicYear, DepartmentLeaveSettings
 from .accomplishment import Accomplishment, AccomplishmentCategory
+from .placement import JobRole, JobRoleSkill, ResumeScan, CompanyCriteria, LearningAssignment, ScanStatus
 
 CLASSES = ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"]
 FORUM_ELIGIBLE_CLASSES = ["UG_3A", "UG_3B"]
