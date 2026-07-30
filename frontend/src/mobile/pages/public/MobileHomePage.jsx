@@ -162,7 +162,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
           {STATS.map((stat, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm text-center flex flex-col items-center justify-center"
+              className="p-4 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm text-center flex flex-col items-center justify-center"
             >
               <span
                 className={`font-black tracking-tight ${stat.color}`}
@@ -193,7 +193,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
         </div>
 
         {/* Role Selector Tabs */}
-        <div className="flex gap-1 p-1 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl shadow-sm mb-4">
+        <div className="flex gap-1 p-1 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] rounded-2xl shadow-sm mb-4">
           {ROLES.map((r) => (
             <button
               key={r.id}
@@ -215,7 +215,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
           return (
             <div
               key={r.id}
-              className="p-5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm space-y-4 mobile-fade-in"
+              className="p-5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm space-y-4 mobile-fade-in"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -268,7 +268,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             return (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex items-start gap-3.5"
+                className="p-4 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex items-start gap-3.5"
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${feat.bg}`}>
                   <FeatIcon className="w-5 h-5" />
@@ -311,7 +311,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
 
         {/* Quick Contact Info Grid */}
         <div className="grid grid-cols-2 gap-2.5 mb-4">
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex flex-col items-center text-center">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex flex-col items-center text-center">
             <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/30 text-[#F05A2B] flex items-center justify-center mb-2">
               <Mail className="w-4 h-4" />
             </div>
@@ -319,7 +319,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate w-full">hod.cs@shive.edu</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex flex-col items-center text-center">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex flex-col items-center text-center">
             <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-600 flex items-center justify-center mb-2">
               <Phone className="w-4 h-4" />
             </div>
@@ -329,7 +329,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
         </div>
 
         {/* Contact Inquiry Card */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm space-y-3">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm space-y-3">
           <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Send className="w-3.5 h-3.5 text-[#F05A2B]" />
             Send an Inquiry Message
@@ -383,7 +383,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
 
       {/* ── 6. Bottom Sticky Quick Action Card ── */}
       <section className="px-4 py-6 text-center">
-        <div className="p-6 rounded-2xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-md flex flex-col items-center">
+        <div className="p-6 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-md flex flex-col items-center">
           <Logo variant="icon" className="w-10 h-10 object-contain mb-3" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
             Ready to Access Hive?

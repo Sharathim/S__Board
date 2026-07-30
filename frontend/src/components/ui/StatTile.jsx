@@ -10,7 +10,7 @@ export function StatTile({ icon: Icon, value, label, accent, note, className, on
     <div
       onClick={onClick}
       className={clsx(
-        "h-full bg-white dark:bg-[#121722] rounded-2xl p-4.5 border border-gray-200/80 dark:border-white/[0.06] shadow-sm transition-all duration-200",
+        "h-full bg-white dark:bg-[#18181B] rounded-2xl p-4.5 border border-gray-200/80 dark:border-[#2E2E34] shadow-sm transition-all duration-200",
         isClickable && "cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-[#F05A2B]/40 dark:hover:border-[#F05A2B]/40 active:scale-[0.98]",
         className
       )}

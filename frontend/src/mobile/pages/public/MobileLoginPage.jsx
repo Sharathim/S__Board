@@ -38,7 +38,7 @@ export default function MobileLoginPage() {
 
       {/* Login Card */}
       <div className="my-auto py-6 max-w-sm mx-auto w-full">
-        <div className="p-6 rounded-3xl bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-xl space-y-6 text-center mobile-fade-in">
+        <div className="p-6 rounded-3xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-xl space-y-6 text-center mobile-fade-in">
           
           {/* Header */}
           <div>

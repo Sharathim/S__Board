@@ -182,10 +182,10 @@ export default function ProjectsPage() {
           description="Create a new project to get started."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[24px] border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#121722] shadow-sm">
+        <div className="overflow-x-auto rounded-[24px] border border-gray-200/80 dark:border-[#2E2E34] bg-white dark:bg-[#18181B] shadow-sm">
           <table className="w-full text-left border-collapse min-w-[950px]">
             <thead>
-              <tr className="border-b border-gray-200/80 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.02] text-gray-400 dark:text-slate-400 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
+              <tr className="border-b border-gray-200/80 dark:border-[#2E2E34] bg-gray-50/50 dark:bg-[#202024] text-gray-400 dark:text-zinc-400 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
                 <th className="py-4 px-6">Project Name</th>
                 <th className="py-4 px-5">Faculty</th>
                 <th className="py-4 px-5">Forum Member</th>

@@ -312,7 +312,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
   const totalFiles = units.reduce((acc, u) => acc + (u.files?.length || 0), 0);
 
   return (
-    <div className="relative overflow-hidden bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] rounded-3xl p-4 shadow-sm transition-all mb-3.5">
+    <div className="relative overflow-hidden bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] rounded-3xl p-4 shadow-sm transition-all mb-3.5">
       {/* Top Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-orange-400" />
 

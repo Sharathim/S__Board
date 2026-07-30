@@ -729,7 +729,7 @@ export default function UpdatesPage() {
 
       {/* ─── Content Feed ─── */}
       {finalUpdates.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 dark:bg-[#121722]/80 backdrop-blur-md rounded-3xl border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+        <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 dark:bg-[#18181B] backdrop-blur-md rounded-3xl border border-gray-200/80 dark:border-[#2E2E34] shadow-sm">
           <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center mb-4 border border-gray-100 dark:border-white/[0.06]">
             <Megaphone className="w-8 h-8 text-gray-300 dark:text-slate-500" />
           </div>

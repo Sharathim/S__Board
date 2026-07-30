@@ -182,7 +182,7 @@ export default function DashboardPage() {
           {/* Card 1 — Active Projects */}
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm relative overflow-hidden shrink-0"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm relative overflow-hidden shrink-0"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-[#FF8365]" />
             <div className="flex items-center justify-between mb-2.5">
@@ -205,7 +205,7 @@ export default function DashboardPage() {
           {/* Card 2 — Completed */}
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Completed</span>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
           {/* Card 3 — Students */}
           <div
             onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Students Portal</span>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
           {/* Card 4 — Faculty */}
           <div
             onClick={() => navigateWithTransition("/faculty", "Faculty", Users)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Faculty Board</span>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-3 shrink-0" style={{ width: "clamp(240px, 30%, 310px)" }}>
 
             {/* Project Status Breakdown */}
-            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm shrink-0">
+            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm shrink-0">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Project Status</span>
                 <BarChart3 className="w-3.5 h-3.5 text-[#F05A2B]" />
@@ -302,7 +302,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Project Activity (Replaced Top Classrooms section) */}
-            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex-1 min-h-0 flex flex-col">
+            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex-1 min-h-0 flex flex-col">
               <div className="flex items-center justify-between mb-3 shrink-0">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Recent Projects</span>
                 <MessageSquare className="w-3.5 h-3.5 text-[#F05A2B]" />
@@ -350,7 +350,7 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Right: Department Announcements (3 items, no scroll) ── */}
-          <div className="da flex-1 rounded-[20px] bg-white dark:bg-[#121722] border border-gray-200/80 dark:border-white/[0.06] shadow-sm flex flex-col min-h-0">
+          <div className="da flex-1 rounded-[20px] bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex flex-col min-h-0">
             {/* Header — no live badge */}
             <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 dark:border-white/[0.05] shrink-0">
               <div className="flex items-center gap-2">

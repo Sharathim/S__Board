@@ -83,9 +83,9 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
             onAssignIncharge(c.class_name);
           }
         }}
-        className={`flex items-center gap-3 h-[48px] bg-[#fafafa] dark:bg-slate-950 rounded-[10px] p-[10px_14px] border border-slate-100/50 dark:border-slate-700 transition-all ${
+        className={`flex items-center gap-3 h-[48px] bg-[#fafafa] dark:bg-[#202024] rounded-[10px] p-[10px_14px] border border-slate-100/50 dark:border-[#2E2E34] transition-all ${
           isHOD
-            ? "cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700/80"
+            ? "cursor-pointer hover:bg-slate-100 dark:hover:bg-[#27272A] hover:border-slate-200 dark:hover:border-[#3F3F46]"
             : ""
         }`}
       >
@@ -106,7 +106,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
  
       {/* Statistics Block */}
       <div className="grid grid-cols-[1.15fr_0.85fr] gap-2.5">
-        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-950 border border-slate-100/50 dark:border-slate-700 rounded-[10px] p-2.5 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] dark:bg-[#202024] border border-slate-100/50 dark:border-[#2E2E34] rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <Users className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
             <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
@@ -114,7 +114,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
           </div>
         </div>
  
-        <div className="h-[52px] bg-[#fafafa] dark:bg-slate-950 border border-slate-100/50 dark:border-slate-700 rounded-[10px] p-2.5 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] dark:bg-[#202024] border border-slate-100/50 dark:border-[#2E2E34] rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
             <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">
