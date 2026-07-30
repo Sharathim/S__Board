@@ -722,7 +722,7 @@ export default function TimetablePage() {
       </div>
 
       {/* Class Selector */}
-      <div className="p-4 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
+      <div className="p-4 rounded-2xl border border-gray-200 dark:border-[#2E2E34] bg-white dark:bg-[#1E1E22]">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Select Class</p>
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -732,7 +732,7 @@ export default function TimetablePage() {
                 "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
                 activeClass===c
                   ?"bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                  :"bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
+                  :"bg-gray-50 dark:bg-[#27272A] border-gray-200 dark:border-[#3F3F46] text-gray-600 dark:text-gray-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
               )}>{c.replace("_"," ")}</button>
             ))}
           </div>
@@ -743,7 +743,7 @@ export default function TimetablePage() {
                 "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
                 activeClass===c
                   ?"bg-purple-600 text-white border-purple-600 shadow-sm"
-                  :"bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                  :"bg-gray-50 dark:bg-[#27272A] border-gray-200 dark:border-[#3F3F46] text-gray-600 dark:text-gray-200 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/20"
               )}>{c.replace("_"," ")}</button>
             ))}
           </div>
@@ -751,10 +751,10 @@ export default function TimetablePage() {
       </div>
 
       {/* Active Class Panel */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 overflow-hidden">
+      <div className="rounded-2xl border border-gray-200 dark:border-[#2E2E34] bg-white dark:bg-[#1E1E22] overflow-hidden">
 
         {/* Class header strip */}
-        <div className="px-5 pt-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800/80 dark:to-gray-800/40 border-b border-gray-100 dark:border-gray-700/60">
+        <div className="px-5 pt-4 bg-gradient-to-r from-gray-50 to-white dark:from-[#18181B] dark:to-[#18181B] border-b border-gray-100 dark:border-[#2E2E34]">
           <div className="flex flex-wrap items-center gap-2.5 mb-3">
             <span className="px-3 py-1 rounded-xl bg-indigo-600 text-white text-sm font-extrabold shadow-sm">{activeClass.replace("_"," ")}</span>
             <span className="text-xs text-gray-500 dark:text-gray-400">

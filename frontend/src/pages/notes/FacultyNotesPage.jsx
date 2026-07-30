@@ -466,7 +466,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
         </div>
 
         {/* Segmented Unit Filter Tabs */}
-        <div className="bg-slate-100/80 dark:bg-slate-800/60 p-1 rounded-2xl grid grid-cols-5 gap-1 mb-4">
+        <div className="bg-slate-100/80 dark:bg-[#18181B] p-1 rounded-2xl border border-slate-200/60 dark:border-[#2E2E34] grid grid-cols-5 gap-1 mb-4">
           {UNIT_OPTIONS.map(unitName => {
             const hasUnit = units.some(u => u.name === unitName);
             const isActive = activeUnitName === unitName;
@@ -478,8 +478,8 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
                   isActive
                     ? "bg-[#F05A2B] text-white shadow-xs"
                     : hasUnit
-                    ? "bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900"
-                    : "text-slate-400 dark:text-slate-600"
+                    ? "bg-white dark:bg-[#27272A] text-slate-700 dark:text-white hover:bg-white dark:hover:bg-[#323238] border border-transparent dark:border-[#3A3A42]"
+                    : "text-slate-400 dark:text-slate-500"
                 }`}
               >
                 <span>{unitName}</span>

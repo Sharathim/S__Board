@@ -163,33 +163,35 @@ html.dark,
 body.dark,
 :root.dark,
 .dark {
-  --background: #0A0D14;
-  --surface: #121722;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-light: rgba(255, 255, 255, 0.05);
-  --border-medium: rgba(255, 255, 255, 0.1);
-  --border-color: rgba(255, 255, 255, 0.06);
+  /* Rich Dark Charcoal Surface & Background Tokens */
+  --background: #121212;
+  --surface: #1E1E22;
+  --border: #2E2E34;
+  --border-light: #26262B;
+  --border-medium: #3A3A42;
+  --border-color: #2E2E34;
 
-  --bg-base: #0A0D14;
-  --bg-surface: #121722;
-  --bg-surface-hover: #171E2E;
-  --bg-surface-elevated: #171E2E;
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-default: rgba(255, 255, 255, 0.08);
+  --bg-base: #121212;
+  --bg-surface: #1E1E22;
+  --bg-surface-hover: #27272A;
+  --bg-surface-elevated: #27272A;
+  --border-subtle: #26262B;
+  --border-default: #2E2E34;
 
+  /* Premium White Typography */
   --text: #FFFFFF;
   --text-primary: #FFFFFF;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
 
   --accent-hover: #FF6B3D;
   --accent-muted: rgba(240, 90, 43, 0.18);
 
-  --sidebar-bg: #121722;
-  --sidebar-border: rgba(255, 255, 255, 0.05);
-  --sidebar-hover: #171E2E;
-  --surface-hover: #171E2E;
-  --surface-secondary: #121722;
+  --sidebar-bg: #18181B;
+  --sidebar-border: #2E2E34;
+  --sidebar-hover: #27272A;
+  --surface-hover: #27272A;
+  --surface-secondary: #1E1E22;
 
   /* Dark mode safe status colors */
   --status-success-bg: rgba(16, 185, 129, 0.14);
@@ -208,7 +210,7 @@ body.dark,
   --status-info-text: #60A5FA;
   --status-info-border: rgba(96, 165, 250, 0.25);
 
-  background-color: #0A0D14;
+  background-color: #121212;
   color: #FFFFFF;
 }
 
@@ -679,11 +681,11 @@ button {
 }
 
 .dark .premium-side-panel {
-  background: rgba(30, 41, 59, 0.92);
-  border-color: rgba(51, 65, 85, 0.85);
+  background: rgba(24, 24, 27, 0.95);
+  border-color: #2E2E34;
   box-shadow: 
-    0 16px 44px rgba(0, 0, 0, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.25),
+    0 16px 44px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 

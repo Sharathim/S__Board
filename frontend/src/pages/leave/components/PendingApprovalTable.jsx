@@ -159,10 +159,10 @@ export function PendingApprovalTable({ leaves, isLoading }) {
   );
 
   if (!leaves?.length) return (
-    <div className="py-16 text-center rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40">
-      <CheckCircle2 className="w-12 h-12 text-emerald-400 dark:text-emerald-600 mx-auto mb-3" />
-      <p className="text-gray-600 dark:text-slate-300 text-sm font-extrabold">All Clear!</p>
-      <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">No pending leave requests requiring review.</p>
+    <div className="py-16 text-center rounded-2xl border border-dashed border-gray-200 dark:border-[#2E2E34] bg-white dark:bg-[#1E1E22]">
+      <CheckCircle2 className="w-12 h-12 text-emerald-400 dark:text-emerald-500 mx-auto mb-3" />
+      <p className="text-gray-900 dark:text-white text-sm font-extrabold">All Clear!</p>
+      <p className="text-xs text-gray-400 dark:text-zinc-400 mt-1">No pending leave requests requiring review.</p>
     </div>
   );
 

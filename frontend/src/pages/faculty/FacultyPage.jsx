@@ -67,9 +67,9 @@ function GmailIcon({ className }) {
 // ─── Designation Badge ────────────────────────────────────────────────────────
 function DesignationBadge({ designation }) {
   const map = {
-    "Professor":            { color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50", icon: Star },
-    "Associate Professor":  { color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50",     icon: TrendingUp },
-    "Assistant Professor":  { color: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50", icon: GraduationCap },
+    "Professor":            { color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/50", icon: Star },
+    "Associate Professor":  { color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50",     icon: TrendingUp },
+    "Assistant Professor":  { color: "bg-[#FFF5F2] text-[#F05A2B] border-[#FFDBD2] dark:bg-[#F05A2B]/15 dark:text-[#FF8365] dark:border-[#F05A2B]/30", icon: GraduationCap },
   };
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;
@@ -84,7 +84,7 @@ function DesignationBadge({ designation }) {
 // ─── Class Chip ───────────────────────────────────────────────────────────────
 function ClassChip({ label }) {
   return (
-    <span className="inline-flex items-center justify-center px-[12px] h-[28px] rounded-full text-[11px] font-semibold border bg-white dark:bg-gray-800/40 border-[#DDE3ED] dark:border-gray-700 text-[#4F46E5] dark:text-indigo-400 shrink-0">
+    <span className="inline-flex items-center justify-center px-[12px] h-[28px] rounded-full text-[11px] font-semibold border bg-white dark:bg-[#27272A] border-[#DDE3ED] dark:border-[#3F3F46] text-[#4F46E5] dark:text-indigo-300 shrink-0">
       {label.replace("_", " ")}
     </span>
   );
