@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Target, UploadCloud, CheckCircle2, AlertTriangle, FileText,
+  Briefcase, UploadCloud, CheckCircle2, AlertTriangle, FileText,
   BookOpen, Rocket, Award, Download, Users, Plus, RefreshCw,
   Search, ExternalLink, ChevronRight, Layers, Sparkles, Filter, Check, AlertCircle, Loader2
 } from "lucide-react";
@@ -66,6 +66,8 @@ export default function PlacementPage() {
   const isStudent = user?.role === "STUDENT";
   const isFaculty = user?.role === "FACULTY";
   const isHOD = user?.role === "HOD";
+  const inchargeClass = user?.faculty_profile?.class_incharge_of;
+  const isClassIncharge = Boolean(inchargeClass);
 
   // Student State
   const [selectedRoleId, setSelectedRoleId] = useState("");
@@ -76,10 +78,16 @@ export default function PlacementPage() {
   const fileInputRef = useRef(null);
 
   // Faculty State
-  const [selectedClassFilter, setSelectedClassFilter] = useState("UG_3B");
+  const [selectedClassFilter, setSelectedClassFilter] = useState(inchargeClass || "UG_3B");
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [assignForm, setAssignForm] = useState({ skill_name: "", resource_title: "", resource_url: "", resource_type: "course", student_id: null });
   const [submittingAssign, setSubmittingAssign] = useState(false);
+
+  useEffect(() => {
+    if (isFaculty && inchargeClass) {
+      setSelectedClassFilter(inchargeClass);
+    }
+  }, [isFaculty, inchargeClass]);
 
   // HOD State
   const [criteriaModalOpen, setCriteriaModalOpen] = useState(false);
@@ -255,7 +263,7 @@ export default function PlacementPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F05A2B] to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
-            <Target className="w-6 h-6" />
+            <Briefcase className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">AI Placement Guidance</h1>
@@ -550,26 +558,40 @@ export default function PlacementPage() {
       )}
 
       {/* ─── FACULTY & HOD SUMMARY VIEW ───────────────────────────────────────── */}
-      {(isFaculty || isHOD) && (
+      {isFaculty && !isClassIncharge ? (
+        <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-12 rounded-3xl text-center space-y-3">
+          <AlertCircle className="w-12 h-12 text-[#F05A2B] mx-auto opacity-80" />
+          <h2 className="text-xl font-black text-gray-900 dark:text-white">Access Restricted</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto font-medium">
+            Placement AI analytics is reserved for Class Incharges and HOD. Contact your department administrator for access.
+          </p>
+        </div>
+      ) : (isFaculty || isHOD) && (
         <div className="space-y-6">
           {/* Class Filter Bar */}
           <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-3 rounded-2xl shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
             <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1 flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" /> Class:
             </span>
-            {["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"].map((c) => (
-              <button
-                key={c}
-                onClick={() => setSelectedClassFilter(c)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                  selectedClassFilter === c
-                    ? "bg-[#F05A2B] text-white shadow-sm"
-                    : "bg-gray-100 dark:bg-[#202024] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#27272A]"
-                }`}
-              >
-                {c.replace("_", " ")}
-              </button>
-            ))}
+            {isHOD ? (
+              ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setSelectedClassFilter(c)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    selectedClassFilter === c
+                      ? "bg-[#F05A2B] text-white shadow-sm"
+                      : "bg-gray-100 dark:bg-[#202024] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#27272A]"
+                  }`}
+                >
+                  {c.replace("_", " ")}
+                </button>
+              ))
+            ) : (
+              <span className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-[#F05A2B] text-white shadow-sm">
+                Incharge Class: {selectedClassFilter.replace("_", " ")}
+              </span>
+            )}
           </div>
 
           {/* Stat Summary Tiles */}

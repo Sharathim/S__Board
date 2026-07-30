@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
-  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText, CalendarDays, CalendarClock, Target
+  LayoutDashboard, FolderKanban, GraduationCap, BookOpen, Megaphone, Settings, LogOut, FileText, CalendarDays, CalendarClock, Briefcase
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
@@ -13,7 +13,7 @@ const mainNavItems = [
   { to: "/projects", label: "Projects Registry", icon: FolderKanban },
   { to: "/faculty", label: "Faculty Directory", icon: GraduationCap },
   { to: "/classes", label: "Classrooms", icon: BookOpen },
-  { to: "/placement", label: "Placement AI", icon: Target },
+  { to: "/placement", label: "Placement AI", icon: Briefcase },
   { to: "/timetable", label: "Timetable", icon: CalendarDays, hodOnly: true },
   { to: "/leave", label: "Leave & Permission", icon: CalendarClock, studentHidden: true },
   { to: "/updates", label: "Announcements", icon: Megaphone },

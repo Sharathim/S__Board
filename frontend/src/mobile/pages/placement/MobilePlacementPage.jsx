@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Target, UploadCloud, CheckCircle2, AlertTriangle, FileText,
+  Briefcase, UploadCloud, CheckCircle2, AlertTriangle, FileText,
   BookOpen, Rocket, Award, Download, Users, Plus, RefreshCw,
   Search, ExternalLink, ChevronRight, Sparkles, Filter, Check, AlertCircle, Loader2
 } from "lucide-react";
@@ -18,14 +18,22 @@ export default function MobilePlacementPage() {
   const isStudent = user?.role === "STUDENT";
   const isFaculty = user?.role === "FACULTY";
   const isHOD = user?.role === "HOD";
+  const inchargeClass = user?.faculty_profile?.class_incharge_of;
+  const isClassIncharge = Boolean(inchargeClass);
 
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const [resumeFile, setResumeFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [activeActionTab, setActiveActionTab] = useState("courses");
-  const [selectedClassFilter, setSelectedClassFilter] = useState("UG_3B");
+  const [selectedClassFilter, setSelectedClassFilter] = useState(inchargeClass || "UG_3B");
   const [uploadSheetOpen, setUploadSheetOpen] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isFaculty && inchargeClass) {
+      setSelectedClassFilter(inchargeClass);
+    }
+  }, [isFaculty, inchargeClass]);
 
   // Fetch Roles
   const { data: rolesData } = useQuery({
@@ -113,7 +121,7 @@ export default function MobilePlacementPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-2xl bg-[#F05A2B] text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0">
-            <Target className="w-5 h-5" />
+            <Briefcase className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-lg font-black text-slate-900 dark:text-white leading-tight">Placement AI</h1>
@@ -224,23 +232,35 @@ export default function MobilePlacementPage() {
       )}
 
       {/* ─── FACULTY & HOD MOBILE VIEW ────────────────────────────────────────── */}
-      {(isFaculty || isHOD) && (
+      {isFaculty && !isClassIncharge ? (
+        <div className="py-12 text-center bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#26262B] rounded-3xl p-6 space-y-2">
+          <AlertCircle className="w-10 h-10 mx-auto text-[#F05A2B]" />
+          <h3 className="font-black text-slate-900 dark:text-white text-sm">Access Restricted</h3>
+          <p className="text-xs text-slate-400">Placement AI analytics is reserved for Class Incharges and HOD.</p>
+        </div>
+      ) : (isFaculty || isHOD) && (
         <div className="space-y-4">
           {/* Class Filter Bar */}
           <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-2 rounded-2xl flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-            {["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"].map((c) => (
-              <button
-                key={c}
-                onClick={() => setSelectedClassFilter(c)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  selectedClassFilter === c
-                    ? "bg-[#F05A2B] text-white shadow-xs"
-                    : "bg-slate-100 dark:bg-[#202024] text-slate-600 dark:text-slate-300"
-                }`}
-              >
-                {c.replace("_", " ")}
-              </button>
-            ))}
+            {isHOD ? (
+              ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setSelectedClassFilter(c)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                    selectedClassFilter === c
+                      ? "bg-[#F05A2B] text-white shadow-xs"
+                      : "bg-slate-100 dark:bg-[#202024] text-slate-600 dark:text-slate-300"
+                  }`}
+                >
+                  {c.replace("_", " ")}
+                </button>
+              ))
+            ) : (
+              <span className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-[#F05A2B] text-white shadow-xs">
+                Incharge Class: {selectedClassFilter.replace("_", " ")}
+              </span>
+            )}
           </div>
 
           {/* Stat Cards Grid */}

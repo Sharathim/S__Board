@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import {
   GraduationCap, BookOpen, Settings, Bell, Sun, Moon,
-  LogOut, Monitor, ChevronRight, Sparkles, Megaphone, FileText, CalendarClock, Target
+  LogOut, Monitor, ChevronRight, Sparkles, Megaphone, FileText, CalendarClock, Briefcase
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../hooks/useTheme";
@@ -10,26 +10,31 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import BottomSheet from "./BottomSheet";
 import { useState } from "react";
 
-const getMoreItemsForRole = (role) => {
+const getMoreItemsForRole = (user) => {
+  const role = user?.role;
+  const isIncharge = Boolean(user?.faculty_profile?.class_incharge_of);
+
   if (role === "HOD") {
     return [
-      { icon: Target, label: "Placement AI", to: "/placement" },
+      { icon: Briefcase, label: "Placement AI", to: "/placement" },
       { icon: CalendarClock, label: "Leave & Permission", to: "/leave" },
       { icon: FileText, label: "Notes & Docs", to: "/notes" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
   } else if (role === "FACULTY") {
-    return [
-      { icon: Target, label: "Placement AI", to: "/placement" },
-      { icon: CalendarClock, label: "Leave & Permission", to: "/leave" },
-      { icon: Megaphone, label: "Updates", to: "/updates" },
-      { icon: Settings, label: "Settings", to: "/settings" },
-    ];
+    const items = [];
+    if (isIncharge) {
+      items.push({ icon: Briefcase, label: "Placement AI", to: "/placement" });
+    }
+    items.push({ icon: CalendarClock, label: "Leave & Permission", to: "/leave" });
+    items.push({ icon: Megaphone, label: "Updates", to: "/updates" });
+    items.push({ icon: Settings, label: "Settings", to: "/settings" });
+    return items;
   } else {
     // STUDENT
     return [
-      { icon: Target, label: "Placement AI", to: "/placement" },
+      { icon: Briefcase, label: "Placement AI", to: "/placement" },
       { icon: Megaphone, label: "Updates", to: "/updates" },
       { icon: Settings, label: "Settings", to: "/settings" },
     ];
@@ -43,7 +48,7 @@ export default function MoreSheet({ open, onClose }) {
   const navigate = useNavigate();
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
-  const filteredItems = getMoreItemsForRole(user?.role);
+  const filteredItems = getMoreItemsForRole(user);
 
   const handleNav = (to) => {
     onClose();

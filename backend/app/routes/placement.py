@@ -281,11 +281,10 @@ def get_faculty_class_summary():
 
     if user.role == UserRole.FACULTY:
         fp = user.faculty_profile
-        allowed = (fp.classes_handling or []) + ([fp.class_incharge_of] if fp.class_incharge_of else [])
-        if class_name and class_name not in allowed:
-            return jsonify({"error": "Access denied to specified class."}), 403
-        if not class_name and allowed:
-            class_name = allowed[0]
+        if not fp or not fp.class_incharge_of:
+            return jsonify({"error": "Only Class Incharges and HOD can view placement analytics."}), 403
+        # Class Incharge can only view their own assigned class
+        class_name = fp.class_incharge_of
 
     if not class_name:
         class_name = "UG_3B"
