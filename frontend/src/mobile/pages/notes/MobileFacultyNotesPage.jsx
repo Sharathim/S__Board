@@ -261,7 +261,7 @@ function FileRow({ file, subject, canDeleteFile, onDeleteFile, onPreviewFile }) 
   const label = getFileTypeLabel(file.file_type);
 
   return (
-    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/60 hover:border-orange-200 dark:hover:border-orange-900/40 transition-all gap-2 mb-2 last:mb-0">
+    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 dark:bg-[#202024] border border-slate-100 dark:border-[#26262B] hover:border-orange-200 dark:hover:border-[#3F3F46] transition-all gap-2 mb-2 last:mb-0">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <div className="w-8 h-8 rounded-lg bg-[#F05A2B]/10 dark:bg-[#F05A2B]/20 flex items-center justify-center shrink-0">
           <IconComp className="w-4 h-4 text-[#F05A2B]" />
@@ -269,7 +269,7 @@ function FileRow({ file, subject, canDeleteFile, onDeleteFile, onPreviewFile }) 
         <div className="min-w-0 flex-1">
           <p className="text-xs font-extrabold text-slate-900 dark:text-slate-100 truncate leading-tight">{file.file_name}</p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-1.5 py-0.5 bg-slate-200/70 dark:bg-slate-800 rounded text-[9px] font-black text-slate-600 dark:text-slate-400">
+            <span className="inline-block px-1.5 py-0.5 bg-slate-200/70 dark:bg-[#27272A] rounded text-[9px] font-black text-slate-600 dark:text-slate-300">
               {label}
             </span>
             <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
@@ -312,10 +312,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
   const totalFiles = units.reduce((acc, u) => acc + (u.files?.length || 0), 0);
 
   return (
-    <div className="relative overflow-hidden bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] rounded-3xl p-4 shadow-sm transition-all mb-3.5">
-      {/* Top Accent Line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-orange-400" />
-
+    <div className="relative overflow-hidden bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] rounded-3xl p-4 shadow-sm transition-all mb-3.5">
       {/* Card Header */}
       <div className="flex items-start justify-between gap-3 pt-1 mb-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -349,7 +346,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       </div>
 
       {/* Unit Segmented Pills Bar */}
-      <div className="bg-slate-100/80 dark:bg-white/[0.04] p-1 rounded-2xl flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none">
+      <div className="bg-slate-100/80 dark:bg-[#202024] p-1 rounded-2xl flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none border border-transparent dark:border-[#26262B]">
         {UNIT_OPTIONS.map(unitName => {
           const hasUnit = units.some(u => u.name === unitName);
           const isActive = activeUnit === unitName;
@@ -361,8 +358,8 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
                 isActive
                   ? "bg-[#F05A2B] text-white shadow-xs"
                   : hasUnit
-                  ? "bg-white/60 dark:bg-white/[0.06] text-slate-700 dark:text-slate-300"
-                  : "text-slate-400 dark:text-slate-600"
+                  ? "bg-white/60 dark:bg-[#27272A] text-slate-700 dark:text-slate-200"
+                  : "text-slate-400 dark:text-slate-500"
               }`}
             >
               <span>{unitName.replace("Unit ", "U")}</span>
@@ -375,7 +372,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       {/* Files List */}
       <div>
         {activeFiles.length === 0 ? (
-          <div className="py-6 text-center bg-slate-50/50 dark:bg-white/[0.02] border border-dashed border-gray-200/80 dark:border-white/[0.06] rounded-2xl">
+          <div className="py-6 text-center bg-slate-50/50 dark:bg-[#202024] border border-dashed border-gray-200/80 dark:border-[#26262B] rounded-2xl">
             <FolderOpen className="w-6 h-6 mx-auto mb-1 text-slate-300 dark:text-slate-700" />
             <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">No files uploaded in {activeUnit}</p>
           </div>
@@ -394,7 +391,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       </div>
 
       {/* Card Footer */}
-      <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 dark:border-slate-800/80 text-[10px]">
+      <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 dark:border-[#26262B] text-[10px]">
         <span className="text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1">
           <User className="w-3 h-3 text-slate-400" />
           {subject.created_by?.name || "Faculty"}

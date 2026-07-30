@@ -359,7 +359,7 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
   const IconComponent = fileDetails.icon;
 
   return (
-    <div className="group flex items-center justify-between p-3 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900/40 shadow-2xs hover:shadow-xs transition-all gap-3">
+    <div className="group flex items-center justify-between p-3 rounded-xl bg-slate-50/80 dark:bg-[#202024] border border-slate-100 dark:border-[#26262B] hover:border-orange-200 dark:hover:border-[#3F3F46] shadow-2xs hover:shadow-xs transition-all gap-3">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <div className="p-2.5 rounded-xl bg-[#F05A2B]/10 text-[#F05A2B] flex items-center justify-center shrink-0">
           <IconComponent className="w-4.5 h-4.5 text-[#F05A2B]" />
@@ -369,10 +369,10 @@ function FileItemCard({ file, canDelete, onDelete, onPreview }) {
             {file.file_name}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-[#27272A] text-slate-600 dark:text-slate-300">
               {fileDetails.label}
             </span>
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
+            <span className="text-[11px] text-slate-400 dark:text-slate-400 font-medium truncate">
               by {file.uploaded_by?.name || "Faculty"}
             </span>
           </div>
@@ -428,10 +428,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
   const totalFiles = units.reduce((acc, u) => acc + (u.files?.length || 0), 0);
 
   return (
-    <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-      {/* Top Gradient Accent Line */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-orange-400" />
-
+    <div className="relative overflow-hidden bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-[#3F3F46] transition-all flex flex-col justify-between">
       <div>
         {/* Card Top Header */}
         <div className="flex items-start justify-between gap-3 pt-1 mb-4">
@@ -466,7 +463,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
         </div>
 
         {/* Segmented Unit Filter Tabs */}
-        <div className="bg-slate-100/80 dark:bg-[#18181B] p-1 rounded-2xl border border-slate-200/60 dark:border-[#2E2E34] grid grid-cols-5 gap-1 mb-4">
+        <div className="bg-slate-100/80 dark:bg-[#202024] p-1 rounded-2xl border border-slate-200/60 dark:border-[#26262B] grid grid-cols-5 gap-1 mb-4">
           {UNIT_OPTIONS.map(unitName => {
             const hasUnit = units.some(u => u.name === unitName);
             const isActive = activeUnitName === unitName;
@@ -492,7 +489,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
         {/* Files List in Active Unit */}
         <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin">
           {activeFiles.length === 0 ? (
-            <div className="py-8 text-center bg-slate-50/50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl space-y-1">
+            <div className="py-8 text-center bg-slate-50/50 dark:bg-[#202024] border border-dashed border-slate-200 dark:border-[#26262B] rounded-2xl space-y-1">
               <FolderOpen className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-700" />
               <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">No notes uploaded for {activeUnitName}</p>
             </div>
@@ -517,7 +514,7 @@ function RedesignedSubjectCard({ subject, className, canDeleteItem, onDeleteSubj
       </div>
 
       {/* Card Footer Meta */}
-      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 font-semibold">
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-[#26262B] flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 font-semibold">
         <span className="flex items-center gap-1.5">
           <User className="w-3.5 h-3.5 text-slate-400" /> Created by {subject.created_by?.name || "Faculty"}
         </span>
