@@ -661,77 +661,165 @@ button {
     -2px -2px 6px rgba(255, 255, 255, 0.04);
 }
 
-/* ─── Premium Glassmorphic Side Navigation Panel ───────────────────── */
+/* ─── Premium Neomorphic Side Navigation Panel ───────────────────── */
 .premium-side-panel {
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(230, 230, 230, 0.9);
+  background: #f0f4f9;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
   border-radius: 9999px;
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.07),
-    0 2px 10px rgba(0, 0, 0, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
+    8px 8px 22px rgba(166, 180, 200, 0.5),
+    -8px -8px 22px #ffffff,
+    inset 1px 1px 2px rgba(255, 255, 255, 0.95);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 6px;
-  width: 56px;
+  padding: 16px 8px;
+  width: 58px;
   height: 100%;
 }
 
 .dark .premium-side-panel {
-  background: rgba(24, 24, 27, 0.95);
-  border-color: #2E2E34;
+  background: #161922;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 
-    0 16px 44px rgba(0, 0, 0, 0.5),
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    10px 10px 28px rgba(0, 0, 0, 0.65),
+    -8px -8px 24px rgba(255, 255, 255, 0.035),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.07);
+}
+
+.neomorphic-logo-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 18px;
+  background: #f0f4f9;
+  box-shadow: 
+    4px 4px 9px rgba(166, 180, 200, 0.45),
+    -4px -4px 9px #ffffff;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.neomorphic-logo-btn:hover {
+  background: #e6ebf5;
+  box-shadow: 
+    inset 2.5px 2.5px 6px rgba(166, 180, 200, 0.4),
+    inset -2.5px -2.5px 6px #ffffff;
+}
+
+.dark .neomorphic-logo-btn {
+  background: #161922;
+  box-shadow: 
+    4px 4px 10px rgba(0, 0, 0, 0.55),
+    -4px -4px 10px rgba(255, 255, 255, 0.035);
+}
+
+.dark .neomorphic-logo-btn:hover {
+  background: #1c202d;
+  box-shadow: 
+    inset 2.5px 2.5px 6px rgba(0, 0, 0, 0.65),
+    inset -2.5px -2.5px 6px rgba(255, 255, 255, 0.04);
 }
 
 .side-item-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: #64748B;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: #f0f4f9;
+  color: #52627a;
+  box-shadow: 
+    4px 4px 9px rgba(166, 180, 200, 0.45),
+    -4px -4px 9px #ffffff;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   cursor: pointer;
 }
 
 .side-item-btn:hover {
-  background: rgba(241, 245, 249, 0.9);
-  color: #0F172A;
+  background: #e6ebf5;
+  color: #0f172a;
+  box-shadow: 
+    inset 2.5px 2.5px 6px rgba(166, 180, 200, 0.4),
+    inset -2.5px -2.5px 6px #ffffff;
 }
 
 .dark .side-item-btn {
-  color: #A1A1AA;
+  background: #161922;
+  color: #94a3b8;
+  box-shadow: 
+    4px 4px 10px rgba(0, 0, 0, 0.55),
+    -4px -4px 10px rgba(255, 255, 255, 0.035);
 }
 
 .dark .side-item-btn:hover {
-  background: #27272A;
-  color: #FFFFFF;
+  background: #1c202d;
+  color: #f8fafc;
+  box-shadow: 
+    inset 2.5px 2.5px 6px rgba(0, 0, 0, 0.65),
+    inset -2.5px -2.5px 6px rgba(255, 255, 255, 0.04);
 }
 
+.side-item-inner {
+  transition: all 0.25s ease;
+}
+
+/* Concave Neomorphic Halo & High Contrast Circular Disc for Active Item */
 .side-item-active {
-  background: #171717 !important;
-  color: #FFFFFF !important;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px !important;
+  background: #e4eaf3 !important;
   box-shadow: 
-    0 8px 20px rgba(23, 23, 23, 0.25),
-    0 2px 6px rgba(23, 23, 23, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 3.5px 3.5px 7px rgba(155, 172, 198, 0.7),
+    inset -3.5px -3.5px 7px #ffffff !important;
+  padding: 3px;
+}
+
+.side-item-active .side-item-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: #11141b !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 6px 16px rgba(17, 20, 27, 0.35),
+    0 2px 4px rgba(17, 20, 27, 0.2);
 }
 
 .dark .side-item-active {
-  background: #FFFFFF !important;
-  color: #18181B !important;
+  background: #12151e !important;
   box-shadow: 
-    0 8px 24px rgba(255, 255, 255, 0.25),
-    0 2px 6px rgba(255, 255, 255, 0.15);
+    inset 3.5px 3.5px 7px rgba(0, 0, 0, 0.8),
+    inset -3.5px -3.5px 7px rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .side-item-active .side-item-inner {
+  background: #ffffff !important;
+  color: #09090b !important;
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.neomorphic-divider {
+  width: 26px;
+  height: 2px;
+  border-radius: 9999px;
+  margin: 4px 0;
+  background: rgba(166, 180, 200, 0.4);
+  box-shadow: 0 1px 0 #ffffff;
+}
+
+.dark .neomorphic-divider {
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* ── Clamped Responsive Vertical Positioning for Navigation Panel ────── */
