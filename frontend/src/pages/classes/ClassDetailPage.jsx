@@ -376,6 +376,7 @@ export default function ClassDetailPage() {
   const { user } = useAuth();
   const { navigateWithTransition } = usePageTransition();
   const isHOD = user?.role === "HOD";
+  const isStudent = user?.role === "STUDENT";
   const isIncharge = user?.faculty?.class_incharge_of === className;
   const canManage = isHOD || isIncharge;
   const isForumClass = FORUM_CLASSES.includes(className);

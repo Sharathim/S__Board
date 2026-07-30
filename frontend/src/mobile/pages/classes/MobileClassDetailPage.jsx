@@ -282,6 +282,7 @@ export default function MobileClassDetailPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isHOD = user?.role === "HOD";
+  const isStudent = user?.role === "STUDENT";
   const isIncharge = user?.faculty?.class_incharge_of === className;
   const canManage = isHOD || isIncharge;
   const isForumClass = FORUM_CLASSES.includes(className);
