@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Navigate } from "react-router-dom";
 import { usePageTransition } from "../../context/TransitionContext";
 import { createPortal } from "react-dom";
 import { listClasses, toggleStudentRegistration, assignIncharge, getStudentRegistration } from "../../api/classes";
@@ -340,10 +341,18 @@ export default function ClassesPage() {
 
   if (isLoading) return <Spinner />;
 
-  const classes = raw?.classes || [];
+  let classes = raw?.classes || [];
   const regOpen = raw?.student_registration_open || false;
   const facultyList = facultyData || [];
   const eligibleFaculty = facultyList.filter((f) => !f.class_incharge_of);
+
+  if (user?.role === "STUDENT") {
+    const studentClassName = user?.student_profile?.class_name || classes.find((c) => c.can_view_details)?.class_name;
+    if (studentClassName) {
+      return <Navigate to={`/classes/${studentClassName}`} replace />;
+    }
+    classes = classes.filter((c) => c.can_view_details);
+  }
 
   const ugList = classes.filter((c) => c.class_name.startsWith("UG"));
   const pgList = classes.filter((c) => c.class_name.startsWith("PG"));

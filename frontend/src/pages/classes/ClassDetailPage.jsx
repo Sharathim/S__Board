@@ -493,13 +493,15 @@ export default function ClassDetailPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <div
-          onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-505 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4 group cursor-pointer"
-        >
-          <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-          Back to Classes
-        </div>
+        {!isStudent && (
+          <div
+            onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-505 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4 group cursor-pointer"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Classes
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-center gap-4">

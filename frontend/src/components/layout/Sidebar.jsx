@@ -51,7 +51,8 @@ export function Sidebar() {
     });
   };
 
-  const brandDest = user?.role === "HOD" ? "/dashboard" : user?.role === "FACULTY" ? "/faculty" : "/classes";
+  const studentClass = user?.student_profile?.class_name;
+  const brandDest = user?.role === "HOD" ? "/dashboard" : user?.role === "FACULTY" ? "/faculty" : studentClass ? `/classes/${studentClass}` : "/classes";
 
   return (
     <>
@@ -90,12 +91,13 @@ export function Sidebar() {
               })
               .map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname === item.to;
+                const targetTo = (item.to === "/classes" && user?.role === "STUDENT" && studentClass) ? `/classes/${studentClass}` : item.to;
+                const isActive = location.pathname === item.to || (item.to === "/classes" && location.pathname.startsWith("/classes"));
 
                 return (
                   <NavLink
                     key={item.to}
-                    to={item.to}
+                    to={targetTo}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     onMouseDown={handleMouseDown}

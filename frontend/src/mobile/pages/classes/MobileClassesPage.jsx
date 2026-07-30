@@ -11,7 +11,7 @@ import MobileCard from "../../components/MobileCard";
 import MobileSectionHeader from "../../components/MobileSectionHeader";
 import MobileEmptyState from "../../components/MobileEmptyState";
 import BottomSheet from "../../layout/BottomSheet";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import {
   GraduationCap, Users, ShieldCheck, BookOpen,
   ChevronRight, Crown, UserCog, Plus, X,
@@ -116,10 +116,18 @@ export default function MobileClassesPage() {
     );
   }
 
-  const classes = raw?.classes || [];
+  let classes = raw?.classes || [];
   const regOpen = raw?.student_registration_open || false;
   const facultyList = facultyData || [];
   const eligibleFaculty = facultyList.filter(f => !f.class_incharge_of);
+
+  if (user?.role === "STUDENT") {
+    const studentClassName = user?.student_profile?.class_name || classes.find(c => c.can_view_details)?.class_name;
+    if (studentClassName) {
+      return <Navigate to={`/classes/${studentClassName}`} replace />;
+    }
+    classes = classes.filter(c => c.can_view_details);
+  }
 
   const ugList = classes.filter(c => c.class_name.startsWith("UG"));
   const pgList = classes.filter(c => c.class_name.startsWith("PG"));

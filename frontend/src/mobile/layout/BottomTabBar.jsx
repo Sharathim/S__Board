@@ -5,7 +5,7 @@ import { useNotificationContext } from "../../context/NotificationContext";
 import { useState } from "react";
 import MoreSheet from "./MoreSheet";
 
-const getTabItemsForRole = (role) => {
+const getTabItemsForRole = (role, studentClass) => {
   if (role === "HOD") {
     return [
       { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
@@ -25,7 +25,7 @@ const getTabItemsForRole = (role) => {
     return [
       { to: "/projects", icon: FolderKanban, label: "Projects" },
       { to: "/faculty", icon: GraduationCap, label: "Faculty" },
-      { to: "/classes", icon: BookOpen, label: "Classes" },
+      { to: studentClass ? `/classes/${studentClass}` : "/classes", icon: BookOpen, label: "Classes" },
       { to: "/notes", icon: FileText, label: "Notes" },
     ];
   }
@@ -38,7 +38,8 @@ export default function BottomTabBar() {
 
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  const filteredTabs = getTabItemsForRole(user?.role);
+  const studentClass = user?.student_profile?.class_name;
+  const filteredTabs = getTabItemsForRole(user?.role, studentClass);
 
   // For non-HOD users who don't see Dashboard, default first route
   const isActive = (to) => location.pathname === to || location.pathname.startsWith(to + "/");

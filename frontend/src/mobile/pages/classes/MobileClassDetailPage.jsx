@@ -394,9 +394,11 @@ export default function MobileClassDetailPage() {
     <div className="mobile-fade-in pb-6 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={() => navigate("/classes")} className="mobile-tappable p-2 -ml-2 rounded-xl">
-          <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-        </button>
+        {!isStudent && (
+          <button onClick={() => navigate("/classes")} className="mobile-tappable p-2 -ml-2 rounded-xl">
+            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+          </button>
+        )}
         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-md`}>
           {meta.short}
         </div>
