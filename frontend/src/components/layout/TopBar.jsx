@@ -225,7 +225,7 @@ export function TopBar() {
 
   return (
     <>
-      <header className="w-full h-20 pl-0.5 pr-4 lg:pl-0.5 lg:pr-4 z-[99] flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
+      <header className="w-full h-20 pl-4 pr-4 lg:pl-[74px] lg:pr-4 z-30 flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
         {/* ── Left Brand: Larger icon + theme-aware wordmark PNG ── */}
         <div className="select-none flex items-center lg:hidden">
           <div

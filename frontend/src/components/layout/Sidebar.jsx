@@ -56,8 +56,8 @@ export function Sidebar() {
   return (
     <>
       {/* ── Single Full-Height Vertical Navigation Pill Panel (Top-to-Bottom) ── */}
-      <aside className="fixed left-3 top-3 bottom-3 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
-        <div className="premium-side-panel h-full py-4 px-1.5 flex flex-col items-center justify-between overflow-hidden">
+      <aside className="fixed left-3 top-3 bottom-3 z-[100] hidden lg:flex flex-col select-none transition-all duration-300">
+        <div className="premium-side-panel h-full py-4 px-1.5 flex flex-col items-center justify-between">
           
           {/* 1. TOP: Website Logo Badge */}
           <div className="flex flex-col items-center shrink-0">
