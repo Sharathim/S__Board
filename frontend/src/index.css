@@ -579,9 +579,9 @@ button {
 }
 
 .dark .capsule-pill {
-  background: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: #202024;
+  border-color: #2E2E34;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .capsule-pill-btn {
@@ -601,11 +601,11 @@ button {
 }
 
 .dark .capsule-pill-btn {
-  color: #f1f5f9;
+  color: #FFFFFF;
 }
 
 .dark .capsule-pill-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #27272A;
   color: #FF8365;
 }
 
@@ -645,19 +645,20 @@ button {
 }
 
 .dark .neomorph-bell-btn {
-  background: #1e293b;
-  color: #f1f5f9;
-  border-color: rgba(255, 255, 255, 0.05);
+  background: #202024;
+  color: #FFFFFF;
+  border-color: #2E2E34;
   box-shadow: 
-    3px 3px 8px rgba(0, 0, 0, 0.35),
-    -2px -2px 6px rgba(255, 255, 255, 0.03);
+    3px 3px 8px rgba(0, 0, 0, 0.4),
+    -2px -2px 6px rgba(255, 255, 255, 0.02);
 }
 
 .dark .neomorph-bell-btn:hover {
   color: #FF8365;
+  background: #27272A;
   box-shadow: 
     4px 4px 12px rgba(240, 90, 43, 0.3),
-    -2px -2px 6px rgba(255, 255, 255, 0.06);
+    -2px -2px 6px rgba(255, 255, 255, 0.04);
 }
 
 /* ─── Premium Glassmorphic Side Navigation Panel ───────────────────── */
@@ -708,12 +709,12 @@ button {
 }
 
 .dark .side-item-btn {
-  color: #94A3B8;
+  color: #A1A1AA;
 }
 
 .dark .side-item-btn:hover {
-  background: rgba(51, 65, 85, 0.7);
-  color: #F8FAFC;
+  background: #27272A;
+  color: #FFFFFF;
 }
 
 .side-item-active {
@@ -727,7 +728,7 @@ button {
 
 .dark .side-item-active {
   background: #FFFFFF !important;
-  color: #0F172A !important;
+  color: #18181B !important;
   box-shadow: 
     0 8px 24px rgba(255, 255, 255, 0.25),
     0 2px 6px rgba(255, 255, 255, 0.15);
@@ -2083,12 +2084,11 @@ button {
 }
 
 .dark .notifications-glass-panel {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.9) 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  background: #18181B;
+  border: 1px solid #2E2E34;
   box-shadow:
     0 16px 48px rgba(0, 0, 0, 0.5),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.06),
-    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+    inset 1px 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 @media (max-width: 640px) {

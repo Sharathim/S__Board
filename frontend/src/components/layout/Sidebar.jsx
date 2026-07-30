@@ -66,15 +66,15 @@ export function Sidebar() {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               onMouseDown={handleMouseDown}
-              className="w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-md border border-slate-100 dark:border-slate-700/80 flex items-center justify-center flex-shrink-0 transition-transform cursor-pointer relative group"
+              className="flex items-center justify-center flex-shrink-0 transition-transform cursor-pointer relative group p-1"
               title="Hive"
             >
-              <Logo variant="icon" alt="Hive Logo" className="w-6 h-6 object-contain" />
+              <Logo variant="icon" alt="Hive Logo" className="w-9 h-9 object-contain" />
               
               {/* Tooltip */}
-              <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+              <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-zinc-800 dark:border-zinc-200">
                 Hive
-                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-zinc-900 dark:bg-white" />
               </div>
             </NavLink>
           </div>

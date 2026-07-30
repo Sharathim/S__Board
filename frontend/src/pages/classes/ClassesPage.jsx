@@ -363,7 +363,7 @@ export default function ClassesPage() {
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
           {/* Forum Members button */}
-          <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
+          <div className="flex items-center gap-1.5 bg-white dark:bg-[#202024] px-3 h-9 rounded-xl border border-gray-200/60 dark:border-[#26262B] shadow-sm shrink-0">
             <button
               onClick={() => setShowMembersModal(true)}
               className="flex items-center gap-1.5 hover:opacity-85 transition-opacity text-xs font-bold text-gray-800 dark:text-gray-200"
@@ -386,7 +386,7 @@ export default function ClassesPage() {
           </div>
 
           {isHOD && (
-            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
+            <div className="flex items-center gap-2.5 bg-white dark:bg-[#202024] px-3 h-9 rounded-xl border border-gray-200/60 dark:border-[#26262B] shadow-sm shrink-0">
               <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
               <Switch
                 checked={regOpen}
@@ -398,13 +398,13 @@ export default function ClassesPage() {
           )}
 
           {/* Desktop View Switchers */}
-          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-[#202024] border border-gray-200/50 dark:border-[#26262B] h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
-                  : "text-gray-455 dark:text-gray-500 hover:text-gray-650"
+                  ? "bg-white dark:bg-[#28282D] text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
+                  : "text-gray-455 dark:text-gray-400 hover:text-gray-650"
               }`}
               title="Grid View"
             >
@@ -489,7 +489,7 @@ export default function ClassesPage() {
                   <div
                     key={c.class_name}
                     onClick={() => c.can_view_details && navigateWithTransition(`/classes/${c.class_name}`, meta?.label || c.class_name, BookOpen)}
-                    className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
+                    className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white dark:bg-[#18181B] rounded-2xl border border-gray-150 dark:border-[#26262B] shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
                       c.can_view_details ? "cursor-pointer" : "opacity-80"
                     }`}
                   >
@@ -598,7 +598,7 @@ export default function ClassesPage() {
                     setCustomRole("");
                   }
                 }}
-                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
+                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-[#26262B] bg-white dark:bg-[#202024] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
               >
                 <option value="President">President</option>
                 <option value="Vice President">Vice President</option>
@@ -625,7 +625,7 @@ export default function ClassesPage() {
                   placeholder="e.g. Vice Secretary, Creative Head"
                   value={customRole}
                   onChange={(e) => setCustomRole(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#26262B] bg-white dark:bg-[#202024] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
                 />
               </div>
             )}
@@ -634,7 +634,7 @@ export default function ClassesPage() {
               <button
                 type="button"
                 onClick={() => setPendingStudent(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-[#26262B] text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#28282D] transition-colors"
               >
                 Cancel
               </button>
@@ -669,7 +669,7 @@ export default function ClassesPage() {
               placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-gray-55/50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 transition-all"
+              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 dark:border-[#26262B] bg-gray-55/50 dark:bg-[#202024] text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 transition-all"
             />
             {memberSearchQuery && (
               <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">

@@ -111,8 +111,8 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
   return (
     <div className={`group rounded-[20px] shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] transition-all duration-200 ease-out flex flex-col justify-between h-full relative p-[20px] ${
       isMe
-        ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-b from-indigo-50/40 via-white to-white dark:from-indigo-950/30 dark:via-gray-800 dark:to-gray-800"
-        : "bg-white dark:bg-gray-800/80 border border-[#E5E7EB] dark:border-gray-700/80 hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px]"
+        ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-b from-indigo-50/40 via-white to-white dark:from-[#18181B] dark:via-[#18181B] dark:to-[#18181B]"
+        : "bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#26262B] hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px]"
     } ${menuOpen ? "z-30" : "z-10"}`}>
       {/* Top half container that will grow to fill space */}
       <div className="flex flex-col flex-1">
@@ -124,7 +124,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
           <div className="flex items-center gap-2">
             <a
               href={`mailto:${fac.email}`}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-[#5B5CEB] dark:text-gray-400 dark:hover:text-white transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#202024] border border-gray-200 dark:border-[#26262B] shadow-sm text-gray-500 hover:text-[#5B5CEB] dark:text-gray-400 dark:hover:text-white transition-colors"
               title={`Email ${fac.name}`}
             >
               <GmailIcon className="w-3.5 h-3.5" />
@@ -134,12 +134,12 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
               <div className="relative kebab-container">
                 <button
                   onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#202024] border border-gray-200 dark:border-[#26262B] shadow-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
                 >
                   <MoreVertical className="w-3.5 h-3.5" />
                 </button>
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-[#18181B] rounded-2xl shadow-lg border border-gray-150/80 dark:border-[#26262B] py-1.5 z-30 animate-fade-in">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -158,7 +158,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
                         : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
                       }
                     </button>
-                    <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                    <div className="my-1.5 h-px bg-gray-100 dark:bg-[#26262B] mx-3" />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -178,7 +178,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
               (userRole === "FACULTY" && (userId === fac.user_id || userId === fac.id)) && (
                 <button
                   onClick={() => onEdit(fac)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 transition-all"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#202024] border border-gray-200 dark:border-[#26262B] shadow-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 transition-all"
                   title="Edit your profile"
                 >
                   <Pencil className="w-3.5 h-3.5" />
@@ -228,7 +228,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
       </div>
 
       {/* Divider */}
-      <div className="mt-[18px] border-t border-[#EEF2F7] dark:border-gray-700" />
+      <div className="mt-[18px] border-t border-[#EEF2F7] dark:border-[#26262B]" />
 
       {/* Bottom Section */}
       <div className="mt-[16px] flex items-center justify-start gap-1.5">
@@ -459,8 +459,8 @@ export default function FacultyPage() {
                   key={fac.id}
                   className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 transition-all duration-300 relative ${
                     isMe
-                      ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-r from-indigo-50/40 via-white to-white dark:from-indigo-950/30 dark:via-gray-800 dark:to-gray-800"
-                      : "bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/80 hover:border-indigo-500/20"
+                      ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-r from-indigo-50/40 via-white to-white dark:from-[#18181B] dark:via-[#18181B] dark:to-[#18181B]"
+                      : "bg-white dark:bg-[#18181B] border border-gray-150 dark:border-[#26262B] hover:border-indigo-500/20"
                   } ${openKebabId === fac.id ? "z-30" : "z-10"}`}
                 >
                   {/* Col 1: Avatar + Name */}

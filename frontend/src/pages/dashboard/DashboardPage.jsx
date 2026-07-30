@@ -292,9 +292,9 @@ export default function DashboardPage() {
                   </div>
                   <StatusBar value={pending} max={total} color="#94A3B8" />
                 </div>
-                <div className="pt-2 border-t border-slate-100 dark:border-white/[0.05]">
+                <div className="pt-2 border-t border-slate-100 dark:border-[#26262B]">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">Total Projects</span>
+                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400">Total Projects</span>
                     <span className="text-xs font-black text-slate-900 dark:text-white tabular-nums">{total}</span>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Project Activity (Replaced Top Classrooms section) */}
-            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex-1 min-h-0 flex flex-col">
+            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] shadow-sm flex-1 min-h-0 flex flex-col">
               <div className="flex items-center justify-between mb-3 shrink-0">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Recent Projects</span>
                 <MessageSquare className="w-3.5 h-3.5 text-[#F05A2B]" />
@@ -316,7 +316,7 @@ export default function DashboardPage() {
                       <div
                         key={act.id}
                         onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-                        className="p-2 rounded-xl bg-slate-50/70 dark:bg-white/[0.03] border border-slate-100/60 dark:border-white/[0.05] hover:bg-white dark:hover:bg-white/[0.06] hover:border-slate-200 dark:hover:border-white/10 cursor-pointer transition-all duration-150 group"
+                        className="p-2 rounded-xl bg-slate-50/70 dark:bg-[#202024] border border-slate-100/60 dark:border-[#26262B] hover:bg-white dark:hover:bg-[#28282D] hover:border-slate-200 dark:hover:border-[#3F3F46] cursor-pointer transition-all duration-150 group"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#F05A2B] transition-colors truncate max-w-[130px]">
@@ -326,10 +326,10 @@ export default function DashboardPage() {
                             {act.status}
                           </span>
                         </div>
-                        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate mt-1">
+                        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-400 truncate mt-1">
                           {act.last_message ? (
                             <>
-                              <span className="font-semibold text-slate-550 dark:text-slate-400">{act.last_message.sender_name}: </span>
+                              <span className="font-semibold text-slate-550 dark:text-slate-300">{act.last_message.sender_name}: </span>
                               {formatProjectMessageContent(act.last_message.content)}
                             </>
                           ) : (
@@ -350,9 +350,9 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Right: Department Announcements (3 items, no scroll) ── */}
-          <div className="da flex-1 rounded-[20px] bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex flex-col min-h-0">
+          <div className="da flex-1 rounded-[20px] bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] shadow-sm flex flex-col min-h-0">
             {/* Header — no live badge */}
-            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 dark:border-white/[0.05] shrink-0">
+            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 dark:border-[#26262B] shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-[#F05A2B]/10 flex items-center justify-center">
                   <Megaphone className="w-3.5 h-3.5 text-[#F05A2B]" />

@@ -195,7 +195,7 @@ export default function ProjectsPage() {
                 <th className="py-4 px-6 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
+            <tbody className="divide-y divide-gray-100 dark:divide-[#26262B]">
               {projects.map((project, idx) => {
                 const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
                 const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
@@ -207,12 +207,12 @@ export default function ProjectsPage() {
                   <tr
                     key={project.id}
                     onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
-                    className="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] cursor-pointer transition-all duration-150"
+                    className="hover:bg-slate-50/60 dark:hover:bg-[#202024] cursor-pointer transition-all duration-150"
                   >
                     {/* Project Name (Index styled as a rounded pill) */}
                     <td className="px-6" style={{ paddingTop: "clamp(12px, 1.8vw, 17px)", paddingBottom: "clamp(12px, 1.8vw, 17px)" }}>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/20 text-[#F05A2B] flex items-center justify-center shrink-0 font-mono text-[11px] font-bold border border-orange-100/30">
+                        <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-[#202024] text-[#F05A2B] flex items-center justify-center shrink-0 font-mono text-[11px] font-bold border border-orange-100/30 dark:border-[#26262B]">
                           {indexVal}
                         </div>
                         <span className="font-bold text-gray-900 dark:text-white hover:text-[#F05A2B] transition-colors leading-tight line-clamp-1 max-w-[240px]" style={{ fontSize: "clamp(12.5px, 1.4vw, 14px)" }}>
@@ -224,7 +224,7 @@ export default function ProjectsPage() {
                     {/* Faculty Advisor */}
                     <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {facultyMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 dark:bg-indigo-950/20 text-[#6366F1] dark:text-[#818CF8] border border-indigo-100/30 w-fit">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 dark:bg-[#202024] text-[#6366F1] dark:text-indigo-300 border border-indigo-100/30 dark:border-[#26262B] w-fit">
                           <GraduationCap className="w-3.5 h-3.5 shrink-0" />
                           <span>{facultyMembers.map(m => m.name).join(", ")}</span>
                         </div>
@@ -236,7 +236,7 @@ export default function ProjectsPage() {
                     {/* Forum Coordinator */}
                     <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {forumMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-100/30 w-fit">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 dark:bg-[#202024] text-amber-600 dark:text-amber-300 border border-amber-100/30 dark:border-[#26262B] w-fit">
                           <MessageSquare className="w-3.5 h-3.5 shrink-0 animate-pulse" />
                           <span>{forumMembers.map(m => m.name).join(", ")}</span>
                         </div>
@@ -248,7 +248,7 @@ export default function ProjectsPage() {
                     {/* Students Team */}
                     <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                       {studentMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 w-fit">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 dark:bg-[#202024] text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 dark:border-[#26262B] w-fit">
                           <Users className="w-3.5 h-3.5 shrink-0" />
                           <span>{studentMembers.map(m => m.name).join(", ")}</span>
                         </div>
