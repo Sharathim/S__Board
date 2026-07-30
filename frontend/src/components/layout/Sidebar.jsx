@@ -55,94 +55,101 @@ export function Sidebar() {
 
   return (
     <>
-      {/* ── Single Unified Left Navigation Pill Panel (Vertically Centered & Non-Scrollable) ── */}
-      <aside className="fixed left-3 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
-        <div className="premium-side-panel py-3 px-1.5 flex flex-col items-center gap-1.5 max-h-[96vh] overflow-hidden">
+      {/* ── Single Full-Height Vertical Navigation Pill Panel (Top-to-Bottom) ── */}
+      <aside className="fixed left-3 top-3 bottom-3 z-40 hidden lg:flex flex-col select-none transition-all duration-300">
+        <div className="premium-side-panel h-full py-4 px-1.5 flex flex-col items-center justify-between overflow-hidden">
           
-          {/* 1. Website Logo Badge at Top */}
-          <NavLink
-            to={brandDest}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onMouseDown={handleMouseDown}
-            className="w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-md border border-slate-100 dark:border-slate-700/80 flex items-center justify-center flex-shrink-0 transition-transform mb-2 mt-0.5 cursor-pointer relative group"
-            title="Hive"
-          >
-            <Logo variant="icon" alt="Hive Logo" className="w-6 h-6 object-contain" />
-            
-            {/* Tooltip */}
-            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
-              Hive
-              <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
-            </div>
-          </NavLink>
+          {/* 1. TOP: Website Logo Badge */}
+          <div className="flex flex-col items-center shrink-0">
+            <NavLink
+              to={brandDest}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onMouseDown={handleMouseDown}
+              className="w-11 h-11 rounded-full bg-white dark:bg-slate-800 shadow-md border border-slate-100 dark:border-slate-700/80 flex items-center justify-center flex-shrink-0 transition-transform cursor-pointer relative group"
+              title="Hive"
+            >
+              <Logo variant="icon" alt="Hive Logo" className="w-6 h-6 object-contain" />
+              
+              {/* Tooltip */}
+              <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                Hive
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+              </div>
+            </NavLink>
+          </div>
 
-          {/* 2. Main Navigation Links */}
-          {mainNavItems
-            .filter((item) => {
-              if (item.to === "/dashboard" && user?.role !== "HOD") return false;
-              if (item.hodOnly && user?.role !== "HOD") return false;
-              if (item.studentHidden && user?.role === "STUDENT") return false;
-              return true;
-            })
-            .map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.to;
+          {/* 2. MIDDLE: Main Navigation Links with space above & below */}
+          <div className="flex flex-col items-center gap-2 my-auto shrink-0">
+            {mainNavItems
+              .filter((item) => {
+                if (item.to === "/dashboard" && user?.role !== "HOD") return false;
+                if (item.hodOnly && user?.role !== "HOD") return false;
+                if (item.studentHidden && user?.role === "STUDENT") return false;
+                return true;
+              })
+              .map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.to;
 
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  onMouseDown={handleMouseDown}
-                  className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onMouseDown={handleMouseDown}
+                    className={`side-item-btn relative group ${isActive ? "side-item-active" : ""}`}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
 
-                  {/* High Contrast Crystal Clear Tooltip */}
-                  <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
-                    {item.label}
-                    <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
-                  </div>
-                </NavLink>
-              );
-            })}
+                    {/* High Contrast Crystal Clear Tooltip */}
+                    <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                      {item.label}
+                      <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                    </div>
+                  </NavLink>
+                );
+              })}
+          </div>
 
-          {/* 3. Subtle Horizontal Divider */}
-          <div className="w-6 h-[1px] bg-slate-200/80 dark:bg-slate-700/80 my-1 rounded-full flex-shrink-0" />
+          {/* 3. BOTTOM: Settings & Sign Out links */}
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="w-6 h-[1px] bg-slate-200/80 dark:bg-slate-700/80 my-1 rounded-full" />
 
-          {/* 4. Settings Navigation Item */}
-          <NavLink
-            to="/settings"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onMouseDown={handleMouseDown}
-            className={`side-item-btn relative group ${location.pathname === "/settings" ? "side-item-active" : ""}`}
-            title="Settings"
-          >
-            <Settings className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
-            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
-              Settings
-              <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
-            </div>
-          </NavLink>
+            {/* Settings Navigation Item */}
+            <NavLink
+              to="/settings"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onMouseDown={handleMouseDown}
+              className={`side-item-btn relative group ${location.pathname === "/settings" ? "side-item-active" : ""}`}
+              title="Settings"
+            >
+              <Settings className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
+              <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                Settings
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+              </div>
+            </NavLink>
 
-          {/* 5. Sign Out Action Button */}
-          <button
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onMouseDown={handleMouseDown}
-            onClick={() => setLogoutConfirmOpen(true)}
-            className="side-item-btn text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 relative group"
-            title="Sign Out"
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
-            <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100]">
-              Sign Out
-              <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-rose-600" />
-            </div>
-          </button>
+            {/* Sign Out Action Button */}
+            <button
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onMouseDown={handleMouseDown}
+              onClick={() => setLogoutConfirmOpen(true)}
+              className="side-item-btn text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 relative group"
+              title="Sign Out"
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
+              <div className="absolute left-full ml-3.5 px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-black opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100]">
+                Sign Out
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-rose-600" />
+              </div>
+            </button>
+          </div>
+
         </div>
       </aside>
 
