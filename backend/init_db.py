@@ -21,6 +21,10 @@ with app.app_context():
         "ALTER TABLE forum_members ADD COLUMN IF NOT EXISTS is_update_coordinator BOOLEAN DEFAULT FALSE;",
         # students columns
         "ALTER TABLE students ADD COLUMN IF NOT EXISTS is_forum_member BOOLEAN DEFAULT FALSE;",
+        # project_messages columns widening for multi-attachment support
+        "ALTER TABLE project_messages ALTER COLUMN attachment_url TYPE TEXT;",
+        "ALTER TABLE project_messages ALTER COLUMN attachment_type TYPE TEXT;",
+        "ALTER TABLE project_messages ALTER COLUMN attachment_name TYPE TEXT;",
         # Backfill NULL updated_at with created_at for existing forum_posts rows
         "UPDATE forum_posts SET updated_at = created_at WHERE updated_at IS NULL;",
         # Backfill NULL is_deleted with FALSE
