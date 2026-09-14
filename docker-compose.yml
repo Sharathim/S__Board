@@ -62,26 +62,10 @@ services:
     restart: always
     env_file:
       - .env
-    expose:
-      - "80"
+    ports:
+      - "3000:80"
     depends_on:
       - backend
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: hive_caddy
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - frontend
-
 volumes:
   postgres_data:
-  caddy_data:
-  caddy_config:

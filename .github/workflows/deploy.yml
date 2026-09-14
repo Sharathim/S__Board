@@ -120,16 +120,15 @@ jobs:
         with:
           sparse-checkout: |
             docker-compose.yml
-            Caddyfile
           sparse-checkout-cone-mode: false
 
-      - name: Copy docker-compose.yml and Caddyfile to EC2
+      - name: Copy docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml,Caddyfile"
+          source: "docker-compose.yml"
           target: "/home/ec2-user/hive/"
           overwrite: true
 
