@@ -41,7 +41,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
       id: "faculty",
       title: "Faculty Mentorship Hub",
       badge: "Faculty Role",
-      badgeCls: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      badgeCls:"bg-amber-500/10 text-amber-600 border-amber-500/20",
       icon: GraduationCap,
       desc: "Streamlined project evaluation, milestone reviewing, classroom management, and student communication.",
       points: [
@@ -55,7 +55,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
       id: "student",
       title: "Student Workspace",
       badge: "Student Role",
-      badgeCls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      badgeCls:"bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
       icon: Users,
       desc: "Collaborative environment for student project teams to log accomplishments, manage files, and interact with mentors.",
       points: [
@@ -73,51 +73,51 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
       title: "Projects Registry",
       desc: "Live tracking of student team projects, milestones, accomplishments, and faculty approvals.",
       tag: "Core Module",
-      bg: "bg-orange-50 dark:bg-orange-950/30 text-[#F05A2B]"
+      bg:"bg-orange-50 text-[#F05A2B]"
     },
     {
       icon: CalendarClock,
       title: "Leave & Permissions",
       desc: "Digital leave application and instant approval workflow with automated balance tracking.",
       tag: "Workflows",
-      bg: "bg-blue-50 dark:bg-blue-950/30 text-blue-600"
+      bg:"bg-blue-50 text-blue-600"
     },
     {
       icon: Megaphone,
       title: "Announcements",
       desc: "Official department updates, event notices, and priority alerts delivered instantly.",
       tag: "Communication",
-      bg: "bg-amber-50 dark:bg-amber-950/30 text-amber-600"
+      bg:"bg-amber-50 text-amber-600"
     },
     {
       icon: FileText,
       title: "Notes & Docs",
       desc: "Centralized repository for academic syllabus, lab guidelines, and project documentation.",
       tag: "Resources",
-      bg: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600"
+      bg:"bg-emerald-50 text-emerald-600"
     }
   ];
 
   return (
-    <div className="w-full bg-[#F3F3F5] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 select-none pb-24 transition-colors duration-300">
+    <div className="w-full bg-[#F3F3F5] text-slate-900 select-none pb-24 transition-colors duration-300">
       
       {/* ── 1. Fluid Mobile Hero Section ── */}
       <section className="relative px-4 pt-6 pb-8 text-center overflow-hidden">
         {/* Background glow orb */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 bg-[#F05A2B]/10 dark:bg-[#F05A2B]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 bg-[#F05A2B]/10 rounded-full blur-3xl pointer-events-none"/>
 
         <div className="relative z-10 flex flex-col items-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm mb-4 backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-slate-200/80 shadow-sm mb-4 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-[#F05A2B]" />
-            <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 tracking-tight">
+            <span className="text-[11px] font-bold text-slate-700 tracking-tight">
               Hive — Academic Command Centre
             </span>
           </div>
 
           {/* Headline using clamp math */}
           <h1 
-            className="font-black text-slate-900 dark:text-white tracking-tight leading-[1.12] mb-3"
+            className="font-black text-slate-900 tracking-tight leading-[1.12] mb-3"
             style={{ fontSize: "clamp(1.75rem, 5.5vw + 0.5rem, 2.5rem)" }}
           >
             The Intelligent Hub for <span className="bg-gradient-to-r from-[#F05A2B] to-amber-500 bg-clip-text text-transparent">Academic Excellence</span>
@@ -125,7 +125,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
 
           {/* Subtitle using clamp math */}
           <p 
-            className="font-medium text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed mb-6"
+            className="font-medium text-slate-500 max-w-md mx-auto leading-relaxed mb-6"
             style={{ fontSize: "clamp(0.85rem, 1.8vw + 0.4rem, 1.05rem)" }}
           >
             Hive unifies HODs, Faculty, and Students in one unified mobile platform — manage projects, track progress, coordinate classes, and collaborate in real-time.
@@ -147,7 +147,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
                 const el = document.getElementById("mobile-features");
                 el?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="mobile-tappable w-full py-3 px-6 rounded-full bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
+              className="mobile-tappable w-full py-3 px-6 rounded-full bg-white border border-slate-200/80 text-slate-700 font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
             >
               <Compass className="w-3.5 h-3.5 text-slate-400" />
               Explore Platform Features
@@ -162,7 +162,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
           {STATS.map((stat, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm text-center flex flex-col items-center justify-center"
+              className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-sm text-center flex flex-col items-center justify-center"
             >
               <span
                 className={`font-black tracking-tight ${stat.color}`}
@@ -170,7 +170,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
               >
                 {stat.value}
               </span>
-              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+              <span className="text-[11px] font-semibold text-slate-500 mt-0.5">
                 {stat.label}
               </span>
             </div>
@@ -185,7 +185,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             Tailored Ecosystem
           </span>
           <h2 
-            className="font-bold text-slate-900 dark:text-white tracking-tight mt-1"
+            className="font-bold text-slate-900 tracking-tight mt-1"
             style={{ fontSize: "clamp(1.25rem, 3.5vw + 0.4rem, 1.65rem)" }}
           >
             Built for Every Academic Role
@@ -193,7 +193,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
         </div>
 
         {/* Role Selector Tabs */}
-        <div className="flex gap-1 p-1 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] rounded-2xl shadow-sm mb-4">
+        <div className="flex gap-1 p-1 bg-white border border-gray-200/80 rounded-2xl shadow-sm mb-4">
           {ROLES.map((r) => (
             <button
               key={r.id}
@@ -201,7 +201,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
               className={`mobile-tappable flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedRole === r.id
                   ? "bg-[#F05A2B] text-white shadow-md shadow-[#F05A2B]/20"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+                  :"text-slate-500 hover:text-slate-800"
               }`}
             >
               {r.id === "hod" ? "HOD" : r.id === "faculty" ? "Faculty" : "Student"}
@@ -215,7 +215,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
           return (
             <div
               key={r.id}
-              className="p-5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm space-y-4 mobile-fade-in"
+              className="p-5 rounded-2xl bg-white border border-gray-200/80 shadow-sm space-y-4 mobile-fade-in"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -223,7 +223,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
                     <RoleIcon className="w-5 h-5 text-[#F05A2B]" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{r.title}</h3>
+                    <h3 className="text-sm font-bold text-slate-900">{r.title}</h3>
                     <span className={`inline-block text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${r.badgeCls} uppercase mt-0.5`}>
                       {r.badge}
                     </span>
@@ -231,13 +231,13 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
                 </div>
               </div>
 
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+              <p className="text-xs text-slate-500 leading-relaxed font-medium">
                 {r.desc}
               </p>
 
-              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/[0.05]">
+              <div className="space-y-2 pt-2 border-t border-slate-100">
                 {r.points.map((pt, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-xs font-medium text-slate-700 dark:text-slate-300">
+                  <div key={idx} className="flex items-start gap-2 text-xs font-medium text-slate-700">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                     <span>{pt}</span>
                   </div>
@@ -255,7 +255,7 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             Platform Modules
           </span>
           <h2 
-            className="font-bold text-slate-900 dark:text-white tracking-tight mt-1"
+            className="font-bold text-slate-900 tracking-tight mt-1"
             style={{ fontSize: "clamp(1.25rem, 3.5vw + 0.4rem, 1.65rem)" }}
           >
             Core Department Capabilities
@@ -268,21 +268,21 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             return (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex items-start gap-3.5"
+                className="p-4 rounded-2xl bg-white border border-gray-200/80 shadow-sm flex items-start gap-3.5"
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${feat.bg}`}>
                   <FeatIcon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    <h3 className="text-xs font-bold text-slate-900 truncate">
                       {feat.title}
                     </h3>
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
                       {feat.tag}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                     {feat.desc}
                   </p>
                 </div>
@@ -299,38 +299,38 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             Inquiries & Support
           </span>
           <h2 
-            className="font-bold text-slate-900 dark:text-white tracking-tight mt-1"
+            className="font-bold text-slate-900 tracking-tight mt-1"
             style={{ fontSize: "clamp(1.25rem, 3.5vw + 0.4rem, 1.65rem)" }}
           >
             Connect with Our Department
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto font-medium">
+          <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto font-medium">
             Have questions about projects, faculty invites, or portal access? Reach out anytime.
           </p>
         </div>
 
         {/* Quick Contact Info Grid */}
         <div className="grid grid-cols-2 gap-2.5 mb-4">
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex flex-col items-center text-center">
-            <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/30 text-[#F05A2B] flex items-center justify-center mb-2">
+          <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-sm flex flex-col items-center text-center">
+            <div className="w-8 h-8 rounded-xl bg-orange-50 text-[#F05A2B] flex items-center justify-center mb-2">
               <Mail className="w-4 h-4" />
             </div>
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Email Us</span>
-            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate w-full">hod.cs@shive.edu</span>
+            <span className="text-[11px] font-bold text-slate-800 mt-0.5 truncate w-full">hod.cs@shive.edu</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm flex flex-col items-center text-center">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-600 flex items-center justify-center mb-2">
+          <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-sm flex flex-col items-center text-center">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
               <Phone className="w-4 h-4" />
             </div>
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Call Desk</span>
-            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 mt-0.5">+91 80 2555 0192</span>
+            <span className="text-[11px] font-bold text-slate-800 mt-0.5">+91 80 2555 0192</span>
           </div>
         </div>
 
         {/* Contact Inquiry Card */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm space-y-3">
-          <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="p-5 rounded-2xl bg-white border border-gray-200/80 shadow-sm space-y-3">
+          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2">
             <Send className="w-3.5 h-3.5 text-[#F05A2B]" />
             Send an Inquiry Message
           </h3>
@@ -338,21 +338,21 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
             <input
               type="text"
               placeholder="Your Full Name"
-              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F05A2B]"
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#F05A2B]"
             />
             <input
               type="email"
               placeholder="Your Email Address"
-              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F05A2B]"
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#F05A2B]"
             />
             <textarea
               rows={3}
               placeholder="How can we assist you?"
-              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#F05A2B] resize-none"
+              className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#F05A2B] resize-none"
             />
             <button
               onClick={() => alert("Thank you for your message! Department office will review your inquiry.")}
-              className="mobile-tappable w-full py-2.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-sm transition-all"
+              className="mobile-tappable w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-sm transition-all"
             >
               Submit Inquiry
             </button>
@@ -383,12 +383,12 @@ export default function MobileHomePage({ autoOpenLogin = false }) {
 
       {/* ── 6. Bottom Sticky Quick Action Card ── */}
       <section className="px-4 py-6 text-center">
-        <div className="p-6 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-md flex flex-col items-center">
+        <div className="p-6 rounded-2xl bg-white border border-gray-200/80 shadow-md flex flex-col items-center">
           <Logo variant="icon" className="w-10 h-10 object-contain mb-3" />
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+          <h3 className="text-base font-bold text-slate-900">
             Ready to Access Hive?
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4 max-w-xs font-medium">
+          <p className="text-xs text-slate-500 mt-1 mb-4 max-w-xs font-medium">
             Sign in with your registered college Google account to launch your workspace.
           </p>
           <button

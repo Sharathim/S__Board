@@ -81,7 +81,7 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
       <form onSubmit={handleSubmit} className="space-y-4 pt-1 text-xs">
         {/* Title */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
             Title / Achievement Name *
           </label>
           <input
@@ -90,20 +90,20 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. 1st Place in Maze Hack 2026"
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           />
         </div>
 
         {/* Category & Date */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             >
               {CATEGORIES.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -114,7 +114,7 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
               Event Date *
             </label>
             <input
@@ -122,7 +122,7 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
               required
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
           </div>
         </div>
@@ -130,7 +130,7 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
         {/* Organizer & Position */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
               Organizer / Institution / Platform
             </label>
             <input
@@ -138,12 +138,12 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
               value={organizer}
               onChange={(e) => setOrganizer(e.target.value)}
               placeholder="e.g. DGVC, Arumbakkam / Udemy"
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
               Position / Rank / Grade
             </label>
             <input
@@ -151,14 +151,14 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
               value={positionAchieved}
               onChange={(e) => setPositionAchieved(e.target.value)}
               placeholder="e.g. 1st Place / Certified / Distinction"
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
           </div>
         </div>
 
         {/* Description */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
             Description & Highlights
           </label>
           <textarea
@@ -166,16 +166,16 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe your achievement, hackathon topic, or course skills learned..."
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 resize-none"
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 resize-none"
           />
         </div>
 
         {/* Certificate Upload */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
             Certificate / Proof Document (Optional)
           </label>
-          <div className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/40 hover:bg-slate-100/50 cursor-pointer relative transition-colors">
+          <div className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-200 rounded-xl bg-gray-50/50 hover:bg-slate-100/50 cursor-pointer relative transition-colors">
             <input
               type="file"
               accept=".pdf,.png,.jpg,.jpeg"
@@ -183,7 +183,7 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
             <UploadCloud className="w-6 h-6 text-primary-500 mb-1" />
-            <p className="font-bold text-gray-700 dark:text-gray-300">
+            <p className="font-bold text-gray-700">
               {selectedFile ? selectedFile.name : "Click or drop certificate PDF/Image"}
             </p>
             <p className="text-[9px] text-gray-400 mt-0.5">Maximum size 10MB</p>
@@ -196,18 +196,18 @@ export function AddAccomplishmentModal({ open, onClose, onSubmit, isPending, ini
         </div>
 
         {errorMsg && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl font-semibold flex items-center gap-2">
+          <div className="p-3 bg-red-50 text-red-600 rounded-xl font-semibold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {errorMsg}
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-bold border border-gray-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-300 rounded-xl transition-all"
+            className="px-4 py-2 text-xs font-bold border border-gray-200 hover:bg-slate-50 text-gray-700 rounded-xl transition-all"
           >
             Cancel
           </button>

@@ -124,7 +124,7 @@ export default function MobilePlacementPage() {
             <Briefcase className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 dark:text-white leading-tight">Placement AI</h1>
+            <h1 className="text-lg font-black text-slate-900 leading-tight">Placement AI</h1>
             <p className="text-[11px] text-slate-400 font-bold">Skill Gap & Readiness</p>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function MobilePlacementPage() {
       {isStudent && (
         <div className="space-y-4">
           {/* Target Role Selector Pills */}
-          <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-2 rounded-2xl flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          <div className="bg-white border border-gray-200/80 p-2 rounded-2xl flex items-center gap-1.5 overflow-x-auto scrollbar-none">
             {roles.map((r) => {
               const isSelected = selectedRoleId === r.id.toString();
               return (
@@ -162,7 +162,7 @@ export default function MobilePlacementPage() {
                   className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                     isSelected
                       ? "bg-[#F05A2B] text-white shadow-xs"
-                      : "bg-slate-100 dark:bg-[#202024] text-slate-600 dark:text-slate-300"
+                      :"bg-slate-100 text-slate-600"
                   }`}
                 >
                   {r.name}
@@ -176,14 +176,14 @@ export default function MobilePlacementPage() {
           ) : currentScan ? (
             <div className="space-y-4">
               {/* Score Display Card */}
-              <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-5 rounded-3xl text-center space-y-2">
+              <div className="bg-white border border-gray-200/80 p-5 rounded-3xl text-center space-y-2">
                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Role Match Score</span>
                 <div className="text-4xl font-black text-[#F05A2B]">{currentScan.match_score || 0}%</div>
-                <p className="text-xs font-extrabold text-slate-900 dark:text-white">{currentScan.role_name}</p>
+                <p className="text-xs font-extrabold text-slate-900">{currentScan.role_name}</p>
               </div>
 
               {/* Skills Evidenced vs Missing */}
-              <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-4 rounded-3xl space-y-3">
+              <div className="bg-white border border-gray-200/80 p-4 rounded-3xl space-y-3">
                 <div>
                   <h4 className="text-xs font-extrabold text-emerald-500 uppercase tracking-wider mb-2">Skills Evidenced</h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -195,7 +195,7 @@ export default function MobilePlacementPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 dark:border-[#26262B]">
+                <div className="pt-2 border-t border-slate-100">
                   <h4 className="text-xs font-extrabold text-red-500 uppercase tracking-wider mb-2">Missing Skill Gaps</h4>
                   <div className="flex flex-wrap gap-1.5">
                     {(currentScan.missing_skills || []).map((s, i) => (
@@ -209,11 +209,11 @@ export default function MobilePlacementPage() {
 
               {/* Action Plan */}
               {currentScan.action_plan && (
-                <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-4 rounded-3xl space-y-3">
-                  <h3 className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">AI Action Plan</h3>
+                <div className="bg-white border border-gray-200/80 p-4 rounded-3xl space-y-3">
+                  <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">AI Action Plan</h3>
                   <div className="space-y-2">
                     {(currentScan.action_plan.recommended_courses || []).map((c, i) => (
-                      <div key={i} className="p-3 rounded-2xl bg-slate-50 dark:bg-[#202024] text-xs font-bold text-slate-800 dark:text-slate-200">
+                      <div key={i} className="p-3 rounded-2xl bg-slate-50 text-xs font-bold text-slate-800">
                         🎓 {c}
                       </div>
                     ))}
@@ -222,9 +222,9 @@ export default function MobilePlacementPage() {
               )}
             </div>
           ) : (
-            <div className="py-12 text-center bg-white dark:bg-[#18181B] border border-dashed border-gray-200 dark:border-[#26262B] rounded-3xl p-6 space-y-3">
+            <div className="py-12 text-center bg-white border border-dashed border-gray-200 rounded-3xl p-6 space-y-3">
               <UploadCloud className="w-10 h-10 mx-auto text-[#F05A2B]" />
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-sm">No Resume Evaluation Yet</h3>
+              <h3 className="font-extrabold text-slate-900 text-sm">No Resume Evaluation Yet</h3>
               <p className="text-xs text-slate-400">Tap 'Scan Resume' above to upload your PDF resume and get AI placement guidance.</p>
             </div>
           )}
@@ -233,15 +233,15 @@ export default function MobilePlacementPage() {
 
       {/* ─── FACULTY & HOD MOBILE VIEW ────────────────────────────────────────── */}
       {isFaculty && !isClassIncharge ? (
-        <div className="py-12 text-center bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#26262B] rounded-3xl p-6 space-y-2">
+        <div className="py-12 text-center bg-white border border-gray-200 rounded-3xl p-6 space-y-2">
           <AlertCircle className="w-10 h-10 mx-auto text-[#F05A2B]" />
-          <h3 className="font-black text-slate-900 dark:text-white text-sm">Access Restricted</h3>
+          <h3 className="font-black text-slate-900 text-sm">Access Restricted</h3>
           <p className="text-xs text-slate-400">Placement AI analytics is reserved for Class Incharges and HOD.</p>
         </div>
       ) : (isFaculty || isHOD) && (
         <div className="space-y-4">
           {/* Class Filter Bar */}
-          <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-2 rounded-2xl flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          <div className="bg-white border border-gray-200/80 p-2 rounded-2xl flex items-center gap-1.5 overflow-x-auto scrollbar-none">
             {isHOD ? (
               ["UG_1A", "UG_1B", "UG_2A", "UG_2B", "UG_3A", "UG_3B", "PG_1A", "PG_2A"].map((c) => (
                 <button
@@ -250,7 +250,7 @@ export default function MobilePlacementPage() {
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                     selectedClassFilter === c
                       ? "bg-[#F05A2B] text-white shadow-xs"
-                      : "bg-slate-100 dark:bg-[#202024] text-slate-600 dark:text-slate-300"
+                      :"bg-slate-100 text-slate-600"
                   }`}
                 >
                   {c.replace("_", " ")}
@@ -265,11 +265,11 @@ export default function MobilePlacementPage() {
 
           {/* Stat Cards Grid */}
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-3.5 rounded-2xl">
+            <div className="bg-white border border-gray-200/80 p-3.5 rounded-2xl">
               <span className="text-[9px] font-black uppercase text-slate-400">Total Students</span>
-              <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{facultySummaryData?.total_students || 0}</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{facultySummaryData?.total_students || 0}</p>
             </div>
-            <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] p-3.5 rounded-2xl">
+            <div className="bg-white border border-gray-200/80 p-3.5 rounded-2xl">
               <span className="text-[9px] font-black uppercase text-emerald-500">Job Ready (≥70%)</span>
               <p className="text-xl font-black text-emerald-500 mt-0.5">{facultySummaryData?.job_ready_count || 0}</p>
             </div>
@@ -277,14 +277,14 @@ export default function MobilePlacementPage() {
 
           {/* Student Cards List */}
           <div className="space-y-2">
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider px-1">
+            <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider px-1">
               Students Scorecards ({selectedClassFilter.replace("_", " ")})
             </h3>
 
             {(facultySummaryData?.students || []).map((s) => (
-              <div key={s.student_id} className="p-3.5 rounded-2xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] flex items-center justify-between">
+              <div key={s.student_id} className="p-3.5 rounded-2xl bg-white border border-gray-200/80 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-extrabold text-slate-900 dark:text-white">{s.name}</p>
+                  <p className="text-xs font-extrabold text-slate-900">{s.name}</p>
                   <p className="text-[10px] text-slate-400 font-semibold">{s.target_role || "Not evaluated"}</p>
                 </div>
                 {s.latest_score !== null ? (
@@ -306,11 +306,11 @@ export default function MobilePlacementPage() {
       <BottomSheet open={uploadSheetOpen} onClose={() => setUploadSheetOpen(false)} title="Scan Resume for Placement AI">
         <form onSubmit={handleResumeSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Target Role</label>
+            <label className="text-xs font-bold text-slate-700">Target Role</label>
             <select
               value={selectedRoleId}
               onChange={(e) => setSelectedRoleId(e.target.value)}
-              className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#26262B] bg-slate-50 dark:bg-[#202024] text-xs font-bold text-slate-900 dark:text-white"
+              className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-slate-50 text-xs font-bold text-slate-900"
             >
               {roles.map(r => (
                 <option key={r.id} value={r.id}>{r.name}</option>
@@ -319,13 +319,13 @@ export default function MobilePlacementPage() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Resume PDF File</label>
+            <label className="text-xs font-bold text-slate-700">Resume PDF File</label>
             <input
               type="file"
               accept=".pdf"
               required
               onChange={(e) => setResumeFile(e.target.files[0] || null)}
-              className="w-full mt-1 p-2 rounded-xl border border-gray-200 dark:border-[#26262B] bg-slate-50 dark:bg-[#202024] text-xs"
+              className="w-full mt-1 p-2 rounded-xl border border-gray-200 bg-slate-50 text-xs"
             />
           </div>
 

@@ -24,16 +24,16 @@ export default function MobileListRow({
         onClick ? "cursor-pointer" : ""
       } ${
         danger
-          ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 active:bg-red-100/50"
-          : "hover:bg-gray-50 dark:hover:bg-slate-800/50 active:bg-gray-100/60 dark:active:bg-slate-800"
+          ?"text-red-600 hover:bg-red-50 active:bg-red-100/50"
+          :"hover:bg-gray-50 active:bg-gray-100/60"
       } ${className}`}
     >
       {/* Leading */}
       {Icon && (
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
           danger
-            ? "bg-red-50 dark:bg-red-950/30 text-red-500"
-            : "bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400"
+            ?"bg-red-50 text-red-500"
+            :"bg-gray-100 text-gray-500"
         }`}>
           <Icon className="w-4.5 h-4.5" />
         </div>
@@ -47,19 +47,19 @@ export default function MobileListRow({
       {/* Content */}
       <div className="flex-1 min-w-0 text-left">
         <p className={`text-sm font-semibold tracking-tight truncate ${
-          danger ? "" : "text-gray-900 dark:text-gray-100"
+          danger ?"":"text-gray-900"
         }`}>
           {title}
         </p>
         {subtitle && (
-          <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">{subtitle}</p>
+          <p className="text-xs text-gray-400 truncate mt-0.5">{subtitle}</p>
         )}
       </div>
 
       {/* Trailing */}
       {trailing && <div className="shrink-0">{trailing}</div>}
       {showChevron && onClick && !trailing && (
-        <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" />
+        <ChevronRight className="w-4 h-4 text-gray-300 shrink-0"/>
       )}
     </Comp>
   );

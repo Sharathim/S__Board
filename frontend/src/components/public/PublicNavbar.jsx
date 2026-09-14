@@ -66,7 +66,7 @@ export function PublicNavbar() {
 
   const navbarClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
     scrolled
-      ? "bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/20 dark:border-white/5 shadow-[0_1px_20px_rgba(0,0,0,0.08)]"
+      ? "bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-[0_1px_20px_rgba(0,0,0,0.08)]"
       : "bg-transparent border-b border-transparent"
   }`;
 
@@ -85,7 +85,7 @@ export function PublicNavbar() {
           </Link>
 
           {/* ── Desktop Nav Links ── */}
-          <div className="hidden md:flex items-center bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-full px-2 py-1.5 gap-1 shadow-sm">
+          <div className="hidden md:flex items-center bg-white/60 backdrop-blur-md border border-white/40 rounded-full px-2 py-1.5 gap-1 shadow-sm">
             {NAV_SECTIONS.map(({ label, id }) => {
               const isActive = isHomePage && activeSection === id;
               return (
@@ -94,14 +94,14 @@ export function PublicNavbar() {
                   onClick={() => handleNavClick(id)}
                   className={`relative px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
                     isActive
-                      ? "text-indigo-600 dark:text-indigo-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      ? "text-indigo-600"
+                      : "text-gray-500 hover:text-gray-900"
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
-                      className="absolute inset-0 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20"
+                      className="absolute inset-0 rounded-full bg-indigo-50 border border-indigo-100"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -127,7 +127,7 @@ export function PublicNavbar() {
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2.5 rounded-xl bg-white/60 dark:bg-white/5 backdrop-blur-sm border border-white/40 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-white hover:text-gray-900 transition-all duration-150"
+              className="md:hidden p-2.5 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 text-gray-600 hover:bg-white hover:text-gray-900 transition-all duration-150"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -154,7 +154,7 @@ export function PublicNavbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden border-t border-gray-100/80 dark:border-white/5 bg-white/95 dark:bg-black/95 backdrop-blur-2xl"
+            className="md:hidden overflow-hidden border-t border-gray-100/80 bg-white/95 backdrop-blur-2xl"
           >
             <div className="px-4 py-4 space-y-1">
               {NAV_SECTIONS.map(({ label, id }, i) => (
@@ -166,8 +166,8 @@ export function PublicNavbar() {
                   onClick={() => handleNavClick(id)}
                   className={`w-full text-left block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 ${
                     isHomePage && activeSection === id
-                      ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
+                      ? "bg-indigo-50 text-indigo-600"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
                   {label}

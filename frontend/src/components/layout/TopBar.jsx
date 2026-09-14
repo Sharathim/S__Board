@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import gsap from "gsap";
 import {
-  Bell, Moon, Sun, LogOut, X, Sparkles, Settings, ChevronRight, Search, ChevronDown, Info,
+  Bell, LogOut, X, Sparkles, Settings, ChevronRight, Search, ChevronDown, Info,
   LayoutDashboard, FolderKanban, GraduationCap, BookOpen, MessageSquare, Megaphone, Mail, CalendarDays
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../hooks/useTheme";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { usePageTransition } from "../../context/TransitionContext";
 import { NotificationsPanel } from "./NotificationsPanel";
@@ -114,7 +113,7 @@ function DrawerSignOutLink({ idx, drawerOpen, setDrawerOpen, setLogoutConfirmOpe
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="drawer-nav-item-secondary text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 stagger-item w-full text-left"
+      className="drawer-nav-item-secondary text-rose-600 hover:text-rose-700 stagger-item w-full text-left"
       style={{
         transitionDelay: `${idx * 40}ms`,
         transform: drawerOpen ? "translateY(0)" : "translateY(15px)",
@@ -125,7 +124,7 @@ function DrawerSignOutLink({ idx, drawerOpen, setDrawerOpen, setLogoutConfirmOpe
         <LogOut className="w-4 h-4" />
         <HoverRollText text="Sign Out" isHovered={isHovered} className="font-semibold text-sm" />
       </div>
-      <div className="drawer-nav-arrow-sm bg-rose-500/10 text-rose-500 dark:bg-rose-500/20">
+      <div className="drawer-nav-arrow-sm bg-rose-500/10 text-rose-500">
         <ChevronRight className="w-3.5 h-3.5" />
       </div>
     </button>
@@ -144,7 +143,6 @@ const allNavItems = [
 
 export function TopBar() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
   const { navigateWithTransition, triggerPortalTransition } = usePageTransition();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -160,18 +158,18 @@ export function TopBar() {
   const getBadgeDetails = () => {
     if (!user) return { text: "", bg: "bg-gray-100", textClass: "text-gray-600" };
     if (user.role === "HOD") {
-      return { text: "HOD", bg: "bg-violet-50 dark:bg-violet-950/40", textClass: "text-violet-600 dark:text-violet-400" };
+      return { text:"HOD", bg:"bg-violet-50", textClass:"text-violet-600"};
     }
     if (user.role === "FACULTY") {
       if (user.faculty?.class_incharge_of) {
-        return { text: "Incharge", bg: "bg-emerald-50 dark:bg-emerald-950/40", textClass: "text-emerald-600 dark:text-emerald-400" };
+        return { text:"Incharge", bg:"bg-emerald-50", textClass:"text-emerald-600"};
       }
-      return { text: "Faculty", bg: "bg-blue-50 dark:bg-blue-950/40", textClass: "text-blue-600 dark:text-blue-400" };
+      return { text:"Faculty", bg:"bg-blue-50", textClass:"text-blue-600"};
     }
     if (user.role === "STUDENT") {
-      return { text: "Student", bg: "bg-amber-50 dark:bg-amber-950/40", textClass: "text-amber-600 dark:text-amber-400" };
+      return { text:"Student", bg:"bg-amber-50", textClass:"text-amber-600"};
     }
-    return { text: user.role, bg: "bg-gray-50 dark:bg-gray-900/40", textClass: "text-gray-650 dark:text-gray-400" };
+    return { text: user.role, bg:"bg-gray-50", textClass:"text-gray-650"};
   };
 
   const badge = getBadgeDetails();
@@ -226,7 +224,7 @@ export function TopBar() {
   return (
     <>
       <header className="w-full h-20 pl-4 pr-4 lg:pl-[74px] lg:pr-4 z-30 flex items-center justify-between gap-4 transition-all duration-300 bg-[var(--background)] shrink-0 select-none">
-        {/* ── Left Brand: Larger icon + theme-aware wordmark PNG ── */}
+        {/* ── Left Brand: Larger icon + wordmark PNG ── */}
         <div className="select-none flex items-center lg:hidden">
           <div
             onClick={() => {
@@ -271,7 +269,7 @@ export function TopBar() {
             >
               <Bell className={`w-[18px] h-[18px] ${unreadCount > 0 ? "animate-[wiggle_1s_ease-in-out_infinite]" : ""}`} />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] rounded-full flex items-center justify-center text-white font-bold leading-none bg-[#F05A2B] text-[9px] px-1 shadow-md border-2 border-white dark:border-slate-900">
+                <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] rounded-full flex items-center justify-center text-white font-bold leading-none bg-[#F05A2B] text-[9px] px-1 shadow-md border-2 border-white">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}
@@ -282,7 +280,7 @@ export function TopBar() {
           {/* Profile Card Pill with Highlighted Role Badge (No Drawer Trigger) */}
           <div
             onClick={() => navigateWithTransition("/settings", "Settings", Settings)}
-            className="capsule-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer hover:border-gray-300 dark:hover:border-slate-600 transition-all select-none"
+            className="capsule-pill px-3.5 py-1.5 flex items-center gap-2.5 cursor-pointer hover:border-gray-300 transition-all select-none"
             title="Account Settings"
           >
             <div
@@ -300,7 +298,7 @@ export function TopBar() {
 
             <div className="hidden sm:flex flex-col text-left pr-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
+                <span className="text-xs font-extrabold text-slate-900 leading-tight">
                   {user?.name}
                 </span>
                 <span
@@ -309,7 +307,7 @@ export function TopBar() {
                   {badge.text}
                 </span>
               </div>
-              <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 leading-tight mt-0.5">
+              <span className="text-[10px] font-medium text-slate-400 leading-tight mt-0.5">
                 {user?.email || getRoleLabel(user?.role)}
               </span>
             </div>
@@ -329,7 +327,7 @@ export function TopBar() {
             alt="Hive Logo Icon"
             className="h-9 w-9 object-contain"
           />
-          <span className="text-lg font-black tracking-tight text-slate-800 dark:text-slate-100">
+          <span className="text-lg font-black tracking-tight text-slate-800">
             Hive
           </span>
         </div>

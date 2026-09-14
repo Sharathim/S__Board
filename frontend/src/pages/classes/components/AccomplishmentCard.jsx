@@ -1,13 +1,13 @@
 import { Award, Trophy, GraduationCap, Calendar, ExternalLink, Pencil, Trash2, ShieldCheck, FileCheck } from "lucide-react";
 
 const CATEGORY_META = {
-  HACKATHON: { label: "Hackathon", icon: Trophy, bg: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40" },
-  COURSE_CERTIFICATION: { label: "Course Certification", icon: GraduationCap, bg: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/40" },
-  WORKSHOP: { label: "Workshop", icon: Award, bg: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800/40" },
-  SPORTS: { label: "Sports & Athletics", icon: Trophy, bg: "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/40" },
-  PAPER_PRESENTATION: { label: "Paper Presentation", icon: FileCheck, bg: "bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800/40" },
-  VOLUNTEERING: { label: "Volunteering", icon: ShieldCheck, bg: "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800/40" },
-  OTHER: { label: "Achievement", icon: Award, bg: "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700" }
+  HACKATHON: { label:"Hackathon", icon: Trophy, bg:"bg-amber-50 text-amber-600 border-amber-200"},
+  COURSE_CERTIFICATION: { label:"Course Certification", icon: GraduationCap, bg:"bg-emerald-50 text-emerald-600 border-emerald-200"},
+  WORKSHOP: { label:"Workshop", icon: Award, bg:"bg-blue-50 text-blue-600 border-blue-200"},
+  SPORTS: { label:"Sports & Athletics", icon: Trophy, bg:"bg-rose-50 text-rose-600 border-rose-200"},
+  PAPER_PRESENTATION: { label:"Paper Presentation", icon: FileCheck, bg:"bg-violet-50 text-violet-600 border-violet-200"},
+  VOLUNTEERING: { label:"Volunteering", icon: ShieldCheck, bg:"bg-purple-50 text-purple-600 border-purple-200"},
+  OTHER: { label:"Achievement", icon: Award, bg:"bg-gray-50 text-gray-600 border-gray-200"}
 };
 
 export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete }) {
@@ -25,7 +25,7 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
   };
 
   return (
-    <div className="group relative p-4 rounded-2xl bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition-all space-y-3">
+    <div className="group relative p-4 rounded-2xl bg-white border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition-all space-y-3">
       {/* Top row */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0">
@@ -38,12 +38,12 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
                 {meta.label}
               </span>
               {accomplishment.position_achieved && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-800/40">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-primary-50 text-primary-600 border border-primary-200">
                   🏆 {accomplishment.position_achieved}
                 </span>
               )}
             </div>
-            <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100 mt-1 truncate">
+            <h4 className="text-xs font-bold text-gray-900 mt-1 truncate">
               {accomplishment.title}
             </h4>
           </div>
@@ -55,7 +55,7 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
             {onEdit && (
               <button
                 onClick={() => onEdit(accomplishment)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-1.5 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-gray-100 transition-colors"
                 title="Edit"
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -64,7 +64,7 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
             {onDelete && (
               <button
                 onClick={() => onDelete(accomplishment)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-gray-100 transition-colors"
                 title="Delete"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -75,7 +75,7 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
       </div>
 
       {/* Organizer & Date line */}
-      <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+      <div className="flex items-center gap-4 text-[11px] font-semibold text-gray-500">
         {accomplishment.organizer && (
           <span className="truncate">Organizer: {accomplishment.organizer}</span>
         )}
@@ -87,14 +87,14 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
 
       {/* Description */}
       {accomplishment.description && (
-        <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-medium line-clamp-3">
+        <p className="text-xs text-gray-600 leading-relaxed font-medium line-clamp-3">
           {accomplishment.description}
         </p>
       )}
 
       {/* Footer info: Student name & Certificate link */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700/60 text-[10px]">
-        <span className="font-bold text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-[10px]">
+        <span className="font-bold text-gray-500">
           Student: {accomplishment.student_name} ({accomplishment.student_roll || accomplishment.student_register})
         </span>
 
@@ -103,7 +103,7 @@ export function AccomplishmentCard({ accomplishment, canManage, onEdit, onDelete
             href={accomplishment.certificate_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 font-bold text-primary-600 dark:text-primary-400 hover:underline"
+            className="inline-flex items-center gap-1 font-bold text-primary-600 hover:underline"
           >
             Certificate <ExternalLink className="w-3 h-3" />
           </a>

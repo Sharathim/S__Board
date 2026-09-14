@@ -65,16 +65,16 @@ export default function MobileStudentOnboarding() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#F3F3F5] dark:bg-[#0B0F17] mobile-fade-in transition-colors duration-300">
+    <div className="min-h-screen flex flex-col justify-center px-4 py-8 bg-[#F3F3F5] mobile-fade-in transition-colors duration-300">
       <div className="w-full max-w-md mx-auto space-y-6">
 
         {/* Brand header */}
         <div className="text-center">
           <Logo variant="icon" className="w-12 h-12 object-contain mx-auto mb-3" />
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">
             Complete Your Profile
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 text-xs">
+          <p className="text-gray-500 mt-1 text-xs">
             Student onboarding — just a few details to get started
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function MobileStudentOnboarding() {
                 type="text"
                 value={onboardingData?.prefill?.email || ""}
                 disabled
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-55 dark:bg-slate-800 text-gray-555 cursor-not-allowed opacity-75"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 bg-gray-55 text-gray-555 cursor-not-allowed opacity-75"
               />
             </div>
 
@@ -109,7 +109,7 @@ export default function MobileStudentOnboarding() {
                     onClick={() => setSelectedClass(cls)}
                     className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 ${selectedClass === cls
                         ? "bg-violet-600 text-white border-violet-600 shadow-sm"
-                        : "bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-primary-400"
+                        :"bg-gray-50 text-gray-700 border-gray-200 hover:border-primary-400"
                       }`}
                   >
                     {cls.replace("_", " ")}
@@ -122,7 +122,7 @@ export default function MobileStudentOnboarding() {
             </div>
 
             {error && (
-              <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/20 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800/40">
+              <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-xl border border-red-200">
                 {error}
               </p>
             )}

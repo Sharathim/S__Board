@@ -127,7 +127,7 @@ export default function PullToRefresh({ onRefresh, children, disabled = false })
           >
             {refreshing ? (
               /* Spinning loader */
-              <div className="w-8 h-8 rounded-full border-[2.5px] border-gray-200 dark:border-slate-700 border-t-[#F05A2B] animate-spin" />
+              <div className="w-8 h-8 rounded-full border-[2.5px] border-gray-200 border-t-[#F05A2B] animate-spin"/>
             ) : (
               /* Pull progress indicator */
               <div className="relative w-8 h-8">
@@ -138,7 +138,7 @@ export default function PullToRefresh({ onRefresh, children, disabled = false })
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2.5"
-                    className="text-gray-200 dark:text-slate-700"
+                    className="text-gray-200"
                   />
                   {/* Progress arc */}
                   <circle

@@ -47,7 +47,7 @@ export default function BottomTabBar() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] dark:bg-[#000000] shrink-0 select-none"
+        className="fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF] shrink-0 select-none"
         style={{
           height: `calc(60px + env(safe-area-inset-bottom, 0px))`,
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
@@ -71,8 +71,8 @@ export default function BottomTabBar() {
                   <Icon
                     className={`w-5 h-5 transition-colors ${
                       active
-                        ? "text-primary-600 dark:text-primary-400"
-                        : "text-gray-400 dark:text-gray-500"
+                        ?"text-primary-600"
+                        :"text-gray-400"
                     }`}
                   />
                   {showBadge && (
@@ -84,8 +84,8 @@ export default function BottomTabBar() {
                 <span
                   className={`text-[10px] font-semibold tracking-tight transition-colors ${
                     active
-                      ? "text-primary-600 dark:text-primary-400"
-                      : "text-gray-400 dark:text-gray-500"
+                      ?"text-primary-600"
+                      :"text-gray-400"
                   }`}
                 >
                   {item.label}
@@ -104,15 +104,15 @@ export default function BottomTabBar() {
             <Menu
               className={`w-5 h-5 transition-colors ${
                 isMoreOpen
-                  ? "text-primary-600 dark:text-primary-400"
-                  : "text-gray-400 dark:text-gray-500"
+                  ?"text-primary-600"
+                  :"text-gray-400"
               }`}
             />
             <span
               className={`text-[10px] font-semibold tracking-tight transition-colors ${
                 isMoreOpen
-                  ? "text-primary-600 dark:text-primary-400"
-                  : "text-gray-400 dark:text-gray-500"
+                  ?"text-primary-600"
+                  :"text-gray-400"
               }`}
             >
               More

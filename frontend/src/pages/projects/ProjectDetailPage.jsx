@@ -114,12 +114,12 @@ function MemberAvatarWithTooltip({ member, size = "xs" }) {
 
 function RoleBadge({ role }) {
   const map = {
-    HOD: "bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800/60",
-    FACULTY: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60",
-    STUDENT: "bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/60",
-    faculty: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60",
-    forum_member: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60",
-    student: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60",
+    HOD:"bg-violet-50 text-violet-700 border-violet-200",
+    FACULTY:"bg-indigo-50 text-indigo-700 border-indigo-200",
+    STUDENT:"bg-slate-100 text-slate-600 border-slate-200",
+    faculty:"bg-indigo-50 text-indigo-700 border-indigo-200",
+    forum_member:"bg-amber-50 text-amber-700 border-amber-200",
+    student:"bg-emerald-50 text-emerald-700 border-emerald-200",
   };
   const labelMap = {
     HOD: "HOD",
@@ -220,8 +220,8 @@ function AttachmentList({ attachments, onPreview }) {
   if (!attachments || attachments.length === 0) return null;
 
   return (
-    <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
-      <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+    <div className="space-y-2 pt-3 border-t border-slate-100">
+      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
         Attachments ({attachments.length})
       </span>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -237,14 +237,14 @@ function AttachmentList({ attachments, onPreview }) {
           return (
             <div
               key={i}
-              className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 transition-all group"
+              className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200/60 hover:border-slate-300 transition-all group"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shrink-0 shadow-2xs">
+                <div className="p-2 rounded-lg bg-white border border-slate-200/60 shrink-0 shadow-2xs">
                   {icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate leading-snug">
+                  <p className="text-xs font-bold text-slate-800 truncate leading-snug">
                     {att.name || "Attachment"}
                   </p>
                   <p className="text-[10px] text-slate-400 font-semibold uppercase">{ext || "file"}</p>
@@ -257,7 +257,7 @@ function AttachmentList({ attachments, onPreview }) {
                   type="button"
                   onClick={() => onPreview(att)}
                   title="Preview Attachment"
-                  className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-colors"
                 >
                   <Eye className="w-4 h-4" />
                 </button>
@@ -268,7 +268,7 @@ function AttachmentList({ attachments, onPreview }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Download File"
-                  className="p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-colors"
                 >
                   <Download className="w-4 h-4" />
                 </a>
@@ -295,9 +295,9 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
       <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size="sm" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{comment.author?.name || "Unknown"}</span>
+          <span className="text-xs font-bold text-slate-800">{comment.author?.name ||"Unknown"}</span>
           <RoleBadge role={comment.author?.role} />
-          <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">
+          <span className="text-[10px] text-slate-400 ml-auto">
             {formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}
           </span>
           {canDelete && (
@@ -309,7 +309,7 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
             </button>
           )}
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl rounded-tl-none px-3.5 py-2.5 text-xs text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-200/50 dark:border-slate-700/50">
+        <div className="bg-slate-50 rounded-xl rounded-tl-none px-3.5 py-2.5 text-xs text-slate-700 leading-relaxed border border-slate-200/50">
           {comment.content}
         </div>
         {/* Reactions */}
@@ -323,8 +323,8 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
                 key={emoji}
                 onClick={() => isStudent && onReact(comment.id, emoji)}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-all ${reacted
-                  ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300"
-                  : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400"
+                  ?"bg-indigo-50 border-indigo-300 text-indigo-700"
+                  :"bg-slate-50 border-slate-200 text-slate-500"
                   } ${isStudent ? "cursor-pointer hover:scale-105" : "cursor-default"}`}
               >
                 {emoji} {count > 0 && <span>{count}</span>}
@@ -334,13 +334,13 @@ function CommentCard({ comment, projectId, msgId, isStudent, isHOD, currentUserI
           {isStudent && (
             <button
               onClick={() => setShowEmojis(p => !p)}
-              className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             >
               <Smile className="w-3.5 h-3.5" />
             </button>
           )}
           {showEmojis && (
-            <div className="flex gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full px-2 py-0.5 shadow-md animate-fade-in">
+            <div className="flex gap-1 bg-white border border-slate-200 rounded-full px-2 py-0.5 shadow-md animate-fade-in">
               {EMOJIS.map(e => (
                 <button
                   key={e}
@@ -380,17 +380,17 @@ function ProgressPostItem({
   const comments = node.comments || [];
 
   return (
-    <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 space-y-6">
+    <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 space-y-6">
       {/* Top Author & Status Row */}
-      <div className="flex items-start justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+      <div className="flex items-start justify-between gap-4 pb-5 border-b border-slate-100">
         <div className="flex items-center gap-3.5">
           <AvatarCircle name={node.author} picture={node.avatar} size="lg" />
           <div className="space-y-1">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="text-base font-black text-slate-900 dark:text-white tracking-tight">{node.author}</span>
+              <span className="text-base font-black text-slate-900 tracking-tight">{node.author}</span>
               <RoleBadge role={node.role} />
               {isLatest && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/70 dark:border-indigo-800/60">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-600 border border-indigo-200/70">
                   <span className="relative flex h-1.5 w-1.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500"></span>
@@ -399,7 +399,7 @@ function ProgressPostItem({
                 </span>
               )}
             </div>
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+            <p className="text-xs font-medium text-slate-400">
               {node.dateStr}
               {node.is_edited && <span className="italic ml-1.5 text-slate-400">(edited)</span>}
             </p>
@@ -410,7 +410,7 @@ function ProgressPostItem({
           {isOwn && canEdit && (
             <button
               onClick={() => onEdit(node)}
-              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all active:scale-95"
+              className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all active:scale-95"
               title="Edit progress update"
             >
               <Edit2 className="w-4 h-4" />
@@ -419,7 +419,7 @@ function ProgressPostItem({
           {(isOwn || isHOD) && (
             <button
               onClick={() => onDelete(node.id)}
-              className="p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/30 text-slate-400 hover:text-rose-500 transition-all active:scale-95"
+              className="p-2 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-all active:scale-95"
               title="Delete progress update"
             >
               <Trash2 className="w-4 h-4" />
@@ -431,21 +431,21 @@ function ProgressPostItem({
       {/* Progress Title & Completion */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         {node.title && (
-          <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-snug tracking-tight">
+          <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-snug tracking-tight">
             {node.title}
           </h3>
         )}
 
         {node.percentage !== undefined && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0 shadow-2xs">
-            Completion: <strong className="font-black text-indigo-600 dark:text-indigo-400">{node.percentage}%</strong>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0 shadow-2xs">
+            Completion: <strong className="font-black text-indigo-600">{node.percentage}%</strong>
           </span>
         )}
       </div>
 
       {/* Progress Description / Details */}
       {node.accomplishment && (
-        <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/80 text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal whitespace-pre-wrap">
+        <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 text-sm text-slate-700 leading-relaxed font-normal whitespace-pre-wrap">
           {node.accomplishment}
         </div>
       )}
@@ -454,17 +454,17 @@ function ProgressPostItem({
       <AttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
 
       {/* Faculty Feedback Section */}
-      <div className="pt-5 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+      <div className="pt-5 border-t border-slate-100 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
               <MessageSquare className="w-3.5 h-3.5" />
             </div>
-            <span className="text-xs font-black text-slate-800 dark:text-slate-200 tracking-wide uppercase">
+            <span className="text-xs font-black text-slate-800 tracking-wide uppercase">
               Faculty Feedback & Review
             </span>
             {comments.length > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold">
                 {comments.length}
               </span>
             )}
@@ -475,7 +475,7 @@ function ProgressPostItem({
               type="button"
               onClick={() => setIsExpandingComposer(prev => !prev)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-2xs ${isExpandingComposer
-                ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200"
+                ?"bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
                 : "bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600 active:scale-95 shadow-indigo-500/20"
                 }`}
             >
@@ -503,9 +503,9 @@ function ProgressPostItem({
               onSubmit={handleFeedbackSubmit}
               className="overflow-hidden"
             >
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-900 border border-indigo-200/80 dark:border-indigo-800/60 shadow-sm space-y-3">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 border border-indigo-200/80 shadow-sm space-y-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
                     Writing Official Faculty Review
                   </span>
@@ -516,7 +516,7 @@ function ProgressPostItem({
                         type="button"
                         key={tag}
                         onClick={() => setFeedbackText(prev => prev ? `${prev} ${tag}` : tag)}
-                        className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-400 dark:hover:border-indigo-600 text-[10px] font-medium transition-colors"
+                        className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 hover:border-indigo-400 text-[10px] font-medium transition-colors"
                       >
                         {tag}
                       </button>
@@ -530,7 +530,7 @@ function ProgressPostItem({
                   placeholder="Provide constructive guidance, review notes, or action items for the student team..."
                   rows={3}
                   autoFocus
-                  className="w-full p-3.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 resize-none leading-relaxed transition-all"
+                  className="w-full p-3.5 text-xs rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 resize-none leading-relaxed transition-all"
                 />
 
                 <div className="flex items-center justify-between pt-1">
@@ -541,7 +541,7 @@ function ProgressPostItem({
                     <button
                       type="button"
                       onClick={() => { setFeedbackText(""); setIsExpandingComposer(false); }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors"
                     >
                       Cancel
                     </button>
@@ -562,8 +562,8 @@ function ProgressPostItem({
 
         {/* Empty state when no feedback and composer is collapsed */}
         {comments.length === 0 && !isExpandingComposer && (
-          <div className="p-4 rounded-2xl bg-slate-50/60 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-2">
-            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+          <div className="p-4 rounded-2xl bg-slate-50/60 border border-dashed border-slate-200 text-center space-y-2">
+            <p className="text-xs text-slate-400 font-medium">
               {(isFaculty || isHOD)
                 ? "No faculty feedback has been added for this progress update yet."
                 : "No faculty feedback added yet."}
@@ -572,7 +572,7 @@ function ProgressPostItem({
               <button
                 type="button"
                 onClick={() => setIsExpandingComposer(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-xs font-bold transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-100 text-xs font-bold transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Feedback
               </button>
@@ -612,19 +612,19 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
   if (total === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
           <Map className="w-6 h-6" />
         </div>
         <div>
-          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Roadmap Milestones Logged</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs">
+          <p className="text-sm font-bold text-slate-700">No Roadmap Milestones Logged</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-xs">
             Post your first progress update to start populating the project roadmap.
           </p>
         </div>
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition-colors"
         >
           Back to Progress
         </button>
@@ -639,18 +639,18 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-2xs active:scale-95 cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-2xs active:scale-95 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Progress</span>
         </button>
 
         <div className="flex items-center gap-2">
-          <Map className="w-4.5 h-4.5 text-indigo-500 dark:text-indigo-400" />
-          <h3 className="text-sm font-black text-slate-900 dark:text-white tracking-wide uppercase">
+          <Map className="w-4.5 h-4.5 text-indigo-500"/>
+          <h3 className="text-sm font-black text-slate-900 tracking-wide uppercase">
             Project Roadmap
           </h3>
-          <span className="ml-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold border border-indigo-200/60 dark:border-indigo-800/60">
+          <span className="ml-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-bold border border-indigo-200/60">
             {total} Milestone{total !== 1 ? "s" : ""}
           </span>
         </div>
@@ -659,7 +659,7 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
       {/* Professional Vertical Timeline (Ascending: Oldest #1 top -> Newest #N bottom) */}
       <div className="relative pl-6 sm:pl-10 space-y-4">
         {/* Single thin vertical timeline line */}
-        <div className="absolute left-3.5 sm:left-5 top-4 bottom-6 w-0.5 bg-slate-200 dark:bg-slate-800" />
+        <div className="absolute left-3.5 sm:left-5 top-4 bottom-6 w-0.5 bg-slate-200"/>
 
         {ascendingNodes.map((node, idx) => {
           const milestoneNum = idx + 1;
@@ -679,7 +679,7 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
                 className={`shrink-0 w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-black transition-all z-10 ${
                   isSelected
                     ? "bg-indigo-600 text-white ring-4 ring-indigo-500/20 shadow-md shadow-indigo-500/30 scale-105"
-                    : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-2 border-slate-300 dark:border-slate-700 group-hover:border-indigo-500 dark:group-hover:border-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+                    :"bg-white text-slate-600 border-2 border-slate-300 group-hover:border-indigo-500 group-hover:text-indigo-600"
                 }`}
               >
                 {milestoneNum}
@@ -690,33 +690,33 @@ function RoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBack }) {
                 onClick={() => onSelectMilestone(node)}
                 className={`flex-1 p-4 sm:p-4.5 rounded-2xl transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? "bg-white dark:bg-slate-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
-                    : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/80 shadow-2xs hover:shadow-xs"
+                    ?"bg-white border-2 border-indigo-500 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
+                    :"bg-white border border-slate-200/80 hover:border-indigo-300 shadow-2xs hover:shadow-xs"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-indigo-500 dark:text-indigo-400">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-indigo-500">
                         Milestone #{milestoneNum}
                       </span>
                       {isLatest && (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200/60">
                           Latest
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-snug truncate">
+                    <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug truncate">
                       {node.title || "Progress Update"}
                     </h4>
                   </div>
-                  <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 shrink-0">
+                  <span className="text-xs font-semibold text-slate-400 shrink-0">
                     {node.dateStr}
                   </span>
                 </div>
 
                 {node.accomplishment && (
-                  <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+                  <p className="mt-1.5 text-xs text-slate-600 leading-relaxed line-clamp-2 font-medium">
                     {node.accomplishment}
                   </p>
                 )}
@@ -975,13 +975,13 @@ export default function ProjectDetailPage() {
   const allMembers = project.members || [];
 
   const statusColors = {
-    COMPLETED: { dot: "bg-emerald-500", text: "text-emerald-500 dark:text-emerald-400", label: "Completed" },
-    IN_PROGRESS: { dot: "bg-indigo-500 animate-pulse", text: "text-indigo-500 dark:text-indigo-400", label: "In Progress" },
-    NOT_STARTED: { dot: "bg-slate-400", text: "text-slate-500 dark:text-slate-400", label: "Not Started" },
-    ON_HOLD: { dot: "bg-amber-400", text: "text-amber-500 dark:text-amber-400", label: "On Hold" },
-    REVIEW: { dot: "bg-violet-500", text: "text-violet-500 dark:text-violet-400", label: "Review" },
-    CANCELLED: { dot: "bg-rose-500", text: "text-rose-500 dark:text-rose-400", label: "Cancelled" },
-    LOW_ACTIVITY: { dot: "bg-orange-400", text: "text-orange-500 dark:text-orange-400", label: "Low Activity" },
+    COMPLETED: { dot:"bg-emerald-500", text:"text-emerald-500", label:"Completed"},
+    IN_PROGRESS: { dot:"bg-indigo-500 animate-pulse", text:"text-indigo-500", label:"In Progress"},
+    NOT_STARTED: { dot:"bg-slate-400", text:"text-slate-500", label:"Not Started"},
+    ON_HOLD: { dot:"bg-amber-400", text:"text-amber-500", label:"On Hold"},
+    REVIEW: { dot:"bg-violet-500", text:"text-violet-500", label:"Review"},
+    CANCELLED: { dot:"bg-rose-500", text:"text-rose-500", label:"Cancelled"},
+    LOW_ACTIVITY: { dot:"bg-orange-400", text:"text-orange-500", label:"Low Activity"},
   };
   const statusStyle = statusColors[project.status] || statusColors.IN_PROGRESS;
 
@@ -1011,16 +1011,16 @@ export default function ProjectDetailPage() {
         <div className="space-y-2 min-w-0 flex-1">
           <button
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-indigo-600 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Projects
           </button>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none truncate">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-none truncate">
               {project.name}
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/60 shrink-0">
               <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
               {statusStyle.label}
             </span>
@@ -1028,7 +1028,7 @@ export default function ProjectDetailPage() {
 
           <div className="flex items-center gap-4 text-xs flex-wrap pt-0.5">
             {project.description && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 font-medium max-w-xl">
+              <p className="text-xs text-slate-500 line-clamp-1 font-medium max-w-xl">
                 {project.description}
               </p>
             )}
@@ -1037,26 +1037,26 @@ export default function ProjectDetailPage() {
               <button
                 type="button"
                 onClick={() => setMembersModalOpen(true)}
-                className="flex items-center gap-1.5 p-1 -ml-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors group cursor-pointer"
+                className="flex items-center gap-1.5 p-1 -ml-1 rounded-xl hover:bg-slate-100 transition-colors group cursor-pointer"
                 title="Click to view all project members"
               >
-                <Users className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+                <Users className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors"/>
                 <div className="flex items-center -space-x-1.5">
                   {allMembers.slice(0, 5).map((m, idx) => (
                     <MemberAvatarWithTooltip key={m.id || m.user_id || idx} member={m} size="xs" />
                   ))}
                   {allMembers.length > 5 && (
-                    <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300 ring-2 ring-white dark:ring-slate-900">
+                    <span className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600 ring-2 ring-white">
                       +{allMembers.length - 5}
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ml-1">
+                <span className="text-[11px] font-bold text-slate-600 group-hover:text-indigo-600 transition-colors ml-1">
                   {allMembers.length} member{allMembers.length !== 1 ? "s" : ""}
                 </span>
               </button>
 
-              <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200/60">
                 {timelineNodes.length} Update{timelineNodes.length !== 1 ? "s" : ""}
               </span>
             </div>
@@ -1080,23 +1080,23 @@ export default function ProjectDetailPage() {
             <div className="relative pm-kebab-container">
               <button
                 onClick={() => setKebabOpen(!kebabOpen)}
-                className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center shrink-0 transition-colors"
+                className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 flex items-center justify-center shrink-0 transition-colors"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
               {kebabOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-lg ring-1 ring-slate-200/50 dark:ring-slate-800/50 border border-slate-200 dark:border-slate-800 py-1 z-50 animate-fade-in text-left">
+                <div className="absolute right-0 top-full mt-1.5 w-48 bg-white rounded-xl shadow-lg ring-1 ring-slate-200/50 border border-slate-200 py-1 z-50 animate-fade-in text-left">
                   {project.status !== "COMPLETED" && (
                     <button
                       onClick={() => { statusMutation.mutate("COMPLETED"); setKebabOpen(false); }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bold transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-emerald-600 hover:bg-emerald-50 font-bold transition-colors"
                     >
                       <CheckCircle className="w-4 h-4 text-emerald-500" /> Mark completed
                     </button>
                   )}
                   <button
                     onClick={() => { setEditProjectModalOpen(true); setKebabOpen(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 font-bold transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-slate-700 hover:bg-slate-50 font-bold transition-colors"
                   >
                     <Edit2 className="w-3.5 h-3.5" /> Edit project
                   </button>
@@ -1113,12 +1113,12 @@ export default function ProjectDetailPage() {
         <div className="flex-1 min-h-0 overflow-y-auto scrollbar-premium pr-1 pb-4 relative">
           {timelineNodes.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-20">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
                 <FileText className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No Progress Updates Yet</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm">
+                <p className="text-sm font-bold text-slate-700">No Progress Updates Yet</p>
+                <p className="text-xs text-slate-400 max-w-sm">
                   {isStudent
                     ? "Post your first progress update to start tracking project milestones."
                     : "Students haven't submitted any progress updates yet."}
@@ -1181,7 +1181,7 @@ export default function ProjectDetailPage() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setActiveTab("roadmap")}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 border border-white/20 dark:border-slate-700/50 cursor-pointer"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 border border-white/20 cursor-pointer"
             title="Open Project Roadmap"
             aria-label="Open Project Roadmap"
           >
@@ -1209,7 +1209,7 @@ export default function ProjectDetailPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Progress Title */}
           <div className="space-y-1.5 text-left">
-            <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-black text-slate-500 uppercase tracking-wider">
               Progress Title <span className="text-rose-500">*</span>
             </label>
             <input
@@ -1218,20 +1218,20 @@ export default function ProjectDetailPage() {
               onChange={e => setFormTitle(e.target.value)}
               placeholder="e.g. Implemented Authentication Module..."
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
 
           {/* Description textarea */}
           <div className="space-y-1.5 text-left">
-            <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-black text-slate-500 uppercase tracking-wider">
               Description
             </label>
             <textarea
               value={formAccomplishment}
               onChange={e => setFormAccomplishment(e.target.value)}
               placeholder="Describe what you worked on in detail..."
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/30 leading-relaxed"
               rows={4}
             />
           </div>
@@ -1239,10 +1239,10 @@ export default function ProjectDetailPage() {
           {/* Progress Completed Slider */}
           <div className="space-y-1.5 text-left">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider">
                 Progress Completed (%)
               </label>
-              <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">{formPercentage}%</span>
+              <span className="text-sm font-black text-indigo-600">{formPercentage}%</span>
             </div>
             <input
               type="range"
@@ -1251,9 +1251,9 @@ export default function ProjectDetailPage() {
               step="5"
               value={formPercentage}
               onChange={e => setFormPercentage(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-650"
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-650"
             />
-            <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 font-bold">
+            <div className="flex justify-between text-[10px] text-slate-400 font-bold">
               <span>0% (Kickoff)</span>
               <span>50% (Halfway)</span>
               <span>100% (Completed)</span>
@@ -1263,16 +1263,16 @@ export default function ProjectDetailPage() {
           {/* File attachments */}
           {!editingMsg && (
             <div className="space-y-2 text-left">
-              <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-black text-slate-500 uppercase tracking-wider">
                 Attachments <span className="text-slate-400 font-normal">(optional, max 10MB each)</span>
               </label>
 
               {formFiles.length > 0 && (
                 <div className="space-y-1.5">
                   {formFiles.map((file, i) => (
-                    <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200">
                       <Paperclip className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="text-xs text-slate-700 dark:text-slate-300 truncate flex-1">{file.name}</span>
+                      <span className="text-xs text-slate-700 truncate flex-1">{file.name}</span>
                       <span className="text-[10px] text-slate-400">{(file.size / 1024 / 1024).toFixed(1)}MB</span>
                       <button
                         type="button"
@@ -1286,13 +1286,13 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
-              <label className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 cursor-pointer bg-white dark:bg-slate-800/40 transition-colors text-center">
-                <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <label className="flex flex-col items-center gap-2 p-5 rounded-xl border-2 border-dashed border-slate-200 hover:border-indigo-400 cursor-pointer bg-white transition-colors text-center">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center">
                   <Paperclip className="w-4 h-4 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Click to attach files</span>
-                  <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Images, PDF, documents, ZIP accepted</span>
+                  <span className="text-xs font-semibold text-slate-600">Click to attach files</span>
+                  <span className="block text-[10px] text-slate-400 mt-0.5">Images, PDF, documents, ZIP accepted</span>
                 </div>
                 <input
                   type="file"
@@ -1349,15 +1349,15 @@ export default function ProjectDetailPage() {
       {/* ── Project Members Details Modal ── */}
       <Modal open={membersModalOpen} onClose={() => setMembersModalOpen(false)}>
         <div className="space-y-4">
-          <div className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+          <div className="flex items-center gap-3 pb-3 border-b border-slate-200">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
               <Users className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight">
+              <h3 className="text-base font-black text-slate-900 leading-tight">
                 Project Team Members ({allMembers.length})
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <p className="text-xs text-slate-500 font-medium">
                 Assigned team members for {project.name}
               </p>
             </div>
@@ -1373,16 +1373,16 @@ export default function ProjectDetailPage() {
               return (
                 <div
                   key={m.id || m.user_id || idx}
-                  className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all"
+                  className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60 hover:border-indigo-200 transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <AvatarCircle name={name} picture={picture} size="md" />
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-slate-900 dark:text-white truncate">{name}</p>
+                      <p className="text-xs font-black text-slate-900 truncate">{name}</p>
                       {email ? (
-                        <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 truncate">{email}</p>
+                        <p className="text-[11px] font-medium text-slate-400 truncate">{email}</p>
                       ) : (
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 capitalize">Project Member</p>
+                        <p className="text-[10px] text-slate-400 capitalize">Project Member</p>
                       )}
                     </div>
                   </div>
@@ -1393,7 +1393,7 @@ export default function ProjectDetailPage() {
             })}
           </div>
 
-          <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end pt-2 border-t border-slate-100">
             <Button variant="ghost" onClick={() => setMembersModalOpen(false)}>
               Close
             </Button>

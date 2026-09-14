@@ -30,9 +30,9 @@ function getLabRoom(cn) {
 }
 
 const LAB_META = {
-  1: { label:"Lab 1",  desc:"UG A-sections",  color:"emerald", bg:"bg-emerald-50 dark:bg-emerald-950/30", border:"border-emerald-200 dark:border-emerald-800/50", text:"text-emerald-700 dark:text-emerald-300", dot:"bg-emerald-500" },
-  2: { label:"Lab 2",  desc:"UG B-sections",  color:"amber",   bg:"bg-amber-50 dark:bg-amber-950/30",   border:"border-amber-200 dark:border-amber-800/50",   text:"text-amber-700 dark:text-amber-300",   dot:"bg-amber-500" },
-  3: { label:"PG Lab", desc:"PG classes only", color:"purple",  bg:"bg-purple-50 dark:bg-purple-950/30", border:"border-purple-200 dark:border-purple-800/50", text:"text-purple-700 dark:text-purple-300", dot:"bg-purple-500" },
+  1: { label:"Lab 1", desc:"UG A-sections", color:"emerald", bg:"bg-emerald-50", border:"border-emerald-200", text:"text-emerald-700", dot:"bg-emerald-500"},
+  2: { label:"Lab 2", desc:"UG B-sections", color:"amber", bg:"bg-amber-50", border:"border-amber-200", text:"text-amber-700", dot:"bg-amber-500"},
+  3: { label:"PG Lab", desc:"PG classes only", color:"purple", bg:"bg-purple-50", border:"border-purple-200", text:"text-purple-700", dot:"bg-purple-500"},
 };
 
 function cls(...a) { return a.filter(Boolean).join(" "); }
@@ -104,7 +104,7 @@ function SubjectForm({ form, onChange, onSubmit, onClose, faculties, isPending, 
 
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onClose}
-          className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors">
+          className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
           Cancel
         </button>
         <button type="submit" disabled={isPending}
@@ -160,16 +160,16 @@ function LabSetupTab({ className }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-800/30">
+      <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-sky-50 border border-sky-100">
         <Info className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-sky-700 dark:text-sky-300 leading-relaxed">
+        <p className="text-xs text-sky-700 leading-relaxed">
           <strong>Lab faculty can be left blank.</strong> Add lab subjects in Subjects tab with no faculty — the system schedules the lab time slot using only the lab room constraint.
         </p>
       </div>
 
       {isLoading ? <Spinner /> : (
-        <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="p-5 rounded-2xl border border-gray-200 bg-white space-y-4">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-indigo-500" />
             Lab Period Configuration
           </h3>
@@ -261,53 +261,53 @@ function SubjectsTab({ className, faculties }) {
   const labs     = mappings.filter(m => m.subject_type === "lab");
 
   const MappingRow = ({ m }) => (
-    <tr className="border-b border-gray-50 dark:border-gray-700/30 hover:bg-gray-50/60 dark:hover:bg-gray-700/20 transition-colors">
+    <tr className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors">
       <td className="px-4 py-3">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">{m.subject_name}</p>
+        <p className="text-sm font-semibold text-gray-900">{m.subject_name}</p>
       </td>
       <td className="px-4 py-3">
-        <span className="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-mono font-bold">{m.subject_code}</span>
+        <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-mono font-bold">{m.subject_code}</span>
       </td>
       <td className="px-4 py-3 text-center">
-        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{m.weekly_hours}</span>
+        <span className="text-sm font-bold text-indigo-600">{m.weekly_hours}</span>
       </td>
       {m.subject_type==="lab" && (
         <td className="px-4 py-3 text-center">
-          <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{m.lab_block_size||2}hr</span>
+          <span className="text-xs font-bold text-violet-600">{m.lab_block_size||2}hr</span>
         </td>
       )}
       <td className="px-4 py-3 text-sm">
         {m.faculty_name
-          ? <span className="text-gray-700 dark:text-gray-300">{m.faculty_name}</span>
-          : <span className="text-amber-500 dark:text-amber-400 italic text-xs">TBD</span>}
+          ? <span className="text-gray-700">{m.faculty_name}</span>
+          : <span className="text-amber-500 italic text-xs">TBD</span>}
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1 justify-end">
-          <button onClick={() => openEdit(m)} className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-400 hover:text-indigo-500 transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-          <button onClick={() => setDelItem(m)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+          <button onClick={() => openEdit(m)} className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-500 transition-colors"><Pencil className="w-3.5 h-3.5"/></button>
+          <button onClick={() => setDelItem(m)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"><Trash2 className="w-3.5 h-3.5"/></button>
         </div>
       </td>
     </tr>
   );
 
   const SubjectSection = ({ items, label, isLab }) => (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+    <div className="rounded-2xl border border-gray-200 overflow-hidden">
       <div className={cls(
-        "px-4 py-3 flex items-center gap-2 border-b border-gray-100 dark:border-gray-700/60",
-        isLab ? "bg-violet-50/60 dark:bg-violet-950/20" : "bg-indigo-50/60 dark:bg-indigo-950/20"
+"px-4 py-3 flex items-center gap-2 border-b border-gray-100",
+        isLab ?"bg-violet-50/60":"bg-indigo-50/60"
       )}>
         {isLab ? <FlaskConical className="w-4 h-4 text-violet-500" /> : <BookOpen className="w-4 h-4 text-indigo-500" />}
-        <span className={cls("text-xs font-bold uppercase tracking-wider", isLab?"text-violet-700 dark:text-violet-300":"text-indigo-700 dark:text-indigo-300")}>{label}</span>
-        <span className={cls("ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold", isLab?"bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300":"bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300")}>{items.length}</span>
+        <span className={cls("text-xs font-bold uppercase tracking-wider", isLab?"text-violet-700":"text-indigo-700")}>{label}</span>
+        <span className={cls("ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold", isLab?"bg-violet-100 text-violet-700":"bg-indigo-100 text-indigo-700")}>{items.length}</span>
       </div>
       {items.length === 0 ? (
-        <div className="px-4 py-6 text-center text-sm text-gray-400 bg-white dark:bg-gray-800/40">
+        <div className="px-4 py-6 text-center text-sm text-gray-400 bg-white">
           No {label.toLowerCase()} added yet
         </div>
       ) : (
-        <div className="overflow-x-auto bg-white dark:bg-gray-800/40">
+        <div className="overflow-x-auto bg-white">
           <table className="w-full text-sm min-w-[480px]">
-            <thead><tr className="border-b border-gray-100 dark:border-gray-700/50">
+            <thead><tr className="border-b border-gray-100">
               <th className="text-left px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Subject</th>
               <th className="text-left px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Code</th>
               <th className="text-center px-4 py-2 text-[10px] font-bold text-gray-400 uppercase">Hrs/Wk</th>
@@ -326,7 +326,7 @@ function SubjectsTab({ className, faculties }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Subject — Faculty Assignments</h3>
+          <h3 className="text-sm font-bold text-gray-900">Subject — Faculty Assignments</h3>
           <p className="text-xs text-gray-400 mt-0.5">Auto-generator reads this to build the conflict-free timetable.</p>
         </div>
         <button onClick={() => { setForm(EMPTY_FORM); setAddOpen(true); }}
@@ -377,8 +377,8 @@ function GridCell({ entry, onCancel, onRestore }) {
   const [hov, setHov] = useState(false);
 
   if (!entry) return (
-    <div className="h-14 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/40 flex items-center justify-center">
-      <span className="text-[10px] text-gray-300 dark:text-gray-600">—</span>
+    <div className="h-14 rounded-lg border border-dashed border-gray-200 flex items-center justify-center">
+      <span className="text-[10px] text-gray-300">—</span>
     </div>
   );
   if (entry.is_lab_continuation) return <div className="h-0" />;
@@ -394,20 +394,20 @@ function GridCell({ entry, onCancel, onRestore }) {
       className={cls(
         "relative rounded-lg border p-2 transition-all group select-none", minH,
         cancelled
-          ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800/40 opacity-60"
+          ?"bg-red-50 border-red-200 opacity-60"
           : isLab
-          ? "bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-700/50"
-          : "bg-white dark:bg-gray-800/70 border-gray-200 dark:border-gray-700/50 hover:border-indigo-300 dark:hover:border-indigo-700"
+          ?"bg-violet-50 border-violet-200"
+          :"bg-white border-gray-200 hover:border-indigo-300"
       )}
     >
       <p className={cls(
         "text-[11px] font-extrabold leading-none truncate",
-        cancelled ? "line-through text-red-400" : isLab ? "text-violet-700 dark:text-violet-300" : "text-indigo-700 dark:text-indigo-300"
+        cancelled ?"line-through text-red-400": isLab ?"text-violet-700":"text-indigo-700"
       )}>
         {entry.subject_code}
         {isLab && span > 1 && <span className="ml-1 text-[8px] opacity-50 font-semibold">×{span}</span>}
       </p>
-      <p className={cls("text-[10px] mt-0.5 leading-none truncate", cancelled?"text-red-300 line-through":"text-gray-400 dark:text-gray-500")}>
+      <p className={cls("text-[10px] mt-0.5 leading-none truncate", cancelled?"text-red-300 line-through":"text-gray-400")}>
         {entry.faculty_name || <span className="text-amber-500">TBD</span>}
       </p>
       {cancelled && <span className="mt-1 flex items-center gap-0.5 text-[9px] font-bold text-red-500"><AlertTriangle className="w-2.5 h-2.5"/>Gap</span>}
@@ -491,7 +491,7 @@ function ScheduleTab({ className }) {
         <div className="ml-auto flex items-center gap-2">
           {total > 0 && (
             <button onClick={() => setClearConfirm(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-200 text-red-600 text-xs font-bold hover:bg-red-50 transition-colors">
               <Trash2 className="w-3.5 h-3.5"/>Clear
             </button>
           )}
@@ -503,27 +503,27 @@ function ScheduleTab({ className }) {
       </div>
 
       {isLoading ? <Spinner /> : total===0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-200 dark:border-gray-700/50 rounded-2xl">
-          <CalendarDays className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-3" />
-          <p className="text-sm font-bold text-gray-600 dark:text-gray-300">No timetable yet</p>
+        <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+          <CalendarDays className="w-10 h-10 text-gray-300 mb-3"/>
+          <p className="text-sm font-bold text-gray-600">No timetable yet</p>
           <p className="text-xs text-gray-400 mt-1 max-w-xs">Configure Lab Setup + add Subjects first, then click Auto-Generate.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40">
+        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
           <div style={{minWidth:"640px"}}>
             {/* Header */}
-            <div className="grid bg-gray-50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700/60" style={{gridTemplateColumns:"52px repeat(6,1fr)"}}>
+            <div className="grid bg-gray-50 border-b border-gray-100"style={{gridTemplateColumns:"52px repeat(6,1fr)"}}>
               <div className="p-3 text-[10px] font-bold text-gray-400 text-center">Hr</div>
-              {DAYS.map(d=><div key={d} className="p-3 text-center text-xs font-black text-gray-600 dark:text-gray-300">{DAY_LABELS[d]}</div>)}
+              {DAYS.map(d=><div key={d} className="p-3 text-center text-xs font-black text-gray-600">{DAY_LABELS[d]}</div>)}
             </div>
             {PERIODS.map(period=>(
-              <div key={period} className="grid border-b border-gray-100 dark:border-gray-700/30 last:border-0" style={{gridTemplateColumns:"52px repeat(6,1fr)"}}>
+              <div key={period} className="grid border-b border-gray-100 last:border-0"style={{gridTemplateColumns:"52px repeat(6,1fr)"}}>
                 <div className="flex items-center justify-center p-1">
-                  <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-black flex items-center justify-center">{period}</span>
+                  <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 text-xs font-black flex items-center justify-center">{period}</span>
                 </div>
                 {DAYS.map(day=>{
                   const entry = grid[day]?.[period];
-                  if(entry?.is_lab_continuation) return <div key={day} className="p-1 bg-violet-50/30 dark:bg-violet-950/10" />;
+                  if(entry?.is_lab_continuation) return <div key={day} className="p-1 bg-violet-50/30"/>;
                   return (
                     <div key={day} className="p-1">
                       <GridCell entry={entry} onCancel={setCancelModal} onRestore={e=>restoreMut.mutate(e.id)} />
@@ -540,13 +540,13 @@ function ScheduleTab({ className }) {
       <Modal open={!!cancelModal} onClose={() => setCancelModal(null)} title="Mark as Gap">
         {cancelModal && (
           <div className="space-y-4 pt-1">
-            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-800/30">
-              <p className="text-sm font-bold text-gray-900 dark:text-white">{DAY_LABELS[cancelModal.day]} · Hour {cancelModal.period}</p>
+            <div className="p-4 rounded-xl bg-red-50 border border-red-100">
+              <p className="text-sm font-bold text-gray-900">{DAY_LABELS[cancelModal.day]} · Hour {cancelModal.period}</p>
               <p className="text-xs text-gray-500 mt-0.5">{cancelModal.subject_name} — {cancelModal.faculty_name||"Unassigned"}</p>
             </div>
             <p className="text-xs text-gray-500">This slot will show as a gap. <strong>No messages sent to faculty.</strong></p>
             <div className="flex gap-3">
-              <button onClick={()=>setCancelModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 transition-colors">Back</button>
+              <button onClick={()=>setCancelModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Back</button>
               <button onClick={()=>cancelMut.mutate({id:cancelModal.id,reason:"Faculty on leave"})} disabled={cancelMut.isPending}
                 className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-all disabled:opacity-60">
                 {cancelMut.isPending?"Marking…":"Mark as Gap"}
@@ -599,9 +599,9 @@ function LeaveTab({ className, faculties }) {
   return (
     <div className="space-y-4">
       {/* Leave section */}
-      <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
+      <div className="p-5 rounded-2xl border border-gray-200 bg-white space-y-4">
         <div className="flex items-center gap-2">
-          <UserMinus className="w-4 h-4 text-red-500"/><h3 className="text-sm font-bold text-gray-900 dark:text-white">Faculty Leave</h3>
+          <UserMinus className="w-4 h-4 text-red-500"/><h3 className="text-sm font-bold text-gray-900">Faculty Leave</h3>
           <span className="text-[11px] text-gray-400">— leaves gap, no messages</span>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -618,13 +618,13 @@ function LeaveTab({ className, faculties }) {
         </div>
 
         {affected.length>0&&(
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-800/30">
-            <p className="text-xs font-bold text-red-600 dark:text-red-400 mb-2">Affected on {DAY_LABELS[selDay]}:</p>
+          <div className="p-3 rounded-xl bg-red-50 border border-red-100">
+            <p className="text-xs font-bold text-red-600 mb-2">Affected on {DAY_LABELS[selDay]}:</p>
             <div className="flex flex-wrap gap-2">
               {affected.map(e=>(
                 <span key={e.id} className={cls("px-2.5 py-1 rounded-lg text-xs font-semibold border",
-                  e.is_cancelled?"bg-red-100 dark:bg-red-900/40 text-red-500 border-red-200 dark:border-red-800 line-through"
-                                :"bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700")}>
+                  e.is_cancelled?"bg-red-100 text-red-500 border-red-200 line-through"
+                                :"bg-white text-gray-700 border-gray-200")}>
                   Hr {e.period}: {e.subject_code}
                 </span>
               ))}
@@ -635,7 +635,7 @@ function LeaveTab({ className, faculties }) {
         {selFac&&selDay&&(
           <div className="flex gap-3">
             <button onClick={()=>restoreDayMut.mutate()} disabled={restoreDayMut.isPending||affected.every(e=>!e.is_cancelled)}
-              className="flex-1 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 text-sm font-semibold hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors disabled:opacity-40">
+              className="flex-1 py-2.5 rounded-xl border border-emerald-200 text-emerald-600 text-sm font-semibold hover:bg-emerald-50 transition-colors disabled:opacity-40">
               <RotateCcw className="w-3.5 h-3.5 inline mr-1.5"/>Restore All
             </button>
             <button onClick={()=>cancelDayMut.mutate()} disabled={cancelDayMut.isPending||affected.every(e=>e.is_cancelled)}
@@ -647,9 +647,9 @@ function LeaveTab({ className, faculties }) {
       </div>
 
       {/* Substitute finder */}
-      <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/40 space-y-4">
+      <div className="p-5 rounded-2xl border border-gray-200 bg-white space-y-4">
         <div className="flex items-center gap-2">
-          <UserCheck className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-gray-900 dark:text-white">Find Free Substitutes</h3>
+          <UserCheck className="w-4 h-4 text-emerald-500"/><h3 className="text-sm font-bold text-gray-900">Find Free Substitutes</h3>
           <span className="text-xs text-gray-400">department-wide</span>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -666,11 +666,11 @@ function LeaveTab({ className, faculties }) {
           (subsData||[]).length===0
             ?<p className="text-xs text-gray-400 text-center py-3">No free faculty found</p>
             :<div className="space-y-2">
-              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{subsData.length} free faculty:</p>
+              <p className="text-xs font-semibold text-emerald-600">{subsData.length} free faculty:</p>
               {subsData.map(f=>(
-                <div key={f.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-800/30">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-black">{f.name[0]}</div>
-                  <div><p className="text-sm font-semibold text-gray-900 dark:text-white">{f.name}</p><p className="text-xs text-gray-400">{f.designation}</p></div>
+                <div key={f.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-black">{f.name[0]}</div>
+                  <div><p className="text-sm font-semibold text-gray-900">{f.name}</p><p className="text-xs text-gray-400">{f.designation}</p></div>
                 </div>
               ))}
             </div>
@@ -693,10 +693,10 @@ export default function TimetablePage() {
   if (!isHOD) return (
     <div className="flex items-center justify-center min-h-[60vh] text-center px-4">
       <div>
-        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mx-auto mb-3">
+        <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
           <CalendarDays className="w-7 h-7 text-indigo-400"/>
         </div>
-        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-200">Timetable</h2>
+        <h2 className="text-lg font-bold text-gray-700">Timetable</h2>
         <p className="text-sm text-gray-400 mt-1">Available for HOD only.</p>
       </div>
     </div>
@@ -716,13 +716,13 @@ export default function TimetablePage() {
           <CalendarDays className="w-5 h-5 text-white"/>
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">Timetable</h1>
+          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Timetable</h1>
           <p className="text-[11px] text-gray-400 mt-0.5">Lab 1 · UG A-sections &nbsp;|&nbsp; Lab 2 · UG B-sections &nbsp;|&nbsp; PG Lab · PG classes</p>
         </div>
       </div>
 
       {/* Class Selector */}
-      <div className="p-4 rounded-2xl border border-gray-200 dark:border-[#2E2E34] bg-white dark:bg-[#1E1E22]">
+      <div className="p-4 rounded-2xl border border-gray-200 bg-white">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Select Class</p>
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -732,7 +732,7 @@ export default function TimetablePage() {
                 "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
                 activeClass===c
                   ?"bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                  :"bg-gray-50 dark:bg-[#27272A] border-gray-200 dark:border-[#3F3F46] text-gray-600 dark:text-gray-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
+                  :"bg-gray-50 border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50"
               )}>{c.replace("_"," ")}</button>
             ))}
           </div>
@@ -743,7 +743,7 @@ export default function TimetablePage() {
                 "px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap",
                 activeClass===c
                   ?"bg-purple-600 text-white border-purple-600 shadow-sm"
-                  :"bg-gray-50 dark:bg-[#27272A] border-gray-200 dark:border-[#3F3F46] text-gray-600 dark:text-gray-200 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                  :"bg-gray-50 border-gray-200 text-gray-600 hover:border-purple-300 hover:bg-purple-50"
               )}>{c.replace("_"," ")}</button>
             ))}
           </div>
@@ -751,13 +751,13 @@ export default function TimetablePage() {
       </div>
 
       {/* Active Class Panel */}
-      <div className="rounded-2xl border border-gray-200 dark:border-[#2E2E34] bg-white dark:bg-[#1E1E22] overflow-hidden">
+      <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
 
         {/* Class header strip */}
-        <div className="px-5 pt-4 bg-gradient-to-r from-gray-50 to-white dark:from-[#18181B] dark:to-[#18181B] border-b border-gray-100 dark:border-[#2E2E34]">
+        <div className="px-5 pt-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
           <div className="flex flex-wrap items-center gap-2.5 mb-3">
             <span className="px-3 py-1 rounded-xl bg-indigo-600 text-white text-sm font-extrabold shadow-sm">{activeClass.replace("_"," ")}</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-gray-500">
               {activeClass.startsWith("UG")?"Undergraduate":"Postgraduate"} ·{" "}
               {activeClass.includes("1")?"Year 1":activeClass.includes("2")?"Year 2":"Year 3"}
             </span>
@@ -773,8 +773,8 @@ export default function TimetablePage() {
               <button key={tab} onClick={()=>setActiveTab(tab)} className={cls(
                 "px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap shrink-0",
                 activeTab===tab
-                  ?"border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                  :"border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  ?"border-indigo-600 text-indigo-600"
+                  :"border-transparent text-gray-500 hover:text-gray-700"
               )}>{tab}</button>
             ))}
           </div>

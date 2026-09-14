@@ -31,7 +31,7 @@ function Tab({ id, label, icon: Icon, active, onClick, badge }) {
       className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
         active
           ? "bg-primary-600 text-white shadow-sm shadow-primary-500/20"
-          : "text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          :"text-gray-600 hover:bg-gray-100"
       }`}
     >
       <Icon className="w-4 h-4" />

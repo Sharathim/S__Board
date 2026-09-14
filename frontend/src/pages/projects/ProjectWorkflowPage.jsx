@@ -217,18 +217,18 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
   }
 
   return (
-    <div className={`w-full max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-3xl shadow-xl overflow-hidden transition-colors ${className}`}>
+    <div className={`w-full max-w-3xl mx-auto bg-white border border-gray-200/80 rounded-3xl shadow-xl overflow-hidden transition-colors ${className}`}>
       {/* Form Header */}
-      <div className="px-6 py-5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-gray-50/50 dark:bg-slate-800/30">
+      <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-violet-600 flex items-center justify-center text-white shadow-md shadow-primary-500/20">
             <FolderKanban className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+            <h2 className="text-lg font-black text-gray-900 tracking-tight leading-tight">
               {isEdit ? "Edit Project Details" : "Create New Project"}
             </h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-500 mt-0.5">
               Fill in the project name and assign members to get started.
             </p>
           </div>
@@ -238,7 +238,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
           <button
             type="button"
             onClick={onCancel}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -247,7 +247,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {errorMsg && (
-          <div className="px-4 py-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center justify-between">
+          <div className="px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold flex items-center justify-between">
             <span>{errorMsg}</span>
             <button type="button" onClick={() => setErrorMsg("")} className="hover:opacity-75">
               <X className="w-4 h-4" />
@@ -258,7 +258,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
         {/* 1. Basic Information */}
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
               Project Name <span className="text-rose-500">*</span>
             </label>
             <input
@@ -266,12 +266,12 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. AI-Powered Department Portal"
-              className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-sm font-semibold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+              className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
               Description <span className="text-gray-400 text-[10px] lowercase font-normal">(optional)</span>
             </label>
             <textarea
@@ -279,7 +279,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief overview of the project scope, objectives, or requirements..."
-              className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all resize-none"
+              className="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all resize-none"
             />
           </div>
         </div>
@@ -287,29 +287,29 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
         {/* 2. Selected Members Summary Chips */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
               Assigned Members ({totalSelectedMembersCount})
             </label>
             <span className="text-[11px] text-gray-400">At least 1 member required</span>
           </div>
 
           {totalSelectedMembersCount === 0 ? (
-            <div className="p-4 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800 text-center bg-gray-50/50 dark:bg-slate-800/20">
-              <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
+            <div className="p-4 rounded-2xl border border-dashed border-gray-200 text-center bg-gray-50/50">
+              <p className="text-xs font-medium text-gray-400">
                 No members assigned yet. Select members below from Faculty, Forum Member, or Students.
               </p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2 p-3 rounded-2xl bg-gray-50/80 dark:bg-slate-800/40 border border-gray-100 dark:border-slate-800">
+            <div className="flex flex-wrap gap-2 p-3 rounded-2xl bg-gray-50/80 border border-gray-100">
               {/* Faculty Chips */}
               {selectedFaculty.map((f) => (
                 <div
                   key={f.user_id || f.id}
-                  className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-300 text-xs font-semibold"
+                  className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold"
                 >
                   <Avatar src={f.profile_picture} name={f.name} size="xs" className="w-5 h-5 rounded-full" />
                   <span className="truncate max-w-[120px]">{f.name}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-wider bg-indigo-200/60 dark:bg-indigo-900/60 px-1.5 py-0.2 rounded-full">
+                  <span className="text-[9px] font-bold uppercase tracking-wider bg-indigo-200/60 px-1.5 py-0.2 rounded-full">
                     Faculty
                   </span>
                   <button
@@ -326,11 +326,11 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
               {selectedForum.map((fm) => (
                 <div
                   key={fm.user_id || fm.id}
-                  className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-300 text-xs font-semibold"
+                  className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold"
                 >
                   <Avatar src={fm.profile_picture} name={fm.name} size="xs" className="w-5 h-5 rounded-full" />
                   <span className="truncate max-w-[120px]">{fm.name}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-200/60 dark:bg-amber-900/60 px-1.5 py-0.2 rounded-full">
+                  <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-200/60 px-1.5 py-0.2 rounded-full">
                     Forum Member
                   </span>
                   <button
@@ -347,11 +347,11 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
               {selectedStudents.map((s) => (
                 <div
                   key={s.user_id || s.id}
-                  className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold"
+                  className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold"
                 >
                   <Avatar src={s.profile_picture} name={s.name} size="xs" className="w-5 h-5 rounded-full" />
                   <span className="truncate max-w-[120px]">{s.name}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-200/60 dark:bg-emerald-900/60 px-1.5 py-0.2 rounded-full">
+                  <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-200/60 px-1.5 py-0.2 rounded-full">
                     Students
                   </span>
                   <button
@@ -368,16 +368,16 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
         </div>
 
         {/* 3. Member Selector Picker */}
-        <div className="border border-gray-200/80 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900">
+        <div className="border border-gray-200/80 rounded-2xl overflow-hidden bg-white">
           {/* Category Tabs */}
-          <div className="flex items-center border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-1.5 gap-1">
+          <div className="flex items-center border-b border-gray-100 bg-gray-50/50 p-1.5 gap-1">
             <button
               type="button"
               onClick={() => setActiveTab("faculty")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "faculty"
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm border border-gray-200/50 dark:border-slate-800"
-                  : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                  ?"bg-white text-indigo-600 shadow-sm border border-gray-200/50"
+                  :"text-gray-500 hover:text-gray-800"
               }`}
             >
               <GraduationCap className="w-4 h-4" />
@@ -389,8 +389,8 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
               onClick={() => setActiveTab("forum")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "forum"
-                  ? "bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-sm border border-gray-200/50 dark:border-slate-800"
-                  : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                  ?"bg-white text-amber-600 shadow-sm border border-gray-200/50"
+                  :"text-gray-500 hover:text-gray-800"
               }`}
             >
               <MessageSquare className="w-4 h-4" />
@@ -402,8 +402,8 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
               onClick={() => setActiveTab("students")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "students"
-                  ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border border-gray-200/50 dark:border-slate-800"
-                  : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                  ?"bg-white text-emerald-600 shadow-sm border border-gray-200/50"
+                  :"text-gray-500 hover:text-gray-800"
               }`}
             >
               <Users className="w-4 h-4" />
@@ -412,19 +412,19 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
           </div>
 
           {/* Search Member Bar */}
-          <div className="p-3 border-b border-gray-100 dark:border-slate-800 relative">
+          <div className="p-3 border-b border-gray-100 relative">
             <Search className="w-4 h-4 text-gray-400 absolute left-6 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Search ${activeTab === "faculty" ? "Faculty" : activeTab === "forum" ? "Forum Member" : "Students"} by name...`}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/40 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-all"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 transition-all"
             />
           </div>
 
           {/* Member List */}
-          <div className="max-h-56 overflow-y-auto p-2 divide-y divide-gray-50 dark:divide-slate-800/50">
+          <div className="max-h-56 overflow-y-auto p-2 divide-y divide-gray-50">
             {activeTab === "faculty" && (
               loadingFaculty ? (
                 <div className="py-8 text-center text-xs text-gray-400">Loading Faculty...</div>
@@ -440,8 +440,8 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
                       onClick={() => toggleFaculty(person)}
                       className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${
                         isSelected
-                          ? "bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 font-semibold"
-                          : "hover:bg-gray-50 dark:hover:bg-slate-800/40 text-gray-700 dark:text-gray-300"
+                          ?"bg-indigo-50/70 text-indigo-900 font-semibold"
+                          :"hover:bg-gray-50 text-gray-700"
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -453,7 +453,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
                       </div>
                       <div
                         className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                          isSelected ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-300 dark:border-slate-700"
+                          isSelected ?"bg-indigo-600 border-indigo-600 text-white":"border-gray-300"
                         }`}
                       >
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -483,8 +483,8 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
                       onClick={() => toggleForum(person)}
                       className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${
                         isSelected
-                          ? "bg-amber-50/70 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 font-semibold"
-                          : "hover:bg-gray-50 dark:hover:bg-slate-800/40 text-gray-700 dark:text-gray-300"
+                          ?"bg-amber-50/70 text-amber-900 font-semibold"
+                          :"hover:bg-gray-50 text-gray-700"
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -496,7 +496,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
                       </div>
                       <div
                         className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                          isSelected ? "bg-amber-600 border-amber-600 text-white" : "border-gray-300 dark:border-slate-700"
+                          isSelected ?"bg-amber-600 border-amber-600 text-white":"border-gray-300"
                         }`}
                       >
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -526,8 +526,8 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
                       onClick={() => toggleStudent(person)}
                       className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${
                         isSelected
-                          ? "bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
-                          : "hover:bg-gray-50 dark:hover:bg-slate-800/40 text-gray-700 dark:text-gray-300"
+                          ?"bg-emerald-50/70 text-emerald-900 font-semibold"
+                          :"hover:bg-gray-50 text-gray-700"
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -539,7 +539,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
                       </div>
                       <div
                         className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                          isSelected ? "bg-emerald-600 border-emerald-600 text-white" : "border-gray-300 dark:border-slate-700"
+                          isSelected ?"bg-emerald-600 border-emerald-600 text-white":"border-gray-300"
                         }`}
                       >
                         {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -553,7 +553,7 @@ export function ProjectFormCard({ projectId, onSuccess, onCancel, className = ""
         </div>
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
           <Button
             type="button"
             variant="ghost"
@@ -584,11 +584,11 @@ export default function ProjectWorkflowPage() {
   const { id: projectId } = useParams();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
       <div className="max-w-3xl mx-auto mb-4">
         <button
           onClick={() => navigate("/projects")}
-          className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Projects
         </button>

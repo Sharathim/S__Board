@@ -222,11 +222,11 @@ export default function MobileForumPage() {
       `}</style>
 
       {/* Header actions */}
-      <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800/40 pb-2">
+      <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <h2 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Posts</h2>
-            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">
+            <h2 className="text-xs font-black text-gray-900 uppercase tracking-wider">Posts</h2>
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-violet-50 text-violet-600">
               {postList.length}
             </span>
           </div>
@@ -234,7 +234,7 @@ export default function MobileForumPage() {
           {/* Members Badge Trigger for Mobile */}
           <button
             onClick={() => setShowMembersModal(true)}
-            className="mobile-tappable flex items-center gap-1 px-2.5 py-1 rounded-xl bg-violet-50 dark:bg-violet-950/20 text-violet-650 dark:text-violet-450 border border-violet-100 dark:border-violet-900/40 text-xs font-bold"
+            className="mobile-tappable flex items-center gap-1 px-2.5 py-1 rounded-xl bg-violet-50 text-violet-650 border border-violet-100 text-xs font-bold"
           >
             <Users className="w-3.5 h-3.5" /> Roster ({memberList.length})
           </button>
@@ -271,8 +271,8 @@ export default function MobileForumPage() {
               {/* Date Header Divider */}
               <div className="flex items-center gap-2 pt-1 mb-1">
                 <Calendar className="w-3 h-3 text-violet-500" />
-                <span className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{group.dateString}</span>
-                <div className="h-[1px] flex-1 bg-gray-100 dark:bg-slate-800/40" />
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{group.dateString}</span>
+                <div className="h-[1px] flex-1 bg-gray-100"/>
               </div>
 
               {/* Feed Card List */}
@@ -287,7 +287,7 @@ export default function MobileForumPage() {
                   const hasLongBody = body.length > 180;
 
                   return (
-                    <MobileCard key={post.id} className="p-3.5 border border-slate-100 dark:border-slate-800/50 shadow-sm space-y-2">
+                    <MobileCard key={post.id} className="p-3.5 border border-slate-100 shadow-sm space-y-2">
                       
                       {/* Card Author Info */}
                       <div className="flex items-center justify-between gap-2">
@@ -295,10 +295,10 @@ export default function MobileForumPage() {
                           <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="w-7 h-7 ring-2 ring-violet-500/5 shrink-0" />
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap leading-none">
-                              <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{post.posted_by?.name}</span>
-                              {isAuthor && <span className="text-[8px] font-bold px-1.5 py-0.2 rounded bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400">You</span>}
+                              <span className="text-xs font-bold text-gray-900 truncate">{post.posted_by?.name}</span>
+                              {isAuthor && <span className="text-[8px] font-bold px-1.5 py-0.2 rounded bg-violet-50 text-violet-600">You</span>}
                             </div>
-                            <span className="text-[9px] text-gray-400 dark:text-gray-505 flex items-center gap-0.5 mt-0.5">
+                            <span className="text-[9px] text-gray-400 flex items-center gap-0.5 mt-0.5">
                               <Clock className="w-3 h-3 text-gray-400" />
                               {formatPostTime(post.created_at)}
                             </span>
@@ -321,17 +321,17 @@ export default function MobileForumPage() {
                       {/* Content Body */}
                       <div className="space-y-0.8">
                         {title && (
-                          <h4 className="text-xs font-bold text-gray-900 dark:text-white leading-tight">
+                          <h4 className="text-xs font-bold text-gray-900 leading-tight">
                             {title}
                           </h4>
                         )}
-                        <p className="text-[11px] text-gray-800 dark:text-gray-205 whitespace-pre-wrap break-words leading-relaxed">
+                        <p className="text-[11px] text-gray-800 whitespace-pre-wrap break-words leading-relaxed">
                           {isExpanded ? body : (hasLongBody ? body.slice(0, 180) + "..." : body)}
                           {hasLongBody && (
                             <button
                               type="button"
                               onClick={() => toggleExpandPost(post.id)}
-                              className="text-violet-650 dark:text-violet-400 font-bold ml-1 hover:underline focus:outline-none"
+                              className="text-violet-650 font-bold ml-1 hover:underline focus:outline-none"
                             >
                               {isExpanded ? "Show Less" : "Read More"}
                             </button>
@@ -347,7 +347,7 @@ export default function MobileForumPage() {
                             if (urls.length === 1) {
                               return (
                                 <div 
-                                  className="rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/20 max-h-40 flex items-center justify-center cursor-pointer"
+                                  className="rounded-xl overflow-hidden border border-gray-100 bg-slate-50 max-h-40 flex items-center justify-center cursor-pointer"
                                   onClick={() => handleOpenLightbox(urls, 0)}
                                 >
                                   <img 
@@ -359,7 +359,7 @@ export default function MobileForumPage() {
                               );
                             }
                             return (
-                              <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 p-1 bg-slate-50 dark:bg-slate-950/20">
+                              <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-gray-100 p-1 bg-slate-50">
                                 {urls.slice(0, 4).map((url, i) => (
                                   <div 
                                     key={i} 
@@ -381,11 +381,11 @@ export default function MobileForumPage() {
                       )}
 
                       {/* Footer Actions (Likes, Share) */}
-                      <div className="flex items-center justify-between pt-1.8 border-t border-gray-50 dark:border-slate-800/40 mt-1">
+                      <div className="flex items-center justify-between pt-1.8 border-t border-gray-50 mt-1">
                         <button
                           onClick={() => likeMutation.mutate(post.id)}
                           className={`mobile-tappable inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-lg transition-all ${
-                            post.liked ? "text-rose-500 bg-rose-50 dark:bg-rose-955/20" : "text-gray-400 hover:text-rose-550"
+                            post.liked ?"text-rose-500 bg-rose-50":"text-gray-400 hover:text-rose-550"
                           }`}
                         >
                           <Heart className={`w-3.5 h-3.5 ${post.liked ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -417,11 +417,11 @@ export default function MobileForumPage() {
       <Modal open={postModalOpen} onClose={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }} title="Create Post">
         <div className="space-y-3 pt-1">
           <textarea value={newPost} onChange={e => setNewPost(e.target.value)} placeholder="Share something with the forum..." rows={4}
-            className="w-full p-3 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-55 dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none" />
+            className="w-full p-3 text-sm rounded-xl border border-gray-200 bg-gray-55 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none"/>
           {filePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {filePreviews.map((p, i) => (
-                <div key={i} className="relative h-20 rounded-lg overflow-hidden border border-gray-100 dark:border-slate-700">
+                <div key={i} className="relative h-20 rounded-lg overflow-hidden border border-gray-100">
                   <img src={p} alt="preview" className="w-full h-full object-cover" />
                   <button onClick={() => removeFile(i)} className="absolute top-1 right-1 p-0.5 rounded-full bg-black/60 text-white"><X className="w-3 h-3" /></button>
                 </div>
@@ -430,13 +430,13 @@ export default function MobileForumPage() {
           )}
           <div className="flex items-center gap-2">
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" />
-            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-slate-700 text-gray-505 hover:bg-gray-55 dark:hover:bg-slate-800">
+            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 text-gray-505 hover:bg-gray-55">
               <Image className="w-3.5 h-3.5 text-violet-500" /> Add Image
             </button>
           </div>
           <div className="flex gap-3 pt-1">
             <button onClick={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }}
-              className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-slate-700 text-sm font-semibold text-gray-500">Cancel</button>
+              className="flex-1 py-2.5 rounded-xl border border-gray-250 text-sm font-semibold text-gray-500">Cancel</button>
             <button onClick={handlePublish} disabled={createMutation.isPending || (!newPost.trim() && selectedFiles.length === 0)}
               className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-bold disabled:opacity-50">
               {createMutation.isPending ? "Publishing..." : "Publish"}
@@ -449,9 +449,9 @@ export default function MobileForumPage() {
       <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit Post">
         <div className="space-y-3 pt-1">
           <textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={4}
-            className="w-full p-3 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-55 dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none" />
+            className="w-full p-3 text-sm rounded-xl border border-gray-200 bg-gray-55 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none"/>
           <div className="flex gap-3">
-            <button onClick={() => setEditTarget(null)} className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-slate-700 text-sm font-semibold text-gray-500">Cancel</button>
+            <button onClick={() => setEditTarget(null)} className="flex-1 py-2.5 rounded-xl border border-gray-250 text-sm font-semibold text-gray-500">Cancel</button>
             <button onClick={() => editMutation.mutate({ id: editTarget.id, content: editContent })} disabled={editMutation.isPending || !editContent.trim()}
               className="flex-1 py-2.5 rounded-xl bg-violet-650 text-white text-sm font-bold disabled:opacity-50">{editMutation.isPending ? "Saving..." : "Save"}</button>
           </div>
@@ -471,15 +471,15 @@ export default function MobileForumPage() {
       {pendingStudent && (
         <Modal open={!!pendingStudent} onClose={() => setPendingStudent(null)} title="Assign Role">
           <div className="space-y-3 pt-1">
-            <div className="flex items-center gap-3 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
+            <div className="flex items-center gap-3 p-3 bg-violet-50 rounded-xl">
               <Avatar src={pendingStudent.profile_picture} name={pendingStudent.name} size="sm" />
               <div className="min-w-0">
-                <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{pendingStudent.name}</p>
+                <p className="text-xs font-bold text-gray-900 truncate">{pendingStudent.name}</p>
                 <p className="text-[10px] text-gray-505 truncate">{pendingStudent.email}</p>
               </div>
             </div>
             <select value={rolePreset} onChange={e => { setRolePreset(e.target.value); if (e.target.value !== "Custom") setCustomRole(""); }}
-              className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-gray-900 dark:text-white">
+              className="w-full p-2.5 rounded-xl border border-gray-250 bg-white text-sm text-gray-900">
               <option value="President">President</option>
               <option value="Vice President">Vice President</option>
               <option value="Secretary">Secretary</option>
@@ -496,10 +496,10 @@ export default function MobileForumPage() {
               <option value="Custom">Custom...</option>
             </select>
             {rolePreset === "Custom" && (
-              <input type="text" value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..." className="w-full p-2.5 rounded-xl border border-gray-255 dark:border-slate-755 bg-white dark:bg-slate-900 text-sm" />
+              <input type="text"value={customRole} onChange={e => setCustomRole(e.target.value)} placeholder="Custom designation..."className="w-full p-2.5 rounded-xl border border-gray-255 bg-white text-sm"/>
             )}
             <div className="flex gap-3">
-              <button onClick={() => setPendingStudent(null)} className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-slate-700 text-sm font-semibold text-gray-500">Cancel</button>
+              <button onClick={() => setPendingStudent(null)} className="flex-1 py-2.5 rounded-xl border border-gray-250 text-sm font-semibold text-gray-500">Cancel</button>
               <button onClick={() => { const r = rolePreset === "Custom" ? customRole.trim() : rolePreset; if (r) assignMutation.mutate({ studentId: pendingStudent.id, role: r }); }}
                 disabled={assignMutation.isPending} className="flex-1 py-2.5 rounded-xl bg-violet-650 text-white text-sm font-bold disabled:opacity-50">
                 {assignMutation.isPending ? "Adding..." : "Add"}
@@ -575,7 +575,7 @@ export default function MobileForumPage() {
                 placeholder="Search roster..."
                 value={memberSearchQuery}
                 onChange={(e) => setMemberSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-9 py-1.5 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+                className="w-full pl-9 pr-9 py-1.5 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
               />
               {memberSearchQuery && (
                 <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 text-gray-400">
@@ -592,17 +592,17 @@ export default function MobileForumPage() {
                 filteredMembers.map(m => (
                   <div
                     key={m.id}
-                    className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800/40 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-gray-100/60 dark:border-gray-700/40"
+                    className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all border border-gray-100/60"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <Avatar src={m.profile_picture} name={m.name} size="sm" className="ring-1 ring-gray-100 dark:ring-gray-700 shrink-0" />
+                      <Avatar src={m.profile_picture} name={m.name} size="sm"className="ring-1 ring-gray-100 shrink-0"/>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight">{m.name}</p>
+                        <p className="text-xs font-bold text-gray-900 truncate leading-tight">{m.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wide">
                             {m.class_name?.replace("_", " ")}
                           </span>
-                          <span className="text-[8px] font-bold text-violet-500 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-1 py-0.5 rounded">
+                          <span className="text-[8px] font-bold text-violet-500 bg-violet-50 px-1 py-0.5 rounded">
                             {m.role}
                           </span>
                         </div>
@@ -613,7 +613,7 @@ export default function MobileForumPage() {
                         <button
                           onClick={() => coordMutation.mutate(m.id)}
                           disabled={coordMutation.isPending}
-                          className={`p-1.5 rounded-lg transition-colors ${m.is_update_coordinator ? "text-amber-500 bg-amber-55 dark:bg-amber-900/20" : "text-gray-400 hover:text-amber-500 hover:bg-amber-55 dark:hover:bg-amber-900/20"}`}
+                          className={`p-1.5 rounded-lg transition-colors ${m.is_update_coordinator ?"text-amber-500 bg-amber-55":"text-gray-400 hover:text-amber-500 hover:bg-amber-55"}`}
                           title={m.is_update_coordinator ? "Revoke Coordinator" : "Make Coordinator"}
                         >
                           <Crown className="w-4 h-4" />
@@ -621,7 +621,7 @@ export default function MobileForumPage() {
                         <button
                           onClick={() => removeMutation.mutate(m.id)}
                           disabled={removeMutation.isPending}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-55 dark:hover:bg-red-900/20 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-55 transition-colors"
                           title="Remove member"
                         >
                           <Trash2 className="w-4 h-4" />

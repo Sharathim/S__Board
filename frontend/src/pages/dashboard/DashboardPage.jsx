@@ -54,13 +54,13 @@ function StatusBar({ value, max, color }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
-      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tabular-nums w-6 text-right">{value}</span>
+      <span className="text-[10px] font-bold text-slate-500 tabular-nums w-6 text-right">{value}</span>
     </div>
   );
 }
@@ -129,17 +129,17 @@ export default function DashboardPage() {
   const activePercent  = total > 0 ? Math.round((inProgress / total) * 100) : 0;
 
   const TAG_COLORS = {
-    Notice:       "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border-blue-100 dark:border-blue-900/40",
-    Announcement: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-100 dark:border-amber-900/40",
-    Event:        "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 border-violet-100 dark:border-violet-900/40",
-    Alert:        "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400 border-red-100 dark:border-red-900/40",
+    Notice:"bg-blue-50 text-blue-700 border-blue-100",
+    Announcement:"bg-amber-50 text-amber-700 border-amber-100",
+    Event:"bg-violet-50 text-violet-700 border-violet-100",
+    Alert:"bg-red-50 text-red-700 border-red-100",
   };
 
   const STATUS_CHIPS = {
-    "not started": "bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-100 dark:border-slate-800",
-    "in progress": "bg-orange-50 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border-orange-100 dark:border-orange-900/35",
-    "review":      "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400 border-purple-100 dark:border-purple-900/35",
-    "completed":   "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/35",
+"not started":"bg-slate-50 text-slate-600 border-slate-100",
+"in progress":"bg-orange-50 text-orange-700 border-orange-100",
+"review":"bg-purple-50 text-purple-700 border-purple-100",
+"completed":"bg-emerald-50 text-emerald-700 border-emerald-100",
   };
 
   return (
@@ -156,17 +156,17 @@ export default function DashboardPage() {
            ═══════════════════════════════════════════════════ */}
         <div className="da flex items-end justify-between gap-4 shrink-0 pt-1">
           <div>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-0.5 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-slate-400 mb-0.5 uppercase tracking-wider">
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
             </p>
             <h1
-              className="font-semibold text-slate-900 dark:text-white tracking-tight leading-none"
+              className="font-semibold text-slate-900 tracking-tight leading-none"
               style={{ fontSize: "clamp(1.5rem, 2.6vw, 2.1rem)" }}
             >
               {getGreeting()}, {user?.name?.split(" ")[0] ?? "Administrator"}
             </h1>
             <p
-              className="text-slate-500 dark:text-slate-400 font-medium mt-1.5"
+              className="text-slate-500 font-medium mt-1.5"
               style={{ fontSize: "clamp(0.7rem, 0.95vw, 0.8rem)" }}
             >
               Stay on top of your department tasks, monitor progress, and track status.
@@ -182,21 +182,21 @@ export default function DashboardPage() {
           {/* Card 1 — Active Projects */}
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm relative overflow-hidden shrink-0"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white border border-gray-200/80 shadow-sm relative overflow-hidden shrink-0"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F05A2B] to-[#FF8365]" />
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#F05A2B] dark:text-[#FF8365]">Active Projects</span>
-              <div className="w-6 h-6 rounded-lg bg-[#FFEEE9] dark:bg-[#F05A2B]/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FolderKanban className="w-3.5 h-3.5 text-[#F05A2B] dark:text-[#FF8365]" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#F05A2B]">Active Projects</span>
+              <div className="w-6 h-6 rounded-lg bg-[#FFEEE9] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FolderKanban className="w-3.5 h-3.5 text-[#F05A2B]"/>
               </div>
             </div>
-            <p className="text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums">{inProgress}</p>
+            <p className="text-4xl font-black text-slate-900 leading-none tabular-nums">{inProgress}</p>
             <div className="mt-2.5">
               <div className="flex justify-between mb-1">
-                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{activePercent}% of {total} total</span>
+                <span className="text-[9px] font-bold text-slate-500">{activePercent}% of {total} total</span>
               </div>
-              <div className="h-1 rounded-full bg-slate-100 dark:bg-slate-800">
+              <div className="h-1 rounded-full bg-slate-100">
                 <div className="h-full rounded-full bg-[#F05A2B]" style={{ width: `${activePercent}%`, transition: "width 1s ease" }} />
               </div>
             </div>
@@ -205,46 +205,46 @@ export default function DashboardPage() {
           {/* Card 2 — Completed */}
           <div
             onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white border border-gray-200/80 shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Completed</span>
-              <div className="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Completed</span>
+              <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600"/>
               </div>
             </div>
-            <p className="text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums">{completed}</p>
-            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-2.5 font-sans">Archived &amp; Verified</p>
+            <p className="text-4xl font-black text-slate-900 leading-none tabular-nums">{completed}</p>
+            <p className="text-[10px] font-bold text-emerald-600 mt-2.5 font-sans">Archived &amp; Verified</p>
           </div>
 
           {/* Card 3 — Students */}
           <div
             onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white border border-gray-200/80 shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Students Portal</span>
-              <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <GraduationCap className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Students Portal</span>
+              <div className="w-6 h-6 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <GraduationCap className="w-3.5 h-3.5 text-indigo-600"/>
               </div>
             </div>
-            <p className="text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums">{totalStudents}</p>
-            <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-2.5">in {classesList.length} classrooms</p>
+            <p className="text-4xl font-black text-slate-900 leading-none tabular-nums">{totalStudents}</p>
+            <p className="text-[10px] font-bold text-indigo-600 mt-2.5">in {classesList.length} classrooms</p>
           </div>
 
           {/* Card 4 — Faculty */}
           <div
             onClick={() => navigateWithTransition("/faculty", "Faculty", Users)}
-            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm"
+            className="rounded-[20px] p-4 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200 bg-white border border-gray-200/80 shadow-sm"
           >
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Faculty Board</span>
-              <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Building2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Faculty Board</span>
+              <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Building2 className="w-3.5 h-3.5 text-amber-600"/>
               </div>
             </div>
-            <p className="text-4xl font-black text-slate-900 dark:text-white leading-none tabular-nums">{facultyCount}</p>
-            <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 mt-2.5">{totalMembers} total members</p>
+            <p className="text-4xl font-black text-slate-900 leading-none tabular-nums">{facultyCount}</p>
+            <p className="text-[10px] font-bold text-amber-600 mt-2.5">{totalMembers} total members</p>
           </div>
 
         </div>
@@ -259,15 +259,15 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-3 shrink-0" style={{ width: "clamp(240px, 30%, 310px)" }}>
 
             {/* Project Status Breakdown */}
-            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-sm shrink-0">
+            <div className="da rounded-[20px] p-4 bg-white border border-gray-200/80 shadow-sm shrink-0">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Project Status</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Project Status</span>
                 <BarChart3 className="w-3.5 h-3.5 text-[#F05A2B]" />
               </div>
               <div className="space-y-2.5">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-650 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-[#F05A2B] inline-block" />
                       In Progress
                     </span>
@@ -276,7 +276,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-650 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
                       Completed
                     </span>
@@ -285,26 +285,26 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-slate-650 dark:text-slate-400 flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-650 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-slate-450 inline-block" />
                       Pending
                     </span>
                   </div>
                   <StatusBar value={pending} max={total} color="#94A3B8" />
                 </div>
-                <div className="pt-2 border-t border-slate-100 dark:border-[#26262B]">
+                <div className="pt-2 border-t border-slate-100">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-400">Total Projects</span>
-                    <span className="text-xs font-black text-slate-900 dark:text-white tabular-nums">{total}</span>
+                    <span className="text-[10px] font-semibold text-slate-400">Total Projects</span>
+                    <span className="text-xs font-black text-slate-900 tabular-nums">{total}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Recent Project Activity (Replaced Top Classrooms section) */}
-            <div className="da rounded-[20px] p-4 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] shadow-sm flex-1 min-h-0 flex flex-col">
+            <div className="da rounded-[20px] p-4 bg-white border border-gray-200/80 shadow-sm flex-1 min-h-0 flex flex-col">
               <div className="flex items-center justify-between mb-3 shrink-0">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Recent Projects</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Recent Projects</span>
                 <MessageSquare className="w-3.5 h-3.5 text-[#F05A2B]" />
               </div>
               
@@ -316,20 +316,20 @@ export default function DashboardPage() {
                       <div
                         key={act.id}
                         onClick={() => navigateWithTransition("/projects", "Projects", FolderKanban)}
-                        className="p-2 rounded-xl bg-slate-50/70 dark:bg-[#202024] border border-slate-100/60 dark:border-[#26262B] hover:bg-white dark:hover:bg-[#28282D] hover:border-slate-200 dark:hover:border-[#3F3F46] cursor-pointer transition-all duration-150 group"
+                        className="p-2 rounded-xl bg-slate-50/70 border border-slate-100/60 hover:bg-white hover:border-slate-200 cursor-pointer transition-all duration-150 group"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#F05A2B] transition-colors truncate max-w-[130px]">
+                          <span className="text-[11px] font-bold text-slate-800 group-hover:text-[#F05A2B] transition-colors truncate max-w-[130px]">
                             {act.name}
                           </span>
                           <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border ${statusClass} uppercase`}>
                             {act.status}
                           </span>
                         </div>
-                        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-400 truncate mt-1">
+                        <p className="text-[10px] font-medium text-slate-400 truncate mt-1">
                           {act.last_message ? (
                             <>
-                              <span className="font-semibold text-slate-550 dark:text-slate-300">{act.last_message.sender_name}: </span>
+                              <span className="font-semibold text-slate-550">{act.last_message.sender_name}: </span>
                               {formatProjectMessageContent(act.last_message.content)}
                             </>
                           ) : (
@@ -341,7 +341,7 @@ export default function DashboardPage() {
                   })
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500">No project activity logged.</p>
+                    <p className="text-[10px] font-bold text-slate-400">No project activity logged.</p>
                   </div>
                 )}
               </div>
@@ -350,16 +350,16 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Right: Department Announcements (3 items, no scroll) ── */}
-          <div className="da flex-1 rounded-[20px] bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] shadow-sm flex flex-col min-h-0">
+          <div className="da flex-1 rounded-[20px] bg-white border border-gray-200/80 shadow-sm flex flex-col min-h-0">
             {/* Header — no live badge */}
-            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 dark:border-[#26262B] shrink-0">
+            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-100 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-[#F05A2B]/10 flex items-center justify-center">
                   <Megaphone className="w-3.5 h-3.5 text-[#F05A2B]" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-extrabold text-slate-900 dark:text-white tracking-tight leading-none">Department Announcements</h3>
-                  <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mt-0.5">Latest 3 updates</p>
+                  <h3 className="text-xs font-extrabold text-slate-900 tracking-tight leading-none">Department Announcements</h3>
+                  <p className="text-[10px] font-medium text-slate-400 mt-0.5">Latest 3 updates</p>
                 </div>
               </div>
             </div>
@@ -377,19 +377,19 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={idx}
-                      className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100/80 dark:border-slate-700/40 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600/50 transition-all duration-150 flex-1"
+                      className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-100/80 hover:bg-white hover:border-slate-200 transition-all duration-150 flex-1"
                     >
                       <div className="w-7 h-7 rounded-xl bg-[#F05A2B]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Zap className="w-3.5 h-3.5 text-[#F05A2B]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[11px] font-bold text-slate-900 dark:text-white truncate max-w-[200px]">{title}</span>
+                          <span className="text-[11px] font-bold text-slate-900 truncate max-w-[200px]">{title}</span>
                           <span className={`inline-flex text-[9px] font-bold px-1.5 py-0.5 rounded-md ${tagCls}`}>{tag}</span>
                         </div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium line-clamp-2 mt-0.5 leading-relaxed">{desc}</p>
+                        <p className="text-[10px] text-slate-500 font-medium line-clamp-2 mt-0.5 leading-relaxed">{desc}</p>
                       </div>
-                      <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0">
+                      <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400 whitespace-nowrap shrink-0">
                         <Clock className="w-2.5 h-2.5" />
                         {timeAgo(upd.created_at)}
                       </div>
@@ -398,12 +398,12 @@ export default function DashboardPage() {
                 })
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <div className="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center">
                     <Megaphone className="w-5 h-5 text-slate-400" />
                   </div>
                   <div className="text-center">
-                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400">No announcements yet</p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Department updates will appear here</p>
+                    <p className="text-xs font-bold text-slate-500">No announcements yet</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Department updates will appear here</p>
                   </div>
                 </div>
               )}

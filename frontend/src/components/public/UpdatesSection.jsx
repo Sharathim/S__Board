@@ -16,13 +16,13 @@ export function UpdatesSection() {
   }, []);
 
   return (
-    <section id="updates" className="py-20 px-4 bg-white dark:bg-gray-900">
+    <section id="updates" className="py-20 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Latest Updates
           </h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-gray-500">
             Stay informed with the latest department news and announcements
           </p>
         </div>
@@ -30,7 +30,7 @@ export function UpdatesSection() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg h-24" />
+              <div key={i} className="animate-pulse bg-gray-100 rounded-lg h-24" />
             ))}
           </div>
         ) : updates.length === 0 ? (
@@ -40,14 +40,14 @@ export function UpdatesSection() {
             {updates.map(update => (
               <div
                 key={update.id}
-                className="p-5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
+                className="p-5 rounded-xl bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
                   <Calendar className="w-3.5 h-3.5" />
                   {format(parseUTCDate(update.created_at), "MMM d, yyyy 'at' h:mm a")}
                   {update.is_edited && <span className="italic">(edited)</span>}
                 </div>
-                <p className="text-gray-800 dark:text-gray-200">{update.content}</p>
+                <p className="text-gray-800">{update.content}</p>
                 {update.attachment_url && update.attachment_type === "image" && (
                   <img src={update.attachment_url} alt="attachment" className="mt-3 rounded-lg max-h-64 object-cover" />
                 )}

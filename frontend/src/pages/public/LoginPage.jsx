@@ -110,7 +110,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-tr from-slate-50 via-indigo-50/20 to-violet-50/30 dark:from-slate-950 dark:via-indigo-950/10 dark:to-slate-900 flex flex-col justify-between overflow-x-hidden font-sans transition-colors duration-300">
+    <div className="relative min-h-screen bg-gradient-to-tr from-slate-50 via-indigo-50/20 to-violet-50/30 flex flex-col justify-between overflow-x-hidden font-sans transition-colors duration-300">
       
       {/* Dynamic Background Canvas */}
       <div className="absolute inset-0 w-full h-full pointer-events-none opacity-60">
@@ -118,14 +118,14 @@ export default function LoginPage() {
       </div>
 
       {/* Floating Ambient Glows */}
-      <div className="absolute top-10 right-10 w-[450px] h-[450px] bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-violet-200/20 dark:bg-violet-900/10 rounded-full blur-[90px] pointer-events-none" />
+      <div className="absolute top-10 right-10 w-[450px] h-[450px] bg-indigo-200/20 rounded-full blur-[100px] pointer-events-none"/>
+      <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-violet-200/20 rounded-full blur-[90px] pointer-events-none"/>
 
       {/* Top Bar Navigation */}
       <header className="relative z-20 w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-300 text-sm font-semibold
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 border border-slate-200/60 text-slate-700 text-sm font-semibold
             hover:bg-white hover:text-indigo-600 hover:border-indigo-200 shadow-sm transition-all duration-200 backdrop-blur-sm"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -133,7 +133,7 @@ export default function LoginPage() {
         </Link>
 
         {/* Short info badge */}
-        <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-widest">
           <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
           <span>System Status: Online</span>
         </div>
@@ -145,13 +145,13 @@ export default function LoginPage() {
         {/* LEFT PANEL: Platform Pitch & Features */}
         <div ref={leftPanelRef} className="lg:col-span-7 space-y-8 text-left">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/30 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600"/>
+              <span className="text-[10px] font-bold text-indigo-700 tracking-wider uppercase">
                 Secure Academic Gateway
               </span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Manage projects, collaborate,<br />
               and drive{" "}
               <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-500 bg-clip-text text-transparent">
@@ -159,7 +159,7 @@ export default function LoginPage() {
               </span>{" "}
               in real-time.
             </h1>
-            <p className="text-base text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
+            <p className="text-base text-slate-500 max-w-xl leading-relaxed">
               Hive integrates Head of Departments, faculty coordinators, and student groups into a single relational ecosystem. Setup allocations, post updates, and track milestones seamlessly.
             </p>
           </div>
@@ -171,27 +171,27 @@ export default function LoginPage() {
                 icon: Shield,
                 title: "HOD Dashboard",
                 desc: "Authorize accounts and evaluate overall activity.",
-                color: "text-purple-600 bg-purple-50 dark:bg-purple-950/20"
+                color:"text-purple-600 bg-purple-50"
               },
               {
                 icon: Users,
                 title: "Faculty Portal",
                 desc: "Assign projects, direct groups, and provide feedback.",
-                color: "text-blue-600 bg-blue-50 dark:bg-blue-950/20"
+                color:"text-blue-600 bg-blue-50"
               },
               {
                 icon: GraduationCap,
                 title: "Student Hub",
                 desc: "Coordinate tasks, upload deliverables, and chat.",
-                color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20"
+                color:"text-emerald-600 bg-emerald-50"
               }
             ].map(({ icon: Icon, title, desc, color }, i) => (
-              <div key={title} className="p-4 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 shadow-sm space-y-2.5">
+              <div key={title} className="p-4 rounded-2xl bg-white/70 border border-slate-200/80 shadow-sm space-y-2.5">
                 <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center`}>
                   <Icon className="w-4.5 h-4.5" />
                 </div>
-                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{title}</div>
-                <div className="text-[11px] text-slate-400 dark:text-slate-400 leading-snug">{desc}</div>
+                <div className="text-xs font-bold text-slate-800">{title}</div>
+                <div className="text-[11px] text-slate-400 leading-snug">{desc}</div>
               </div>
             ))}
           </div>
@@ -203,8 +203,8 @@ export default function LoginPage() {
               "Automatic account routing matching pre-approved registration lists.",
               "Real-time database sync for instant classroom and project updates."
             ].map((text, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <div key={idx} className="flex items-center gap-3 text-xs text-slate-600">
+                <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0"/>
                 <span>{text}</span>
               </div>
             ))}
@@ -213,8 +213,8 @@ export default function LoginPage() {
 
         {/* RIGHT PANEL: Form Container */}
         <div ref={rightPanelRef} className="lg:col-span-5 flex items-center justify-center lg:justify-end">
-          <div className="w-full max-w-[420px] bg-white dark:bg-slate-900 rounded-[28px] border border-slate-200/80 dark:border-slate-800 p-2.5 shadow-2xl shadow-indigo-100/50 dark:shadow-black/50">
-            <div className="bg-slate-50 dark:bg-slate-950/30 rounded-[20px] overflow-hidden p-0.5 border border-slate-100/50 dark:border-slate-800/40">
+          <div className="w-full max-w-[420px] bg-white rounded-[28px] border border-slate-200/80 p-2.5 shadow-2xl shadow-indigo-100/50">
+            <div className="bg-slate-50 rounded-[20px] overflow-hidden p-0.5 border border-slate-100/50">
               {/* Inject the clean tab-based LoginCard */}
               <LoginCard />
             </div>
@@ -224,7 +224,7 @@ export default function LoginPage() {
       </main>
 
       {/* Footer Branding */}
-      <footer className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6 border-t border-slate-200/40 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-500">
+      <footer className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6 border-t border-slate-200/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
         <p>&copy; {new Date().getFullYear()} Hive — Department Project Management System. All rights reserved.</p>
         <div className="flex items-center gap-2">
           <Lock className="w-3.5 h-3.5" />

@@ -28,12 +28,12 @@ const STATUS_OPTIONS = [
 
 const getStatusTheme = (status) => {
   const map = {
-    NOT_STARTED: { bg: "bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10", text: "text-slate-700 dark:text-slate-200", dot: "bg-slate-400" },
-    IN_PROGRESS: { bg: "bg-[#FFEEE9] dark:bg-[#F05A2B]/15 border border-[#FFDBD2] dark:border-[#F05A2B]/30", text: "text-[#F05A2B] dark:text-[#FF8365]", dot: "bg-[#F05A2B]" },
-    REVIEW: { bg: "bg-purple-50 dark:bg-purple-500/15 border border-purple-200 dark:border-purple-500/30", text: "text-purple-700 dark:text-purple-300", dot: "bg-purple-500" },
-    COMPLETED: { bg: "bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30", text: "text-emerald-700 dark:text-emerald-300", dot: "bg-emerald-500" },
-    ON_HOLD: { bg: "bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30", text: "text-amber-700 dark:text-amber-300", dot: "bg-amber-500" },
-    CANCELLED: { bg: "bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30", text: "text-rose-700 dark:text-rose-300", dot: "bg-rose-500" },
+    NOT_STARTED: { bg:"bg-slate-100 border border-slate-200", text:"text-slate-700", dot:"bg-slate-400"},
+    IN_PROGRESS: { bg:"bg-[#FFEEE9] border border-[#FFDBD2]", text:"text-[#F05A2B]", dot:"bg-[#F05A2B]"},
+    REVIEW: { bg:"bg-purple-50 border border-purple-200", text:"text-purple-700", dot:"bg-purple-500"},
+    COMPLETED: { bg:"bg-emerald-50 border border-emerald-200", text:"text-emerald-700", dot:"bg-emerald-500"},
+    ON_HOLD: { bg:"bg-amber-50 border border-amber-200", text:"text-amber-700", dot:"bg-amber-500"},
+    CANCELLED: { bg:"bg-rose-50 border border-rose-200", text:"text-rose-700", dot:"bg-rose-500"},
   };
   return map[status] || map.NOT_STARTED;
 };
@@ -103,7 +103,7 @@ export default function MobileProjectsPage() {
             className={`mobile-tappable whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 ${
               status === opt.value
                 ? "bg-[#F05A2B] text-white border-[#F05A2B] shadow-sm"
-                : "bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-800"
+                :"bg-white text-gray-600 border-gray-200"
             }`}
           >
             {opt.color && status !== opt.value && (
@@ -135,7 +135,7 @@ export default function MobileProjectsPage() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+                    <h3 className="text-sm font-bold text-gray-900 leading-snug line-clamp-2">
                       {project.name}
                     </h3>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -148,7 +148,7 @@ export default function MobileProjectsPage() {
                   {(isHOD || canCreateProject) && (
                     <button
                       onClick={(e) => { e.stopPropagation(); setActionSheet(project); }}
-                      className="mobile-tappable p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800"
+                      className="mobile-tappable p-1.5 rounded-xl text-gray-400 hover:bg-gray-100"
                     >
                       <MoreVertical className="w-4 h-4" />
                     </button>
@@ -156,7 +156,7 @@ export default function MobileProjectsPage() {
                 </div>
 
                 {/* Members */}
-                <div className="flex items-center gap-4 mt-3 text-[11px] text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-4 mt-3 text-[11px] text-gray-500">
                   {facultyMembers.length > 0 && (
                     <div className="flex items-center gap-1 truncate">
                       <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
@@ -172,12 +172,12 @@ export default function MobileProjectsPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100 dark:border-slate-800/60">
+                <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100">
                   <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
                     <Clock className="w-3 h-3" />
                     {format(parseUTCDate(project.updated_at), "dd MMM, yyyy")}
                   </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-600" />
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-300"/>
                 </div>
               </MobileCard>
             );
@@ -191,7 +191,7 @@ export default function MobileProjectsPage() {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="mobile-tappable px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-600 dark:text-gray-300 disabled:opacity-40"
+            className="mobile-tappable px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 disabled:opacity-40"
           >
             Previous
           </button>
@@ -201,7 +201,7 @@ export default function MobileProjectsPage() {
           <button
             onClick={() => setPage(p => Math.min(data.pages, p + 1))}
             disabled={page >= data.pages}
-            className="mobile-tappable px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-xs font-bold text-gray-600 dark:text-gray-300 disabled:opacity-40"
+            className="mobile-tappable px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-600 disabled:opacity-40"
           >
             Next
           </button>
@@ -227,22 +227,22 @@ export default function MobileProjectsPage() {
           <div className="space-y-1">
             <button
               onClick={() => { setActionSheet(null); navigate(`/projects/${actionSheet.id}`); }}
-              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-500">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
                 <Eye className="w-4 h-4" />
               </div>
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">View Details</span>
+              <span className="text-sm font-semibold text-gray-700">View Details</span>
             </button>
             {isHOD && (
               <button
                 onClick={() => { setActionSheet(null); navigate(`/projects/${actionSheet.id}/workflow`); }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 transition-colors"
               >
-                <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-500">
+                <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
                   <Pencil className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Edit Project</span>
+                <span className="text-sm font-semibold text-gray-700">Edit Project</span>
               </button>
             )}
             {isHOD && (
@@ -252,12 +252,12 @@ export default function MobileProjectsPage() {
                     deleteMutation.mutate(actionSheet.id);
                   }
                 }}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 transition-colors"
               >
-                <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500">
+                <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center text-red-500">
                   <Trash2 className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-semibold text-red-600 dark:text-red-400">Delete Project</span>
+                <span className="text-sm font-semibold text-red-600">Delete Project</span>
               </button>
             )}
           </div>

@@ -38,7 +38,7 @@ export default function MobileShell() {
 
   return (
     <TransitionProvider pageContentRef={pageContentRef}>
-      <div className="h-[100dvh] min-h-screen w-full flex flex-col overflow-hidden bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300 relative">
+      <div className="h-[100dvh] min-h-screen w-full flex flex-col overflow-hidden bg-[#FFFFFF] transition-colors duration-300 relative">
         <MobileTopBar />
 
         {/* Page content — inner scrollable */}

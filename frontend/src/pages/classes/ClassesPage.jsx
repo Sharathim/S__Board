@@ -28,14 +28,14 @@ import { gsap } from "gsap";
 
 // ─── Class display metadata & Theme Palettes (Terracotta Orange Theme) ───────
 const CLASS_META = {
-  UG_1A: { label: "UG 1A", short: "1A", level: "UG", year: 1, colorScheme: "orange", badgeBg: "bg-[#F05A2B]", ringColor: "#F05A2B", textAccent: "text-[#F05A2B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(240,90,43,0.28)] border-orange-300 dark:border-orange-800" },
-  UG_1B: { label: "UG 1B", short: "1B", level: "UG", year: 1, colorScheme: "orange", badgeBg: "bg-[#F05A2B]", ringColor: "#F05A2B", textAccent: "text-[#F05A2B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(240,90,43,0.28)] border-orange-300 dark:border-orange-800" },
-  UG_2A: { label: "UG 2A", short: "2A", level: "UG", year: 2, colorScheme: "terracotta", badgeBg: "bg-[#E04A1B]", ringColor: "#E04A1B", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(224,74,27,0.28)] border-orange-300 dark:border-orange-800" },
-  UG_2B: { label: "UG 2B", short: "2B", level: "UG", year: 2, colorScheme: "terracotta", badgeBg: "bg-[#E04A1B]", ringColor: "#E04A1B", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(224,74,27,0.28)] border-orange-300 dark:border-orange-800" },
-  UG_3A: { label: "UG 3A", short: "3A", level: "UG", year: 3, colorScheme: "coral", badgeBg: "bg-[#FF8365]", ringColor: "#FF8365", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(255,131,101,0.28)] border-orange-300 dark:border-orange-800" },
-  UG_3B: { label: "UG 3B", short: "3B", level: "UG", year: 3, colorScheme: "coral", badgeBg: "bg-[#FF8365]", ringColor: "#FF8365", textAccent: "text-[#E04A1B]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(255,131,101,0.28)] border-orange-300 dark:border-orange-800" },
-  PG_1A: { label: "PG 1A", short: "PG1A", level: "PG", year: 1, colorScheme: "rose", badgeBg: "bg-[#B83610]", ringColor: "#B83610", textAccent: "text-[#B83610]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(184,54,16,0.28)] border-orange-300 dark:border-orange-800" },
-  PG_2A: { label: "PG 2A", short: "PG2A", level: "PG", year: 2, colorScheme: "rose", badgeBg: "bg-[#B83610]", ringColor: "#B83610", textAccent: "text-[#B83610]", inchargeBg: "bg-[#FFF5F2] dark:bg-orange-950/20", glowShadow: "shadow-[0_25px_60px_rgba(184,54,16,0.28)] border-orange-300 dark:border-orange-800" },
+  UG_1A: { label:"UG 1A", short:"1A", level:"UG", year: 1, colorScheme:"orange", badgeBg:"bg-[#F05A2B]", ringColor:"#F05A2B", textAccent:"text-[#F05A2B]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(240,90,43,0.28)] border-orange-300"},
+  UG_1B: { label:"UG 1B", short:"1B", level:"UG", year: 1, colorScheme:"orange", badgeBg:"bg-[#F05A2B]", ringColor:"#F05A2B", textAccent:"text-[#F05A2B]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(240,90,43,0.28)] border-orange-300"},
+  UG_2A: { label:"UG 2A", short:"2A", level:"UG", year: 2, colorScheme:"terracotta", badgeBg:"bg-[#E04A1B]", ringColor:"#E04A1B", textAccent:"text-[#E04A1B]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(224,74,27,0.28)] border-orange-300"},
+  UG_2B: { label:"UG 2B", short:"2B", level:"UG", year: 2, colorScheme:"terracotta", badgeBg:"bg-[#E04A1B]", ringColor:"#E04A1B", textAccent:"text-[#E04A1B]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(224,74,27,0.28)] border-orange-300"},
+  UG_3A: { label:"UG 3A", short:"3A", level:"UG", year: 3, colorScheme:"coral", badgeBg:"bg-[#FF8365]", ringColor:"#FF8365", textAccent:"text-[#E04A1B]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(255,131,101,0.28)] border-orange-300"},
+  UG_3B: { label:"UG 3B", short:"3B", level:"UG", year: 3, colorScheme:"coral", badgeBg:"bg-[#FF8365]", ringColor:"#FF8365", textAccent:"text-[#E04A1B]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(255,131,101,0.28)] border-orange-300"},
+  PG_1A: { label:"PG 1A", short:"PG1A", level:"PG", year: 1, colorScheme:"rose", badgeBg:"bg-[#B83610]", ringColor:"#B83610", textAccent:"text-[#B83610]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(184,54,16,0.28)] border-orange-300"},
+  PG_2A: { label:"PG 2A", short:"PG2A", level:"PG", year: 2, colorScheme:"rose", badgeBg:"bg-[#B83610]", ringColor:"#B83610", textAccent:"text-[#B83610]", inchargeBg:"bg-[#FFF5F2]", glowShadow:"shadow-[0_25px_60px_rgba(184,54,16,0.28)] border-orange-300"},
 };
 
 function StudentRegistrationBanner() {
@@ -62,7 +62,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
             {activeMeta.level}
           </div>
           <div className="min-w-0">
-            <h3 className="text-[16px] font-[700] leading-[22px] text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate">
+            <h3 className="text-[16px] font-[700] leading-[22px] text-gray-900 group-hover:text-primary transition-colors truncate">
               {activeMeta.label}
             </h3>
             <p className="text-[13px] font-[500] text-[var(--text-secondary)] leading-none mt-[2px]">
@@ -71,7 +71,7 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
           </div>
         </div>
         {c.can_view_details && (
-          <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0"/>
         )}
       </div>
 
@@ -84,22 +84,22 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
             onAssignIncharge(c.class_name);
           }
         }}
-        className={`flex items-center gap-3 h-[48px] bg-[#fafafa] dark:bg-[#202024] rounded-[10px] p-[10px_14px] border border-slate-100/50 dark:border-[#2E2E34] transition-all ${
+        className={`flex items-center gap-3 h-[48px] bg-[#fafafa] rounded-[10px] p-[10px_14px] border border-slate-100/50 transition-all ${
           isHOD
-            ? "cursor-pointer hover:bg-slate-100 dark:hover:bg-[#27272A] hover:border-slate-200 dark:hover:border-[#3F3F46]"
+            ?"cursor-pointer hover:bg-slate-100 hover:border-slate-200"
             : ""
         }`}
       >
         {hasIncharge ? (
           <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-[34px] h-[34px] ring-2 ring-primary/20 shrink-0" />
         ) : (
-          <div className="w-[34px] h-[34px] rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-gray-400 shrink-0">
+          <div className="w-[34px] h-[34px] rounded-full bg-slate-100 flex items-center justify-center text-gray-400 shrink-0">
             <ShieldCheck className="w-4 h-4" />
           </div>
         )}
         <div className="min-w-0 flex-1 flex flex-col justify-center">
           <span className="text-[10px] font-[600] tracking-[0.8px] text-[var(--text-muted)] uppercase leading-none">Class Incharge</span>
-          <span className={`text-[14px] font-[600] leading-[18px] truncate mt-[2px] ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-slate-400 dark:text-slate-500 italic"}`}>
+          <span className={`text-[14px] font-[600] leading-[18px] truncate mt-[2px] ${hasIncharge ?"text-gray-800":"text-slate-400 italic"}`}>
             {hasIncharge ? c.incharge.name : "Not Assigned"}
           </span>
         </div>
@@ -107,18 +107,18 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
  
       {/* Statistics Block */}
       <div className="grid grid-cols-[1.15fr_0.85fr] gap-2.5">
-        <div className="h-[52px] bg-[#fafafa] dark:bg-[#202024] border border-slate-100/50 dark:border-[#2E2E34] rounded-[10px] p-2.5 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] border border-slate-100/50 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <Users className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
-            <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">{c.student_count ?? 0}</span>
+            <span className="text-[14px] font-bold text-gray-800 leading-none">{c.student_count ?? 0}</span>
             <span className="text-[10px] font-[600] tracking-[0.5px] text-[var(--text-muted)] uppercase mt-[2px] leading-none">Students</span>
           </div>
         </div>
  
-        <div className="h-[52px] bg-[#fafafa] dark:bg-[#202024] border border-slate-100/50 dark:border-[#2E2E34] rounded-[10px] p-2.5 flex items-center gap-[10px]">
+        <div className="h-[52px] bg-[#fafafa] border border-slate-100/50 rounded-[10px] p-2.5 flex items-center gap-[10px]">
           <BookOpen className="w-[18px] h-[18px] text-primary shrink-0" />
           <div className="min-w-0 flex-1 flex flex-col justify-center">
-            <span className="text-[14px] font-bold text-gray-800 dark:text-gray-250 leading-none">
+            <span className="text-[14px] font-bold text-gray-800 leading-none">
               {`Year ${activeMeta.year}`}
             </span>
             <span className="text-[10px] font-[600] tracking-[0.5px] text-[var(--text-muted)] uppercase mt-[2px] leading-none">
@@ -145,12 +145,12 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
 }
 
 const FORUM_ROLE_META = {
-  President: { color: "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-350", dot: "bg-orange-500" },
-  "Vice President": { color: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-355", dot: "bg-amber-500" },
-  Secretary: { color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-355", dot: "bg-emerald-500" },
-  "Joint Secretary": { color: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-355", dot: "bg-teal-500" },
-  Treasurer: { color: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-355", dot: "bg-rose-500" },
-  Member: { color: "bg-slate-100 text-slate-650 dark:bg-slate-800 dark:text-slate-355", dot: "bg-slate-400" },
+  President: { color:"bg-orange-100 text-orange-700", dot:"bg-orange-500"},
+"Vice President": { color:"bg-amber-100 text-amber-700", dot:"bg-amber-500"},
+  Secretary: { color:"bg-emerald-100 text-emerald-700", dot:"bg-emerald-500"},
+"Joint Secretary": { color:"bg-teal-100 text-teal-700", dot:"bg-teal-500"},
+  Treasurer: { color:"bg-rose-100 text-rose-700", dot:"bg-rose-500"},
+  Member: { color:"bg-slate-100 text-slate-650", dot:"bg-slate-400"},
 };
 
 // ─── Assign Incharge Modal ────────────────────────────────────────────────────
@@ -162,22 +162,22 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/50 backdrop-blur-md p-4 pt-16 animate-fade-in" onClick={onClose}>
       <div
-        className="bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-md max-h-[78vh] flex flex-col overflow-hidden transition-all shadow-[0_25px_80px_rgba(0,0,0,0.35)]"
+        className="bg-white rounded-[32px] shadow-2xl border border-slate-100 w-full max-w-md max-h-[78vh] flex flex-col overflow-hidden transition-all shadow-[0_25px_80px_rgba(0,0,0,0.35)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header bar */}
         <div className="h-1.5 rounded-t-3xl bg-gradient-to-r from-[#FF8365] via-[#F05A2B] to-[#E04A1B] shrink-0" />
-        <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#FF8365] to-[#F05A2B] text-white flex items-center justify-center shadow-md shadow-orange-500/20">
               <Crown className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white leading-tight">Assign Incharge</h3>
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-400 mt-0.5">{meta?.label || className} class</p>
+              <h3 className="text-base font-black text-slate-900 leading-tight">Assign Incharge</h3>
+              <p className="text-xs font-semibold text-slate-400 mt-0.5">{meta?.label || className} class</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -186,8 +186,8 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
         <div className="p-4 flex-1 overflow-y-auto min-h-0 space-y-2">
           {eligibleFaculty.length === 0 ? (
             <div className="text-center py-10">
-              <UserCog className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-600 dark:text-slate-300">No eligible faculty</p>
+              <UserCog className="w-10 h-10 text-slate-300 mx-auto mb-3"/>
+              <p className="text-sm font-bold text-slate-600">No eligible faculty</p>
               <p className="text-xs font-medium text-slate-400 mt-1">All faculty are already assigned as class incharge.</p>
             </div>
           ) : (
@@ -201,17 +201,17 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
                   disabled={isPending}
                   className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all text-left disabled:opacity-50 group cursor-pointer ${
                     isSelected
-                      ? "border-[#F05A2B] bg-[#FFF5F2] dark:bg-orange-950/40 shadow-sm shadow-orange-500/10 ring-1 ring-[#F05A2B]/30"
-                      : "border-slate-100 dark:border-slate-800/80 hover:border-orange-200 dark:hover:border-orange-800 hover:bg-orange-50/30 dark:hover:bg-orange-950/20"
+                      ?"border-[#F05A2B] bg-[#FFF5F2] shadow-sm shadow-orange-500/10 ring-1 ring-[#F05A2B]/30"
+                      :"border-slate-100 hover:border-orange-200 hover:bg-orange-50/30"
                   }`}
                 >
                   <Avatar src={f.profile_picture} name={f.name} size="sm" className="w-9 h-9 ring-2 ring-orange-500/20 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate group-hover:text-[#F05A2B] dark:group-hover:text-[#FF8365] transition-colors">{f.name}</p>
+                    <p className="text-sm font-extrabold text-slate-900 truncate group-hover:text-[#F05A2B] transition-colors">{f.name}</p>
                     <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">{f.designation}</p>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    isSelected ? "border-[#F05A2B] bg-[#F05A2B] text-white" : "border-slate-300 dark:border-slate-600"
+                    isSelected ?"border-[#F05A2B] bg-[#F05A2B] text-white":"border-slate-300"
                   }`}>
                     {isSelected && <span className="w-1.5 h-1.5 bg-white rounded-full" />}
                   </div>
@@ -222,11 +222,11 @@ function AssignInchargeModal({ className, eligibleFaculty, onAssign, onClose, is
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+        <div className="px-6 py-4 flex justify-end gap-3 border-t border-slate-100 bg-slate-50/50 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="px-5 py-2.5 rounded-full border border-slate-200 text-xs font-extrabold text-slate-600 hover:bg-slate-100 transition-colors"
           >
             Cancel
           </button>
@@ -363,8 +363,8 @@ export default function ClassesPage() {
       {/* ── Page Header ── */}
       <div className="flex flex-row items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Classes</h1>
-          <span className="hidden sm:inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFF5F2] dark:bg-orange-950/40 text-[#F05A2B] border border-orange-200/50 dark:border-orange-900/40">
+          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Classes</h1>
+          <span className="hidden sm:inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFF5F2] text-[#F05A2B] border border-orange-200/50">
             {classes.length} Classes Total
           </span>
         </div>
@@ -372,10 +372,10 @@ export default function ClassesPage() {
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
           {/* Forum Members button */}
-          <div className="flex items-center gap-1.5 bg-white dark:bg-[#202024] px-3 h-9 rounded-xl border border-gray-200/60 dark:border-[#26262B] shadow-sm shrink-0">
+          <div className="flex items-center gap-1.5 bg-white px-3 h-9 rounded-xl border border-gray-200/60 shadow-sm shrink-0">
             <button
               onClick={() => setShowMembersModal(true)}
-              className="flex items-center gap-1.5 hover:opacity-85 transition-opacity text-xs font-bold text-gray-800 dark:text-gray-200"
+              className="flex items-center gap-1.5 hover:opacity-85 transition-opacity text-xs font-bold text-gray-800"
               title="View Forum Members"
             >
               <Users className="w-3.5 h-3.5 text-[#F05A2B] shrink-0" />
@@ -395,8 +395,8 @@ export default function ClassesPage() {
           </div>
 
           {isHOD && (
-            <div className="flex items-center gap-2.5 bg-white dark:bg-[#202024] px-3 h-9 rounded-xl border border-gray-200/60 dark:border-[#26262B] shadow-sm shrink-0">
-              <span className="text-xs font-bold text-gray-550 dark:text-gray-400">New Student</span>
+            <div className="flex items-center gap-2.5 bg-white px-3 h-9 rounded-xl border border-gray-200/60 shadow-sm shrink-0">
+              <span className="text-xs font-bold text-gray-550">New Student</span>
               <Switch
                 checked={regOpen}
                 onChange={() => toggleRegMutation.mutate()}
@@ -407,13 +407,13 @@ export default function ClassesPage() {
           )}
 
           {/* Desktop View Switchers */}
-          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-[#202024] border border-gray-200/50 dark:border-[#26262B] h-9 shrink-0">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 border border-gray-200/50 h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-white dark:bg-[#28282D] text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
-                  : "text-gray-455 dark:text-gray-400 hover:text-gray-650"
+                  ?"bg-white text-[#F05A2B] shadow-sm"
+                  :"text-gray-455 hover:text-gray-650"
               }`}
               title="Grid View"
             >
@@ -423,8 +423,8 @@ export default function ClassesPage() {
               onClick={() => setViewMode("list")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-[#F05A2B] dark:text-[#FF8365] shadow-sm"
-                  : "text-gray-455 dark:text-gray-500 hover:text-gray-655"
+                  ?"bg-white text-[#F05A2B] shadow-sm"
+                  :"text-gray-455 hover:text-gray-655"
               }`}
               title="List View"
             >
@@ -442,7 +442,7 @@ export default function ClassesPage() {
             {ugList.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
+                  <span className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Undergraduate ({ugList.length} classes)</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {ugList.map((c) => (
@@ -463,7 +463,7 @@ export default function ClassesPage() {
             {pgList.length > 0 && (
               <div className="space-y-4 pt-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
+                  <span className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Postgraduate ({pgList.length} classes)</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {pgList.map((c) => (
@@ -483,7 +483,7 @@ export default function ClassesPage() {
         ) : (
           /* List View */
           <div className="space-y-4">
-            <div className="hidden lg:grid grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-550 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+            <div className="hidden lg:grid grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-150">
               <span>Class Name</span>
               <span>Level</span>
               <span>Class Incharge</span>
@@ -498,7 +498,7 @@ export default function ClassesPage() {
                   <div
                     key={c.class_name}
                     onClick={() => c.can_view_details && navigateWithTransition(`/classes/${c.class_name}`, meta?.label || c.class_name, BookOpen)}
-                    className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white dark:bg-[#18181B] rounded-2xl border border-gray-150 dark:border-[#26262B] shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
+                    className={`group grid grid-cols-1 lg:grid-cols-[minmax(180px,1.5fr)_1fr_1.5fr_1fr_120px] gap-4 items-center p-4 bg-white rounded-2xl border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
                       c.can_view_details ? "cursor-pointer" : "opacity-80"
                     }`}
                   >
@@ -506,10 +506,10 @@ export default function ClassesPage() {
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
                         {meta?.short || c.class_name}
                       </div>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{meta?.label || c.class_name}</span>
+                      <span className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{meta?.label || c.class_name}</span>
                     </div>
 
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    <span className="text-xs text-gray-500 font-medium">
                       {meta?.level === "UG" ? "Undergraduate" : "Postgraduate"}
                     </span>
 
@@ -517,14 +517,14 @@ export default function ClassesPage() {
                       {hasIncharge ? (
                         <>
                           <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-6.5 h-6.5 ring-2 ring-primary/10 shrink-0" />
-                          <span className="text-xs font-bold text-gray-800 dark:text-gray-250 truncate">{c.incharge.name}</span>
+                          <span className="text-xs font-bold text-gray-800 truncate">{c.incharge.name}</span>
                         </>
                       ) : (
                         <span className="text-xs text-gray-400 italic">Not Assigned</span>
                       )}
                     </div>
 
-                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">
+                    <span className="text-xs font-bold text-gray-700 text-center">
                       {c.student_count ?? 0} Students
                     </span>
 
@@ -532,7 +532,7 @@ export default function ClassesPage() {
                       {isHOD ? (
                         <button
                           onClick={() => setInchargeModal(c.class_name)}
-                          className="text-xs font-bold text-indigo-600 hover:text-indigo-755 hover:underline bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 transition-all active:scale-95"
+                          className="text-xs font-bold text-indigo-600 hover:text-indigo-755 hover:underline bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100/50 transition-all active:scale-95"
                         >
                           Assign Incharge
                         </button>
@@ -587,18 +587,18 @@ export default function ClassesPage() {
       {pendingStudent && (
         <Modal open={!!pendingStudent} onClose={() => setPendingStudent(null)} title="Assign Forum Role">
           <div className="space-y-4 pt-1">
-            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-orange-50 to-orange-100/50 dark:from-orange-950/20 dark:to-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20">
+            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-2xl border border-orange-100">
               <Avatar src={pendingStudent.profile_picture} name={pendingStudent.name} size="md" />
               <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{pendingStudent.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                <p className="text-sm font-bold text-gray-900 truncate">{pendingStudent.name}</p>
+                <p className="text-xs text-gray-500 truncate mt-0.5">
                   {pendingStudent.class_name?.replace("_", " ")} · {pendingStudent.email}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Select Preset Role</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Select Preset Role</label>
               <select
                 value={rolePreset}
                 onChange={(e) => {
@@ -607,7 +607,7 @@ export default function ClassesPage() {
                     setCustomRole("");
                   }
                 }}
-                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-[#26262B] bg-white dark:bg-[#202024] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
+                className="w-full p-2.5 rounded-xl border border-gray-250 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500/25"
               >
                 <option value="President">President</option>
                 <option value="Vice President">Vice President</option>
@@ -628,13 +628,13 @@ export default function ClassesPage() {
 
             {rolePreset === "Custom" && (
               <div className="animate-fade-in">
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Custom Designation</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Custom Designation</label>
                 <input
                   type="text"
                   placeholder="e.g. Vice Secretary, Creative Head"
                   value={customRole}
                   onChange={(e) => setCustomRole(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#26262B] bg-white dark:bg-[#202024] text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/25"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500/25"
                 />
               </div>
             )}
@@ -643,7 +643,7 @@ export default function ClassesPage() {
               <button
                 type="button"
                 onClick={() => setPendingStudent(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-[#26262B] text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#28282D] transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-250 text-sm font-semibold text-gray-650 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
@@ -678,7 +678,7 @@ export default function ClassesPage() {
               placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 dark:border-[#26262B] bg-gray-55/50 dark:bg-[#202024] text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 transition-all"
+              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 bg-gray-55/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 transition-all"
             />
             {memberSearchQuery && (
               <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -696,11 +696,11 @@ export default function ClassesPage() {
             ) : (
               filteredMembers.map(m => {
                 const isLeader = m.role?.toLowerCase() === "president" || m.role?.toLowerCase() === "vice president";
-                const roleMeta = FORUM_ROLE_META[m.role] || { color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", dot: "bg-slate-400" };
+                const roleMeta = FORUM_ROLE_META[m.role] || { color:"bg-slate-100 text-slate-700", dot:"bg-slate-400"};
                 return (
                   <div
                     key={m.id}
-                    className={`relative flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-white to-gray-50/30 dark:from-gray-800 dark:to-gray-800/60 border border-gray-150 dark:border-gray-700/60 shadow-sm hover:shadow-md hover:border-orange-300 dark:hover:border-orange-900/40 transition-all ${
+                    className={`relative flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-white to-gray-50/30 border border-gray-150 shadow-sm hover:shadow-md hover:border-orange-300 transition-all ${
                       isLeader ? "ring-2 ring-orange-500/20" : ""
                     }`}
                   >
@@ -714,14 +714,14 @@ export default function ClassesPage() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight flex items-center gap-1.5">
+                        <p className="text-sm font-bold text-gray-900 truncate leading-tight flex items-center gap-1.5">
                           {m.name}
                         </p>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border border-current/10 ${roleMeta.color}`}>
                             {m.role}
                           </span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700/80 text-gray-550 dark:text-gray-300">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-550">
                             {m.class_name?.replace("_", " ")}
                           </span>
                         </div>
@@ -732,7 +732,7 @@ export default function ClassesPage() {
                         <button
                           onClick={() => removeMutation.mutate(m.id)}
                           disabled={removeMutation.isPending}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                           title="Remove member"
                         >
                           <Trash2 className="w-4 h-4" />

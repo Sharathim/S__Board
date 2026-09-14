@@ -16,7 +16,7 @@ export function MobileStatCell({ icon: Icon, label, value, iconBg, iconColor, on
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-slate-900 border border-gray-200/70 dark:border-slate-800/80 rounded-2xl p-3 flex items-center gap-2.5 ${onClick ? "mobile-tappable cursor-pointer active:scale-[0.98]" : ""
+      className={`bg-white border border-gray-200/70 rounded-2xl p-3 flex items-center gap-2.5 ${onClick ?"mobile-tappable cursor-pointer active:scale-[0.98]":""
         }`}
     >
       <div
@@ -26,8 +26,8 @@ export function MobileStatCell({ icon: Icon, label, value, iconBg, iconColor, on
         <Icon className="w-4.5 h-4.5" style={{ color: iconColor || "#8B5CF6" }} />
       </div>
       <div className="min-w-0">
-        <span className="text-lg font-bold text-gray-900 dark:text-white tracking-tight block leading-none">{value}</span>
-        <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mt-1 truncate">{label}</span>
+        <span className="text-lg font-bold text-gray-900 tracking-tight block leading-none">{value}</span>
+        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mt-1 truncate">{label}</span>
       </div>
     </div>
   );

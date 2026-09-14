@@ -6,10 +6,10 @@ import {
 } from "lucide-react";
 
 const TYPE_META = {
-  CASUAL:     { label: "Casual Leave",     icon: CalendarDays,  color: "from-violet-500 to-violet-700", bg: "bg-violet-50/80 dark:bg-violet-950/30", border: "border-violet-200/80 dark:border-violet-900/40", text: "text-violet-700 dark:text-violet-300" },
-  MEDICAL:    { label: "Medical Leave",    icon: Stethoscope,   color: "from-rose-500 to-rose-700",    bg: "bg-rose-50/80 dark:bg-rose-950/30",    border: "border-rose-200/80 dark:border-rose-900/40",    text: "text-rose-700 dark:text-rose-300"    },
-  ON_DUTY:    { label: "On Duty",          icon: Briefcase,     color: "from-amber-500 to-amber-700",  bg: "bg-amber-50/80 dark:bg-amber-950/30",  border: "border-amber-200/80 dark:border-amber-900/40",  text: "text-amber-700 dark:text-amber-300"  },
-  PERMISSION: { label: "Permission",       icon: Clock,         color: "from-sky-500 to-sky-700",      bg: "bg-sky-50/80 dark:bg-sky-950/30",      border: "border-sky-200/80 dark:border-sky-900/40",      text: "text-sky-700 dark:text-sky-300"      },
+  CASUAL: { label:"Casual Leave", icon: CalendarDays, color:"from-violet-500 to-violet-700", bg:"bg-violet-50/80", border:"border-violet-200/80", text:"text-violet-700"},
+  MEDICAL: { label:"Medical Leave", icon: Stethoscope, color:"from-rose-500 to-rose-700", bg:"bg-rose-50/80", border:"border-rose-200/80", text:"text-rose-700"},
+  ON_DUTY: { label:"On Duty", icon: Briefcase, color:"from-amber-500 to-amber-700", bg:"bg-amber-50/80", border:"border-amber-200/80", text:"text-amber-700"},
+  PERMISSION: { label:"Permission", icon: Clock, color:"from-sky-500 to-sky-700", bg:"bg-sky-50/80", border:"border-sky-200/80", text:"text-sky-700"},
 };
 
 function BalanceCard({ balance }) {
@@ -33,16 +33,16 @@ function BalanceCard({ balance }) {
       {/* Count */}
       <div className="space-y-0.5">
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-slate-100 leading-none">
+          <span className="text-2xl sm:text-3xl font-black text-gray-900 leading-none">
             {isUnlimited ? "∞" : balance.remaining}
           </span>
           {!isUnlimited && (
-            <span className="text-xs font-bold text-gray-400 dark:text-slate-400">
+            <span className="text-xs font-bold text-gray-400">
               / {balance.entitled} days
             </span>
           )}
         </div>
-        <p className="text-[10px] font-black text-gray-400 dark:text-slate-400 uppercase tracking-wider">
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
           {isUnlimited ? "UNLIMITED" : "REMAINING"}
         </p>
       </div>
@@ -50,13 +50,13 @@ function BalanceCard({ balance }) {
       {/* Progress & Stats */}
       {!isUnlimited && (
         <div className="space-y-1.5 pt-1">
-          <div className="w-full h-1.5 sm:h-2 rounded-full bg-gray-200/80 dark:bg-slate-800/80 overflow-hidden p-0.5">
+          <div className="w-full h-1.5 sm:h-2 rounded-full bg-gray-200/80 overflow-hidden p-0.5">
             <div
               className={`h-full rounded-full bg-gradient-to-r ${meta.color} transition-all duration-700`}
               style={{ width: `${pct}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-[10px] font-bold text-gray-500 dark:text-slate-400">
+          <div className="flex items-center justify-between text-[10px] font-bold text-gray-500">
             <span className="flex items-center gap-0.5">
               <TrendingDown className="w-3 h-3 text-rose-500 shrink-0" />
               {balance.used} used
@@ -79,9 +79,9 @@ export function LeaveBalanceCards({ balances, academicYear, showTitle = true }) 
     <div className="space-y-3">
       {showTitle && (
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-extrabold text-gray-900 dark:text-slate-100">Leave Balance Overview</h3>
+          <h3 className="text-sm font-extrabold text-gray-900">Leave Balance Overview</h3>
           {academicYear && (
-            <span className="text-xs font-bold text-gray-500 dark:text-slate-300 bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700/80 px-2.5 py-0.5 rounded-full shadow-xs">
+            <span className="text-xs font-bold text-gray-500 bg-gray-100 border border-gray-200 px-2.5 py-0.5 rounded-full shadow-xs">
               AY {academicYear.label}
             </span>
           )}
@@ -106,7 +106,7 @@ export function FacultyBalanceCards() {
   if (isLoading) return (
     <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="h-36 rounded-2xl bg-gray-100 dark:bg-slate-800/40 animate-pulse" />
+        <div key={i} className="h-36 rounded-2xl bg-gray-100 animate-pulse"/>
       ))}
     </div>
   );

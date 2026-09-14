@@ -105,7 +105,7 @@ export default function ForumPostDetailPage() {
   if (error || !post) {
     return (
       <div className="max-w-xl mx-auto text-center py-16">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Post not found</h2>
+        <h2 className="text-lg font-bold text-gray-900">Post not found</h2>
         <button
           onClick={() => navigate("/forum")}
           className="mt-4 text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1.5 justify-center mx-auto"
@@ -159,16 +159,16 @@ export default function ForumPostDetailPage() {
       <div ref={ref} className="relative shrink-0">
         <button
           onClick={() => setOpen(!open)}
-          className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+          className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
         >
           <MoreVertical className="w-5 h-5" />
         </button>
         {open && (
-          <div className="absolute right-0 top-full mt-1 z-50 w-32 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 animate-fade-in">
+          <div className="absolute right-0 top-full mt-1 z-50 w-32 bg-white rounded-xl shadow-xl border border-gray-150 py-1 animate-fade-in">
             {canEdit && (
               <button
                 onClick={() => { setOpen(false); handleOpenEdit(); }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <Edit2 className="w-3.5 h-3.5 text-amber-500" /> Edit Post
               </button>
@@ -176,7 +176,7 @@ export default function ForumPostDetailPage() {
             {canDelete && (
               <button
                 onClick={() => { setOpen(false); setDeleteDialogOpen(true); }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" /> Delete Post
               </button>
@@ -194,7 +194,7 @@ export default function ForumPostDetailPage() {
     if (urls.length === 1) {
       return (
         <div 
-          className="rounded-[16px] border border-[#E5E7EB] dark:border-slate-800 overflow-hidden bg-gray-50 dark:bg-gray-900/30 cursor-pointer shadow-sm hover:opacity-95 transition-all duration-200"
+          className="rounded-[16px] border border-[#E5E7EB] overflow-hidden bg-gray-50 cursor-pointer shadow-sm hover:opacity-95 transition-all duration-200"
           onClick={() => { setLightboxImages(urls); setLightboxIndex(0); }}
         >
           <img src={urls[0]} alt="Post attachment" className="w-full h-auto object-cover max-h-[500px]" />
@@ -208,7 +208,7 @@ export default function ForumPostDetailPage() {
           {urls.map((url, idx) => (
             <div 
               key={idx} 
-              className="rounded-[16px] border border-[#E5E7EB] dark:border-slate-800 overflow-hidden aspect-video bg-gray-50 dark:bg-gray-900/30 cursor-pointer shadow-sm hover:opacity-95 hover:scale-[1.01] transition-all duration-200"
+              className="rounded-[16px] border border-[#E5E7EB] overflow-hidden aspect-video bg-gray-50 cursor-pointer shadow-sm hover:opacity-95 hover:scale-[1.01] transition-all duration-200"
               onClick={() => { setLightboxImages(urls); setLightboxIndex(idx); }}
             >
               <img src={url} alt="Attachment" className="w-full h-full object-cover" />
@@ -227,7 +227,7 @@ export default function ForumPostDetailPage() {
             return (
               <div 
                 key={idx}
-                className="relative rounded-[16px] border border-[#E5E7EB] dark:border-slate-800 overflow-hidden aspect-video bg-gray-50 dark:bg-gray-900/30 cursor-pointer shadow-sm hover:opacity-95 hover:scale-[1.01] transition-all duration-200 group"
+                className="relative rounded-[16px] border border-[#E5E7EB] overflow-hidden aspect-video bg-gray-50 cursor-pointer shadow-sm hover:opacity-95 hover:scale-[1.01] transition-all duration-200 group"
                 onClick={() => { setLightboxImages(urls); setLightboxIndex(idx); }}
               >
                 <img src={url} alt="Attachment" className="w-full h-full object-cover" />
@@ -259,14 +259,14 @@ export default function ForumPostDetailPage() {
       </div>
 
       {/* Main Single Card Content */}
-      <div className="max-w-[1000px] mx-auto bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800/80 rounded-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="max-w-[1000px] mx-auto bg-white border border-[#E5E7EB] rounded-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-8 py-6 border-b border-[#E5E7EB] dark:border-slate-800/50">
+        <div className="flex items-center justify-between gap-3 px-8 py-6 border-b border-[#E5E7EB]">
           <div className="flex items-center gap-3">
             <Avatar src={post.posted_by?.profile_picture} name={post.posted_by?.name} size="sm" className="ring-2 ring-violet-500/10 rounded-full" />
             <div>
-              <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">{post.posted_by?.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-sm font-bold text-gray-900 leading-tight">{post.posted_by?.name}</p>
+              <p className="text-xs text-gray-500 mt-1">
                 {designation}
               </p>
             </div>
@@ -278,13 +278,13 @@ export default function ForumPostDetailPage() {
         <div className="px-8 py-6 space-y-6">
           <div className="space-y-4">
             {post.title && (
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight leading-tight">
                 {post.title}
               </h1>
             )}
             
             {/* Multi-paragraph description */}
-            <p className="text-[#374151] dark:text-gray-300 whitespace-pre-wrap break-words leading-relaxed text-sm md:text-base font-normal">
+            <p className="text-[#374151] whitespace-pre-wrap break-words leading-relaxed text-sm md:text-base font-normal">
               {post.content}
             </p>
 
@@ -292,7 +292,7 @@ export default function ForumPostDetailPage() {
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {tags.map(tag => (
-                  <span key={tag} className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/20">
+                  <span key={tag} className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100/30">
                     #{tag}
                   </span>
                 ))}
@@ -305,20 +305,20 @@ export default function ForumPostDetailPage() {
         </div>
 
         {/* Card Footer */}
-        <div className="px-8 py-4 border-t border-[#E5E7EB] dark:border-slate-800/50 flex items-center justify-between">
+        <div className="px-8 py-4 border-t border-[#E5E7EB] flex items-center justify-between">
           <button
             onClick={() => likeMutation.mutate()}
             className={`group/like inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg border transition-all cursor-pointer ${
               post.liked
-                ? "bg-violet-50 dark:bg-violet-955/20 border-violet-100 dark:border-violet-900/30 text-violet-600 dark:text-violet-400"
-                : "border-gray-200 dark:border-gray-800 text-gray-405 hover:text-violet-600 dark:hover:text-violet-400"
+                ?"bg-violet-50 border-violet-100 text-violet-600"
+                :"border-gray-200 text-gray-405 hover:text-violet-600"
             }`}
           >
             <span className="text-sm group-hover/like:scale-110 transition-transform">👍</span>
             <span>{post.like_count || 0} Likes</span>
           </button>
 
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-505 select-none">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 select-none">
             <Calendar className="w-4 h-4 text-violet-500" />
             <span>{format(parseUTCDate(post.created_at), "d MMM yyyy, h:mm a")}</span>
           </span>
@@ -329,42 +329,42 @@ export default function ForumPostDetailPage() {
       <Modal open={editModalOpen} onClose={() => setEditModalOpen(false)} title="Edit Forum Post">
         <div className="space-y-4 pt-1">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Title</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Title</label>
             <input
               type="text"
               placeholder="Give your post a title..."
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Description</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Description</label>
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               rows={5}
-              className="w-full p-4 text-xs rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-55 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all resize-none leading-relaxed"
+              className="w-full p-4 text-xs rounded-2xl border border-gray-200 bg-gray-55 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all resize-none leading-relaxed"
               placeholder="Edit your post..."
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Tags (optional)</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Tags (optional)</label>
             <input
               type="text"
               placeholder="e.g. academic, events, announcements (comma separated)"
               value={editTags}
               onChange={(e) => setEditTags(e.target.value)}
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
           <div className="flex gap-3 pt-1">
             <button
               onClick={() => setEditModalOpen(false)}
-              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-55 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-55 transition-colors cursor-pointer"
             >
               Cancel
             </button>

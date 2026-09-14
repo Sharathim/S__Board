@@ -32,13 +32,13 @@ export default function MobileLoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#F3F3F5] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col justify-between p-4 select-none transition-colors duration-300">
+    <div className="min-h-screen w-full bg-[#F3F3F5] text-slate-900 flex flex-col justify-between p-4 select-none transition-colors duration-300">
       
       {/* Top Bar */}
       <div className="flex items-center justify-between pt-2">
         <button
           onClick={() => navigate("/")}
-          className="mobile-tappable p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 flex items-center gap-1.5 text-xs font-bold shadow-sm"
+          className="mobile-tappable p-2 rounded-xl bg-white border border-slate-200/80 text-slate-700 flex items-center gap-1.5 text-xs font-bold shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -49,7 +49,7 @@ export default function MobileLoginPage() {
 
       {/* Login Card */}
       <div className="my-auto py-6 max-w-sm mx-auto w-full">
-        <div className="p-6 rounded-3xl bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] shadow-xl space-y-6 text-center mobile-fade-in">
+        <div className="p-6 rounded-3xl bg-white border border-gray-200/80 shadow-xl space-y-6 text-center mobile-fade-in">
           
           {/* Header */}
           <div>
@@ -57,12 +57,12 @@ export default function MobileLoginPage() {
               <Lock className="w-6 h-6 text-[#F05A2B]" />
             </div>
             <h1 
-              className="font-black text-slate-900 dark:text-white tracking-tight"
+              className="font-black text-slate-900 tracking-tight"
               style={{ fontSize: "clamp(1.25rem, 4vw + 0.5rem, 1.75rem)" }}
             >
               Sign In to Hive
             </h1>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs font-medium text-slate-500 mt-1">
               Department Project Management Portal
             </p>
           </div>
@@ -72,7 +72,7 @@ export default function MobileLoginPage() {
             <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left px-1">
               Select Your Academic Role
             </label>
-            <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl">
+            <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl">
               {ROLES.map((r) => {
                 const Icon = r.icon;
                 const active = role === r.value;
@@ -83,7 +83,7 @@ export default function MobileLoginPage() {
                     className={`mobile-tappable flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       active
                         ? "bg-[#F05A2B] text-white shadow-md shadow-[#F05A2B]/20"
-                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+                        :"text-slate-500 hover:text-slate-800"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -95,8 +95,8 @@ export default function MobileLoginPage() {
           </div>
 
           {/* Role Description */}
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/[0.05]">
-            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+            <p className="text-xs text-slate-600 font-medium">
               {currentRole?.desc}
             </p>
           </div>

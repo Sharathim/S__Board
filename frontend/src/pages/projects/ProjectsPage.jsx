@@ -61,7 +61,7 @@ function ProjectKebab({ project, isHOD }) {
     <div ref={ref} className="relative">
       <button
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
-        className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+        className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-700"
       >
         <MoreVertical className="w-4 h-4" />
       </button>
@@ -69,11 +69,11 @@ function ProjectKebab({ project, isHOD }) {
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute right-0 top-9 z-50 min-w-[168px] rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-xl shadow-black/10 overflow-hidden py-1.5"
+          className="absolute right-0 top-9 z-50 min-w-[168px] rounded-2xl bg-white border border-gray-100 shadow-xl shadow-black/10 overflow-hidden py-1.5"
         >
           <button
             onClick={() => { setOpen(false); navigate(`/projects/${project.id}`); }}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <ExternalLink className="w-4 h-4 text-[#F05A2B]" /> View Details
           </button>
@@ -81,14 +81,14 @@ function ProjectKebab({ project, isHOD }) {
             <>
               <button
                 onClick={() => navigate(`/projects/${project.id}/workflow`)}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <Pencil className="w-4 h-4 text-amber-555" /> Edit
               </button>
-              <div className="my-1 border-t border-gray-100 dark:border-gray-700" />
+              <div className="my-1 border-t border-gray-100"/>
               <button
                 onClick={() => { setOpen(false); if (window.confirm(`Delete "${project.name}"?`)) deleteMutation.mutate(project.id); }}
-                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
               >
                 <Trash2 className="w-4 h-4" /> Delete
               </button>
@@ -102,14 +102,14 @@ function ProjectKebab({ project, isHOD }) {
 
 const getStatusTheme = (status) => {
   const map = {
-    NOT_STARTED: { bg: "bg-slate-100 text-slate-700 dark:bg-slate-800/80 dark:text-slate-200 border border-slate-200 dark:border-white/10", dot: "bg-slate-400" },
-    IN_PROGRESS: { bg: "bg-[#FFEEE9] text-[#F05A2B] dark:bg-[#F05A2B]/15 dark:text-[#FF8365] border border-[#FFDBD2] dark:border-[#F05A2B]/30", dot: "bg-[#F05A2B]" },
-    REVIEW: { bg: "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30", dot: "bg-purple-500" },
-    COMPLETED: { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30", dot: "bg-emerald-500" },
-    ON_HOLD: { bg: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30", dot: "bg-amber-500" },
-    CANCELLED: { bg: "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30", dot: "bg-rose-500" },
+    NOT_STARTED: { bg:"bg-slate-100 text-slate-700 border border-slate-200", dot:"bg-slate-400"},
+    IN_PROGRESS: { bg:"bg-[#FFEEE9] text-[#F05A2B] border border-[#FFDBD2]", dot:"bg-[#F05A2B]"},
+    REVIEW: { bg:"bg-purple-50 text-purple-700 border border-purple-200", dot:"bg-purple-500"},
+    COMPLETED: { bg:"bg-emerald-50 text-emerald-700 border border-emerald-200", dot:"bg-emerald-500"},
+    ON_HOLD: { bg:"bg-amber-50 text-amber-700 border border-amber-200", dot:"bg-amber-500"},
+    CANCELLED: { bg:"bg-rose-50 text-rose-700 border border-rose-200", dot:"bg-rose-500"},
   };
-  return map[status] || { bg: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-white/10", dot: "bg-slate-400" };
+  return map[status] || { bg:"bg-slate-100 text-slate-700 border border-slate-200", dot:"bg-slate-400"};
 };
 
 // ─── Main Page Component ──────────────────────────────────────────────────────
@@ -157,10 +157,10 @@ export default function ProjectsPage() {
       {/* ─── Premium Header & Actions (Using clamp padding & spacing) ─── */}
       <div className="flex flex-row items-center justify-between gap-4 mb-4 flex-wrap">
         <div>
-          <h1 className="font-black text-gray-900 dark:text-white tracking-tight leading-none" style={{ fontSize: "clamp(1.4rem, 2.5vw, 1.85rem)" }}>
+          <h1 className="font-black text-gray-900 tracking-tight leading-none"style={{ fontSize:"clamp(1.4rem, 2.5vw, 1.85rem)"}}>
             Projects Registry
           </h1>
-          <p className="text-gray-400 dark:text-gray-500 mt-1.5 font-medium" style={{ fontSize: "clamp(0.68rem, 1.1vw, 0.8rem)" }}>
+          <p className="text-gray-400 mt-1.5 font-medium"style={{ fontSize:"clamp(0.68rem, 1.1vw, 0.8rem)"}}>
             Track allocations, status milestones, and latest department updates.
           </p>
         </div>
@@ -182,10 +182,10 @@ export default function ProjectsPage() {
           description="Create a new project to get started."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[24px] border border-gray-200/80 dark:border-[#2E2E34] bg-white dark:bg-[#18181B] shadow-sm">
+        <div className="overflow-x-auto rounded-[24px] border border-gray-200/80 bg-white shadow-sm">
           <table className="w-full text-left border-collapse min-w-[950px]">
             <thead>
-              <tr className="border-b border-gray-200/80 dark:border-[#2E2E34] bg-gray-50/50 dark:bg-[#202024] text-gray-400 dark:text-zinc-400 uppercase tracking-widest font-extrabold" style={{ fontSize: "clamp(9px, 1.1vw, 10.5px)" }}>
+              <tr className="border-b border-gray-200/80 bg-gray-50/50 text-gray-400 uppercase tracking-widest font-extrabold"style={{ fontSize:"clamp(9px, 1.1vw, 10.5px)"}}>
                 <th className="py-4 px-6">Project Name</th>
                 <th className="py-4 px-5">Faculty</th>
                 <th className="py-4 px-5">Forum Member</th>
@@ -195,7 +195,7 @@ export default function ProjectsPage() {
                 <th className="py-4 px-6 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-[#26262B]">
+            <tbody className="divide-y divide-gray-100">
               {projects.map((project, idx) => {
                 const facultyMembers = project.members?.filter(m => m.role_in_project === "faculty") || [];
                 const forumMembers = project.members?.filter(m => m.role_in_project === "forum_member") || [];
@@ -207,24 +207,24 @@ export default function ProjectsPage() {
                   <tr
                     key={project.id}
                     onClick={() => navigateWithTransition(`/projects/${project.id}`, project.name, FolderKanban)}
-                    className="hover:bg-slate-50/60 dark:hover:bg-[#202024] cursor-pointer transition-all duration-150"
+                    className="hover:bg-slate-50/60 cursor-pointer transition-all duration-150"
                   >
                     {/* Project Name (Index styled as a rounded pill) */}
                     <td className="px-6" style={{ paddingTop: "clamp(12px, 1.8vw, 17px)", paddingBottom: "clamp(12px, 1.8vw, 17px)" }}>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-orange-50 dark:bg-[#202024] text-[#F05A2B] flex items-center justify-center shrink-0 font-mono text-[11px] font-bold border border-orange-100/30 dark:border-[#26262B]">
+                        <div className="w-8 h-8 rounded-xl bg-orange-50 text-[#F05A2B] flex items-center justify-center shrink-0 font-mono text-[11px] font-bold border border-orange-100/30">
                           {indexVal}
                         </div>
-                        <span className="font-bold text-gray-900 dark:text-white hover:text-[#F05A2B] transition-colors leading-tight line-clamp-1 max-w-[240px]" style={{ fontSize: "clamp(12.5px, 1.4vw, 14px)" }}>
+                        <span className="font-bold text-gray-900 hover:text-[#F05A2B] transition-colors leading-tight line-clamp-1 max-w-[240px]"style={{ fontSize:"clamp(12.5px, 1.4vw, 14px)"}}>
                           {project.name}
                         </span>
                       </div>
                     </td>
 
                     {/* Faculty Advisor */}
-                    <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <td className="px-5 text-xs font-semibold text-slate-700">
                       {facultyMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 dark:bg-[#202024] text-[#6366F1] dark:text-indigo-300 border border-indigo-100/30 dark:border-[#26262B] w-fit">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-indigo-50/50 text-[#6366F1] border border-indigo-100/30 w-fit">
                           <GraduationCap className="w-3.5 h-3.5 shrink-0" />
                           <span>{facultyMembers.map(m => m.name).join(", ")}</span>
                         </div>
@@ -234,9 +234,9 @@ export default function ProjectsPage() {
                     </td>
 
                     {/* Forum Coordinator */}
-                    <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <td className="px-5 text-xs font-semibold text-slate-700">
                       {forumMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 dark:bg-[#202024] text-amber-600 dark:text-amber-300 border border-amber-100/30 dark:border-[#26262B] w-fit">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-amber-50/50 text-amber-600 border border-amber-100/30 w-fit">
                           <MessageSquare className="w-3.5 h-3.5 shrink-0 animate-pulse" />
                           <span>{forumMembers.map(m => m.name).join(", ")}</span>
                         </div>
@@ -246,9 +246,9 @@ export default function ProjectsPage() {
                     </td>
 
                     {/* Students Team */}
-                    <td className="px-5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <td className="px-5 text-xs font-semibold text-slate-700">
                       {studentMembers.length > 0 ? (
-                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 dark:bg-[#202024] text-emerald-600 dark:text-emerald-400 border border-emerald-100/30 dark:border-[#26262B] w-fit">
+                        <div className="flex items-center gap-1.5 py-1 px-2.5 rounded-full bg-emerald-50/50 text-emerald-600 border border-emerald-100/30 w-fit">
                           <Users className="w-3.5 h-3.5 shrink-0" />
                           <span>{studentMembers.map(m => m.name).join(", ")}</span>
                         </div>
@@ -266,11 +266,11 @@ export default function ProjectsPage() {
                     </td>
 
                     {/* Last Updated */}
-                    <td className="px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <td className="px-5 text-xs font-semibold text-slate-500 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-gray-400" />
                         <div>
-                          <div className="font-bold text-gray-800 dark:text-gray-300">{format(parseUTCDate(project.updated_at), "dd MMM, yyyy")}</div>
+                          <div className="font-bold text-gray-800">{format(parseUTCDate(project.updated_at),"dd MMM, yyyy")}</div>
                           <div className="text-[10px] font-medium text-gray-400 mt-0.5">{format(parseUTCDate(project.updated_at), "hh:mm a")}</div>
                         </div>
                       </div>

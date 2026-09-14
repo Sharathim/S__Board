@@ -47,8 +47,8 @@ function MobileFacultyView() {
             <CalendarClock className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-black text-gray-900 dark:text-white leading-none">Leave & Permission</h1>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Track your leave balance</p>
+            <h1 className="text-base font-black text-gray-900 leading-none">Leave & Permission</h1>
+            <p className="text-[11px] text-gray-400 mt-0.5">Track your leave balance</p>
           </div>
         </div>
         <button
@@ -73,7 +73,7 @@ function MobileFacultyView() {
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
               section === t.id
                 ? "bg-primary-600 text-white shadow-sm shadow-primary-500/20"
-                : "bg-gray-100 dark:bg-slate-800/80 text-gray-600 dark:text-slate-300 border border-transparent dark:border-slate-700/60"
+                :"bg-gray-100 text-gray-600 border border-transparent"
             }`}
           >
             <t.icon className="w-3.5 h-3.5" />
@@ -125,8 +125,8 @@ function MobileHODView() {
             <CalendarClock className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-black text-gray-900 dark:text-white leading-none">Leave & Permission</h1>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            <h1 className="text-base font-black text-gray-900 leading-none">Leave & Permission</h1>
+            <p className="text-[11px] text-gray-400 mt-0.5">
               {pendingCount > 0 ? `${pendingCount} pending review` : "Department leave management"}
             </p>
           </div>
@@ -134,7 +134,7 @@ function MobileHODView() {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setSettingsOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 text-xs font-bold border border-gray-200 dark:border-slate-700/80 active:scale-95 transition-transform"
+            className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold border border-gray-200 active:scale-95 transition-transform"
             title="Set Default Limits"
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -162,7 +162,7 @@ function MobileHODView() {
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all relative ${
               section === t.id
                 ? "bg-violet-600 text-white shadow-sm shadow-violet-500/20"
-                : "bg-gray-100 dark:bg-slate-800/80 text-gray-600 dark:text-slate-300 border border-transparent dark:border-slate-700/60"
+                :"bg-gray-100 text-gray-600 border border-transparent"
             }`}
           >
             <t.icon className="w-3.5 h-3.5" />

@@ -54,7 +54,7 @@ export function SearchPicker({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={placeholder}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500"
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500"
           />
         </div>
 
@@ -69,13 +69,13 @@ export function SearchPicker({
                 key={item.id ?? item.key ?? `${item.kind}-${item.ref_id}`}
                 onClick={() => onPick(item)}
                 disabled={picking}
-                className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:border-primary-300 dark:hover:border-primary-700 transition-all text-left disabled:opacity-50"
+                className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-gray-200 hover:bg-primary-50 hover:border-primary-300 transition-all text-left disabled:opacity-50"
               >
                 <Avatar src={item.profile_picture} name={item.name} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{item.name}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
                   {item.subtitle && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{item.subtitle}</p>
+                    <p className="text-xs text-gray-500 truncate">{item.subtitle}</p>
                   )}
                 </div>
               </button>

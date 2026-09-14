@@ -87,7 +87,7 @@ export default function FeaturesPage() {
   const [projectsCount, setProjectsCount] = useState(65);
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#000000] text-slate-800 font-sans selection:bg-indigo-500 selection:text-white pt-[72px] transition-colors duration-300">
+    <div className="min-h-screen bg-[#FFFFFF] text-slate-800 font-sans selection:bg-indigo-500 selection:text-white pt-[72px] transition-colors duration-300">
 
       {/* ── BACKGROUND AMBIENT GLOWS ── */}
       <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-indigo-50/50 via-transparent to-transparent pointer-events-none" />
@@ -338,7 +338,7 @@ export default function FeaturesPage() {
                             <th className="p-3 font-semibold text-right">Action</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        <tbody className="divide-y divide-slate-100">
                           {[
                             { title: "Autonomous Quadcopter", desc: "ArduPilot integration for obstacle detection", faculty: "Dr. Sarah Jenkins", team: 4, status: "In Progress", pill: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20" },
                             { title: "Smart Crop Irrigation", desc: "IoT sensor grid tracking soil moisture", faculty: "Prof. Rajesh Kumar", team: 3, status: "Low Activity", pill: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
@@ -346,7 +346,7 @@ export default function FeaturesPage() {
                           ].map((proj, index) => (
                             <tr key={index} className={`hover:bg-indigo-500/5 transition-colors ${simTheme === "light" ? "text-slate-700" : "text-slate-300"}`}>
                               <td className="p-3 max-w-[200px]">
-                                <div className="font-semibold text-slate-900 dark:text-white truncate">{proj.title}</div>
+                                <div className="font-semibold text-slate-900 truncate">{proj.title}</div>
                                 <div className="text-[10px] text-slate-400 truncate">{proj.desc}</div>
                               </td>
                               <td className="p-3 font-medium">{proj.faculty}</td>
@@ -386,8 +386,8 @@ export default function FeaturesPage() {
                     }`}>
                     <Shield className="w-5 h-5 text-indigo-600 mt-0.5 shrink-0" />
                     <div className="text-xs">
-                      <h4 className="font-bold text-slate-900 dark:text-white mb-1">Interactive Sandbox Controls</h4>
-                      <p className="text-slate-500 dark:text-slate-400 leading-normal">
+                      <h4 className="font-bold text-slate-900 mb-1">Interactive Sandbox Controls</h4>
+                      <p className="text-slate-500 leading-normal">
                         Each class card has its own **invite toggle**. Turn off the toggle to disable student signups for that class instantly, preventing unauthorized entries. Try clicking the toggle below!
                       </p>
                     </div>
@@ -472,7 +472,7 @@ export default function FeaturesPage() {
 
               {/* ── SUB-TAB: PROGRESS MONITOR CHAT ── */}
               {activeSimTab === "monitor" && (
-                <div className="animate-fade-in flex flex-col h-[400px] border rounded-xl overflow-hidden shadow-inner bg-slate-100 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800">
+                <div className="animate-fade-in flex flex-col h-[400px] border rounded-xl overflow-hidden shadow-inner bg-slate-100 border-slate-200/80">
                   {/* Chat Header */}
                   <div className={`px-4 py-2.5 border-b flex items-center justify-between ${simTheme === "light" ? "bg-white border-slate-200" : "bg-slate-900 border-slate-800"
                     }`}>
@@ -487,10 +487,10 @@ export default function FeaturesPage() {
                   <div className="flex-1 p-4 overflow-y-auto space-y-3 scrollbar-none min-h-0">
                     {chatMessages.map(msg => (
                       <div key={msg.id} className="flex items-start gap-2.5">
-                        <img src={msg.avatar} alt={msg.sender} className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5 border border-slate-200 dark:border-slate-800" />
+                        <img src={msg.avatar} alt={msg.sender} className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5 border border-slate-200"/>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline gap-1.5">
-                            <span className="font-bold text-xs text-slate-900 dark:text-white">{msg.sender}</span>
+                            <span className="font-bold text-xs text-slate-900">{msg.sender}</span>
                             <span className="text-[9px] text-indigo-500 font-semibold bg-indigo-500/5 px-1 rounded">{msg.role}</span>
                             <span className="text-[8px] text-slate-400 font-medium">{msg.time}</span>
                           </div>
@@ -604,7 +604,7 @@ export default function FeaturesPage() {
                               <div className="text-[9px] text-slate-400">1.2 MB — Cloudinary Secure Storage</div>
                             </div>
                           </div>
-                          <span className="text-[9px] font-semibold text-indigo-600 dark:text-indigo-400 cursor-not-allowed">Download</span>
+                          <span className="text-[9px] font-semibold text-indigo-600 cursor-not-allowed">Download</span>
                         </div>
                       )}
 

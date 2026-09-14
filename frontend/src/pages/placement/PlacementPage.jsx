@@ -34,7 +34,7 @@ function CircularScoreGauge({ score = 0 }) {
           cx="72"
           cy="72"
           r={radius}
-          className="stroke-gray-200 dark:stroke-[#2E2E34]"
+          className="stroke-gray-200"
           strokeWidth="10"
           fill="transparent"
         />
@@ -52,8 +52,8 @@ function CircularScoreGauge({ score = 0 }) {
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center text-center">
-        <span className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{normalizedScore}%</span>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Job Match</span>
+        <span className="text-3xl font-black text-gray-900 tracking-tight">{normalizedScore}%</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Job Match</span>
       </div>
     </div>
   );
@@ -266,8 +266,8 @@ export default function PlacementPage() {
             <Briefcase className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">AI Placement Guidance</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">AI Placement Guidance</h1>
+            <p className="text-xs text-gray-500 font-medium">
               {isStudent
                 ? "Evaluate your resume against target job roles and close skill gaps with AI insights"
                 : isFaculty
@@ -298,7 +298,7 @@ export default function PlacementPage() {
           {/* Target Role Selector & Upload Card */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Target Role Card */}
-            <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-5 rounded-3xl shadow-sm space-y-4">
+            <div className="bg-white border border-gray-200/80 p-5 rounded-3xl shadow-sm space-y-4">
               <div className="flex items-center gap-2 text-xs font-bold text-[#F05A2B] uppercase tracking-wider">
                 <Sparkles className="w-4 h-4" /> Step 1: Select Target Career Role
               </div>
@@ -315,13 +315,13 @@ export default function PlacementPage() {
                         onClick={() => setSelectedRoleId(r.id.toString())}
                         className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-center justify-between ${
                           isSelected
-                            ? "bg-[#F05A2B]/10 border-[#F05A2B] text-gray-900 dark:text-white shadow-xs"
-                            : "bg-gray-50 dark:bg-[#202024] border-gray-100 dark:border-[#26262B] text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-[#3F3F46]"
+                            ?"bg-[#F05A2B]/10 border-[#F05A2B] text-gray-900 shadow-xs"
+                            :"bg-gray-50 border-gray-100 text-gray-600 hover:border-gray-300"
                         }`}
                       >
                         <div className="min-w-0 pr-2">
                           <h4 className="text-xs font-extrabold truncate">{r.name}</h4>
-                          <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 mt-0.5">{r.skills.join(" • ")}</p>
+                          <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5">{r.skills.join("•")}</p>
                         </div>
                         {isSelected && <Check className="w-4 h-4 text-[#F05A2B] shrink-0" />}
                       </button>
@@ -332,12 +332,12 @@ export default function PlacementPage() {
             </div>
 
             {/* Resume Upload Box */}
-            <div className="lg:col-span-2 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-6 rounded-3xl shadow-sm flex flex-col justify-between space-y-4">
+            <div className="lg:col-span-2 bg-white border border-gray-200/80 p-6 rounded-3xl shadow-sm flex flex-col justify-between space-y-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold text-[#F05A2B] uppercase tracking-wider mb-2">
                   <UploadCloud className="w-4 h-4" /> Step 2: Upload Your Resume (PDF)
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500">
                   Upload your latest PDF resume. Our Groq AI engine parses your technical skills, projects, and certifications against the target role requirements.
                 </p>
               </div>
@@ -345,18 +345,18 @@ export default function PlacementPage() {
               <form onSubmit={handleResumeSubmit} className="space-y-4">
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-200 dark:border-[#2E2E34] hover:border-[#F05A2B] dark:hover:border-[#F05A2B] p-6 rounded-2xl text-center bg-gray-50/50 dark:bg-[#202024] cursor-pointer transition-all flex flex-col items-center justify-center gap-2"
+                  className="border-2 border-dashed border-gray-200 hover:border-[#F05A2B] p-6 rounded-2xl text-center bg-gray-50/50 cursor-pointer transition-all flex flex-col items-center justify-center gap-2"
                 >
                   <FileText className="w-8 h-8 text-[#F05A2B] opacity-80" />
                   {resumeFile ? (
                     <div className="space-y-1">
-                      <p className="text-xs font-bold text-gray-900 dark:text-white">{resumeFile.name}</p>
+                      <p className="text-xs font-bold text-gray-900">{resumeFile.name}</p>
                       <p className="text-[10px] text-gray-400">{(resumeFile.size / 1024).toFixed(1)} KB PDF</p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-xs font-bold text-gray-700 dark:text-gray-200">Click or drag resume PDF here</p>
-                      <p className="text-[10px] text-gray-400 dark:text-gray-500">Max size 10MB • Text-based PDF only</p>
+                      <p className="text-xs font-bold text-gray-700">Click or drag resume PDF here</p>
+                      <p className="text-[10px] text-gray-400">Max size 10MB • Text-based PDF only</p>
                     </div>
                   )}
                 </div>
@@ -370,7 +370,7 @@ export default function PlacementPage() {
                 />
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">{scanStatusMsg}</span>
+                  <span className="text-xs text-gray-500 font-semibold">{scanStatusMsg}</span>
                   <Button
                     type="submit"
                     variant="primary"
@@ -392,7 +392,7 @@ export default function PlacementPage() {
             <div className="space-y-6">
               {/* Scan Status Banner if Processing */}
               {(currentScan.status === "PENDING" || currentScan.status === "PROCESSING") && (
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 text-amber-600">
                   <Loader2 className="w-5 h-5 animate-spin shrink-0" />
                   <div>
                     <h4 className="text-xs font-bold">AI Evaluation in Progress</h4>
@@ -402,7 +402,7 @@ export default function PlacementPage() {
               )}
 
               {currentScan.status === "FAILED" && (
-                <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center gap-3 text-red-600 dark:text-red-400">
+                <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center gap-3 text-red-600">
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   <div>
                     <h4 className="text-xs font-bold">Evaluation Error</h4>
@@ -414,21 +414,21 @@ export default function PlacementPage() {
               {currentScan.status === "COMPLETE" && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Gauge Card */}
-                  <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-6 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="bg-white border border-gray-200/80 p-6 rounded-3xl shadow-sm flex flex-col items-center justify-center text-center space-y-4">
                     <CircularScoreGauge score={currentScan.match_score} />
                     <div>
-                      <h3 className="font-extrabold text-gray-900 dark:text-white text-base">{currentScan.role_name}</h3>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      <h3 className="font-extrabold text-gray-900 text-base">{currentScan.role_name}</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">
                         Target Role Compatibility Summary
                       </p>
                     </div>
                   </div>
 
                   {/* Skills Found vs Missing Grid */}
-                  <div className="lg:col-span-2 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-6 rounded-3xl shadow-sm space-y-5">
+                  <div className="lg:col-span-2 bg-white border border-gray-200/80 p-6 rounded-3xl shadow-sm space-y-5">
                     {/* Skills Evidenced */}
                     <div>
-                      <h4 className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
+                      <h4 className="text-xs font-extrabold text-emerald-600 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
                         <CheckCircle2 className="w-4 h-4" /> Skills Evidenced in Resume ({currentScan.matched_skills.length})
                       </h4>
                       {currentScan.matched_skills.length === 0 ? (
@@ -436,7 +436,7 @@ export default function PlacementPage() {
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {currentScan.matched_skills.map((skill, i) => (
-                            <span key={i} className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span key={i} className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                               {skill}
                             </span>
                           ))}
@@ -445,8 +445,8 @@ export default function PlacementPage() {
                     </div>
 
                     {/* Skill Gaps */}
-                    <div className="pt-2 border-t border-gray-100 dark:border-[#26262B]">
-                      <h4 className="text-xs font-extrabold text-red-500 dark:text-red-400 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
+                    <div className="pt-2 border-t border-gray-100">
+                      <h4 className="text-xs font-extrabold text-red-500 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
                         <AlertTriangle className="w-4 h-4" /> Missing Skill Gaps ({currentScan.missing_skills.length})
                       </h4>
                       {currentScan.missing_skills.length === 0 ? (
@@ -454,7 +454,7 @@ export default function PlacementPage() {
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {currentScan.missing_skills.map((skill, i) => (
-                            <span key={i} className="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 dark:text-red-400 border border-red-500/20">
+                            <span key={i} className="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20">
                               {skill}
                             </span>
                           ))}
@@ -467,21 +467,21 @@ export default function PlacementPage() {
 
               {/* Action Plan Tabs Card */}
               {currentScan.status === "COMPLETE" && currentScan.action_plan && (
-                <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-6 rounded-3xl shadow-sm space-y-4">
-                  <div className="flex items-center justify-between border-b border-gray-100 dark:border-[#26262B] pb-3">
+                <div className="bg-white border border-gray-200/80 p-6 rounded-3xl shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <div className="flex items-center gap-2">
                       <Rocket className="w-5 h-5 text-[#F05A2B]" />
-                      <h3 className="font-black text-gray-900 dark:text-white text-base">AI Personalized Action Plan</h3>
+                      <h3 className="font-black text-gray-900 text-base">AI Personalized Action Plan</h3>
                     </div>
 
                     {/* Tabs Switcher */}
-                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-[#202024] p-1 rounded-xl">
+                    <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
                       <button
                         onClick={() => setActiveActionTab("courses")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           activeActionTab === "courses"
-                            ? "bg-white dark:bg-[#27272A] text-gray-900 dark:text-white shadow-xs"
-                            : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                            ?"bg-white text-gray-900 shadow-xs"
+                            :"text-gray-400 hover:text-gray-700"
                         }`}
                       >
                         Courses ({currentScan.action_plan.recommended_courses?.length || 0})
@@ -490,8 +490,8 @@ export default function PlacementPage() {
                         onClick={() => setActiveActionTab("projects")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           activeActionTab === "projects"
-                            ? "bg-white dark:bg-[#27272A] text-gray-900 dark:text-white shadow-xs"
-                            : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                            ?"bg-white text-gray-900 shadow-xs"
+                            :"text-gray-400 hover:text-gray-700"
                         }`}
                       >
                         Projects ({currentScan.action_plan.suggested_projects?.length || 0})
@@ -500,8 +500,8 @@ export default function PlacementPage() {
                         onClick={() => setActiveActionTab("resume")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           activeActionTab === "resume"
-                            ? "bg-white dark:bg-[#27272A] text-gray-900 dark:text-white shadow-xs"
-                            : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                            ?"bg-white text-gray-900 shadow-xs"
+                            :"text-gray-400 hover:text-gray-700"
                         }`}
                       >
                         Resume Tips ({currentScan.action_plan.resume_improvements?.length || 0})
@@ -514,11 +514,11 @@ export default function PlacementPage() {
                     {activeActionTab === "courses" && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {(currentScan.action_plan.recommended_courses || []).map((course, idx) => (
-                          <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 dark:bg-[#202024] border border-gray-100 dark:border-[#26262B] flex items-start gap-3">
+                          <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-3">
                             <BookOpen className="w-5 h-5 text-[#F05A2B] shrink-0 mt-0.5" />
                             <div>
-                              <p className="text-xs font-extrabold text-gray-900 dark:text-white">{course}</p>
-                              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold">Recommended NPTEL / Online Certification</span>
+                              <p className="text-xs font-extrabold text-gray-900">{course}</p>
+                              <span className="text-[10px] text-gray-400 font-semibold">Recommended NPTEL / Online Certification</span>
                             </div>
                           </div>
                         ))}
@@ -528,11 +528,11 @@ export default function PlacementPage() {
                     {activeActionTab === "projects" && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {(currentScan.action_plan.suggested_projects || []).map((proj, idx) => (
-                          <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 dark:bg-[#202024] border border-gray-100 dark:border-[#26262B] flex items-start gap-3">
+                          <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-3">
                             <Rocket className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                             <div>
-                              <p className="text-xs font-extrabold text-gray-900 dark:text-white">{proj}</p>
-                              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold">Practical Portfolio Project</span>
+                              <p className="text-xs font-extrabold text-gray-900">{proj}</p>
+                              <span className="text-[10px] text-gray-400 font-semibold">Practical Portfolio Project</span>
                             </div>
                           </div>
                         ))}
@@ -542,9 +542,9 @@ export default function PlacementPage() {
                     {activeActionTab === "resume" && (
                       <div className="space-y-2.5">
                         {(currentScan.action_plan.resume_improvements || []).map((tip, idx) => (
-                          <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 dark:bg-[#202024] border border-gray-100 dark:border-[#26262B] flex items-start gap-3">
+                          <div key={idx} className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-3">
                             <Award className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                            <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">{tip}</p>
+                            <p className="text-xs font-semibold text-gray-700">{tip}</p>
                           </div>
                         ))}
                       </div>
@@ -559,18 +559,18 @@ export default function PlacementPage() {
 
       {/* ─── FACULTY & HOD SUMMARY VIEW ───────────────────────────────────────── */}
       {isFaculty && !isClassIncharge ? (
-        <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-12 rounded-3xl text-center space-y-3">
+        <div className="bg-white border border-gray-200/80 p-12 rounded-3xl text-center space-y-3">
           <AlertCircle className="w-12 h-12 text-[#F05A2B] mx-auto opacity-80" />
-          <h2 className="text-xl font-black text-gray-900 dark:text-white">Access Restricted</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto font-medium">
+          <h2 className="text-xl font-black text-gray-900">Access Restricted</h2>
+          <p className="text-xs text-gray-500 max-w-md mx-auto font-medium">
             Placement AI analytics is reserved for Class Incharges and HOD. Contact your department administrator for access.
           </p>
         </div>
       ) : (isFaculty || isHOD) && (
         <div className="space-y-6">
           {/* Class Filter Bar */}
-          <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-3 rounded-2xl shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
-            <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1 flex items-center gap-1">
+          <div className="bg-white border border-gray-200/80 p-3 rounded-2xl shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1 flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" /> Class:
             </span>
             {isHOD ? (
@@ -581,7 +581,7 @@ export default function PlacementPage() {
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                     selectedClassFilter === c
                       ? "bg-[#F05A2B] text-white shadow-sm"
-                      : "bg-gray-100 dark:bg-[#202024] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#27272A]"
+                      :"bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {c.replace("_", " ")}
@@ -599,22 +599,22 @@ export default function PlacementPage() {
             <div className="py-8 flex justify-center"><Spinner size="md" /></div>
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-4 rounded-2xl shadow-sm">
-                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total Class Students</p>
-                <p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{facultySummaryData?.total_students || 0}</p>
+              <div className="bg-white border border-gray-200/80 p-4 rounded-2xl shadow-sm">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Class Students</p>
+                <p className="text-2xl font-black text-gray-900 mt-1">{facultySummaryData?.total_students || 0}</p>
               </div>
 
-              <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-4 rounded-2xl shadow-sm">
+              <div className="bg-white border border-gray-200/80 p-4 rounded-2xl shadow-sm">
                 <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Job Ready (≥70%)</p>
-                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{facultySummaryData?.job_ready_count || 0}</p>
+                <p className="text-2xl font-black text-emerald-600 mt-1">{facultySummaryData?.job_ready_count || 0}</p>
               </div>
 
-              <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-4 rounded-2xl shadow-sm">
+              <div className="bg-white border border-gray-200/80 p-4 rounded-2xl shadow-sm">
                 <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider">Moderate (40-69%)</p>
                 <p className="text-2xl font-black text-amber-500 mt-1">{facultySummaryData?.moderate_count || 0}</p>
               </div>
 
-              <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-4 rounded-2xl shadow-sm">
+              <div className="bg-white border border-gray-200/80 p-4 rounded-2xl shadow-sm">
                 <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Needs Support (&lt;40%)</p>
                 <p className="text-2xl font-black text-red-500 mt-1">{facultySummaryData?.needs_support_count || 0}</p>
               </div>
@@ -624,8 +624,8 @@ export default function PlacementPage() {
           {/* Class Skill Deficits & Student Table */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top Skill Deficits Card */}
-            <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-5 rounded-3xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-gray-900 dark:text-white text-sm uppercase tracking-wider flex items-center gap-2">
+            <div className="bg-white border border-gray-200/80 p-5 rounded-3xl shadow-sm space-y-4">
+              <h3 className="font-extrabold text-gray-900 text-sm uppercase tracking-wider flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-[#F05A2B]" /> Class Skill Deficits
               </h3>
               <div className="space-y-2">
@@ -633,8 +633,8 @@ export default function PlacementPage() {
                   <p className="text-xs text-gray-400">No skill gaps recorded yet.</p>
                 ) : (
                   facultySummaryData.top_skill_gaps.map((gap, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-[#202024] border border-gray-100 dark:border-[#26262B]">
-                      <span className="text-xs font-extrabold text-gray-900 dark:text-white">{gap.skill_name}</span>
+                    <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                      <span className="text-xs font-extrabold text-gray-900">{gap.skill_name}</span>
                       <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
                         {gap.count} students lack
                       </span>
@@ -645,29 +645,29 @@ export default function PlacementPage() {
             </div>
 
             {/* Student Scorecards Table */}
-            <div className="lg:col-span-2 bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-5 rounded-3xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-gray-900 dark:text-white text-sm uppercase tracking-wider flex items-center gap-2">
+            <div className="lg:col-span-2 bg-white border border-gray-200/80 p-5 rounded-3xl shadow-sm space-y-4">
+              <h3 className="font-extrabold text-gray-900 text-sm uppercase tracking-wider flex items-center gap-2">
                 <Users className="w-4 h-4 text-[#F05A2B]" /> Student Placement Scorecards ({selectedClassFilter.replace("_", " ")})
               </h3>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-gray-100 dark:border-[#26262B] text-gray-400 uppercase tracking-wider font-bold">
+                    <tr className="border-b border-gray-100 text-gray-400 uppercase tracking-wider font-bold">
                       <th className="pb-3">Student</th>
                       <th className="pb-3">Target Role</th>
                       <th className="pb-3">Match Score</th>
                       <th className="pb-3 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-[#26262B]">
+                  <tbody className="divide-y divide-gray-100">
                     {(facultySummaryData?.students || []).map((s) => (
-                      <tr key={s.student_id} className="hover:bg-gray-50/50 dark:hover:bg-[#202024]/50 transition-colors">
+                      <tr key={s.student_id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="py-3 pr-2">
-                          <p className="font-bold text-gray-900 dark:text-white">{s.name}</p>
+                          <p className="font-bold text-gray-900">{s.name}</p>
                           <p className="text-[10px] text-gray-400 font-semibold">{s.roll_number || "No Roll"}</p>
                         </td>
-                        <td className="py-3 pr-2 text-gray-600 dark:text-gray-300 font-medium">
+                        <td className="py-3 pr-2 text-gray-600 font-medium">
                           {s.target_role || <span className="text-gray-400 italic">Not evaluated</span>}
                         </td>
                         <td className="py-3 pr-2">
@@ -710,23 +710,23 @@ export default function PlacementPage() {
       {/* ─── HOD BATCH MATRIX & RECRUITER ELIGIBILITY ─────────────────────────── */}
       {isHOD && (
         <div className="space-y-6 pt-4">
-          <div className="border-t border-gray-200 dark:border-[#2E2E34] pt-6">
-            <h2 className="text-lg font-black text-gray-900 dark:text-white mb-4">Department Batch Placement Matrix</h2>
+          <div className="border-t border-gray-200 pt-6">
+            <h2 className="text-lg font-black text-gray-900 mb-4">Department Batch Placement Matrix</h2>
 
             {matrixLoading ? (
               <div className="py-8 flex justify-center"><Spinner size="md" /></div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {(hodMatrixData?.matrix || []).map((b) => (
-                  <div key={b.class_name} className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-4 rounded-2xl shadow-sm space-y-2">
+                  <div key={b.class_name} className="bg-white border border-gray-200/80 p-4 rounded-2xl shadow-sm space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="px-2.5 py-0.5 text-[10px] font-black uppercase text-white bg-[#F05A2B] rounded-md">
                         {b.class_name.replace("_", " ")}
                       </span>
-                      <span className="text-xs font-black text-gray-900 dark:text-white">{b.avg_match_score}% Avg</span>
+                      <span className="text-xs font-black text-gray-900">{b.avg_match_score}% Avg</span>
                     </div>
 
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 pt-1">
+                    <div className="flex justify-between text-xs text-gray-500 pt-1">
                       <span>Students: <b>{b.total_students}</b></span>
                       <span>Job Ready: <b className="text-emerald-500">{b.job_ready_count}</b></span>
                     </div>
@@ -738,8 +738,8 @@ export default function PlacementPage() {
 
           {/* Company Criteria & Eligibility Modal */}
           {criteriaData?.criterias && criteriaData.criterias.length > 0 && (
-            <div className="bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] p-6 rounded-3xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-gray-900 dark:text-white text-sm uppercase tracking-wider">
+            <div className="bg-white border border-gray-200/80 p-6 rounded-3xl shadow-sm space-y-4">
+              <h3 className="font-extrabold text-gray-900 text-sm uppercase tracking-wider">
                 Recruiter Criteria & Eligible Candidates Filter
               </h3>
 
@@ -751,7 +751,7 @@ export default function PlacementPage() {
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
                       selectedCriteriaId === c.id
                         ? "bg-[#F05A2B] border-[#F05A2B] text-white shadow-sm"
-                        : "bg-gray-50 dark:bg-[#202024] border-gray-100 dark:border-[#26262B] text-gray-700 dark:text-gray-300"
+                        :"bg-gray-50 border-gray-100 text-gray-700"
                     }`}
                   >
                     {c.company_name} ({c.role_name} • Min {c.min_match_score}%)
@@ -762,16 +762,16 @@ export default function PlacementPage() {
               {eligibleLoading ? (
                 <div className="py-6 flex justify-center"><Spinner size="md" /></div>
               ) : eligibleData ? (
-                <div className="pt-3 border-t border-gray-100 dark:border-[#26262B]">
+                <div className="pt-3 border-t border-gray-100">
                   <p className="text-xs font-bold text-[#F05A2B] mb-3">
                     {eligibleData.eligible_students_count} Qualified Student(s) for {eligibleData.criteria?.company_name}
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {eligibleData.students.map((st) => (
-                      <div key={st.student_id} className="p-3 rounded-2xl bg-gray-50 dark:bg-[#202024] border border-gray-100 dark:border-[#26262B] flex items-center justify-between">
+                      <div key={st.student_id} className="p-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between">
                         <div>
-                          <p className="text-xs font-extrabold text-gray-900 dark:text-white">{st.name}</p>
+                          <p className="text-xs font-extrabold text-gray-900">{st.name}</p>
                           <p className="text-[10px] text-gray-400">{st.class_name.replace("_", " ")} • {st.roll_number || "No Roll"}</p>
                         </div>
                         <span className="px-2 py-1 rounded-lg text-xs font-black bg-emerald-500/10 text-emerald-500">
@@ -792,37 +792,37 @@ export default function PlacementPage() {
       <Modal open={assignModalOpen} onClose={() => setAssignModalOpen(false)} title="Assign Learning Resource">
         <form onSubmit={handleAssignSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Skill Gap Name</label>
+            <label className="text-xs font-bold text-gray-700">Skill Gap Name</label>
             <input
               type="text"
               required
               placeholder="e.g. Docker, TypeScript, System Design"
               value={assignForm.skill_name}
               onChange={(e) => setAssignForm(p => ({ ...p, skill_name: e.target.value }))}
-              className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+              className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Resource / Course Title</label>
+            <label className="text-xs font-bold text-gray-700">Resource / Course Title</label>
             <input
               type="text"
               required
               placeholder="e.g. NPTEL Cloud Computing & DevOps Masterclass"
               value={assignForm.resource_title}
               onChange={(e) => setAssignForm(p => ({ ...p, resource_title: e.target.value }))}
-              className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+              className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Resource URL (Optional)</label>
+            <label className="text-xs font-bold text-gray-700">Resource URL (Optional)</label>
             <input
               type="url"
               placeholder="https://nptel.ac.in/courses/..."
               value={assignForm.resource_url}
               onChange={(e) => setAssignForm(p => ({ ...p, resource_url: e.target.value }))}
-              className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+              className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
             />
           </div>
 
@@ -837,24 +837,24 @@ export default function PlacementPage() {
       <Modal open={criteriaModalOpen} onClose={() => setCriteriaModalOpen(false)} title="Add Recruiter Eligibility Criteria">
         <form onSubmit={handleCriteriaSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Company Name</label>
+            <label className="text-xs font-bold text-gray-700">Company Name</label>
             <input
               type="text"
               required
               placeholder="e.g. Zoho, TCS, Accenture"
               value={criteriaForm.company_name}
               onChange={(e) => setCriteriaForm(p => ({ ...p, company_name: e.target.value }))}
-              className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+              className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Target Role</label>
+            <label className="text-xs font-bold text-gray-700">Target Role</label>
             <select
               required
               value={criteriaForm.role_id}
               onChange={(e) => setCriteriaForm(p => ({ ...p, role_id: e.target.value }))}
-              className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+              className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
             >
               <option value="">Select Target Role</option>
               {roles.map(r => (
@@ -865,23 +865,23 @@ export default function PlacementPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Min Match Score (%)</label>
+              <label className="text-xs font-bold text-gray-700">Min Match Score (%)</label>
               <input
                 type="number"
                 min="0"
                 max="100"
                 value={criteriaForm.min_match_score}
                 onChange={(e) => setCriteriaForm(p => ({ ...p, min_match_score: e.target.value }))}
-                className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+                className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-700 dark:text-gray-300">Min CGPA</label>
+              <label className="text-xs font-bold text-gray-700">Min CGPA</label>
               <input
                 type="text"
                 value={criteriaForm.min_cgpa}
                 onChange={(e) => setCriteriaForm(p => ({ ...p, min_cgpa: e.target.value }))}
-                className="w-full mt-1 p-3 rounded-xl border border-gray-200 dark:border-[#2E2E34] bg-gray-50 dark:bg-[#202024] text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
+                className="w-full mt-1 p-3 rounded-xl border border-gray-200 bg-gray-50 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]"
               />
             </div>
           </div>

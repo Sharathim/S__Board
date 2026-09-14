@@ -37,11 +37,11 @@ export function Modal({ open, onClose, title, children, size = "md", hideHeader 
       className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
       onClick={(e) => { if (e.target === overlayRef.current) onClose?.(); }}
     >
-      <div className={`w-full ${sizes[size]} bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#2E2E34] rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden`}>
+      <div className={`w-full ${sizes[size]} bg-white border border-gray-200/80 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden`}>
         {!hideHeader && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80 dark:border-[#2E2E34]">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] text-gray-500 dark:text-slate-400 dark:hover:text-white transition-colors">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/80">
+            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>

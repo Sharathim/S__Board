@@ -31,10 +31,10 @@ const CLASS_META = {
 };
 
 const FORUM_ROLE_COLORS = {
-  President: "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-350",
-  "Vice President": "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-350",
-  Secretary: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-350",
-  Member: "bg-slate-100 text-slate-650 dark:bg-slate-800 dark:text-slate-350",
+  President:"bg-orange-100 text-orange-700",
+"Vice President":"bg-amber-100 text-amber-700",
+  Secretary:"bg-emerald-100 text-emerald-700",
+  Member:"bg-slate-100 text-slate-650",
 };
 
 export default function MobileClassesPage() {
@@ -140,7 +140,7 @@ export default function MobileClassesPage() {
           {/* Forum Members */}
           <button
             onClick={() => setMembersSheetOpen(true)}
-            className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/60 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300"
+            className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-200/60 text-xs font-bold text-gray-700"
           >
             <Users className="w-3.5 h-3.5 text-[#F05A2B]" />
             Forum
@@ -155,8 +155,8 @@ export default function MobileClassesPage() {
           </button>
 
           {/* Registration Toggle */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/60 dark:border-slate-800">
-            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">New Student</span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200/60">
+            <span className="text-xs font-bold text-gray-500">New Student</span>
             <Switch
               checked={regOpen}
               onChange={() => toggleRegMutation.mutate()}
@@ -171,7 +171,7 @@ export default function MobileClassesPage() {
       {!isHOD && (
         <button
           onClick={() => setMembersSheetOpen(true)}
-          className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/60 dark:border-slate-800 text-xs font-bold text-gray-700 dark:text-gray-300"
+          className="mobile-tappable flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-200/60 text-xs font-bold text-gray-700"
         >
           <Users className="w-3.5 h-3.5 text-[#F05A2B]" />
           View Forum Members
@@ -221,30 +221,30 @@ export default function MobileClassesPage() {
         {inchargeSheet && (
           <div className="space-y-4">
             {/* Professional Header */}
-            <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100 dark:border-slate-800">
+            <div className="flex items-center gap-3.5 pb-4 border-b border-gray-100">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/25 shrink-0">
                 <Crown className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-base font-black text-gray-900 dark:text-white leading-tight">Assign Class Incharge</h3>
+                <h3 className="text-base font-black text-gray-900 leading-tight">Assign Class Incharge</h3>
                 <p className="text-xs text-gray-400 font-medium mt-0.5">
                   {CLASS_META[inchargeSheet]?.label || inchargeSheet} class
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Select a faculty member to manage and oversee <span className="font-bold text-gray-700 dark:text-gray-200">{CLASS_META[inchargeSheet]?.label || inchargeSheet}</span>
+            <p className="text-xs text-gray-500">
+              Select a faculty member to manage and oversee <span className="font-bold text-gray-700">{CLASS_META[inchargeSheet]?.label || inchargeSheet}</span>
             </p>
 
             {/* Faculty list */}
             <div className="space-y-2 max-h-[48vh] overflow-y-auto mobile-hide-scrollbar">
               {eligibleFaculty.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                  <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
                     <UserCog className="w-6 h-6 text-gray-400" />
                   </div>
-                  <p className="text-sm font-bold text-gray-600 dark:text-gray-300">No eligible faculty</p>
+                  <p className="text-sm font-bold text-gray-600">No eligible faculty</p>
                   <p className="text-xs text-gray-400 mt-1">All faculty are already assigned as incharge.</p>
                 </div>
               ) : (
@@ -256,13 +256,13 @@ export default function MobileClassesPage() {
                       onClick={() => setSelectedFacultyId(f.id)}
                       className={`mobile-tappable w-full flex items-center gap-3.5 p-3.5 rounded-2xl border-2 text-left transition-all active:scale-[0.98] ${
                         isSelected
-                          ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20 shadow-sm shadow-orange-500/10"
-                          : "border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-orange-200 dark:hover:border-orange-800"
+                          ?"border-orange-500 bg-orange-50 shadow-sm shadow-orange-500/10"
+                          :"border-gray-100 bg-white hover:border-orange-200"
                       }`}
                     >
                       <Avatar src={f.profile_picture} name={f.name} size="sm" className={`w-10 h-10 shrink-0 ring-2 transition-all ${isSelected ? "ring-orange-500/40" : "ring-transparent"}`} />
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-extrabold truncate transition-colors ${isSelected ? "text-orange-600 dark:text-orange-400" : "text-gray-900 dark:text-white"}`}>
+                        <p className={`text-sm font-extrabold truncate transition-colors ${isSelected ?"text-orange-600":"text-gray-900"}`}>
                           {f.name}
                         </p>
                         <p className="text-[11px] text-gray-400 truncate mt-0.5">{f.designation}</p>
@@ -270,7 +270,7 @@ export default function MobileClassesPage() {
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
                         isSelected
                           ? "border-orange-500 bg-orange-500 scale-110"
-                          : "border-gray-300 dark:border-slate-600"
+                          :"border-gray-300"
                       }`}>
                         {isSelected && <span className="w-2 h-2 bg-white rounded-full" />}
                       </div>
@@ -282,10 +282,10 @@ export default function MobileClassesPage() {
 
             {/* Action Buttons */}
             {eligibleFaculty.length > 0 && (
-              <div className="flex gap-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+              <div className="flex gap-3 pt-2 border-t border-gray-100">
                 <button
                   onClick={() => { setInchargeSheet(null); setSelectedFacultyId(null); }}
-                  className="mobile-tappable flex-1 py-3 rounded-2xl border-2 border-gray-200 dark:border-slate-700 text-sm font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900">
+                  className="mobile-tappable flex-1 py-3 rounded-2xl border-2 border-gray-200 text-sm font-bold text-gray-600 bg-white">
                   Cancel
                 </button>
                 <button
@@ -314,7 +314,7 @@ export default function MobileClassesPage() {
             value={memberSearch}
             onChange={(e) => setMemberSearch(e.target.value)}
             placeholder="Search members..."
-            className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none"
+            className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none"
           />
         </div>
         <div className="space-y-2 max-h-[50vh] overflow-y-auto">
@@ -322,10 +322,10 @@ export default function MobileClassesPage() {
             <p className="text-xs text-gray-400 text-center py-6">No forum members found.</p>
           ) : (
             filteredMembers.map(m => (
-              <div key={m.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800/60">
+              <div key={m.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50">
                 <Avatar src={m.profile_picture} name={m.name} size="sm" className="w-8 h-8 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{m.name}</p>
+                  <p className="text-xs font-bold text-gray-900 truncate">{m.name}</p>
                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${FORUM_ROLE_COLORS[m.role] || FORUM_ROLE_COLORS.Member}`}>
                     {m.role}
                   </span>
@@ -333,7 +333,7 @@ export default function MobileClassesPage() {
                 {isHOD && (
                   <button
                     onClick={() => removeMutation.mutate(m.id)}
-                    className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                    className="mobile-tappable p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -357,7 +357,7 @@ export default function MobileClassesPage() {
             <div className="flex items-center gap-2">
               <Avatar src={s.profile_picture} name={s.name} size="sm" className="w-7 h-7" />
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{s.name}</p>
+                <p className="text-sm font-semibold text-gray-900">{s.name}</p>
                 <p className="text-xs text-gray-400">{s.email}</p>
               </div>
             </div>
@@ -380,7 +380,7 @@ export default function MobileClassesPage() {
                   className={`mobile-tappable px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
                     rolePreset === role
                       ? "bg-[#F05A2B] text-white border-[#F05A2B]"
-                      : "bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-800"
+                      :"bg-white text-gray-600 border-gray-200"
                   }`}
                 >
                   {role}
@@ -413,16 +413,16 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
             {activeMeta.level}
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+            <h3 className="text-sm font-bold text-gray-900 truncate">
               {activeMeta.label}
             </h3>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500">
+            <p className="text-[11px] text-gray-400">
               {activeMeta.level === "UG" ? "Undergraduate" : "Postgraduate"} · Year {activeMeta.year}
             </p>
           </div>
         </div>
         {c.can_view_details && (
-          <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
+          <ChevronRight className="w-4 h-4 text-gray-400 shrink-0"/>
         )}
       </div>
 
@@ -435,20 +435,20 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
             onAssignIncharge();
           }
         }}
-        className={`flex items-center gap-3 mt-3 p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800/60 border border-gray-100 dark:border-slate-700/50 ${
-          isHOD ? "cursor-pointer active:bg-gray-100 dark:active:bg-slate-800" : ""
+        className={`flex items-center gap-3 mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-100 ${
+          isHOD ?"cursor-pointer active:bg-gray-100":""
         }`}
       >
         {hasIncharge ? (
           <Avatar src={c.incharge.profile_picture} name={c.incharge.name} size="sm" className="w-8 h-8 ring-2 ring-primary/20 shrink-0" />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-400 shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 shrink-0">
             <ShieldCheck className="w-4 h-4" />
           </div>
         )}
         <div className="min-w-0 flex-1">
           <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Class Incharge</span>
-          <span className={`text-sm font-semibold truncate block ${hasIncharge ? "text-gray-800 dark:text-gray-200" : "text-gray-400 italic"}`}>
+          <span className={`text-sm font-semibold truncate block ${hasIncharge ?"text-gray-800":"text-gray-400 italic"}`}>
             {hasIncharge ? c.incharge.name : "Not Assigned"}
           </span>
         </div>
@@ -457,17 +457,17 @@ function ClassCard({ c, meta, isHOD, onAssignIncharge, onNavigate }) {
 
       {/* Stats */}
       <div className="flex gap-3 mt-3">
-        <div className="flex items-center gap-2 flex-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800/60 border border-gray-100 dark:border-slate-700/50">
+        <div className="flex items-center gap-2 flex-1 p-2 rounded-xl bg-gray-50 border border-gray-100">
           <Users className="w-4 h-4 text-primary shrink-0" />
           <div>
-            <span className="text-sm font-bold text-gray-800 dark:text-gray-200 block leading-none">{c.student_count ?? 0}</span>
+            <span className="text-sm font-bold text-gray-800 block leading-none">{c.student_count ?? 0}</span>
             <span className="text-[9px] font-semibold text-gray-400 uppercase block mt-0.5">Students</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800/60 border border-gray-100 dark:border-slate-700/50">
+        <div className="flex items-center gap-2 flex-1 p-2 rounded-xl bg-gray-50 border border-gray-100">
           <BookOpen className="w-4 h-4 text-primary shrink-0" />
           <div>
-            <span className="text-sm font-bold text-gray-800 dark:text-gray-200 block leading-none">Year {activeMeta.year}</span>
+            <span className="text-sm font-bold text-gray-800 block leading-none">Year {activeMeta.year}</span>
             <span className="text-[9px] font-semibold text-gray-400 uppercase block mt-0.5">Level</span>
           </div>
         </div>

@@ -33,22 +33,22 @@ const FORUM_CLASSES = ["UG_3A", "UG_3B"];
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
 
 const CLASS_META = {
-  UG_1A: { label: "UG 1A", short: "1A",  gradient: "from-violet-500 to-purple-600",  bg: "bg-violet-50 dark:bg-violet-900/20",   text: "text-violet-700 dark:text-violet-300",   border: "border-violet-200 dark:border-violet-800/50"  },
-  UG_1B: { label: "UG 1B", short: "1B",  gradient: "from-blue-500 to-indigo-600",    bg: "bg-blue-50 dark:bg-blue-900/20",       text: "text-blue-700 dark:text-blue-300",       border: "border-blue-200 dark:border-blue-800/50"      },
-  UG_2A: { label: "UG 2A", short: "2A",  gradient: "from-pink-500 to-rose-600",      bg: "bg-pink-50 dark:bg-pink-900/20",       text: "text-pink-700 dark:text-pink-300",       border: "border-pink-200 dark:border-pink-800/50"      },
-  UG_2B: { label: "UG 2B", short: "2B",  gradient: "from-amber-500 to-orange-500",   bg: "bg-amber-50 dark:bg-amber-900/20",     text: "text-amber-700 dark:text-amber-300",     border: "border-amber-200 dark:border-amber-800/50"    },
-  UG_3A: { label: "UG 3A", short: "3A",  gradient: "from-emerald-500 to-teal-600",   bg: "bg-emerald-50 dark:bg-emerald-900/20", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/50" },
-  UG_3B: { label: "UG 3B", short: "3B",  gradient: "from-cyan-500 to-sky-600",       bg: "bg-cyan-50 dark:bg-cyan-900/20",       text: "text-cyan-700 dark:text-cyan-300",       border: "border-cyan-200 dark:border-cyan-800/50"      },
-  PG_1A: { label: "PG 1A", short: "PG1A",gradient: "from-fuchsia-500 to-pink-600",   bg: "bg-fuchsia-50 dark:bg-fuchsia-900/20", text: "text-fuchsia-700 dark:text-fuchsia-300", border: "border-fuchsia-200 dark:border-fuchsia-800/50" },
-  PG_2A: { label: "PG 2A", short: "PG2A",gradient: "from-indigo-500 to-blue-600",    bg: "bg-indigo-50 dark:bg-indigo-900/20",   text: "text-indigo-700 dark:text-indigo-300",   border: "border-indigo-200 dark:border-indigo-800/50"  },
+  UG_1A: { label:"UG 1A", short:"1A", gradient:"from-violet-500 to-purple-600", bg:"bg-violet-50", text:"text-violet-700", border:"border-violet-200"},
+  UG_1B: { label:"UG 1B", short:"1B", gradient:"from-blue-500 to-indigo-600", bg:"bg-blue-50", text:"text-blue-700", border:"border-blue-200"},
+  UG_2A: { label:"UG 2A", short:"2A", gradient:"from-pink-500 to-rose-600", bg:"bg-pink-50", text:"text-pink-700", border:"border-pink-200"},
+  UG_2B: { label:"UG 2B", short:"2B", gradient:"from-amber-500 to-orange-500", bg:"bg-amber-50", text:"text-amber-700", border:"border-amber-200"},
+  UG_3A: { label:"UG 3A", short:"3A", gradient:"from-emerald-500 to-teal-600", bg:"bg-emerald-50", text:"text-emerald-700", border:"border-emerald-200"},
+  UG_3B: { label:"UG 3B", short:"3B", gradient:"from-cyan-500 to-sky-600", bg:"bg-cyan-50", text:"text-cyan-700", border:"border-cyan-200"},
+  PG_1A: { label:"PG 1A", short:"PG1A",gradient:"from-fuchsia-500 to-pink-600", bg:"bg-fuchsia-50", text:"text-fuchsia-700", border:"border-fuchsia-200"},
+  PG_2A: { label:"PG 2A", short:"PG2A",gradient:"from-indigo-500 to-blue-600", bg:"bg-indigo-50", text:"text-indigo-700", border:"border-indigo-200"},
 };
 
 const FORUM_ROLE_COLORS = {
-  Member:      "bg-primary-50 text-primary-700 border-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-800/50",
-  Coordinator: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50",
-  Secretary:   "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50",
-  Treasurer:   "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800/50",
-  Volunteer:   "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50",
+  Member:"bg-primary-50 text-primary-700 border-primary-200",
+  Coordinator:"bg-amber-50 text-amber-700 border-amber-200",
+  Secretary:"bg-emerald-50 text-emerald-700 border-emerald-200",
+  Treasurer:"bg-rose-50 text-rose-700 border-rose-200",
+  Volunteer:"bg-violet-50 text-violet-700 border-violet-200",
 };
 
 const STUDENT_CORE_FIELDS = [
@@ -152,13 +152,13 @@ function AccomplishmentsSection({ className, user, canManage, ownStudentId, stud
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-white dark:bg-gray-800/80 border border-gray-150 dark:border-gray-700/60 rounded-2xl shadow-xs">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-white border border-gray-150 rounded-2xl shadow-xs">
         <div>
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
             <Award className="w-4 h-4 text-primary-600" />
             Extracurricular Accomplishments & Honors
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <p className="text-xs text-gray-500 mt-0.5">
             Student achievements, hackathon awards, certifications, and automated resume building.
           </p>
         </div>
@@ -168,7 +168,7 @@ function AccomplishmentsSection({ className, user, canManage, ownStudentId, stud
             <select
               value={studentFilter}
               onChange={(e) => setStudentFilter(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900"
             >
               <option value="">All Class Students</option>
               {studentList.map((s) => (
@@ -218,7 +218,7 @@ function AccomplishmentsSection({ className, user, canManage, ownStudentId, stud
           <Spinner />
         </div>
       ) : accomplishments.length === 0 ? (
-        <div className="py-12 text-center text-xs text-gray-400 italic bg-white dark:bg-gray-800/60 border border-gray-150 dark:border-gray-700/60 rounded-2xl">
+        <div className="py-12 text-center text-xs text-gray-400 italic bg-white border border-gray-150 rounded-2xl">
           No accomplishments logged for this class yet.
         </div>
       ) : (
@@ -278,8 +278,8 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
   return (
     <div
       onClick={isOwn ? onClick : undefined}
-      className={`group flex flex-col p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-700/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
-        isOwn ? "cursor-pointer ring-2 ring-indigo-500/20 bg-indigo-50/5 dark:bg-indigo-950/5 border-indigo-200 dark:border-indigo-800" : ""
+      className={`group flex flex-col p-4 bg-white rounded-2xl border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 hover:border-indigo-500/20 transition-all duration-300 ${
+        isOwn ?"cursor-pointer ring-2 ring-indigo-500/20 bg-indigo-50/5 border-indigo-200":""
       }`}
     >
       <div className={`flex flex-col lg:grid ${
@@ -298,17 +298,17 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{s.name}</p>
-              {isOwn && <span className="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 rounded-md uppercase">Me</span>}
+              <p className="text-sm font-bold text-gray-900 truncate">{s.name}</p>
+              {isOwn && <span className="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-500/15 text-indigo-600 rounded-md uppercase">Me</span>}
             </div>
-            <p className="text-xs text-gray-450 dark:text-gray-550 truncate">{s.email}</p>
+            <p className="text-xs text-gray-450 truncate">{s.email}</p>
           </div>
         </div>
 
         {/* Roll No */}
         <div className="flex items-center w-full">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Roll No:</span>
-          <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-gray-700">
+          <span className="text-xs font-mono font-bold text-gray-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
             {s.roll_number || "—"}
           </span>
         </div>
@@ -316,7 +316,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
         {/* Reg. No */}
         <div className="flex items-center w-full">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Reg. No:</span>
-          <span className="text-xs font-mono font-bold text-gray-700 dark:text-gray-300 bg-slate-50 dark:bg-gray-700/60 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-gray-700">
+          <span className="text-xs font-mono font-bold text-gray-700 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/60">
             {s.register_number || "—"}
           </span>
         </div>
@@ -324,7 +324,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
         {/* Status */}
         <div className="flex items-center w-full">
           <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Status:</span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
             Student
           </span>
         </div>
@@ -334,7 +334,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
           <div className="flex items-center justify-start lg:justify-end gap-1 w-full" onClick={e => e.stopPropagation()}>
             <a
               href={`mailto:${s.email}`}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-transparent hover:border-blue-100 dark:hover:border-blue-900/30"
+              className="p-1.5 rounded-xl text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-100"
               title="Send email"
             >
               <Mail className="w-3.5 h-3.5" />
@@ -342,7 +342,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
 
             <button
               onClick={() => onEdit?.(s)}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30"
+              className="p-1.5 rounded-xl text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 transition-colors border border-transparent hover:border-indigo-100"
               title="Edit student profile"
             >
               <Pencil className="w-3.5 h-3.5" />
@@ -350,7 +350,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
 
             <button
               onClick={() => onRemove(s)}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
+              className="p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors border border-transparent hover:border-red-100"
               title="Remove student"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -360,7 +360,7 @@ function StudentRow({ s, isOwn, role, canManage, isHOD, isForumClass, onForum, o
       </div>
 
       {showPresentDetails && (
-        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-gray-750 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-gray-600 dark:text-gray-300">
+        <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-gray-600">
           <div><strong className="text-gray-400 block uppercase text-[9px] tracking-wide">Gender:</strong> {s.details.gender || "—"}</div>
           <div><strong className="text-gray-400 block uppercase text-[9px] tracking-wide">Blood Group:</strong> {s.details.blood_group || "—"}</div>
           <div><strong className="text-gray-400 block uppercase text-[9px] tracking-wide">Mobile:</strong> {s.details.mobile_number || "—"}</div>
@@ -497,7 +497,7 @@ export default function ClassDetailPage() {
         {!isStudent && (
           <div
             onClick={() => navigateWithTransition("/classes", "Classes", BookOpen)}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 dark:text-gray-505 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4 group cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-primary-600 transition-colors mb-4 group cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             Back to Classes
@@ -506,13 +506,13 @@ export default function ClassDetailPage() {
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md ring-4 ring-white dark:ring-gray-800 shrink-0`}>
+            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-md ring-4 ring-white shrink-0`}>
               <span className="text-lg font-extrabold text-white">{meta.short}</span>
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">{meta.label}</h1>
+              <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{meta.label}</h1>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
-                <span className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                <span className="flex items-center gap-1.5 text-sm text-gray-500">
                   <Users className="w-3.5 h-3.5" />
                   {studentList.length} student{studentList.length !== 1 ? "s" : ""}
                 </span>
@@ -523,13 +523,13 @@ export default function ClassDetailPage() {
         </div>
       </div>
 
-      <div className="flex border-b border-gray-150 dark:border-gray-700/60 pb-px overflow-x-auto whitespace-nowrap scrollbar-none gap-1">
+      <div className="flex border-b border-gray-150 pb-px overflow-x-auto whitespace-nowrap scrollbar-none gap-1">
         <button
           onClick={() => setActiveTab("students")}
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
             activeTab === "students"
               ? "border-primary-600 text-primary-600 font-bold"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+              :"border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >
           Students
@@ -540,7 +540,7 @@ export default function ClassDetailPage() {
           className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
             activeTab === "accomplishments"
               ? "border-primary-600 text-primary-600 font-bold"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+              :"border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >
           Accomplishments & Portfolio
@@ -552,7 +552,7 @@ export default function ClassDetailPage() {
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
               activeTab === "forms"
                 ? "border-primary-600 text-primary-600 font-bold"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+                :"border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             Active Forms
@@ -565,7 +565,7 @@ export default function ClassDetailPage() {
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all leading-none ${
               activeTab === "students_data"
                 ? "border-primary-600 text-primary-600 font-bold"
-                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-305"
+                :"border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
             Students Data
@@ -576,18 +576,18 @@ export default function ClassDetailPage() {
 
       {activeTab === "students" ? (
         studentList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card">
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-2xl border border-gray-100 shadow-card">
             <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center mb-5 shadow-md opacity-80`}>
               <Users className="w-9 h-9 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">No students yet</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">No students yet</h3>
             <p className="text-sm text-gray-500 max-w-xs">
               Students will appear here after they onboard via the class invite link.
             </p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800/70 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-card overflow-hidden">
-            <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-gray-100 dark:border-gray-700/60">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
+            <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-gray-100">
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                 <input
@@ -595,7 +595,7 @@ export default function ClassDetailPage() {
                   placeholder="Search students…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+                  className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
                 />
                 {searchQuery && (
                   <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-650">
@@ -603,7 +603,7 @@ export default function ClassDetailPage() {
                   </button>
                 )}
               </div>
-              <span className="text-xs text-gray-400 dark:text-gray-505 font-medium shrink-0">
+              <span className="text-xs text-gray-400 font-medium shrink-0">
                 {filtered.length} of {studentList.length}
               </span>
             </div>
@@ -613,7 +613,7 @@ export default function ClassDetailPage() {
                 canManage 
                   ? "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr_100px]" 
                   : "grid-cols-[minmax(220px,2fr)_1fr_1.2fr_1fr]"
-              } gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800/40`}>
+              } gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100`}>
                 <span>Student Info</span>
                 <span>Roll No</span>
                 <span>Reg. No</span>
@@ -639,9 +639,9 @@ export default function ClassDetailPage() {
                     />
                   ))
                 ) : (
-                  <div className="py-12 text-center bg-gray-50/30 dark:bg-gray-900/10 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700/60">
-                    <Search className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                    <p className="text-sm text-gray-400 dark:text-gray-505">No students match "{searchQuery}"</p>
+                  <div className="py-12 text-center bg-gray-50/30 rounded-2xl border border-dashed border-gray-200">
+                    <Search className="w-7 h-7 text-gray-300 mx-auto mb-2"/>
+                    <p className="text-sm text-gray-400">No students match"{searchQuery}"</p>
                   </div>
                 )}
               </div>
@@ -722,16 +722,16 @@ export default function ClassDetailPage() {
       <Modal open={!!forumTarget} onClose={() => setForumTarget(null)} title="Assign to Forum">
         {forumTarget && (
           <div className="space-y-5 pt-1">
-            <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-gray-700/40 rounded-2xl">
+            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
               <Avatar src={forumTarget.profile_picture} name={forumTarget.name} size="md" />
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">{forumTarget.name}</p>
+                <p className="text-sm font-bold text-gray-900">{forumTarget.name}</p>
                 <p className="text-xs text-gray-400">{forumTarget.email}</p>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Forum Role</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Forum Role</label>
               <div className="grid grid-cols-3 gap-2">
                 {FORUM_ROLES.map((r) => (
                   <button
@@ -741,7 +741,7 @@ export default function ClassDetailPage() {
                     className={`py-2 px-2 text-xs font-semibold rounded-xl border text-center transition-all ${
                       forumRole === r
                         ? "bg-primary-650 text-white border-indigo-600 shadow-sm"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-300"
+                        :"bg-white text-gray-600 border-gray-200 hover:border-indigo-300"
                     }`}
                   >
                     {r}
@@ -807,38 +807,38 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
   return (
     <div className="space-y-6 animate-fade-in w-full">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-3.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center gap-3">
+        <div className="p-3.5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
             <Users className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[9px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Total Students</p>
-            <h4 className="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.total_students ?? 0}</h4>
+            <p className="text-[9px] font-bold text-gray-450 uppercase tracking-wider">Total Students</p>
+            <h4 className="text-base font-extrabold text-gray-900 mt-0.5">{stats?.total_students ?? 0}</h4>
           </div>
         </div>
 
-        <div className="p-3.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center gap-3">
+        <div className="p-3.5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
             <CheckCircle className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[9px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Completed Profiles</p>
-            <h4 className="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.complete_students ?? 0}</h4>
+            <p className="text-[9px] font-bold text-gray-450 uppercase tracking-wider">Completed Profiles</p>
+            <h4 className="text-base font-extrabold text-gray-900 mt-0.5">{stats?.complete_students ?? 0}</h4>
           </div>
         </div>
 
-        <div className="p-3.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center gap-3">
+        <div className="p-3.5 bg-white rounded-2xl border border-gray-100 shadow-xs flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
             <AlertCircle className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[9px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">Incomplete Profiles</p>
-            <h4 className="text-base font-extrabold text-gray-900 dark:text-white mt-0.5">{stats?.incomplete_students ?? 0}</h4>
+            <p className="text-[9px] font-bold text-gray-450 uppercase tracking-wider">Incomplete Profiles</p>
+            <h4 className="text-base font-extrabold text-gray-900 mt-0.5">{stats?.incomplete_students ?? 0}</h4>
           </div>
         </div>
       </div>
 
-      <div className="flex border-b border-gray-150 dark:border-gray-750 pb-px gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
+      <div className="flex border-b border-gray-150 pb-px gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
         <button
           onClick={() => setSubTab("main_table")}
           className={`px-3 py-2 text-xs font-bold border-b-2 transition-all ${
@@ -868,11 +868,11 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
       {subTab === "main_table" ? (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">Students Master Registry</h3>
+            <h3 className="text-sm font-bold text-gray-800">Students Master Registry</h3>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onExportClick()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-650 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-750 transition-all shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-650 hover:bg-slate-50 transition-all shadow-xs"
               >
                 <Columns className="w-3.5 h-3.5" />
                 Select & Export Excel
@@ -887,12 +887,12 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
             </div>
           </div>
 
-          <div className="border border-gray-100 dark:border-gray-750 rounded-2xl overflow-hidden shadow-xs bg-white dark:bg-gray-850">
+          <div className="border border-gray-100 rounded-2xl overflow-hidden shadow-xs bg-white">
             <div className="overflow-x-auto w-full max-h-[500px]">
               <table className="w-full text-left border-collapse text-xs whitespace-nowrap">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-gray-900 border-b border-gray-150 dark:border-gray-750 text-[10px] font-bold text-gray-450 dark:text-gray-500 uppercase tracking-wider">
-                    <th className="p-3 sticky left-0 bg-slate-50 dark:bg-gray-900 z-10 border-r border-gray-100 dark:border-gray-750">Actions</th>
+                  <tr className="bg-slate-50 border-b border-gray-150 text-[10px] font-bold text-gray-450 uppercase tracking-wider">
+                    <th className="p-3 sticky left-0 bg-slate-50 z-10 border-r border-gray-100">Actions</th>
                     <th className="p-3">Roll No</th>
                     <th className="p-3">Name</th>
                     <th className="p-3">Register No</th>
@@ -900,34 +900,34 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
                       <th key={f.name} className="p-3">{f.label}</th>
                     ))}
                     {customColumns.map(col => (
-                      <th key={col.name} className="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400">{col.label}</th>
+                      <th key={col.name} className="p-3 bg-indigo-50/50 text-indigo-700">{col.label}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700/60">
+                <tbody className="divide-y divide-gray-100">
                   {students.length === 0 ? (
                     <tr>
                       <td colSpan={26 + customColumns.length} className="p-8 text-center text-gray-450 italic">No student profiles created yet.</td>
                     </tr>
                   ) : (
                     students.map(s => (
-                      <tr key={s.id} className="hover:bg-slate-50/30 dark:hover:bg-gray-750/30 transition-colors">
-                        <td className="p-3 sticky left-0 bg-white dark:bg-gray-850 z-10 border-r border-gray-100 dark:border-gray-750">
+                      <tr key={s.id} className="hover:bg-slate-50/30 transition-colors">
+                        <td className="p-3 sticky left-0 bg-white z-10 border-r border-gray-100">
                           <button
                             onClick={() => onEditStudent(s)}
-                            className="text-xs font-bold text-indigo-650 hover:text-indigo-755 dark:text-indigo-400"
+                            className="text-xs font-bold text-indigo-650 hover:text-indigo-755"
                           >
                             Edit
                           </button>
                         </td>
-                        <td className="p-3 font-semibold text-gray-700 dark:text-gray-300">{s.roll_number}</td>
-                        <td className="p-3 font-bold text-gray-850 dark:text-gray-200">{s.name}</td>
-                        <td className="p-3 font-semibold text-gray-700 dark:text-gray-300">{s.register_number}</td>
+                        <td className="p-3 font-semibold text-gray-700">{s.roll_number}</td>
+                        <td className="p-3 font-bold text-gray-850">{s.name}</td>
+                        <td className="p-3 font-semibold text-gray-700">{s.register_number}</td>
                         {STUDENT_CORE_FIELDS.map(f => (
-                          <td key={f.name} className="p-3 text-gray-500 dark:text-gray-450">{s.details?.[f.name] || "—"}</td>
+                          <td key={f.name} className="p-3 text-gray-500">{s.details?.[f.name] ||"—"}</td>
                         ))}
                         {customColumns.map(col => (
-                          <td key={col.name} className="p-3 text-indigo-600 dark:text-indigo-350">{s.extra_details?.[col.name] || "—"}</td>
+                          <td key={col.name} className="p-3 text-indigo-600">{s.extra_details?.[col.name] ||"—"}</td>
                         ))}
                       </tr>
                     ))
@@ -938,10 +938,10 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
           </div>
         </div>
       ) : subTab === "builder" ? (
-        <div className="p-6 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-150 dark:border-gray-750 space-y-4">
+        <div className="p-6 bg-white rounded-2xl border border-gray-150 space-y-4">
           <div className="flex items-center gap-3">
             <PlusCircle className="w-5 h-5 text-indigo-650" />
-            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">Create & Publish a Form</h3>
+            <h3 className="text-sm font-bold text-gray-800">Create & Publish a Form</h3>
           </div>
           <p className="text-xs text-gray-450 max-w-xl">
             Choose to create a dynamic custom questionnaire (which can add columns to the main student details registry or be saved separately) or publish predefined template tables like Internship Reports and Exam Mark Sheets.
@@ -955,29 +955,29 @@ function StudentsDataDashboard({ className, stats, students, customColumns, form
         </div>
       ) : (
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">Submissions Log</h3>
+          <h3 className="text-sm font-bold text-gray-800">Submissions Log</h3>
           {forms.length === 0 ? (
-            <div className="p-8 text-center text-xs text-gray-400 italic bg-white dark:bg-gray-800 border border-gray-150 dark:border-gray-750 rounded-2xl">
+            <div className="p-8 text-center text-xs text-gray-400 italic bg-white border border-gray-150 rounded-2xl">
               No forms published for this class yet.
             </div>
           ) : (
             <div className="grid gap-3">
               {forms.map(form => (
-                <div key={form.id} className="p-4 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-750 flex items-center justify-between shadow-xs hover:-translate-y-0.5 transition-all">
+                <div key={form.id} className="p-4 bg-white rounded-2xl border border-gray-100 flex items-center justify-between shadow-xs hover:-translate-y-0.5 transition-all">
                   <div className="space-y-1">
-                    <h5 className="text-xs font-bold text-gray-800 dark:text-gray-100">{form.title}</h5>
+                    <h5 className="text-xs font-bold text-gray-800">{form.title}</h5>
                     <div className="flex items-center gap-3 text-[10px] text-gray-400 uppercase font-semibold">
                       <span>Type: {form.form_type}</span>
                       <span>•</span>
                       <span>Target: {form.destination === "main_table" ? "Main Table" : "Separate Table"}</span>
                       <span>•</span>
-                      <span className="text-indigo-650 dark:text-indigo-400">{form.response_count} submission{form.response_count !== 1 ? 's' : ''}</span>
+                      <span className="text-indigo-650">{form.response_count} submission{form.response_count !== 1 ?'s':''}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => onViewResponsesClick(form)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-gray-700 hover:bg-slate-50 text-[10px] font-bold text-slate-650"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-100 hover:bg-slate-50 text-[10px] font-bold text-slate-650"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       View Answers
@@ -1029,9 +1029,9 @@ function ActiveFormsList({ className, forms, studentId, user, refetch }) {
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <h3 className="text-sm font-bold text-gray-800 dark:text-gray-250">Academic & Administration Forms</h3>
+      <h3 className="text-sm font-bold text-gray-800">Academic & Administration Forms</h3>
       {forms.length === 0 ? (
-        <div className="py-12 text-center text-xs text-gray-400 italic bg-white dark:bg-gray-800 border border-gray-150 dark:border-gray-750 rounded-2xl">
+        <div className="py-12 text-center text-xs text-gray-400 italic bg-white border border-gray-150 rounded-2xl">
           No active forms pending for your class at the moment.
         </div>
       ) : (
@@ -1039,9 +1039,9 @@ function ActiveFormsList({ className, forms, studentId, user, refetch }) {
           {forms.map(form => {
             const hasSubmitted = !!responses[form.id];
             return (
-              <div key={form.id} className="p-4 bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-750 rounded-2xl flex items-center justify-between shadow-xs">
+              <div key={form.id} className="p-4 bg-white border border-gray-100 rounded-2xl flex items-center justify-between shadow-xs">
                 <div>
-                  <h5 className="text-xs font-bold text-gray-800 dark:text-gray-100">{form.title}</h5>
+                  <h5 className="text-xs font-bold text-gray-800">{form.title}</h5>
                   <p className="text-[10px] text-gray-400 uppercase font-semibold mt-0.5">Type: {form.form_type}</p>
                 </div>
                 <div>
@@ -1106,7 +1106,7 @@ function StudentDetailsModal({ open, onClose, ownDetails, formState, setFormStat
           value={value}
           disabled={isImmutable}
           onChange={(e) => handleFieldChange(f.name, e.target.value)}
-          className={`w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 ${isImmutable ? 'bg-slate-100 text-gray-400 cursor-not-allowed dark:bg-gray-900/50' : ''}`}
+          className={`w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/20 ${isImmutable ?'bg-slate-100 text-gray-400 cursor-not-allowed':''}`}
         >
           <option value="">Select option</option>
           {f.options.map(opt => (
@@ -1124,7 +1124,7 @@ function StudentDetailsModal({ open, onClose, ownDetails, formState, setFormStat
           onChange={(e) => handleFieldChange(f.name, e.target.value)}
           placeholder={f.placeholder || `Enter ${f.label.toLowerCase()}`}
           rows={3}
-          className={`w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 ${isImmutable ? 'bg-slate-100 text-gray-400 cursor-not-allowed dark:bg-gray-900/50' : ''}`}
+          className={`w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 ${isImmutable ?'bg-slate-100 text-gray-400 cursor-not-allowed':''}`}
         />
       );
     }
@@ -1136,7 +1136,7 @@ function StudentDetailsModal({ open, onClose, ownDetails, formState, setFormStat
         disabled={isImmutable}
         onChange={(e) => handleFieldChange(f.name, e.target.value)}
         placeholder={f.placeholder || `Enter ${f.label.toLowerCase()}`}
-        className={`w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 ${isImmutable ? 'bg-slate-100 text-gray-400 cursor-not-allowed dark:bg-gray-900/50' : ''}`}
+        className={`w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 ${isImmutable ?'bg-slate-100 text-gray-400 cursor-not-allowed':''}`}
       />
     );
   };
@@ -1148,7 +1148,7 @@ function StudentDetailsModal({ open, onClose, ownDetails, formState, setFormStat
           const isImmutable = ownDetails?.details?.[f.name] !== undefined && ownDetails.details[f.name] !== null && String(ownDetails.details[f.name]).trim() !== "";
           return (
             <div key={f.name} className="space-y-1">
-              <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 {f.label}
                 {isImmutable && <Lock className="w-2.5 h-2.5 text-amber-500" title="Immutable once saved" />}
               </label>
@@ -1168,7 +1168,7 @@ function StudentDetailsModal({ open, onClose, ownDetails, formState, setFormStat
           <span><strong>Important Notice:</strong> Once a field is saved, it becomes locked and immutable. Please verify your details before saving. You can save partially and return to fill other fields later.</span>
         </p>
 
-        <div className="flex border-b border-gray-150 dark:border-gray-700/60 pb-px gap-2">
+        <div className="flex border-b border-gray-150 pb-px gap-2">
           <button
             onClick={() => setActiveSubTab("personal")}
             className={`px-3 py-1.5 text-xs font-bold border-b-2 transition-all ${
@@ -1201,11 +1201,11 @@ function StudentDetailsModal({ open, onClose, ownDetails, formState, setFormStat
           {activeSubTab === "academic" && renderTabContent(academicFields)}
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-750">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-bold border border-gray-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-750 text-gray-600 rounded-xl transition-all"
+            className="px-4 py-2 text-xs font-bold border border-gray-200 hover:bg-slate-50 text-gray-600 rounded-xl transition-all"
           >
             Close
           </button>
@@ -1278,7 +1278,7 @@ function AdminStudentDetailsModal({ open, onClose, student, customColumns, class
         <select
           value={value}
           onChange={(e) => handleFieldChange(f.name, e.target.value)}
-          className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900"
         >
           <option value="">Select option</option>
           {f.options.map(opt => (
@@ -1293,7 +1293,7 @@ function AdminStudentDetailsModal({ open, onClose, student, customColumns, class
           value={value}
           onChange={(e) => handleFieldChange(f.name, e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900"
         />
       );
     }
@@ -1302,7 +1302,7 @@ function AdminStudentDetailsModal({ open, onClose, student, customColumns, class
         type={f.type}
         value={value}
         onChange={(e) => handleFieldChange(f.name, e.target.value)}
-        className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900"
       />
     );
   };
@@ -1310,7 +1310,7 @@ function AdminStudentDetailsModal({ open, onClose, student, customColumns, class
   return (
     <Modal open={open} onClose={onClose} title={`Edit Details — ${student.name}`} size="lg">
       <div className="space-y-6 pt-1">
-        <div className="flex border-b border-gray-150 dark:border-gray-700/60 pb-px gap-2">
+        <div className="flex border-b border-gray-150 pb-px gap-2">
           <button
             onClick={() => setActiveSubTab("personal")}
             className={`px-3 py-1.5 text-xs font-bold border-b-2 transition-all ${
@@ -1388,7 +1388,7 @@ function AdminStudentDetailsModal({ open, onClose, student, customColumns, class
                     value={extraState[col.name] || ""}
                     onChange={(e) => handleExtraChange(col.name, e.target.value)}
                     placeholder={`Enter ${col.label.toLowerCase()}`}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900"
                   />
                 </div>
               ))}
@@ -1396,11 +1396,11 @@ function AdminStudentDetailsModal({ open, onClose, student, customColumns, class
           )}
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-750">
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-bold border border-gray-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-750 text-gray-650 rounded-xl transition-all"
+            className="px-4 py-2 text-xs font-bold border border-gray-200 hover:bg-slate-50 text-gray-650 rounded-xl transition-all"
           >
             Cancel
           </button>
@@ -1500,44 +1500,44 @@ function ExportColumnsModal({ open, onClose, className, customColumns }) {
           <button
             type="button"
             onClick={handleSelectAll}
-            className="px-2.5 py-1 text-[10px] font-bold border border-slate-200 dark:border-gray-700 hover:bg-slate-55 rounded-lg"
+            className="px-2.5 py-1 text-[10px] font-bold border border-slate-200 hover:bg-slate-55 rounded-lg"
           >
             Select All
           </button>
           <button
             type="button"
             onClick={handleSelectNone}
-            className="px-2.5 py-1 text-[10px] font-bold border border-slate-200 dark:border-gray-700 hover:bg-slate-55 rounded-lg"
+            className="px-2.5 py-1 text-[10px] font-bold border border-slate-200 hover:bg-slate-55 rounded-lg"
           >
             Deselect All
           </button>
         </div>
 
-        <div className="max-h-[40vh] overflow-y-auto space-y-2 pr-1 border-t border-b border-gray-100 dark:border-gray-700 py-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+        <div className="max-h-[40vh] overflow-y-auto space-y-2 pr-1 border-t border-b border-gray-100 py-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4">
           <div className="flex items-center gap-2 py-1">
             <input type="checkbox" id="col-roll" checked={!!selectedCols.roll_number} onChange={() => handleToggle("roll_number")} />
-            <label htmlFor="col-roll" className="text-xs font-semibold text-gray-700 dark:text-gray-300">Roll Number</label>
+            <label htmlFor="col-roll"className="text-xs font-semibold text-gray-700">Roll Number</label>
           </div>
           <div className="flex items-center gap-2 py-1">
             <input type="checkbox" id="col-name" checked={!!selectedCols.name} onChange={() => handleToggle("name")} />
-            <label htmlFor="col-name" className="text-xs font-semibold text-gray-700 dark:text-gray-300">Name</label>
+            <label htmlFor="col-name"className="text-xs font-semibold text-gray-700">Name</label>
           </div>
           <div className="flex items-center gap-2 py-1">
             <input type="checkbox" id="col-reg" checked={!!selectedCols.register_number} onChange={() => handleToggle("register_number")} />
-            <label htmlFor="col-reg" className="text-xs font-semibold text-gray-700 dark:text-gray-300">Register Number</label>
+            <label htmlFor="col-reg"className="text-xs font-semibold text-gray-700">Register Number</label>
           </div>
 
           {STUDENT_CORE_FIELDS.map(f => (
             <div key={f.name} className="flex items-center gap-2 py-1">
               <input type="checkbox" id={`col-${f.name}`} checked={!!selectedCols[f.name]} onChange={() => handleToggle(f.name)} />
-              <label htmlFor={`col-${f.name}`} className="text-xs text-gray-750 dark:text-gray-400">{f.label}</label>
+              <label htmlFor={`col-${f.name}`} className="text-xs text-gray-750">{f.label}</label>
             </div>
           ))}
 
           {customColumns.map(col => (
             <div key={col.name} className="flex items-center gap-2 py-1 bg-indigo-50/20 px-2 rounded-lg">
               <input type="checkbox" id={`col-${col.name}`} checked={!!selectedCols[col.name]} onChange={() => handleToggle(col.name)} />
-              <label htmlFor={`col-${col.name}`} className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{col.label}</label>
+              <label htmlFor={`col-${col.name}`} className="text-xs font-bold text-indigo-600">{col.label}</label>
             </div>
           ))}
         </div>
@@ -1546,7 +1546,7 @@ function ExportColumnsModal({ open, onClose, className, customColumns }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-bold border border-gray-200 dark:border-gray-700 hover:bg-slate-50 rounded-xl transition-all"
+            className="px-4 py-2 text-xs font-bold border border-gray-200 hover:bg-slate-50 rounded-xl transition-all"
           >
             Cancel
           </button>
@@ -1700,7 +1700,7 @@ function CreateFormModal({ open, onClose, className, onSuccess }) {
                 className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
                   formType === t.id
                     ? "bg-indigo-650 text-white border-indigo-600 shadow-sm"
-                    : "bg-gray-50 dark:bg-gray-800 border-gray-250 text-gray-600 hover:border-indigo-400"
+                    :"bg-gray-50 border-gray-250 text-gray-600 hover:border-indigo-400"
                 }`}
               >
                 {t.label}
@@ -1719,7 +1719,7 @@ function CreateFormModal({ open, onClose, className, onSuccess }) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Student Extracurriculars"
-                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-900"
               />
             </div>
 
@@ -1757,12 +1757,12 @@ function CreateFormModal({ open, onClose, className, onSuccess }) {
                       placeholder="Question Label (e.g. Club Name)"
                       value={q.label}
                       onChange={(e) => handleQuestionChange(idx, "label", e.target.value)}
-                      className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-950 dark:text-gray-50"
+                      className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 text-gray-950"
                     />
                     <select
                       value={q.type}
                       onChange={(e) => handleQuestionChange(idx, "type", e.target.value)}
-                      className="w-28 px-2 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-805"
+                      className="w-28 px-2 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50"
                     >
                       <option value="text">Text</option>
                       <option value="number">Number</option>
@@ -1837,7 +1837,7 @@ function CreateFormModal({ open, onClose, className, onSuccess }) {
                       placeholder="e.g. Python Programming"
                       value={subj}
                       onChange={(e) => handleSubjectChange(idx, e.target.value)}
-                      className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 dark:bg-gray-800"
+                      className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50"
                     />
                     {subjectsList.length > 1 && (
                       <button
@@ -1875,8 +1875,8 @@ function CreateFormModal({ open, onClose, className, onSuccess }) {
               />
             </div>
             
-            <div className="p-3.5 bg-slate-50 dark:bg-gray-700/35 rounded-xl border border-slate-100 dark:border-gray-700 text-[11px] text-gray-500 space-y-1">
-              <strong className="block text-gray-700 dark:text-gray-300">Prefilled Fields (Ready-to-Go):</strong>
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-gray-500 space-y-1">
+              <strong className="block text-gray-700">Prefilled Fields (Ready-to-Go):</strong>
               <p>Company Name, Start Date, End Date, Duration, Project Name, Website Link, Address, Certificate Upload (PDF only)</p>
             </div>
 
@@ -1891,12 +1891,12 @@ function CreateFormModal({ open, onClose, className, onSuccess }) {
                       placeholder="e.g. Stipend Amount"
                       value={q.label}
                       onChange={(e) => handleInternshipQuestChange(idx, "label", e.target.value)}
-                      className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 dark:bg-gray-800"
+                      className="flex-1 px-3 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50"
                     />
                     <select
                       value={q.type}
                       onChange={(e) => handleInternshipQuestChange(idx, "type", e.target.value)}
-                      className="w-28 px-2 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50 dark:bg-gray-805"
+                      className="w-28 px-2 py-2 text-xs rounded-xl border border-gray-200 bg-gray-50"
                     >
                       <option value="text">Text</option>
                       <option value="number">Number</option>
@@ -2200,7 +2200,7 @@ function FillFormModal({ open, onClose, form, className, studentName, studentRol
   return (
     <Modal open={open} onClose={onClose} title={form.title} size="md">
       <form onSubmit={handleSubmit} className="space-y-4 pt-1 text-xs">
-        <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-gray-800/40 rounded-xl border border-slate-100 dark:border-gray-700/60 text-gray-500 font-semibold">
+        <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-gray-500 font-semibold">
           <div><strong className="block text-gray-400">Name:</strong> {studentName}</div>
           <div><strong className="block text-gray-400">Roll Number:</strong> {studentRoll}</div>
         </div>

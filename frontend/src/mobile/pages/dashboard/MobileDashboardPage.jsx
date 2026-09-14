@@ -54,15 +54,15 @@ function StatusProgressBar({ label, value, max, color, dotColor }) {
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5 min-w-[80px]">
         <span className={`w-2 h-2 rounded-full ${dotColor} shrink-0`} />
-        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">{label}</span>
+        <span className="text-xs font-semibold text-gray-600">{label}</span>
       </div>
-      <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-slate-800 overflow-hidden">
+      <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
-      <span className="text-xs font-bold text-gray-700 dark:text-gray-300 tabular-nums w-6 text-right">{value}</span>
+      <span className="text-xs font-bold text-gray-700 tabular-nums w-6 text-right">{value}</span>
     </div>
   );
 }
@@ -116,30 +116,30 @@ export default function MobileDashboardPage() {
   const updatesList = updatesData?.updates || [];
 
   const TAG_COLORS = {
-    Notice: "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
-    Announcement: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
-    Event: "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400",
-    Alert: "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400",
+    Notice:"bg-blue-50 text-blue-700",
+    Announcement:"bg-amber-50 text-amber-700",
+    Event:"bg-violet-50 text-violet-700",
+    Alert:"bg-red-50 text-red-700",
   };
 
   const STATUS_CHIPS = {
-    "not started": "bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-    "in progress": "bg-orange-50 text-[#F05A2B] dark:bg-orange-950/30 dark:text-orange-400",
-    "review": "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400",
-    "completed": "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
+"not started":"bg-slate-50 text-slate-600",
+"in progress":"bg-orange-50 text-[#F05A2B]",
+"review":"bg-purple-50 text-purple-700",
+"completed":"bg-emerald-50 text-emerald-700",
   };
 
   return (
     <div className="mobile-fade-in pb-6 space-y-5">
       {/* Greeting */}
       <div>
-        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
           {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
         </p>
-        <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+        <h1 className="text-xl font-black text-gray-900 tracking-tight leading-tight">
           {getGreeting()}, {user?.name?.split(" ")[0] ?? "Admin"}
         </h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 mt-1">
           Department overview at a glance.
         </p>
       </div>
@@ -205,7 +205,7 @@ export default function MobileDashboardPage() {
       {/* Project Status Breakdown */}
       <MobileCard>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-bold text-gray-900 dark:text-white">Project Status</span>
+          <span className="text-xs font-bold text-gray-900">Project Status</span>
           <BarChart3 className="w-4 h-4 text-[#F05A2B]" />
         </div>
         <div className="space-y-3">
@@ -213,9 +213,9 @@ export default function MobileDashboardPage() {
           <StatusProgressBar label="Done" value={completed} max={total} color="#22C55E" dotColor="bg-emerald-500" />
           <StatusProgressBar label="Pending" value={pending} max={total} color="#94A3B8" dotColor="bg-slate-400" />
         </div>
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
           <span className="text-[10px] font-semibold text-gray-400">Total Projects</span>
-          <span className="text-sm font-black text-gray-900 dark:text-white tabular-nums">{total}</span>
+          <span className="text-sm font-black text-gray-900 tabular-nums">{total}</span>
         </div>
       </MobileCard>
 
@@ -229,7 +229,7 @@ export default function MobileDashboardPage() {
               return (
                 <MobileCard key={act.id} onClick={() => navigate("/projects")}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate flex-1">
+                    <span className="text-sm font-bold text-gray-800 truncate flex-1">
                       {act.name}
                     </span>
                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusClass} uppercase shrink-0`}>
@@ -237,8 +237,8 @@ export default function MobileDashboardPage() {
                     </span>
                   </div>
                   {act.last_message && (
-                    <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-1.5">
-                      <span className="font-semibold text-gray-500 dark:text-gray-400">{act.last_message.sender_name}: </span>
+                    <p className="text-[11px] text-gray-400 truncate mt-1.5">
+                      <span className="font-semibold text-gray-500">{act.last_message.sender_name}: </span>
                       {formatProjectMessageContent(act.last_message.content)}
                     </p>
                   )}
@@ -273,10 +273,10 @@ export default function MobileDashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-bold text-gray-900 dark:text-white truncate">{title}</span>
+                        <span className="text-sm font-bold text-gray-900 truncate">{title}</span>
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${tagCls}`}>{tag}</span>
                       </div>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 leading-relaxed">{desc}</p>
+                      <p className="text-[11px] text-gray-500 line-clamp-2 mt-1 leading-relaxed">{desc}</p>
                       <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-1.5">
                         <Clock className="w-3 h-3" />
                         {timeAgo(upd.created_at)}
@@ -290,8 +290,8 @@ export default function MobileDashboardPage() {
         ) : (
           <MobileCard className="mt-2">
             <div className="flex flex-col items-center justify-center py-6 text-center">
-              <Megaphone className="w-8 h-8 text-gray-300 dark:text-gray-600 mb-2" />
-              <p className="text-xs font-bold text-gray-500 dark:text-gray-400">No announcements yet</p>
+              <Megaphone className="w-8 h-8 text-gray-300 mb-2"/>
+              <p className="text-xs font-bold text-gray-500">No announcements yet</p>
             </div>
           </MobileCard>
         )}

@@ -39,16 +39,16 @@ export function ToastContainer() {
           key={toast.id}
           className={clsx(
             "flex items-start gap-3 px-4 py-3 rounded-xl shadow-xl border animate-in slide-in-from-right duration-200 backdrop-blur-md",
-            toast.type === "error" && "bg-rose-50 border-rose-200 text-rose-800 dark:bg-[#1A2438] dark:border-rose-500/40 dark:text-rose-300",
-            toast.type === "success" && "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-[#1A2438] dark:border-emerald-500/40 dark:text-emerald-300",
-            toast.type === "info" && "bg-sky-50 border-sky-200 text-sky-800 dark:bg-[#1A2438] dark:border-sky-500/40 dark:text-sky-300"
+            toast.type === "error" && "bg-rose-50 border-rose-200 text-rose-800",
+            toast.type === "success" && "bg-emerald-50 border-emerald-200 text-emerald-800",
+            toast.type === "info" && "bg-sky-50 border-sky-200 text-sky-800"
           )}
         >
-          {toast.type === "error" && <XCircle className="w-5 h-5 mt-0.5 shrink-0 text-rose-500 dark:text-rose-400" />}
-          {toast.type === "success" && <CheckCircle className="w-5 h-5 mt-0.5 shrink-0 text-emerald-500 dark:text-emerald-400" />}
-          {toast.type === "info" && <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-sky-500 dark:text-sky-400" />}
+          {toast.type === "error" && <XCircle className="w-5 h-5 mt-0.5 shrink-0 text-rose-500" />}
+          {toast.type === "success" && <CheckCircle className="w-5 h-5 mt-0.5 shrink-0 text-emerald-500" />}
+          {toast.type === "info" && <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-sky-500" />}
           <p className="text-sm font-medium flex-1">{toast.message}</p>
-          <button onClick={() => remove(toast.id)} className="p-0.5 hover:opacity-70 text-gray-500 dark:text-slate-400">
+          <button onClick={() => remove(toast.id)} className="p-0.5 hover:opacity-70 text-gray-500">
             <X className="w-4 h-4" />
           </button>
         </div>

@@ -34,11 +34,11 @@ import { createPortal } from "react-dom";
 const FORUM_ROLES = ["Member", "Coordinator", "Secretary", "Treasurer", "Volunteer"];
 
 const FORUM_ROLE_META = {
-  Member: { color: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", dot: "bg-slate-400" },
-  Coordinator: { color: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300", dot: "bg-violet-500" },
-  Secretary: { color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300", dot: "bg-emerald-500" },
-  Treasurer: { color: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300", dot: "bg-rose-500" },
-  Volunteer: { color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300", dot: "bg-amber-500" },
+  Member: { color:"bg-slate-100 text-slate-600", dot:"bg-slate-400"},
+  Coordinator: { color:"bg-violet-100 text-violet-700", dot:"bg-violet-500"},
+  Secretary: { color:"bg-emerald-100 text-emerald-700", dot:"bg-emerald-500"},
+  Treasurer: { color:"bg-rose-100 text-rose-700", dot:"bg-rose-500"},
+  Volunteer: { color:"bg-amber-100 text-amber-700", dot:"bg-amber-500"},
 };
 
 function formatPostTime(dateString) {
@@ -81,17 +81,17 @@ function ForumPostKebab({ post, isAuthor, isHOD, onEdit, onDelete }) {
     <div ref={ref} className="relative shrink-0" onClick={e => e.stopPropagation()}>
       <button
         onClick={() => setOpen(!open)}
-        className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+        className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
       >
         <MoreVertical className="w-4.5 h-4.5" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 w-32 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-150 dark:border-gray-700 py-1 animate-fade-in">
+        <div className="absolute right-0 top-full mt-1 z-50 w-32 bg-white rounded-xl shadow-xl border border-gray-150 py-1 animate-fade-in">
           {canEdit && (
             <button
               onClick={() => { setOpen(false); onEdit(post); }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5 text-amber-500" /> Edit
             </button>
@@ -99,7 +99,7 @@ function ForumPostKebab({ post, isAuthor, isHOD, onEdit, onDelete }) {
           {canDelete && (
             <button
               onClick={() => { setOpen(false); onDelete(post); }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" /> Delete
             </button>
@@ -396,7 +396,7 @@ export default function ForumPage() {
               <MessageSquare className="w-7 h-7 text-white" />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-400 dark:text-gray-500 animate-pulse">Loading Forum...</p>
+          <p className="text-sm font-semibold text-gray-400 animate-pulse">Loading Forum...</p>
         </div>
       </div>
     );
@@ -455,14 +455,14 @@ export default function ForumPage() {
       {/* Redesigned Header Row */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Forum</h1>
+          <h1 className="text-xl font-black text-gray-900 tracking-tight">Forum</h1>
         </div>
 
         {/* Header End Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowMembersModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-750 dark:text-gray-200 text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-750 text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0 cursor-pointer"
           >
             <Users className="w-4 h-4 text-violet-500" /> Roster
           </button>
@@ -488,7 +488,7 @@ export default function ForumPage() {
             placeholder="Search posts by content, title, tags or author..."
             value={postSearchQuery}
             onChange={(e) => setPostSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
+            className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
           />
           {postSearchQuery && (
             <button onClick={() => setPostSearchQuery("")} className="absolute right-3.5 text-gray-450 hover:text-gray-600">
@@ -500,11 +500,11 @@ export default function ForumPage() {
         {/* Posts Feed Area */}
         <div className="space-y-4">
           {filteredPosts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
-              <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3 border border-gray-100 dark:border-gray-700/40">
-                <MessageSquare className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+            <div className="flex flex-col items-center justify-center py-16 text-center bg-white backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center mb-3 border border-gray-100">
+                <MessageSquare className="w-6 h-6 text-gray-300"/>
               </div>
-              <h4 className="text-xs font-bold text-gray-700 dark:text-gray-350">No posts matched search</h4>
+              <h4 className="text-xs font-bold text-gray-700">No posts matched search</h4>
               <p className="text-[11px] text-gray-400 mt-0.5 max-w-xs">
                 Try adjusting your search queries or share a new post!
               </p>
@@ -543,23 +543,23 @@ export default function ForumPage() {
                                 className="shrink-0 w-8 h-8 ring-2 ring-violet-500/10"
                               />
                               <div className="flex items-center gap-2 flex-wrap min-w-0 leading-none">
-                                <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                                <span className="text-xs font-bold text-gray-900 truncate">
                                   {post.posted_by?.name}
                                 </span>
-                                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 text-gray-500 uppercase tracking-wider">
                                   {post.posted_by?.forum_role || post.posted_by?.role || "Member"}
                                 </span>
                                 {isAuthor && (
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 uppercase tracking-wider">
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-violet-50 text-violet-600 uppercase tracking-wider">
                                     You
                                   </span>
                                 )}
                                 {post.is_edited && (
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-600 uppercase tracking-wider">
                                     Edited
                                   </span>
                                 )}
-                                <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                                <span className="text-[10px] text-gray-400 flex items-center gap-1">
                                   <Clock className="w-3 h-3 text-gray-400" />
                                   {formatPostTime(post.created_at)}
                                 </span>
@@ -582,20 +582,20 @@ export default function ForumPage() {
                           {displayTitle && (
                             <h2
                               onClick={() => navigate(`/forum/post/${post.id}`)}
-                              className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-white leading-snug line-clamp-2 hover:text-violet-600 cursor-pointer transition-colors"
+                              className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 leading-snug line-clamp-2 hover:text-violet-600 cursor-pointer transition-colors"
                             >
                               {displayTitle}
                             </h2>
                           )}
 
                           {/* Description with Read More Toggle */}
-                          <p className="text-xs sm:text-sm text-gray-750 dark:text-gray-350 leading-relaxed mb-3 break-words">
+                          <p className="text-xs sm:text-sm text-gray-750 leading-relaxed mb-3 break-words">
                             {isExpanded ? body : (hasLongBody ? body.slice(0, 220) + "..." : body)}
                             {hasLongBody && (
                               <button
                                 type="button"
                                 onClick={() => toggleExpandPost(post.id)}
-                                className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
+                                className="text-violet-650 font-bold ml-1 hover:underline focus:outline-none"
                               >
                                 {isExpanded ? "Show Less" : "Read More"}
                               </button>
@@ -606,7 +606,7 @@ export default function ForumPage() {
                           {displayTags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-3">
                               {displayTags.map(tag => (
-                                <span key={tag} className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/20">
+                                <span key={tag} className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100/30">
                                   #{tag}
                                 </span>
                               ))}
@@ -615,8 +615,8 @@ export default function ForumPage() {
                         </div>
 
                         {/* Footer Date & Reactions */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
-                          <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 mt-auto">
+                          <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-gray-500">
                             <Calendar className="w-3.5 h-3.5 text-gray-400" />
                             {format(parseUTCDate(post.created_at), "dd MMM yyyy · hh:mm a")}
                           </span>
@@ -625,7 +625,7 @@ export default function ForumPage() {
                             <button
                               type="button"
                               onClick={() => likeMutation.mutate(post.id)}
-                              className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 transition-all ${
+                              className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 border border-gray-100 transition-all ${
                                 post.liked ? "text-rose-500 animate-pulse" : "text-gray-400 hover:text-rose-500"
                               }`}
                             >
@@ -636,7 +636,7 @@ export default function ForumPage() {
                             <button
                               type="button"
                               onClick={() => navigate(`/forum/post/${post.id}`)}
-                              className="inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 text-gray-400 hover:text-violet-600 transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 border border-gray-100 text-gray-400 hover:text-violet-600 transition-all cursor-pointer"
                             >
                               <MessageSquare className="w-3.5 h-3.5 text-violet-500" />
                               <span>0</span>
@@ -648,7 +648,7 @@ export default function ForumPage() {
                                 navigator.clipboard.writeText(`${window.location.origin}/forum/post/${post.id}`);
                                 showSuccess("Link copied to clipboard!");
                               }}
-                              className="inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 text-gray-400 hover:text-indigo-600 transition-all cursor-pointer"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 border border-gray-100 text-gray-400 hover:text-indigo-600 transition-all cursor-pointer"
                               title="Copy link to post"
                             >
                               <Share2 className="w-3.5 h-3.5" />
@@ -662,7 +662,7 @@ export default function ForumPage() {
                       {hasImages && (
                         <div className="col-span-1 md:col-span-3 flex flex-col justify-center">
                           <div 
-                            className="relative rounded-2xl overflow-hidden border border-gray-105 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950/20 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer shadow-sm hover:scale-[1.01] transition-all"
+                            className="relative rounded-2xl overflow-hidden border border-gray-105 p-0.5 bg-slate-50 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer shadow-sm hover:scale-[1.01] transition-all"
                             onClick={() => handleOpenLightbox(urls, 0)}
                           >
                             <img 
@@ -718,18 +718,18 @@ export default function ForumPage() {
       {pendingStudent && (
         <Modal open={!!pendingStudent} onClose={() => setPendingStudent(null)} title="Assign Forum Role">
           <div className="space-y-4 pt-1">
-            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl border border-violet-100 dark:border-violet-800/30">
+            <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-violet-50 to-indigo-50 rounded-2xl border border-violet-100">
               <Avatar src={pendingStudent.profile_picture} name={pendingStudent.name} size="md" />
               <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{pendingStudent.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                <p className="text-sm font-bold text-gray-900 truncate">{pendingStudent.name}</p>
+                <p className="text-xs text-gray-500 truncate mt-0.5">
                   {pendingStudent.class_name?.replace("_", " ")} · {pendingStudent.email}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Select Preset Role</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Select Preset Role</label>
               <select
                 value={rolePreset}
                 onChange={(e) => {
@@ -738,7 +738,7 @@ export default function ForumPage() {
                     setCustomRole("");
                   }
                 }}
-                className="w-full p-2.5 rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                className="w-full p-2.5 rounded-xl border border-gray-250 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
               >
                 <option value="President">President</option>
                 <option value="Vice President">Vice President</option>
@@ -759,13 +759,13 @@ export default function ForumPage() {
 
             {rolePreset === "Custom" && (
               <div className="animate-fade-in">
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-2">Custom Designation</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Custom Designation</label>
                 <input
                   type="text"
                   placeholder="e.g. Vice Secretary, Creative Head"
                   value={customRole}
                   onChange={(e) => setCustomRole(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
                 />
               </div>
             )}
@@ -774,7 +774,7 @@ export default function ForumPage() {
               <button
                 type="button"
                 onClick={() => setPendingStudent(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-250 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
@@ -808,7 +808,7 @@ export default function ForumPage() {
               placeholder="Search members by name, role or class..."
               value={memberSearchQuery}
               onChange={(e) => setMemberSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
+              className="w-full pl-9 pr-9 py-2.5 text-xs rounded-xl border border-gray-250 bg-gray-50/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/25 transition-all"
             />
             {memberSearchQuery && (
               <button onClick={() => setMemberSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-405 hover:text-gray-650">
@@ -829,7 +829,7 @@ export default function ForumPage() {
                 return (
                   <div
                     key={m.id}
-                    className={`relative flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-white to-gray-50/30 dark:from-gray-800 dark:to-gray-800/60 border border-gray-150 dark:border-gray-700/60 shadow-sm hover:shadow-md hover:border-violet-300 dark:hover:border-violet-900/40 transition-all ${
+                    className={`relative flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-white to-gray-50/30 border border-gray-150 shadow-sm hover:shadow-md hover:border-violet-300 transition-all ${
                       isLeader ? "ring-2 ring-violet-500/25" : ""
                     }`}
                   >
@@ -843,14 +843,14 @@ export default function ForumPage() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate leading-tight flex items-center gap-1.5">
+                        <p className="text-sm font-bold text-gray-900 truncate leading-tight flex items-center gap-1.5">
                           {m.name}
                         </p>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-55/60 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-100/30 dark:border-violet-900/20">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-55/60 text-violet-600 border border-violet-100/30">
                             {m.role}
                           </span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700/80 text-gray-500 dark:text-gray-300">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
                             {m.class_name?.replace("_", " ")}
                           </span>
                         </div>
@@ -859,7 +859,7 @@ export default function ForumPage() {
                     {isHOD && (
                       <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className="text-[8px] text-gray-400 dark:text-gray-500 font-bold uppercase">Coord</span>
+                          <span className="text-[8px] text-gray-400 font-bold uppercase">Coord</span>
                           <Switch
                             checked={m.is_update_coordinator}
                             onChange={() => coordMutation.mutate(m.id)}
@@ -870,7 +870,7 @@ export default function ForumPage() {
                         <button
                           onClick={() => removeMutation.mutate(m.id)}
                           disabled={removeMutation.isPending}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                           title="Remove member"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -891,41 +891,41 @@ export default function ForumPage() {
           <div className="flex items-center gap-3">
             <Avatar src={user?.profile_picture} name={user?.name} size="sm" />
             <div>
-              <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{user?.name}</p>
-              <p className="text-[10px] text-violet-650 dark:text-violet-400 font-bold uppercase">{user?.role}</p>
+              <p className="text-xs font-bold text-gray-900 leading-tight">{user?.name}</p>
+              <p className="text-[10px] text-violet-650 font-bold uppercase">{user?.role}</p>
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Title</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Title</label>
             <input
               type="text"
               placeholder="Give your post a title..."
               value={postTitle}
               onChange={(e) => setPostTitle(e.target.value)}
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Description</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Description</label>
             <textarea
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
               placeholder="Share something with the forum..."
               rows={4}
-              className="w-full p-3 text-xs rounded-xl border border-gray-255 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 resize-none leading-relaxed"
+              className="w-full p-3 text-xs rounded-xl border border-gray-255 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20 resize-none leading-relaxed"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Tags (optional)</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Tags (optional)</label>
             <input
               type="text"
               placeholder="e.g. academic, events, announcements (comma separated)"
               value={postTags}
               onChange={(e) => setPostTags(e.target.value)}
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
@@ -933,7 +933,7 @@ export default function ForumPage() {
           {filePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {filePreviews.map((preview, idx) => (
-                <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-20 bg-gray-55 dark:bg-gray-900/30 animate-fade-in">
+                <div key={idx} className="relative rounded-xl border border-gray-150 overflow-hidden h-20 bg-gray-55 animate-fade-in">
                   <img src={preview} alt="preview" className="w-full h-full object-cover" />
                   <button
                     type="button"
@@ -952,7 +952,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 dark:border-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-305 hover:bg-gray-50 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-gray-250 text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all cursor-pointer"
             >
               <Image className="w-3.5 h-3.5 text-violet-500" />
               Add Image
@@ -963,7 +963,7 @@ export default function ForumPage() {
             <button
               type="button"
               onClick={() => { setPostModalOpen(false); setSelectedFiles([]); setFilePreviews([]); }}
-              className="flex-1 py-2.5 rounded-xl border border-gray-250 dark:border-gray-750 text-sm font-semibold text-gray-650 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 rounded-xl border border-gray-250 text-sm font-semibold text-gray-650 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -986,42 +986,42 @@ export default function ForumPage() {
       <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit Forum Post">
         <div className="space-y-4 pt-1">
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Title</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Title</label>
             <input
               type="text"
               placeholder="Give your post a title..."
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-905 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 bg-white text-gray-905 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest">Description</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Description</label>
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               rows={5}
-              className="w-full p-4 text-xs rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all resize-none leading-relaxed"
+              className="w-full p-4 text-xs rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all resize-none leading-relaxed"
               placeholder="Edit your post..."
             />
           </div>
 
           <div className="space-y-1">
-            <label className="block text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-widest">Tags (optional)</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest">Tags (optional)</label>
             <input
               type="text"
               placeholder="e.g. academic, events, announcements (comma separated)"
               value={editTags}
               onChange={(e) => setEditTags(e.target.value)}
-              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+              className="w-full p-2.5 text-xs rounded-xl border border-gray-250 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
 
           <div className="flex gap-3 pt-1">
             <button
               onClick={() => setEditTarget(null)}
-              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>

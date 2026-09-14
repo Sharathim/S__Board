@@ -74,9 +74,9 @@ export function Sidebar() {
               <Logo variant="icon" alt="Hive Logo" className="w-9 h-9 object-contain" />
               
               {/* Tooltip */}
-              <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+              <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800">
                 Hive
-                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900" />
               </div>
             </NavLink>
           </div>
@@ -109,9 +109,9 @@ export function Sidebar() {
                     </div>
 
                     {/* High Contrast Crystal Clear Tooltip */}
-                    <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+                    <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800">
                       {item.label}
-                      <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                      <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900" />
                     </div>
                   </NavLink>
                 );
@@ -134,9 +134,9 @@ export function Sidebar() {
               <div className="side-item-inner flex items-center justify-center w-full h-full">
                 <Settings className="w-5 h-5 flex-shrink-0 stroke-[2.2]" />
               </div>
-              <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800 dark:border-slate-200">
+              <div className="absolute left-full ml-4 px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap shadow-2xl z-[100] border border-slate-800">
                 Settings
-                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900 dark:bg-white" />
+                <span className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 rotate-45 bg-slate-900" />
               </div>
             </NavLink>
 
@@ -146,7 +146,7 @@ export function Sidebar() {
               onMouseLeave={handleMouseLeave}
               onMouseDown={handleMouseDown}
               onClick={() => setLogoutConfirmOpen(true)}
-              className="side-item-btn text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 relative group"
+              className="side-item-btn text-rose-500 hover:text-rose-600 relative group"
               title="Sign Out"
             >
               <div className="side-item-inner flex items-center justify-center w-full h-full">

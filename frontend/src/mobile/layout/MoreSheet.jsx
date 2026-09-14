@@ -1,10 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import {
-  GraduationCap, BookOpen, Settings, Bell, Sun, Moon,
+  GraduationCap, BookOpen, Settings, Bell,
   LogOut, Monitor, ChevronRight, Sparkles, Megaphone, FileText, CalendarClock, Briefcase
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../hooks/useTheme";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import BottomSheet from "./BottomSheet";
@@ -43,7 +42,6 @@ const getMoreItemsForRole = (user) => {
 
 export default function MoreSheet({ open, onClose }) {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotificationContext();
   const navigate = useNavigate();
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
@@ -66,7 +64,7 @@ export default function MoreSheet({ open, onClose }) {
     <>
       <BottomSheet open={open} onClose={onClose} title="More">
         {/* Profile card */}
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-slate-800/60 border border-gray-100 dark:border-slate-700/50 mb-4">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100 mb-4">
           <div
             className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-md overflow-hidden shrink-0"
             style={{ background: `linear-gradient(135deg, ${rc.from}, ${rc.to})` }}
@@ -78,8 +76,8 @@ export default function MoreSheet({ open, onClose }) {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.name}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{user?.email}</p>
+            <p className="text-sm font-bold text-gray-900 truncate">{user?.name}</p>
+            <p className="text-xs text-gray-400 truncate">{user?.email}</p>
             <span
               className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md mt-1"
               style={{ background: rc.light, color: rc.text }}
@@ -99,12 +97,12 @@ export default function MoreSheet({ open, onClose }) {
               <button
                 key={item.to}
                 onClick={() => handleNav(item.to)}
-                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+                className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 transition-colors"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 shrink-0">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 text-gray-500 shrink-0">
                   <Icon className="w-4.5 h-4.5" />
                 </div>
-                <span className="flex-1 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <span className="flex-1 text-left text-sm font-semibold text-gray-700">
                   {item.label}
                 </span>
                 {showBadge && (
@@ -112,14 +110,14 @@ export default function MoreSheet({ open, onClose }) {
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
-                <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600" />
+                <ChevronRight className="w-4 h-4 text-gray-300"/>
               </button>
             );
           })}
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-gray-100 dark:bg-slate-800 my-2" />
+        <div className="h-px bg-gray-100 my-2"/>
 
 
 
@@ -128,9 +126,9 @@ export default function MoreSheet({ open, onClose }) {
         {/* Sign Out */}
         <button
           onClick={() => { onClose(); setTimeout(() => setLogoutConfirmOpen(true), 300); }}
-          className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+          className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
         >
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-red-50 dark:bg-red-950/30 text-red-500 dark:text-red-400 shrink-0">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-red-50 text-red-500 shrink-0">
             <LogOut className="w-4.5 h-4.5" />
           </div>
           <span className="flex-1 text-left text-sm font-bold">Sign Out</span>

@@ -9,7 +9,7 @@ export function SearchFilter({ value, onChange, placeholder = "Search...", class
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-10 pr-3.5 h-10 rounded-full text-xs text-gray-900 dark:text-gray-100 placeholder-gray-450 focus:outline-none transition-all neomorph-input"
+        className="w-full pl-10 pr-3.5 h-10 rounded-full text-xs text-gray-900 placeholder-gray-450 focus:outline-none transition-all neomorph-input"
       />
     </div>
   );
@@ -21,7 +21,7 @@ export function StatusFilter({ value, onChange, options = [], className = "" }) 
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`pl-4 pr-8 h-10 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-300 focus:outline-none transition-all neomorph-input appearance-none cursor-pointer ${className}`}
+        className={`pl-4 pr-8 h-10 rounded-full text-xs font-semibold text-gray-700 focus:outline-none transition-all neomorph-input appearance-none cursor-pointer ${className}`}
         style={{ minWidth: "124px" }}
       >
         <option value="">All Status</option>
@@ -29,7 +29,7 @@ export function StatusFilter({ value, onChange, options = [], className = "" }) 
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
-      <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-450 dark:text-gray-500 pointer-events-none" />
+      <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-450 pointer-events-none" />
     </div>
   );
 }

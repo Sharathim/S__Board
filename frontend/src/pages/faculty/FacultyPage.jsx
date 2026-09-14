@@ -48,7 +48,7 @@ function Avatar({ fac, size = "lg", className = "" }) {
   }
 
   return (
-    <div className={`${sizeClass} rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center font-bold text-[#5B5CEB] dark:text-indigo-300 ring-2 ring-[#5B5CEB] shrink-0 ${className}`}>
+    <div className={`${sizeClass} rounded-2xl bg-indigo-50 flex items-center justify-center font-bold text-[#5B5CEB] ring-2 ring-[#5B5CEB] shrink-0 ${className}`}>
       {getInitials(fac.name)}
     </div>
   );
@@ -67,9 +67,9 @@ function GmailIcon({ className }) {
 // ─── Designation Badge ────────────────────────────────────────────────────────
 function DesignationBadge({ designation }) {
   const map = {
-    "Professor":            { color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/50", icon: Star },
-    "Associate Professor":  { color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50",     icon: TrendingUp },
-    "Assistant Professor":  { color: "bg-[#FFF5F2] text-[#F05A2B] border-[#FFDBD2] dark:bg-[#F05A2B]/15 dark:text-[#FF8365] dark:border-[#F05A2B]/30", icon: GraduationCap },
+"Professor": { color:"bg-purple-50 text-purple-700 border-purple-200", icon: Star },
+"Associate Professor": { color:"bg-blue-50 text-blue-700 border-blue-200", icon: TrendingUp },
+"Assistant Professor": { color:"bg-[#FFF5F2] text-[#F05A2B] border-[#FFDBD2]", icon: GraduationCap },
   };
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;
@@ -84,7 +84,7 @@ function DesignationBadge({ designation }) {
 // ─── Class Chip ───────────────────────────────────────────────────────────────
 function ClassChip({ label }) {
   return (
-    <span className="inline-flex items-center justify-center px-[12px] h-[28px] rounded-full text-[11px] font-semibold border bg-white dark:bg-[#27272A] border-[#DDE3ED] dark:border-[#3F3F46] text-[#4F46E5] dark:text-indigo-300 shrink-0">
+    <span className="inline-flex items-center justify-center px-[12px] h-[28px] rounded-full text-[11px] font-semibold border bg-white border-[#DDE3ED] text-[#4F46E5] shrink-0">
       {label.replace("_", " ")}
     </span>
   );
@@ -111,8 +111,8 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
   return (
     <div className={`group rounded-[20px] shadow-[0_8px_24px_rgba(15,23,42,0.06)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.12)] transition-all duration-200 ease-out flex flex-col justify-between h-full relative p-[20px] ${
       isMe
-        ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-b from-indigo-50/40 via-white to-white dark:from-[#18181B] dark:via-[#18181B] dark:to-[#18181B]"
-        : "bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#26262B] hover:border-[#5B5CEB] dark:hover:border-[#5B5CEB] hover:-translate-y-[2px]"
+        ?"ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-b from-indigo-50/40 via-white to-white"
+        :"bg-white border border-[#E5E7EB] hover:border-[#5B5CEB] hover:-translate-y-[2px]"
     } ${menuOpen ? "z-30" : "z-10"}`}>
       {/* Top half container that will grow to fill space */}
       <div className="flex flex-col flex-1">
@@ -124,7 +124,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
           <div className="flex items-center gap-2">
             <a
               href={`mailto:${fac.email}`}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#202024] border border-gray-200 dark:border-[#26262B] shadow-sm text-gray-500 hover:text-[#5B5CEB] dark:text-gray-400 dark:hover:text-white transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm text-gray-500 hover:text-[#5B5CEB] transition-colors"
               title={`Email ${fac.name}`}
             >
               <GmailIcon className="w-3.5 h-3.5" />
@@ -134,12 +134,12 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
               <div className="relative kebab-container">
                 <button
                   onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#202024] border border-gray-200 dark:border-[#26262B] shadow-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   <MoreVertical className="w-3.5 h-3.5" />
                 </button>
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-[#18181B] rounded-2xl shadow-lg border border-gray-150/80 dark:border-[#26262B] py-1.5 z-30 animate-fade-in">
+                  <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-2xl shadow-lg border border-gray-150/80 py-1.5 z-30 animate-fade-in">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -151,14 +151,14 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
                         }
                         setMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-605 hover:bg-emerald-50 font-medium transition-colors text-left"
                     >
                       {fac.class_incharge_of
                         ? <><UserX className="w-4 h-4" />Remove as Incharge</>
                         : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
                       }
                     </button>
-                    <div className="my-1.5 h-px bg-gray-100 dark:bg-[#26262B] mx-3" />
+                    <div className="my-1.5 h-px bg-gray-100 mx-3"/>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -166,7 +166,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
                         onDelete(fac);
                         setMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-655 hover:bg-red-50 font-medium transition-colors text-left"
                     >
                       <Trash2 className="w-4 h-4" />
                       Remove Faculty
@@ -178,7 +178,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
               (userRole === "FACULTY" && (userId === fac.user_id || userId === fac.id)) && (
                 <button
                   onClick={() => onEdit(fac)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#202024] border border-gray-200 dark:border-[#26262B] shadow-sm text-indigo-500 dark:text-indigo-400 hover:text-indigo-655 transition-all"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm text-indigo-500 hover:text-indigo-655 transition-all"
                   title="Edit your profile"
                 >
                   <Pencil className="w-3.5 h-3.5" />
@@ -190,7 +190,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
 
         {/* Faculty Name & YOU Badge */}
         <div className="mt-[8px] flex items-center justify-between gap-2">
-          <h3 className="text-[24px] lg:text-[26px] font-bold text-[#1E293B] dark:text-white leading-tight tracking-tight group-hover:text-[#5B5CEB] dark:group-hover:text-indigo-400 transition-colors truncate">
+          <h3 className="text-[24px] lg:text-[26px] font-bold text-[#1E293B] leading-tight tracking-tight group-hover:text-[#5B5CEB] transition-colors truncate">
             {fac.name}
           </h3>
           {isMe && (
@@ -202,7 +202,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
 
         {/* Email Address */}
         <div className="mt-[8px]">
-          <p className="text-[14px] font-medium text-[#64748B] dark:text-gray-400 truncate leading-none">
+          <p className="text-[14px] font-medium text-[#64748B] truncate leading-none">
             {fac.email}
           </p>
         </div>
@@ -219,7 +219,7 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
               <ClassChip key={cls} label={cls} />
             ))
           ) : (
-            <span className="text-[11px] text-gray-400 dark:text-gray-505 italic mt-1">No classes</span>
+            <span className="text-[11px] text-gray-400 italic mt-1">No classes</span>
           )}
           {fac.class_incharge_of && (
             <ClassChip label={`IC: ${fac.class_incharge_of}`} />
@@ -228,16 +228,16 @@ function FacultyCard({ fac, isHOD, userId, userRole, user, onEdit, onDelete, onA
       </div>
 
       {/* Divider */}
-      <div className="mt-[18px] border-t border-[#EEF2F7] dark:border-[#26262B]" />
+      <div className="mt-[18px] border-t border-[#EEF2F7]"/>
 
       {/* Bottom Section */}
       <div className="mt-[16px] flex items-center justify-start gap-1.5">
         <FolderKanban className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-        <span className="text-[12px] font-bold text-gray-550 dark:text-gray-400">Projects</span>
+        <span className="text-[12px] font-bold text-gray-550">Projects</span>
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
           fac.project_count > 0 
-            ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 dark:border-indigo-900/30" 
-            : "bg-slate-50 dark:bg-gray-800 text-slate-400 dark:text-gray-500 border border-slate-100 dark:border-gray-700/60"
+            ?"bg-indigo-50 text-indigo-600 border border-indigo-100/30"
+            :"bg-slate-50 text-slate-400 border border-slate-100"
         }`}>
           {fac.project_count || 0} Active
         </span>
@@ -351,15 +351,15 @@ export default function FacultyPage() {
       {/* ── Page Header ── */}
       <div className="flex flex-row items-center justify-between gap-2 mb-6">
         <div className="flex items-center">
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Faculty</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Faculty</h1>
         </div>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* HOD only: Invite toggle "Faculty Invite" */}
           {isHOD && invite && (
-            <div className="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 h-9 rounded-xl border border-gray-200/60 dark:border-gray-700 shadow-sm shrink-0">
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400">New Faculty</span>
+            <div className="flex items-center gap-2.5 bg-white px-3 h-9 rounded-xl border border-gray-200/60 shadow-sm shrink-0">
+              <span className="text-xs font-bold text-gray-500">New Faculty</span>
               <Switch
                 checked={invite.is_active}
                 onChange={() => toggleInviteMutation.mutate()}
@@ -370,13 +370,13 @@ export default function FacultyPage() {
           )}
 
           {/* Grid / List Switcher */}
-          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 h-9 shrink-0">
+          <div className="hidden md:flex items-center gap-1 p-1 rounded-xl bg-gray-150 border border-gray-200/50 h-9 shrink-0">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "grid"
-                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-450 dark:text-gray-500 hover:text-gray-650"
+                  ?"bg-white text-indigo-600 shadow-sm"
+                  :"text-gray-450 hover:text-gray-650"
               }`}
               title="Grid View"
             >
@@ -386,8 +386,8 @@ export default function FacultyPage() {
               onClick={() => setViewMode("list")}
               className={`p-1 rounded-lg transition-all ${
                 viewMode === "list"
-                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-gray-455 dark:text-gray-500 hover:text-gray-655"
+                  ?"bg-white text-indigo-600 shadow-sm"
+                  :"text-gray-455 hover:text-gray-655"
               }`}
               title="List View"
             >
@@ -412,11 +412,11 @@ export default function FacultyPage() {
       {facultyList.length === 0 ? (
         /* Empty State */
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-20 h-20 rounded-3xl bg-violet-50 dark:bg-violet-900/20 border-2 border-dashed border-violet-200 dark:border-violet-800/40 flex items-center justify-center mb-5">
-            <GraduationCap className="w-9 h-9 text-violet-400 dark:text-violet-500" />
+          <div className="w-20 h-20 rounded-3xl bg-violet-50 border-2 border-dashed border-violet-200 flex items-center justify-center mb-5">
+            <GraduationCap className="w-9 h-9 text-violet-400"/>
           </div>
-          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">No faculty members yet</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+          <h3 className="text-lg font-bold text-gray-800 mb-2">No faculty members yet</h3>
+          <p className="text-sm text-gray-500 max-w-xs">
             {isHOD
               ? "Enable the faculty invite link above to allow faculty to self-register."
               : "Faculty members will appear here once they've been onboarded."}
@@ -442,7 +442,7 @@ export default function FacultyPage() {
       ) : (
         <div className="space-y-4">
           {/* Header row for large screens */}
-          <div className="hidden lg:grid grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800/40">
+          <div className="hidden lg:grid grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-150">
             <span>Faculty Member</span>
             <span>Designation</span>
             <span>Classes Handling</span>
@@ -459,8 +459,8 @@ export default function FacultyPage() {
                   key={fac.id}
                   className={`group grid grid-cols-1 lg:grid-cols-[minmax(200px,1.5fr)_140px_1fr_140px_80px_80px] gap-4 items-center p-4 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 transition-all duration-300 relative ${
                     isMe
-                      ? "ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-r from-indigo-50/40 via-white to-white dark:from-[#18181B] dark:via-[#18181B] dark:to-[#18181B]"
-                      : "bg-white dark:bg-[#18181B] border border-gray-150 dark:border-[#26262B] hover:border-indigo-500/20"
+                      ?"ring-2 ring-indigo-500/50 border-2 border-indigo-500/60 bg-gradient-to-r from-indigo-50/40 via-white to-white"
+                      :"bg-white border border-gray-150 hover:border-indigo-500/20"
                   } ${openKebabId === fac.id ? "z-30" : "z-10"}`}
                 >
                   {/* Col 1: Avatar + Name */}
@@ -468,14 +468,14 @@ export default function FacultyPage() {
                     <Avatar fac={fac} size="sm" />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">{fac.name}</p>
+                        <p className="text-sm font-bold text-gray-900 leading-tight truncate">{fac.name}</p>
                         {isMe && (
                           <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xs shrink-0">
                             YOU
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-450 dark:text-gray-550 mt-0.5 truncate">{fac.email}</p>
+                      <p className="text-xs text-gray-450 mt-0.5 truncate">{fac.email}</p>
                     </div>
                   </div>
 
@@ -512,8 +512,8 @@ export default function FacultyPage() {
                   <span className="lg:hidden text-[10px] font-bold text-gray-400 uppercase tracking-wider w-24 shrink-0">Projects:</span>
                   <span className={`text-sm font-extrabold px-2.5 py-0.5 rounded-full ${
                     fac.project_count > 0
-                      ? "bg-indigo-50 dark:bg-indigo-955/30 text-indigo-600 dark:text-indigo-400"
-                      : "text-gray-400 dark:text-gray-500"
+                      ?"bg-indigo-50 text-indigo-600"
+                      :"text-gray-400"
                   }`}>
                     {fac.project_count || 0}
                   </span>
@@ -523,7 +523,7 @@ export default function FacultyPage() {
                 <div className="flex items-center justify-end lg:justify-center gap-1.5">
                   <a
                     href={`mailto:${fac.email}`}
-                    className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
                     title={`Email ${fac.name}`}
                   >
                     <GmailIcon className="w-4 h-4" />
@@ -532,12 +532,12 @@ export default function FacultyPage() {
                     <div className="relative kebab-container-list">
                       <button
                         onClick={(e) => { e.stopPropagation(); setOpenKebabId(openKebabId === fac.id ? null : fac.id); }}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
                       {openKebabId === fac.id && (
-                        <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-150/80 dark:border-gray-700 py-1.5 z-30 animate-fade-in">
+                        <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-2xl shadow-lg border border-gray-150/80 py-1.5 z-30 animate-fade-in">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -550,14 +550,14 @@ export default function FacultyPage() {
                               }
                               setOpenKebabId(null);
                             }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-955/20 font-medium transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 font-medium transition-colors text-left"
                           >
                             {fac.class_incharge_of
                               ? <><UserX className="w-4 h-4" />Remove as Incharge</>
                               : <><UserCheck className="w-4 h-4" />Assign as Incharge</>
                             }
                           </button>
-                          <div className="my-1.5 h-px bg-gray-100 dark:bg-gray-700 mx-3" />
+                          <div className="my-1.5 h-px bg-gray-100 mx-3"/>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -565,7 +565,7 @@ export default function FacultyPage() {
                               setDeleteConfirm(fac);
                               setOpenKebabId(null);
                             }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 font-medium transition-colors text-left"
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors text-left"
                           >
                             <Trash2 className="w-4 h-4" />
                             Remove Faculty
@@ -577,7 +577,7 @@ export default function FacultyPage() {
                     user?.role === "FACULTY" && user?.id === fac.user_id && (
                       <button
                         onClick={() => handleOpenEdit(fac)}
-                        className="p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-400 hover:text-indigo-500 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-500 transition-colors"
                         title="Edit Profile"
                       >
                         <Pencil className="w-4 h-4" />
@@ -599,39 +599,39 @@ export default function FacultyPage() {
         <form onSubmit={handleEditSubmit} className="space-y-5 pt-1">
           {/* Avatar preview row */}
           {editModal && (
-            <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-gray-700/40 rounded-2xl">
+            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
               <Avatar fac={{ ...editModal, name: editName }} size="lg" />
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">{editName || editModal.name}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">{editModal.email}</p>
+                <p className="text-sm font-bold text-gray-900">{editName || editModal.name}</p>
+                <p className="text-xs text-gray-400">{editModal.email}</p>
               </div>
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Full Name</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Full Name</label>
             <input
               type="text"
               required
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+              className="block w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Designation</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Designation</label>
             <select
               value={editDesignation}
               onChange={(e) => setEditDesignation(e.target.value)}
-              className="block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all cursor-pointer"
+              className="block w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all cursor-pointer"
             >
               {DESIGNATION_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Classes Handling</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Classes Handling</label>
             <div className="grid grid-cols-4 gap-2">
               {CLASSES.map((cls) => {
                 const isSelected = editClasses.includes(cls);
@@ -643,7 +643,7 @@ export default function FacultyPage() {
                     className={`py-2 px-3 text-xs font-semibold rounded-xl border text-center transition-all ${
                       isSelected
                         ? "bg-primary-600 text-white border-primary-600 shadow-sm"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700"
+                        :"bg-white text-gray-600 border-gray-200 hover:border-primary-300"
                     }`}
                   >
                     {cls.replace("_", " ")}
@@ -657,7 +657,7 @@ export default function FacultyPage() {
             <button
               type="button"
               onClick={() => setEditModal(null)}
-              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
@@ -678,21 +678,21 @@ export default function FacultyPage() {
       <Modal open={!!assignModal} onClose={() => setAssignModal(null)} title="Assign Class Incharge">
         <div className="space-y-5 pt-1">
           {assignModal && (
-            <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-gray-700/40 rounded-2xl">
+            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
               <Avatar fac={assignModal} size="sm" />
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">{assignModal.name}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">{assignModal.designation}</p>
+                <p className="text-sm font-bold text-gray-900">{assignModal.name}</p>
+                <p className="text-xs text-gray-400">{assignModal.designation}</p>
               </div>
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Select Class</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Select Class</label>
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="block w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all cursor-pointer"
+              className="block w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all cursor-pointer"
             >
               <option value="">— Select a class —</option>
               {CLASSES.map((cls) => <option key={cls} value={cls}>{cls.replace("_", " ")}</option>)}
@@ -702,7 +702,7 @@ export default function FacultyPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setAssignModal(null)}
-              className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>

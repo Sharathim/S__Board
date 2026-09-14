@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../../../context/AuthContext";
-import { useTheme } from "../../../hooks/useTheme";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import api from "../../../api/axios";
 import {
-  Moon, Sun, Bell, LogOut, User, Shield,
+  Bell, LogOut, User, Shield,
   ChevronRight, CheckCircle2, Sparkles,
   Lock, Info, Smartphone, Save,
 } from "lucide-react";
@@ -25,29 +24,29 @@ function SettingsRow({ icon: Icon, title, subtitle, trailing, onClick, danger = 
     <Comp
       onClick={onClick}
       className={`mobile-tappable w-full flex items-center gap-3 px-4 py-3 min-h-[48px] transition-colors ${
-        onClick ? "cursor-pointer active:bg-gray-50 dark:active:bg-slate-800/60" : ""
-      } ${danger ? "text-red-600 dark:text-red-400" : ""}`}
+        onClick ?"cursor-pointer active:bg-gray-50":""
+      } ${danger ?"text-red-600":""}`}
     >
       {Icon && (
         <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
           danger
-            ? "bg-red-50 dark:bg-red-950/30 text-red-500"
-            : "bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400"
+            ?"bg-red-50 text-red-500"
+            :"bg-gray-100 text-gray-500"
         }`}>
           <Icon className="w-4 h-4" />
         </div>
       )}
       <div className="flex-1 min-w-0 text-left">
         <p className={`text-sm font-semibold truncate ${
-          danger ? "" : "text-gray-900 dark:text-gray-100"
+          danger ?"":"text-gray-900"
         }`}>{title}</p>
         {subtitle && (
-          <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 truncate">{subtitle}</p>
+          <p className="text-[11px] text-gray-400 mt-0.5 truncate">{subtitle}</p>
         )}
       </div>
       {trailing && <div className="shrink-0">{trailing}</div>}
       {onClick && !trailing && (
-        <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" />
+        <ChevronRight className="w-4 h-4 text-gray-300 shrink-0"/>
       )}
     </Comp>
   );
@@ -57,11 +56,11 @@ function SettingsSection({ title, children }) {
   return (
     <div className="mb-5">
       {title && (
-        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-4 mb-1.5">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 mb-1.5">
           {title}
         </p>
       )}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200/70 dark:border-slate-800/80 overflow-hidden divide-y divide-gray-100 dark:divide-slate-800/60">
+      <div className="bg-white rounded-2xl border border-gray-200/70 overflow-hidden divide-y divide-gray-100">
         {children}
       </div>
     </div>
@@ -73,7 +72,7 @@ function ToggleSwitch({ checked, onChange }) {
     <button
       onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
       className={`mobile-tappable relative w-[46px] h-[28px] rounded-full transition-colors duration-200 shrink-0 ${
-        checked ? "bg-primary-500" : "bg-gray-300 dark:bg-slate-600"
+        checked ?"bg-primary-500":"bg-gray-300"
       }`}
     >
       <div
@@ -87,7 +86,6 @@ function ToggleSwitch({ checked, onChange }) {
 
 export default function MobileSettingsPage() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [name, setName] = useState(user?.name || "");
   const [pushEnabled, setPushEnabled] = useState(user?.push_enabled !== false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -168,14 +166,14 @@ export default function MobileSettingsPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
               placeholder="Enter your name"
               autoFocus
             />
             <div className="flex gap-2">
               <button
                 onClick={() => { setEditingName(false); setName(user?.name || ""); }}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-xs font-bold text-gray-600 dark:text-gray-300"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600"
               >
                 Cancel
               </button>
@@ -193,7 +191,7 @@ export default function MobileSettingsPage() {
               </button>
             </div>
             {saveSuccess && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 text-xs font-semibold">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Saved! Reloading...
               </div>
@@ -212,7 +210,7 @@ export default function MobileSettingsPage() {
           title={user?.email || "—"}
           subtitle="Email address (read-only)"
           trailing={
-            <span className="text-[9px] font-bold text-gray-400 uppercase bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+            <span className="text-[9px] font-bold text-gray-400 uppercase bg-gray-100 px-2 py-0.5 rounded-full">
               Locked
             </span>
           }
@@ -221,12 +219,6 @@ export default function MobileSettingsPage() {
 
       {/* Preferences */}
       <SettingsSection title="Preferences">
-        <SettingsRow
-          icon={theme === "dark" ? Moon : Sun}
-          title="Dark Mode"
-          subtitle={theme === "dark" ? "Dark mode active" : "Switch to dark theme"}
-          trailing={<ToggleSwitch checked={theme === "dark"} onChange={toggleTheme} />}
-        />
         <SettingsRow
           icon={Smartphone}
           title="Push Notifications"
@@ -241,14 +233,14 @@ export default function MobileSettingsPage() {
           icon={Shield}
           title="Role"
           trailing={
-            <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{user?.role}</span>
+            <span className="text-xs font-semibold text-gray-600">{user?.role}</span>
           }
         />
         <SettingsRow
           icon={Info}
           title="Department"
           trailing={
-            <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 truncate max-w-[140px] block">
+            <span className="text-xs font-semibold text-gray-600 truncate max-w-[140px] block">
               {user?.department || "Computer Science"}
             </span>
           }

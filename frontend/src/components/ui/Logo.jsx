@@ -1,22 +1,12 @@
-import { useThemeContext } from "../../context/ThemeContext";
-
 /**
- * Reusable dynamic Logo component that automatically renders the exact appropriate PNG logo
- * asset based on the active light/dark theme state.
+ * Reusable Logo component that renders the app's PNG logo asset.
  *
  * Supported variants:
  * - "full" (default): Full website name + logo
- *   Light: /LightModewebsite-name-logo.png
- *   Dark:  /dark-mode-website-name-logo.png
- * - "icon": Icon-only logo
- *   Light: /LightModeLogo.png
- *   Dark:  /DarkModeLogo.png
+ * - "icon": Icon-only logo -> /LightModeLogo.png
  */
 export function Logo({ variant = "icon", className, alt = "Hive", style, showText = false, textClassName, ...props }) {
-  const themeContext = useThemeContext();
-  const theme = themeContext?.theme || "light";
-
-  const iconSrc = theme === "dark" ? "/DarkModeLogo.png" : "/LightModeLogo.png";
+  const iconSrc = "/LightModeLogo.png";
 
   if (!showText) {
     return (
@@ -37,7 +27,7 @@ export function Logo({ variant = "icon", className, alt = "Hive", style, showTex
         alt={`${alt} Icon`}
         className="h-9 w-auto object-contain shrink-0 filter drop-shadow-sm"
       />
-      <span className={textClassName || "font-black text-xl tracking-tight text-slate-900 dark:text-white"}>
+      <span className={textClassName || "font-black text-xl tracking-tight text-slate-900"}>
         Hive
       </span>
     </div>

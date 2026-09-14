@@ -5,7 +5,7 @@ export default function MobileCard({ children, className = "", onClick, noPaddin
   return (
     <div
       onClick={onClick}
-      className={`w-full bg-white dark:bg-slate-900 border border-gray-200/70 dark:border-slate-800/80 rounded-2xl shadow-sm ${
+      className={`w-full bg-white border border-gray-200/70 rounded-2xl shadow-sm ${
         noPadding ? "" : "p-3.5"
       } ${onClick ? "mobile-tappable cursor-pointer active:scale-[0.98]" : ""} ${className}`}
     >

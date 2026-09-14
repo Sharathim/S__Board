@@ -23,20 +23,20 @@ export default function MobileLoginSheetContent({ onClose }) {
       {/* Logo + Title */}
       <div className="text-center">
         <Logo variant="icon" className="w-12 h-12 object-contain mx-auto mb-2.5" />
-        <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">Sign in to Hive</h2>
-        <p className="text-xs font-medium text-gray-500 dark:text-slate-400 mt-1">Department Project Management System</p>
+        <h2 className="text-lg font-bold text-gray-900">Sign in to Hive</h2>
+        <p className="text-xs font-medium text-gray-500 mt-1">Department Project Management System</p>
       </div>
 
       {/* Role Segmented Control */}
-      <div className="flex gap-1 p-1 bg-gray-100 dark:bg-slate-800/80 rounded-xl">
+      <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
         {ROLES.map(r => (
           <button
             key={r.value}
             onClick={() => setRole(r.value)}
             className={`mobile-tappable flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${
               role === r.value
-                ? "bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm"
-                : "text-gray-500 dark:text-gray-400"
+                ?"bg-white text-gray-900 shadow-sm"
+                :"text-gray-500"
             }`}
           >
             {r.label}
@@ -45,7 +45,7 @@ export default function MobileLoginSheetContent({ onClose }) {
       </div>
 
       {/* Role description */}
-      <p className="text-center text-[11px] text-gray-400 dark:text-gray-500 px-4 leading-relaxed">
+      <p className="text-center text-[11px] text-gray-400 px-4 leading-relaxed">
         {currentRole?.desc}
       </p>
 
@@ -63,7 +63,7 @@ export default function MobileLoginSheetContent({ onClose }) {
         Continue with Google as {currentRole?.label}
       </button>
 
-      <p className="text-center text-[10px] text-gray-400 dark:text-gray-500 leading-relaxed">
+      <p className="text-center text-[10px] text-gray-400 leading-relaxed">
         Need help? Contact your system administrator.
       </p>
     </div>

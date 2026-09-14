@@ -56,24 +56,24 @@ export function HODLeaveSettingsModal({ open, onClose }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+          <p className="text-xs text-gray-500 leading-relaxed">
             Set the default permission quota, maximum hours per permission, and annual leave limits for faculty members in your department.
           </p>
 
-          <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 flex items-start gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-800 dark:text-amber-300 font-medium">
+          <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-2.5">
+            <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5"/>
+            <p className="text-xs text-amber-800 font-medium">
               These settings control the maximum permissions and leaves a faculty can request each month/year.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Monthly Permission Quota */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-800">
-              <label className="text-xs font-bold text-gray-700 dark:text-slate-300">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+              <label className="text-xs font-bold text-gray-700">
                 Monthly Permission Quota
               </label>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500">Max permissions / month</p>
+              <p className="text-[11px] text-gray-400">Max permissions / month</p>
               <input
                 type="number"
                 min="1"
@@ -81,16 +81,16 @@ export function HODLeaveSettingsModal({ open, onClose }) {
                 required
                 value={form.monthly_permission_quota}
                 onChange={(e) => setForm({ ...form, monthly_permission_quota: parseInt(e.target.value) || 0 })}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
             {/* Max Hours / Periods per Permission */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-800">
-              <label className="text-xs font-bold text-gray-700 dark:text-slate-300">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+              <label className="text-xs font-bold text-gray-700">
                 Max Hours / Periods
               </label>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500">Max periods per permission</p>
+              <p className="text-[11px] text-gray-400">Max periods per permission</p>
               <input
                 type="number"
                 min="1"
@@ -98,16 +98,16 @@ export function HODLeaveSettingsModal({ open, onClose }) {
                 required
                 value={form.max_permission_hours}
                 onChange={(e) => setForm({ ...form, max_permission_hours: parseInt(e.target.value) || 0 })}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
             {/* Default Casual Leave */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-800">
-              <label className="text-xs font-bold text-gray-700 dark:text-slate-300">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+              <label className="text-xs font-bold text-gray-700">
                 Default Casual Leave (CL)
               </label>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500">Annual days entitlement</p>
+              <p className="text-[11px] text-gray-400">Annual days entitlement</p>
               <input
                 type="number"
                 min="0"
@@ -115,16 +115,16 @@ export function HODLeaveSettingsModal({ open, onClose }) {
                 required
                 value={form.default_casual_leave}
                 onChange={(e) => setForm({ ...form, default_casual_leave: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
             {/* Default Medical Leave */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-800">
-              <label className="text-xs font-bold text-gray-700 dark:text-slate-300">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-gray-50 border border-gray-100">
+              <label className="text-xs font-bold text-gray-700">
                 Default Medical Leave (ML)
               </label>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500">Annual days entitlement</p>
+              <p className="text-[11px] text-gray-400">Annual days entitlement</p>
               <input
                 type="number"
                 min="0"
@@ -132,25 +132,25 @@ export function HODLeaveSettingsModal({ open, onClose }) {
                 required
                 value={form.default_medical_leave}
                 onChange={(e) => setForm({ ...form, default_medical_leave: parseFloat(e.target.value) || 0 })}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
           </div>
 
           {/* Apply to existing faculty checkbox */}
-          <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-primary-50/60 dark:bg-primary-950/30 border border-primary-100 dark:border-primary-900/40 cursor-pointer">
+          <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-primary-50/60 border border-primary-100 cursor-pointer">
             <input
               type="checkbox"
               checked={form.apply_to_all}
               onChange={(e) => setForm({ ...form, apply_to_all: e.target.checked })}
               className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 cursor-pointer"
             />
-            <span className="text-xs font-bold text-gray-800 dark:text-slate-200">
+            <span className="text-xs font-bold text-gray-800">
               Apply these updated default limits to all existing faculty members
             </span>
           </label>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
             <Button variant="ghost" type="button" onClick={onClose}>
               Cancel
             </Button>

@@ -105,7 +105,7 @@ function ImageGallery({ urls }) {
           return (
             <div
               key={idx}
-              className="snap-start shrink-0 w-[88%] sm:w-[65%] md:w-[48%] aspect-[16/10] rounded-2xl overflow-hidden bg-slate-100 dark:bg-gray-900/40 border border-gray-150 dark:border-gray-700/60"
+              className="snap-start shrink-0 w-[88%] sm:w-[65%] md:w-[48%] aspect-[16/10] rounded-2xl overflow-hidden bg-slate-100 border border-gray-150"
             >
               {type === "video" ? (
                 <video src={url} controls className="w-full h-full object-cover" />
@@ -125,7 +125,7 @@ function ImageGallery({ urls }) {
         <button
           type="button"
           onClick={() => scroll("left")}
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 dark:bg-gray-800/95 shadow-lg border border-gray-200/50 dark:border-gray-700/50 flex items-center justify-center text-gray-700 dark:text-gray-250 z-10 hover:scale-110 active:scale-95 transition-all opacity-0 group-hover/gallery:opacity-100"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow-lg border border-gray-200/50 flex items-center justify-center text-gray-700 z-10 hover:scale-110 active:scale-95 transition-all opacity-0 group-hover/gallery:opacity-100"
         >
           <ChevronRight className="w-5 h-5 rotate-180" />
         </button>
@@ -134,7 +134,7 @@ function ImageGallery({ urls }) {
         <button
           type="button"
           onClick={() => scroll("right")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 dark:bg-gray-800/95 shadow-lg border border-gray-200/50 dark:border-gray-700/50 flex items-center justify-center text-gray-700 dark:text-gray-255 z-10 hover:scale-110 active:scale-95 transition-all opacity-0 group-hover/gallery:opacity-100"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 shadow-lg border border-gray-200/50 flex items-center justify-center text-gray-700 z-10 hover:scale-110 active:scale-95 transition-all opacity-0 group-hover/gallery:opacity-100"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -195,7 +195,7 @@ function CardMediaRenderer({ urls }) {
             const type = getFileType(url);
             if (type === "video") {
               return (
-                <div key={idx} className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950/20 max-h-[260px] aspect-video w-full border border-slate-100 dark:border-slate-800/60 mb-2">
+                <div key={idx} className="rounded-2xl overflow-hidden bg-slate-50 max-h-[260px] aspect-video w-full border border-slate-100 mb-2">
                   <video src={url} controls className="w-full h-full object-cover" />
                 </div>
               );
@@ -207,13 +207,13 @@ function CardMediaRenderer({ urls }) {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-xl border border-gray-150 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-900/35 hover:bg-gray-100/50 dark:hover:bg-gray-800/40 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl border border-gray-150 bg-gray-50/50 hover:bg-gray-100/50 transition-colors"
               >
-                <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-650 dark:text-violet-400 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-violet-100 text-violet-650 flex items-center justify-center shrink-0">
                   <FileText className="w-4.5 h-4.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{filename}</p>
+                  <p className="text-xs font-bold text-gray-700 truncate">{filename}</p>
                   <p className="text-[10px] text-gray-400 uppercase font-semibold">Document Attachment</p>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-gray-400 shrink-0" />
@@ -240,8 +240,8 @@ function LikeButton({ liked, count, onClick }) {
       type="button"
       onClick={handleLike}
       className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all duration-200 border ${liked
-          ? "bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30 text-rose-500 shadow-sm"
-          : "bg-gray-50/50 dark:bg-gray-900/20 border-gray-150 dark:border-gray-850/55 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+          ?"bg-rose-50 border-rose-100 text-rose-500 shadow-sm"
+          :"bg-gray-50/50 border-gray-150 text-gray-400 hover:text-rose-500 hover:bg-rose-50"
         } ${animate ? "scale-110" : "scale-100"}`}
     >
       <Heart className={`w-4 h-4 transition-all duration-200 ${liked ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -565,7 +565,7 @@ export default function UpdatesPage() {
       {/* ─── Page Header Row & Actions ─── */}
       {/* Desktop Header Row (Hidden on Mobile) */}
       <div className="hidden sm:flex items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Updates</h1>
+        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Updates</h1>
         <div className="flex items-center gap-2">
           {/* Coordinator Avatars (Desktop) */}
           {(isHOD || isUpdateCoordinator) && coordData?.coordinators && coordData.coordinators.length > 0 && (
@@ -577,14 +577,14 @@ export default function UpdatesPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedCoordForRemove(isSelected ? null : `${coord.kind}-${coord.ref_id}`)}
-                      className="block rounded-full ring-2 ring-white dark:ring-slate-900 overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
+                      className="block rounded-full ring-2 ring-white overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
                       title={coord.name}
                     >
                       <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-8 h-8 rounded-full" />
                     </button>
                     {isSelected && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
-                        <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white border border-slate-200 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
+                        <span className="font-bold text-slate-800 px-1 truncate max-w-[80px]">{coord.name}</span>
                         {isHOD ? (
                           <button
                             type="button"
@@ -593,12 +593,12 @@ export default function UpdatesPage() {
                               removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
                               setSelectedCoordForRemove(null);
                             }}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-955/20 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
                           >
                             Remove
                           </button>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500 font-medium px-1">Coordinator</span>
+                          <span className="text-slate-400 font-medium px-1">Coordinator</span>
                         )}
                       </div>
                     )}
@@ -643,14 +643,14 @@ export default function UpdatesPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedCoordForRemove(isSelected ? null : `${coord.kind}-${coord.ref_id}`)}
-                      className="block rounded-full ring-2 ring-white dark:ring-slate-900 overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
+                      className="block rounded-full ring-2 ring-white overflow-hidden hover:scale-105 active:scale-95 transition-all focus:outline-none"
                       title={coord.name}
                     >
                       <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-8 h-8 rounded-full" />
                     </button>
                     {isSelected && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
-                        <span className="font-bold text-slate-800 dark:text-slate-200 px-1 truncate max-w-[80px]">{coord.name}</span>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[999] bg-white border border-slate-200 rounded-lg p-1.5 shadow-xl text-center flex flex-col gap-1 text-[10px] min-w-[70px] whitespace-nowrap">
+                        <span className="font-bold text-slate-800 px-1 truncate max-w-[80px]">{coord.name}</span>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -658,7 +658,7 @@ export default function UpdatesPage() {
                             removeCoordMutation.mutate({ kind: coord.kind, refId: coord.ref_id });
                             setSelectedCoordForRemove(null);
                           }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-955/20 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 font-bold py-1 px-1.5 rounded transition-colors text-center cursor-pointer"
                         >
                           Remove
                         </button>
@@ -697,8 +697,8 @@ export default function UpdatesPage() {
               onClick={() => { setActiveFilterTab(tab.key); setPage(1); }}
               className={`px-0.5 py-1 text-xs sm:text-sm transition-all shrink-0 relative ${
                 activeFilterTab === tab.key
-                  ? "text-violet-650 dark:text-violet-400 font-bold"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-850 dark:hover:text-gray-205"
+                  ?"text-violet-650 font-bold"
+                  :"text-gray-500 hover:text-gray-850"
               }`}
             >
               {tab.label}
@@ -717,7 +717,7 @@ export default function UpdatesPage() {
             placeholder="Search updates..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-905 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
+            className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all shadow-sm"
           />
           {searchTerm && (
             <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-605">
@@ -729,12 +729,12 @@ export default function UpdatesPage() {
 
       {/* ─── Content Feed ─── */}
       {finalUpdates.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 dark:bg-[#18181B] backdrop-blur-md rounded-3xl border border-gray-200/80 dark:border-[#2E2E34] shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center mb-4 border border-gray-100 dark:border-white/[0.06]">
-            <Megaphone className="w-8 h-8 text-gray-300 dark:text-slate-500" />
+        <div className="flex flex-col items-center justify-center py-24 text-center bg-white/80 backdrop-blur-md rounded-3xl border border-gray-200/80 shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 border border-gray-100">
+            <Megaphone className="w-8 h-8 text-gray-300"/>
           </div>
-          <h4 className="text-sm font-bold text-gray-700 dark:text-slate-200">No updates available</h4>
-          <p className="text-xs text-gray-400 dark:text-slate-400 mt-1 max-w-xs leading-relaxed">
+          <h4 className="text-sm font-bold text-gray-700">No updates available</h4>
+          <p className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
             Department updates published by the department will appear here.
           </p>
         </div>
@@ -764,13 +764,13 @@ export default function UpdatesPage() {
                             {(parsed.department || "D").charAt(0).toUpperCase()}
                           </div>
                           <div className="flex items-center gap-2 flex-wrap min-w-0 leading-none">
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">
+                            <span className="text-xs font-bold text-gray-500 truncate max-w-[120px] sm:max-w-none">
                               {parsed.department || "PG Department of Computer Science"}
                             </span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-gray-505 dark:text-gray-450 uppercase tracking-wider">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-slate-100 text-gray-505 uppercase tracking-wider">
                               {parsed.update_type || "Announcement"}
                             </span>
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                            <span className="text-[10px] text-gray-400 flex items-center gap-1">
                               <Clock className="w-3 h-3 text-gray-400" />
                               {formatTime(update.created_at)}
                             </span>
@@ -783,17 +783,17 @@ export default function UpdatesPage() {
                             <button
                               type="button"
                               onClick={() => setOpenKebabId(openKebabId === update.id ? null : update.id)}
-                              className="p-1 rounded-lg text-gray-400 hover:text-gray-605 dark:hover:text-gray-250 transition-colors"
+                              className="p-1 rounded-lg text-gray-400 hover:text-gray-605 transition-colors"
                             >
                               <span className="text-lg font-bold tracking-widest leading-none block -mt-1">...</span>
                             </button>
                             {openKebabId === update.id && (
-                              <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg z-20 py-1">
+                              <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-lg z-20 py-1">
                                 {update.posted_by === user?.id && (
                                   <button
                                     type="button"
                                     onClick={() => { openEditModal(update); setOpenKebabId(null); }}
-                                    className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                                    className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                   >
                                     <Edit2 className="w-3.5 h-3.5" /> Edit
                                   </button>
@@ -801,7 +801,7 @@ export default function UpdatesPage() {
                                 <button
                                   type="button"
                                   onClick={() => { setDeleteTarget(update.id); setOpenKebabId(null); }}
-                                  className="w-full text-left px-4 py-2 text-xs font-bold text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-955/20 flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-xs font-bold text-red-650 hover:bg-red-50 flex items-center gap-2"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" /> Delete
                                 </button>
@@ -813,7 +813,7 @@ export default function UpdatesPage() {
 
                       {/* Title */}
                       {parsed.title && (
-                        <h2 className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 dark:text-white leading-snug line-clamp-2">
+                        <h2 className="text-base sm:text-lg font-black tracking-tight mb-1 text-gray-900 leading-snug line-clamp-2">
                           {parsed.title}
                         </h2>
                       )}
@@ -823,13 +823,13 @@ export default function UpdatesPage() {
                         const isExpanded = !!expandedUpdateIds[update.id];
                         const hasLongDesc = parsed.description.length > 200;
                         return (
-                          <p className="text-xs sm:text-sm text-gray-750 dark:text-gray-350 leading-relaxed mb-3 break-words">
+                          <p className="text-xs sm:text-sm text-gray-750 leading-relaxed mb-3 break-words">
                             {isExpanded ? parsed.description : (hasLongDesc ? parsed.description.slice(0, 200) + "..." : parsed.description)}
                             {hasLongDesc && (
                               <button
                                 type="button"
                                 onClick={() => setExpandedUpdateIds(prev => ({ ...prev, [update.id]: !prev[update.id] }))}
-                                className="text-violet-650 dark:text-violet-450 font-bold ml-1 hover:underline focus:outline-none"
+                                className="text-violet-650 font-bold ml-1 hover:underline focus:outline-none"
                               >
                                 {isExpanded ? "Show Less" : "Read More"}
                               </button>
@@ -847,9 +847,9 @@ export default function UpdatesPage() {
                     )}
 
                     {/* Footer Date, Location & Like */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 dark:border-gray-800/60 mt-auto">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-gray-150 mt-auto">
                       {(parsed.update_type === "Event" || parsed.date_time || parsed.location) ? (
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-405">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] sm:text-xs font-semibold text-gray-500">
                           {parsed.date_time && (
                             <span className="flex items-center gap-1 shrink-0">
                               <Calendar className="w-3.5 h-3.5 text-gray-400" />
@@ -868,7 +868,7 @@ export default function UpdatesPage() {
                       <button
                         type="button"
                         onClick={() => likeMutation.mutate(update.id)}
-                        className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/30 transition-all ${
+                        className={`like-btn-scale inline-flex items-center gap-1.5 text-xs font-bold py-1 px-2.5 rounded-lg bg-gray-50/50 border border-gray-100 transition-all ${
                           update.liked ? "text-rose-500 animate-pulse" : "text-gray-400 hover:text-rose-500"
                         }`}
                       >
@@ -884,7 +884,7 @@ export default function UpdatesPage() {
                   {hasImages && (
                     <div className="col-span-1 md:col-span-3 flex flex-col justify-center">
                       <div 
-                        className="relative rounded-2xl overflow-hidden border border-gray-105 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-950/20 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer"
+                        className="relative rounded-2xl overflow-hidden border border-gray-105 p-0.5 bg-slate-50 max-h-36 sm:max-h-44 md:max-h-32 flex items-center justify-center cursor-pointer"
                         onClick={() => handleOpenLightbox(imageUrls, 0)}
                       >
                         <img 
@@ -918,21 +918,21 @@ export default function UpdatesPage() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
-            className="bg-white dark:bg-gray-800 w-full h-full sm:h-auto sm:max-h-[90vh] max-w-[900px] sm:w-[95%] md:w-[900px] sm:rounded-3xl shadow-2xl border border-gray-150 dark:border-gray-700/60 flex flex-col overflow-hidden transition-all duration-200 animate-in zoom-in-95"
+            className="bg-white w-full h-full sm:h-auto sm:max-h-[90vh] max-w-[900px] sm:w-[95%] md:w-[900px] sm:rounded-3xl shadow-2xl border border-gray-150 flex flex-col overflow-hidden transition-all duration-200 animate-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-155 dark:border-gray-700/60 shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-155 shrink-0">
               <div>
-                <h3 className="text-lg font-black text-gray-900 dark:text-white">
+                <h3 className="text-lg font-black text-gray-900">
                   {editTarget ? "Edit Update" : "Create New Update"}
                 </h3>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Provide announcement info and publish to the feed.</p>
+                <p className="text-xs text-gray-400">Provide announcement info and publish to the feed.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors"
+                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -942,18 +942,18 @@ export default function UpdatesPage() {
             <div className="p-6 flex-1 overflow-y-auto space-y-5">
 
               {/* Department */}
-              <div className="bg-gray-50 dark:bg-gray-900/35 p-3.5 rounded-2xl border border-gray-150 dark:border-gray-700/60">
-                <label className="block text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Department</label>
-                <p className="text-sm font-bold text-gray-700 dark:text-gray-300">PG Department of Computer Science</p>
+              <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-150">
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Department</label>
+                <p className="text-sm font-bold text-gray-700">PG Department of Computer Science</p>
               </div>
 
               {/* Update Type */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Update Type</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Update Type</label>
                 <select
                   value={compType}
                   onChange={(e) => setCompType(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
                 >
                   <option value="Announcement">Announcement</option>
                   <option value="Event">Event</option>
@@ -963,38 +963,38 @@ export default function UpdatesPage() {
 
               {/* Title */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Title</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Title</label>
                 <input
                   type="text"
                   placeholder="Enter a catchy title..."
                   value={compTitle}
                   onChange={(e) => setCompTitle(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Description</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Description</label>
                 <textarea
                   placeholder="Write your details here..."
                   value={compContent}
                   onChange={(e) => setCompContent(e.target.value)}
                   rows={6}
-                  className="w-full p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none leading-relaxed"
+                  className="w-full p-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25 resize-none leading-relaxed"
                 />
               </div>
 
               {/* Media Upload - Creation Only */}
               {!editTarget && (
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-widest mb-1.5">Media Upload</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Media Upload</label>
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-violet-400 dark:hover:border-violet-500 rounded-2xl p-6 text-center cursor-pointer transition-all bg-gray-50/50 dark:bg-gray-900/20 group"
+                    className="border-2 border-dashed border-gray-200 hover:border-violet-400 rounded-2xl p-6 text-center cursor-pointer transition-all bg-gray-50/50 group"
                   >
                     <Image className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:scale-105 transition-transform" />
-                    <p className="text-xs font-bold text-gray-650 dark:text-gray-300">Add photos / videos / PDF / documents or drag and drop</p>
+                    <p className="text-xs font-bold text-gray-650">Add photos / videos / PDF / documents or drag and drop</p>
                     <p className="text-[10px] text-gray-400 mt-1">Maximum 10 files (Up to 5MB each)</p>
                   </div>
                   <input
@@ -1010,7 +1010,7 @@ export default function UpdatesPage() {
                   {filePreviews.length > 0 && (
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3 animate-fade-in">
                       {filePreviews.map((preview, idx) => (
-                        <div key={idx} className="relative rounded-xl border border-gray-150 dark:border-gray-700 overflow-hidden h-20 bg-gray-50 dark:bg-gray-900/30">
+                        <div key={idx} className="relative rounded-xl border border-gray-150 overflow-hidden h-20 bg-gray-50">
                           <img src={preview} alt="preview" className="w-full h-full object-cover" />
                           <button
                             type="button"
@@ -1029,44 +1029,44 @@ export default function UpdatesPage() {
               {/* Date & Time Pickers */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Date</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Date</label>
                   <input
                     type="date"
                     value={compDate}
                     onChange={(e) => setCompDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-505 uppercase tracking-widest mb-1.5">Time</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Time</label>
                   <input
                     type="time"
                     value={compTime}
                     onChange={(e) => setCompTime(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
                   />
                 </div>
               </div>
 
               {/* Location */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1.5">Location (Optional)</label>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Location (Optional)</label>
                 <input
                   type="text"
                   placeholder="e.g. Seminar Hall"
                   value={compLocation}
                   onChange={(e) => setCompLocation(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-805 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/25"
+                  className="w-full p-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500/25"
                 />
               </div>
 
               {/* Tags Creator Chips */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 dark:text-gray-550 uppercase tracking-widest mb-1.5">Tags</label>
-                <div className="flex flex-wrap gap-2 p-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-850 min-h-[42px] items-center">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Tags</label>
+                <div className="flex flex-wrap gap-2 p-2 rounded-xl border border-gray-200 bg-white min-h-[42px] items-center">
                   {compTags.map((tag, idx) => (
-                    <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-955 text-violet-650 dark:text-violet-400 text-xs font-extrabold border border-violet-100/40 dark:border-violet-900/30">
+                    <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-50 text-violet-650 text-xs font-extrabold border border-violet-100/40">
                       {tag}
                       <button
                         type="button"
@@ -1092,7 +1092,7 @@ export default function UpdatesPage() {
                         setNewTagInput("");
                       }
                     }}
-                    className="flex-1 bg-transparent border-0 outline-none p-0 text-sm text-gray-905 dark:text-white placeholder-gray-400 focus:ring-0 min-w-[120px]"
+                    className="flex-1 bg-transparent border-0 outline-none p-0 text-sm text-gray-905 placeholder-gray-400 focus:ring-0 min-w-[120px]"
                   />
                 </div>
               </div>
@@ -1100,11 +1100,11 @@ export default function UpdatesPage() {
             </div>
 
             {/* Footer Buttons */}
-            <div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-150 dark:border-gray-700/60 flex items-center justify-end gap-3 shrink-0">
+            <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-150 flex items-center justify-end gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="px-5 py-2.5 rounded-full border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-650 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors"
+                className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-bold text-gray-650 hover:bg-gray-100 transition-colors"
               >
                 Cancel
               </button>
@@ -1213,7 +1213,7 @@ export default function UpdatesPage() {
           <button
             type="button"
             onClick={() => setShowViewCoordsModal(true)}
-            className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-slate-800 text-violet-600 dark:text-violet-400 shadow-xl border border-slate-200/80 dark:border-slate-700 active:scale-95 transition-all"
+            className="w-12 h-12 rounded-full flex items-center justify-center bg-white text-violet-600 shadow-xl border border-slate-200/80 active:scale-95 transition-all"
             title="View Coordinators"
           >
             <Users className="w-5.5 h-5.5" />
@@ -1238,21 +1238,21 @@ export default function UpdatesPage() {
           onClick={() => setShowViewCoordsModal(false)}
         >
           <div
-            className="bg-white dark:bg-gray-800 w-full max-w-sm rounded-3xl shadow-2xl border border-gray-155 dark:border-gray-700/60 flex flex-col overflow-hidden transition-all duration-200 animate-in zoom-in-95"
+            className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-gray-155 flex flex-col overflow-hidden transition-all duration-200 animate-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-155 dark:border-gray-700/60 shrink-0">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-155 shrink-0">
               <div>
-                <h3 className="text-base font-black text-gray-900 dark:text-white">
+                <h3 className="text-base font-black text-gray-900">
                   Update Coordinators
                 </h3>
-                <p className="text-[11px] text-gray-450 dark:text-gray-500">List of coordinators assigned to post updates.</p>
+                <p className="text-[11px] text-gray-450">List of coordinators assigned to post updates.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowViewCoordsModal(false)}
-                className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition-colors"
+                className="p-1.5 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1262,11 +1262,11 @@ export default function UpdatesPage() {
             <div className="p-5 max-h-[60vh] overflow-y-auto space-y-3">
               {coordData?.coordinators && coordData.coordinators.length > 0 ? (
                 coordData.coordinators.map(coord => (
-                  <div key={`${coord.kind}-${coord.ref_id}`} className="flex items-center gap-3 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
-                    <Avatar src={coord.profile_picture} name={coord.name} size="sm" className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 shrink-0" />
+                  <div key={`${coord.kind}-${coord.ref_id}`} className="flex items-center gap-3 p-2.5 rounded-2xl border border-slate-100 bg-slate-50/50">
+                    <Avatar src={coord.profile_picture} name={coord.name} size="sm"className="w-9 h-9 rounded-full ring-2 ring-white shrink-0"/>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-slate-850 dark:text-slate-200 truncate">{coord.name}</p>
-                      <p className="text-[10px] text-slate-405 dark:text-slate-500 font-medium capitalize">{coord.kind.toLowerCase()} Coordinator</p>
+                      <p className="text-xs font-bold text-slate-850 truncate">{coord.name}</p>
+                      <p className="text-[10px] text-slate-405 font-medium capitalize">{coord.kind.toLowerCase()} Coordinator</p>
                     </div>
                   </div>
                 ))
@@ -1276,11 +1276,11 @@ export default function UpdatesPage() {
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3.5 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-150 dark:border-gray-700/60 flex items-center justify-end shrink-0">
+            <div className="px-5 py-3.5 bg-gray-50/50 border-t border-gray-150 flex items-center justify-end shrink-0">
               <button
                 type="button"
                 onClick={() => setShowViewCoordsModal(false)}
-                className="px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors"
               >
                 Close
               </button>

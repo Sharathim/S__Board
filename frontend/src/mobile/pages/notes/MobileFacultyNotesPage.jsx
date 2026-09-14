@@ -94,7 +94,7 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
   const [progress, setProgress] = useState(0);
   const fileRef = useRef(null);
 
-  const inputCls = "w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all";
+  const inputCls ="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all";
 
   useEffect(() => {
     setSelectedSubjectId("");
@@ -160,7 +160,7 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
 
         {/* Class */}
         <div>
-          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Target Class</label>
+          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Target Class</label>
           <select className={inputCls} value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
             <option value="">Select class...</option>
             {targetClasses.map(c => <option key={c} value={c}>{c.replace("_", " ")}</option>)}
@@ -170,15 +170,15 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
         {/* Subject */}
         {selectedClass && (
           <div>
-            <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Subject</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Subject</label>
             {classSubjects.length > 0 && (
-              <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-xl mb-2">
+              <div className="flex p-1 bg-slate-100 rounded-xl mb-2">
                 <button type="button" onClick={() => setSubjectMode("existing")}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${subjectMode === "existing" ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs" : "text-slate-500 dark:text-slate-400"}`}>
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${subjectMode ==="existing"?"bg-white text-slate-900 shadow-xs":"text-slate-500"}`}>
                   Existing Subject
                 </button>
                 <button type="button" onClick={() => setSubjectMode("new")}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${subjectMode === "new" ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs" : "text-slate-500 dark:text-slate-400"}`}>
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${subjectMode ==="new"?"bg-white text-slate-900 shadow-xs":"text-slate-500"}`}>
                   Create New
                 </button>
               </div>
@@ -196,11 +196,11 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
         {/* Unit */}
         {selectedClass && (
           <div>
-            <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Unit</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Unit</label>
             <div className="grid grid-cols-5 gap-1.5">
               {UNIT_OPTIONS.map(u => (
                 <button key={u} type="button" onClick={() => setSelectedUnit(u)}
-                  className={`py-2 rounded-xl text-xs font-bold transition-all ${selectedUnit === u ? "bg-[#F05A2B] text-white shadow-xs" : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400"}`}>
+                  className={`py-2 rounded-xl text-xs font-bold transition-all ${selectedUnit === u ?"bg-[#F05A2B] text-white shadow-xs":"bg-slate-100 text-slate-600"}`}>
                   {u.replace("Unit ", "U")}
                 </button>
               ))}
@@ -211,9 +211,9 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
         {/* Files */}
         {selectedClass && (
           <div>
-            <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Files</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Files</label>
             <button type="button" onClick={() => fileRef.current?.click()}
-              className="w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-[#F05A2B] bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 transition-colors">
+              className="w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-[#F05A2B] bg-slate-50 flex items-center justify-center gap-2 text-xs font-bold text-slate-600 transition-colors">
               <UploadCloud className="w-4 h-4 text-[#F05A2B]" />
               <span>Choose PDF, PPT, DOC files</span>
             </button>
@@ -221,9 +221,9 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
             {files.length > 0 && (
               <div className="mt-2 space-y-1.5">
                 {files.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between p-2.5 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 rounded-xl">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">{f.name}</span>
-                    <button onClick={() => removeFile(i)} className="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 shrink-0 ml-2"><X className="w-3.5 h-3.5" /></button>
+                  <div key={i} className="flex items-center justify-between p-2.5 bg-orange-50 border border-orange-100 rounded-xl">
+                    <span className="text-xs font-bold text-slate-800 truncate max-w-[200px]">{f.name}</span>
+                    <button onClick={() => removeFile(i)} className="p-0.5 text-slate-400 hover:text-slate-700 shrink-0 ml-2"><X className="w-3.5 h-3.5"/></button>
                   </div>
                 ))}
               </div>
@@ -233,7 +233,7 @@ function UploadSheet({ open, onClose, targetClasses, existingSubjects, onSuccess
 
         {/* Progress bar */}
         {uploading && progress > 0 && (
-          <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
             <div className="bg-[#F05A2B] h-full transition-all duration-200" style={{ width: `${progress}%` }} />
           </div>
         )}
@@ -261,34 +261,34 @@ function FileRow({ file, subject, canDeleteFile, onDeleteFile, onPreviewFile }) 
   const label = getFileTypeLabel(file.file_type);
 
   return (
-    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 dark:bg-[#202024] border border-slate-100 dark:border-[#26262B] hover:border-orange-200 dark:hover:border-[#3F3F46] transition-all gap-2 mb-2 last:mb-0">
+    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-orange-200 transition-all gap-2 mb-2 last:mb-0">
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        <div className="w-8 h-8 rounded-lg bg-[#F05A2B]/10 dark:bg-[#F05A2B]/20 flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-[#F05A2B]/10 flex items-center justify-center shrink-0">
           <IconComp className="w-4 h-4 text-[#F05A2B]" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-extrabold text-slate-900 dark:text-slate-100 truncate leading-tight">{file.file_name}</p>
+          <p className="text-xs font-extrabold text-slate-900 truncate leading-tight">{file.file_name}</p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-1.5 py-0.5 bg-slate-200/70 dark:bg-[#27272A] rounded text-[9px] font-black text-slate-600 dark:text-slate-300">
+            <span className="inline-block px-1.5 py-0.5 bg-slate-200/70 rounded text-[9px] font-black text-slate-600">
               {label}
             </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+            <span className="text-[10px] text-slate-400 font-medium truncate">
               {file.uploaded_by?.name || "Faculty"}
             </span>
           </div>
         </div>
       </div>
       <div className="flex items-center gap-1 shrink-0">
-        <button onClick={() => onPreviewFile(file)} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#F05A2B] hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors" title="Preview">
+        <button onClick={() => onPreviewFile(file)} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#F05A2B] hover:bg-orange-50 transition-colors"title="Preview">
           <Eye className="w-3.5 h-3.5" />
         </button>
         <a href={file.file_url} download target="_blank" rel="noreferrer"
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#F05A2B] hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors" title="Download">
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#F05A2B] hover:bg-orange-50 transition-colors"title="Download">
           <Download className="w-3.5 h-3.5" />
         </a>
         {canDeleteFile && (
           <button onClick={() => onDeleteFile({ type: "file", id: file.id, className: file._className, subjectId: subject.id, unitId: file.unit_id, name: file.file_name })}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" title="Delete">
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"title="Delete">
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         )}
@@ -312,7 +312,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
   const totalFiles = units.reduce((acc, u) => acc + (u.files?.length || 0), 0);
 
   return (
-    <div className="relative overflow-hidden bg-white dark:bg-[#18181B] border border-gray-200/80 dark:border-[#26262B] rounded-3xl p-4 shadow-sm transition-all mb-3.5">
+    <div className="relative overflow-hidden bg-white border border-gray-200/80 rounded-3xl p-4 shadow-sm transition-all mb-3.5">
       {/* Card Header */}
       <div className="flex items-start justify-between gap-3 pt-1 mb-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -324,11 +324,11 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
               <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white bg-[#F05A2B] rounded-md shadow-2xs">
                 {className.replace(/_/g, " ")}
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">
+              <span className="text-[10px] text-slate-400 font-bold">
                 {units.length} units · {totalFiles} files
               </span>
             </div>
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-sm truncate leading-snug">
+            <h3 className="font-extrabold text-slate-900 text-sm truncate leading-snug">
               {subject.name}
             </h3>
           </div>
@@ -337,7 +337,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
         {canDeleteItem(subject) && (
           <button
             onClick={() => onDeleteSubject({ type: "subject", id: subject.id, className, name: subject.name })}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
             title="Delete Subject"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -346,7 +346,7 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       </div>
 
       {/* Unit Segmented Pills Bar */}
-      <div className="bg-slate-100/80 dark:bg-[#202024] p-1 rounded-2xl flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none border border-transparent dark:border-[#26262B]">
+      <div className="bg-slate-100/80 p-1 rounded-2xl flex items-center gap-1 mb-3 overflow-x-auto scrollbar-none border border-transparent">
         {UNIT_OPTIONS.map(unitName => {
           const hasUnit = units.some(u => u.name === unitName);
           const isActive = activeUnit === unitName;
@@ -358,8 +358,8 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
                 isActive
                   ? "bg-[#F05A2B] text-white shadow-xs"
                   : hasUnit
-                  ? "bg-white/60 dark:bg-[#27272A] text-slate-700 dark:text-slate-200"
-                  : "text-slate-400 dark:text-slate-500"
+                  ?"bg-white/60 text-slate-700"
+                  :"text-slate-400"
               }`}
             >
               <span>{unitName.replace("Unit ", "U")}</span>
@@ -372,9 +372,9 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       {/* Files List */}
       <div>
         {activeFiles.length === 0 ? (
-          <div className="py-6 text-center bg-slate-50/50 dark:bg-[#202024] border border-dashed border-gray-200/80 dark:border-[#26262B] rounded-2xl">
-            <FolderOpen className="w-6 h-6 mx-auto mb-1 text-slate-300 dark:text-slate-700" />
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">No files uploaded in {activeUnit}</p>
+          <div className="py-6 text-center bg-slate-50/50 border border-dashed border-gray-200/80 rounded-2xl">
+            <FolderOpen className="w-6 h-6 mx-auto mb-1 text-slate-300"/>
+            <p className="text-xs font-semibold text-slate-400">No files uploaded in {activeUnit}</p>
           </div>
         ) : (
           activeFiles.map(file => (
@@ -391,8 +391,8 @@ function SubjectCard({ subject, className, canDeleteItem, onDeleteSubject, onDel
       </div>
 
       {/* Card Footer */}
-      <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 dark:border-[#26262B] text-[10px]">
-        <span className="text-slate-400 dark:text-slate-500 font-semibold flex items-center gap-1">
+      <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 text-[10px]">
+        <span className="text-slate-400 font-semibold flex items-center gap-1">
           <User className="w-3 h-3 text-slate-400" />
           {subject.created_by?.name || "Faculty"}
         </span>
@@ -440,7 +440,7 @@ function FilePreviewSheet({ file, onClose }) {
         </div>
 
         {!loaded && (
-          <div className="w-full h-[55vh] flex items-center justify-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="w-full h-[55vh] flex items-center justify-center bg-slate-50 rounded-2xl border border-slate-200">
             <div className="text-center">
               <Loader2 className="w-7 h-7 animate-spin text-[#F05A2B] mx-auto mb-2" />
               <p className="text-xs text-slate-400 font-semibold">Loading document preview...</p>
@@ -450,7 +450,7 @@ function FilePreviewSheet({ file, onClose }) {
         <iframe
           src={getPreviewUrl(file)}
           title={file.file_name}
-          className={`w-full h-[55vh] rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 ${loaded ? "block" : "hidden"}`}
+          className={`w-full h-[55vh] rounded-2xl border border-slate-200 bg-slate-50 ${loaded ?"block":"hidden"}`}
           onLoad={() => setLoaded(true)}
         />
       </div>
@@ -536,11 +536,11 @@ export default function MobileFacultyNotesPage() {
   }, [classes, selectedClassFilter, searchQuery]);
 
   return (
-    <div className="space-y-0 pb-28 min-h-screen bg-slate-50/50 dark:bg-slate-950">
+    <div className="space-y-0 pb-28 min-h-screen bg-slate-50/50">
       <ToastStack toasts={toast.toasts} />
 
       {/* ── Page Top Header ── */}
-      <div className="bg-white dark:bg-slate-900 px-4 pt-3 pb-3 border-b border-slate-100 dark:border-slate-800 space-y-3">
+      <div className="bg-white px-4 pt-3 pb-3 border-b border-slate-100 space-y-3">
 
         {/* Title & Upload Action Bar */}
         <div className="flex items-center justify-between gap-2">
@@ -549,8 +549,8 @@ export default function MobileFacultyNotesPage() {
               <BookMarked className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">Notes & Docs</h1>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">
+              <h1 className="text-base font-extrabold text-slate-900 tracking-tight leading-tight">Notes & Docs</h1>
+              <p className="text-[10px] text-slate-400 font-medium truncate">
                 {isStaff ? "Manage study materials" : "Your class study materials"}
               </p>
             </div>
@@ -569,18 +569,18 @@ export default function MobileFacultyNotesPage() {
         </div>
 
         {/* Stats Badges */}
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Overview</span>
           <div className="flex items-center gap-1.5">
-            <div className="text-center px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5">
-              <span className="text-[11px] font-black text-slate-900 dark:text-white">{stats.subjects}</span>
+            <div className="text-center px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-1.5">
+              <span className="text-[11px] font-black text-slate-900">{stats.subjects}</span>
               <span className="text-[9px] text-slate-400 font-extrabold uppercase">Subj</span>
             </div>
-            <div className="text-center px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5">
-              <span className="text-[11px] font-black text-slate-900 dark:text-white">{stats.units}</span>
+            <div className="text-center px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-1.5">
+              <span className="text-[11px] font-black text-slate-900">{stats.units}</span>
               <span className="text-[9px] text-slate-400 font-extrabold uppercase">Units</span>
             </div>
-            <div className="text-center px-2.5 py-1 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-900/40 flex items-center gap-1.5">
+            <div className="text-center px-2.5 py-1 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center gap-1.5">
               <span className="text-[11px] font-black text-[#F05A2B]">{stats.docs}</span>
               <span className="text-[9px] text-[#F05A2B]/70 font-extrabold uppercase">Docs</span>
             </div>
@@ -593,8 +593,8 @@ export default function MobileFacultyNotesPage() {
             onClick={() => setSelectedClassFilter("ALL")}
             className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
               selectedClassFilter === "ALL"
-                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                ?"bg-slate-900 text-white shadow-xs"
+                :"bg-slate-100 text-slate-600"
             }`}
           >
             All
@@ -606,7 +606,7 @@ export default function MobileFacultyNotesPage() {
               className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 selectedClassFilter === c
                   ? "bg-[#F05A2B] text-white shadow-xs"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                  :"bg-slate-100 text-slate-600"
               }`}
             >
               {c.replace("_", " ")}
@@ -622,7 +622,7 @@ export default function MobileFacultyNotesPage() {
             placeholder="Search subjects, files..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 text-xs font-medium rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F05A2B]/20 focus:border-[#F05A2B] transition-all"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 p-1 text-slate-400 hover:text-slate-600">
@@ -640,17 +640,17 @@ export default function MobileFacultyNotesPage() {
             <p className="text-xs text-slate-400 font-semibold">Loading notes...</p>
           </div>
         ) : error ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-center">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 text-center">
             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-500 opacity-80" />
-            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Failed to load notes</p>
+            <p className="text-xs font-bold text-slate-700">Failed to load notes</p>
           </div>
         ) : filteredClasses.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center mx-auto mb-3">
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-3">
               <FolderOpen className="w-6 h-6 text-[#F05A2B]" />
             </div>
-            <p className="text-sm font-extrabold text-slate-800 dark:text-slate-200 mb-1">No study materials found</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+            <p className="text-sm font-extrabold text-slate-800 mb-1">No study materials found</p>
+            <p className="text-xs text-slate-400 font-medium">
               {isStaff ? "Tap '+ Upload' below to add notes" : "No notes uploaded for your class yet."}
             </p>
           </div>
@@ -689,8 +689,8 @@ export default function MobileFacultyNotesPage() {
       {confirmDelete && (
         <BottomSheet open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title={`Delete ${confirmDelete.type}?`}>
           <div className="space-y-4 py-2 pb-6">
-            <div className="p-3.5 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 rounded-2xl">
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            <div className="p-3.5 bg-red-50 border border-red-100 rounded-2xl">
+              <p className="text-xs font-bold text-slate-800">
                 Are you sure you want to delete <strong>"{confirmDelete.name}"</strong>?
               </p>
               <p className="text-[10px] text-red-500 font-semibold mt-1">This action cannot be undone.</p>
@@ -699,7 +699,7 @@ export default function MobileFacultyNotesPage() {
               <button
                 onClick={() => setConfirmDelete(null)}
                 disabled={deleting}
-                className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 disabled:opacity-50"
+                className="flex-1 py-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-white disabled:opacity-50"
               >
                 Cancel
               </button>

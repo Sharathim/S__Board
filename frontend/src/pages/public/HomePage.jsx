@@ -302,7 +302,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-white dark:bg-black text-slate-900 dark:text-white transition-colors duration-300 overflow-x-hidden">
+    <div className="bg-white text-slate-900 transition-colors duration-300 overflow-x-hidden">
 
       {/* ════════════════════════════════════════════════════════════════════
           1. HERO SECTION
@@ -320,18 +320,18 @@ export default function HomePage() {
         />
 
         {/* Ambient glows */}
-        <div className="absolute top-1/4 left-1/4 w-[700px] h-[700px] bg-indigo-200/20 dark:bg-indigo-900/20 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-violet-200/15 dark:bg-violet-900/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-indigo-50/30 dark:from-indigo-950/20 to-transparent pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-[700px] h-[700px] bg-indigo-200/20 rounded-full blur-[140px] pointer-events-none"/>
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-violet-200/15 rounded-full blur-[120px] pointer-events-none"/>
+        <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-indigo-50/30 to-transparent pointer-events-none"/>
 
         {/* Main hero content */}
         <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 text-center">
 
           {/* Badge */}
           <div ref={badgeRef} style={{ opacity: 0 }}>
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-indigo-100 dark:border-indigo-500/20 shadow-sm mb-8">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-indigo-100 shadow-sm mb-8">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 tracking-wide">
+              <span className="text-sm font-semibold text-indigo-700 tracking-wide">
                 🐝 Hive — Your Academic Command Centre
               </span>
             </div>
@@ -340,7 +340,7 @@ export default function HomePage() {
           {/* Headline */}
           <div ref={headlineRef} className="space-y-2 mb-8">
             <h1
-              className="text-5xl sm:text-6xl xl:text-[76px] font-extrabold text-slate-900 dark:text-white leading-[1.04] tracking-[-0.03em]"
+              className="text-5xl sm:text-6xl xl:text-[76px] font-extrabold text-slate-900 leading-[1.04] tracking-[-0.03em]"
               style={{ opacity: 0 }}
             >
               The Intelligent Hub
@@ -355,7 +355,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p
-              className="text-lg sm:text-xl text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto mt-4 font-normal"
+              className="text-lg sm:text-xl text-slate-500 leading-relaxed max-w-2xl mx-auto mt-4 font-normal"
               style={{ opacity: 0 }}
             >
               Hive unifies HODs, Faculty, and Students in one powerful platform —
@@ -369,7 +369,7 @@ export default function HomePage() {
               to="/login"
               className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl
                 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-base
-                shadow-2xl shadow-indigo-300/40 dark:shadow-indigo-900/40
+                shadow-2xl shadow-indigo-300/40 
                 hover:from-indigo-700 hover:to-violet-700 hover:shadow-indigo-400/50
                 hover:-translate-y-1 active:translate-y-0
                 transition-all duration-300"
@@ -381,8 +381,8 @@ export default function HomePage() {
             <button
               onClick={() => scrollTo("features")}
               className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl
-                bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-semibold text-base
-                hover:bg-slate-50 dark:hover:bg-white/10 hover:-translate-y-0.5
+                bg-white border border-slate-200 text-slate-700 font-semibold text-base
+                hover:bg-slate-50 hover:-translate-y-0.5
                 transition-all duration-200 shadow-sm"
             >
               <Play className="w-4 h-4 fill-current text-indigo-600" />
@@ -401,12 +401,12 @@ export default function HomePage() {
               ].map(({ value, suffix, label }) => (
                 <div
                   key={label}
-                  className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-white/60 dark:border-white/10 rounded-2xl p-4 text-center shadow-sm"
+                  className="bg-white/70 backdrop-blur-sm border border-white/60 rounded-2xl p-4 text-center shadow-sm"
                 >
                   <div className="text-3xl font-extrabold text-indigo-600 tracking-tight leading-none">
                     <AnimatedCounter to={value} suffix={suffix} />
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">{label}</div>
+                  <div className="text-xs text-slate-500 mt-1.5 font-medium">{label}</div>
                 </div>
               ))}
             </div>
@@ -415,10 +415,10 @@ export default function HomePage() {
 
         {/* Scroll indicator */}
         <div ref={scrollRef} style={{ opacity: 0 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <span className="text-xs text-slate-400 dark:text-slate-500 font-medium tracking-widest uppercase">Scroll</span>
+          <span className="text-xs text-slate-400 font-medium tracking-widest uppercase">Scroll</span>
           <button
             onClick={() => scrollTo("about")}
-            className="w-8 h-12 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-start justify-center pt-2 hover:border-indigo-400 transition-colors"
+            className="w-8 h-12 rounded-full border-2 border-slate-300 flex items-start justify-center pt-2 hover:border-indigo-400 transition-colors"
           >
             <div className="w-1.5 h-2.5 rounded-full bg-indigo-500 animate-bounce" />
           </button>
@@ -430,20 +430,20 @@ export default function HomePage() {
       ════════════════════════════════════════════════════════════════════ */}
       <section id="about" className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-50/80 dark:from-slate-950/50 to-white dark:to-black pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50/80 to-white pointer-events-none"/>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50/50 rounded-full blur-[100px] pointer-events-none"/>
 
         <div className="relative max-w-7xl mx-auto">
           {/* Header */}
           <Reveal className="text-center mb-16">
             <SectionLabel>About Hive</SectionLabel>
-            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
               One Platform.<br />
               <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                 Infinite Possibilities.
               </span>
             </h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
               Hive (DPMS) is the central nervous system of your department — bridging administration,
               faculty, and students through seamless project management and real-time collaboration.
             </p>
@@ -456,8 +456,8 @@ export default function HomePage() {
                 icon: Shield,
                 role: "HOD / Admin",
                 color: "from-indigo-500 to-indigo-700",
-                bg: "bg-indigo-50 dark:bg-indigo-950/40",
-                border: "border-indigo-100 dark:border-indigo-800/40",
+                bg:"bg-indigo-50",
+                border:"border-indigo-100",
                 iconColor: "text-indigo-600",
                 desc: "Full administrative control. Manage classes, approve faculty, oversee all projects, and view real-time department analytics.",
                 features: ["Department-wide oversight", "Faculty approval & management", "Analytics dashboard", "Forum moderation"],
@@ -466,8 +466,8 @@ export default function HomePage() {
                 icon: Users,
                 role: "Faculty Mentor",
                 color: "from-violet-500 to-violet-700",
-                bg: "bg-violet-50 dark:bg-violet-950/40",
-                border: "border-violet-100 dark:border-violet-800/40",
+                bg:"bg-violet-50",
+                border:"border-violet-100",
                 iconColor: "text-violet-600",
                 desc: "Guide student teams, manage class portals, coordinate project milestones, and share resources in one seamless workspace.",
                 features: ["Class & project management", "Student team coordination", "File sharing & feedback", "Progress monitoring"],
@@ -476,8 +476,8 @@ export default function HomePage() {
                 icon: GraduationCap,
                 role: "Student Team",
                 color: "from-emerald-500 to-emerald-700",
-                bg: "bg-emerald-50 dark:bg-emerald-950/40",
-                border: "border-emerald-100 dark:border-emerald-800/40",
+                bg:"bg-emerald-50",
+                border:"border-emerald-100",
                 iconColor: "text-emerald-600",
                 desc: "Submit progress updates, collaborate with teammates, access project resources, and receive real-time notifications.",
                 features: ["Progress log submissions", "Team collaboration chat", "File & PDF uploads", "Push notifications"],
@@ -492,11 +492,11 @@ export default function HomePage() {
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-5 shadow-lg`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{role}</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-5 flex-1">{desc}</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{role}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed mb-5 flex-1">{desc}</p>
                   <ul className="space-y-2">
                     {features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                      <li key={f} className="flex items-center gap-2 text-xs text-slate-600">
                         <Check className={`w-3.5 h-3.5 ${iconColor} shrink-0`} />
                         {f}
                       </li>
@@ -514,7 +514,7 @@ export default function HomePage() {
                 icon: Target,
                 title: "Our Mission",
                 accent: "text-indigo-600",
-                bg: "bg-indigo-50 dark:bg-indigo-950/30",
+                bg:"bg-indigo-50",
                 desc: "To provide a transformative educational experience that equips students with deep technical knowledge, critical thinking skills, and ethical values needed to excel in the ever-evolving technology landscape.",
                 items: ["Foster academic excellence and research culture", "Bridge theory with real-world industry practice", "Develop future-ready technology professionals"],
               },
@@ -522,21 +522,21 @@ export default function HomePage() {
                 icon: Eye,
                 title: "Our Vision",
                 accent: "text-violet-600",
-                bg: "bg-violet-50 dark:bg-violet-950/30",
+                bg:"bg-violet-50",
                 desc: "To be a globally recognized centre of excellence in computer science education and research, producing graduates who lead technological innovation and make meaningful contributions to society.",
                 items: ["Globally recognized research & education hub", "Produce industry-leading technology innovators", "Drive positive social impact through technology"],
               },
             ].map(({ icon: Icon, title, accent, bg, desc, items }, i) => (
               <Reveal key={title} delay={i * 0.15} direction={i === 0 ? "right" : "left"}>
-                <div className={`${bg} rounded-2xl border border-slate-100 dark:border-white/5 p-8`}>
-                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center mb-5 shadow-sm">
+                <div className={`${bg} rounded-2xl border border-slate-100 p-8`}>
+                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center mb-5 shadow-sm">
                     <Icon className={`w-6 h-6 ${accent}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-5">{desc}</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed mb-5">{desc}</p>
                   <ul className="space-y-2.5">
                     {items.map((item) => (
-                      <li key={item} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
+                      <li key={item} className="flex items-start gap-2.5 text-sm text-slate-600">
                         <CheckCircle2 className={`w-4 h-4 ${accent} mt-0.5 shrink-0`} />
                         {item}
                       </li>
@@ -575,35 +575,35 @@ export default function HomePage() {
       ════════════════════════════════════════════════════════════════════ */}
       <section id="features" className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Ambient background */}
-        <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-indigo-50/60 dark:from-indigo-950/30 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-40 left-1/4 w-[350px] h-[350px] bg-indigo-200/30 dark:bg-indigo-900/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute top-80 right-1/4 w-[400px] h-[400px] bg-violet-200/20 dark:bg-violet-900/15 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-indigo-50/60 via-transparent to-transparent pointer-events-none"/>
+        <div className="absolute top-40 left-1/4 w-[350px] h-[350px] bg-indigo-200/30 rounded-full blur-[100px] pointer-events-none"/>
+        <div className="absolute top-80 right-1/4 w-[400px] h-[400px] bg-violet-200/20 rounded-full blur-[120px] pointer-events-none"/>
 
         <div className="relative max-w-7xl mx-auto">
           {/* Header */}
           <Reveal className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-700/30 shadow-sm mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm mb-6">
               <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
-              <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 tracking-wider uppercase">Interactive Experience</span>
+              <span className="text-xs font-semibold text-indigo-700 tracking-wider uppercase">Interactive Experience</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
               Everything you need to orchestrate{" "}
               <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-500 bg-clip-text text-transparent">
                 Academic Projects
               </span>
             </h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
               A premium, real-time portal bridging students, faculty coordinators, and HODs.
               Monitor timelines, centralize feedback, and scale academic research securely.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <a href="#sandbox"
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40 hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
                 <Play className="w-4 h-4 fill-white" />
                 Try Interactive Sandbox
               </a>
               <a href="#roi"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-semibold hover:bg-slate-50 dark:hover:bg-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
                 Calculate Time Saved
               </a>
             </div>
@@ -612,21 +612,21 @@ export default function HomePage() {
           {/* Feature cards grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
             {[
-              { icon: ClipboardList, title: "Project Tracking", desc: "Real-time milestone and progress monitoring across all department projects.", color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
-              { icon: Users, title: "Collaboration Hub", desc: "Seamless communication between HODs, faculty, and student teams.", color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-900/20" },
-              { icon: BarChart2, title: "Smart Analytics", desc: "Data-driven insights on project health, completion rates, and activity.", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
-              { icon: Bell, title: "Instant Notifications", desc: "Firebase-powered push alerts for updates, deadlines, and announcements.", color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-900/20" },
+              { icon: ClipboardList, title:"Project Tracking", desc:"Real-time milestone and progress monitoring across all department projects.", color:"text-indigo-600", bg:"bg-indigo-50"},
+              { icon: Users, title:"Collaboration Hub", desc:"Seamless communication between HODs, faculty, and student teams.", color:"text-violet-600", bg:"bg-violet-50"},
+              { icon: BarChart2, title:"Smart Analytics", desc:"Data-driven insights on project health, completion rates, and activity.", color:"text-emerald-600", bg:"bg-emerald-50"},
+              { icon: Bell, title:"Instant Notifications", desc:"Firebase-powered push alerts for updates, deadlines, and announcements.", color:"text-amber-500", bg:"bg-amber-50"},
             ].map(({ icon: Icon, title, desc, color, bg }, i) => (
               <Reveal key={title} delay={i * 0.08}>
                 <motion.div
                   whileHover={{ y: -4 }}
-                  className="group bg-white dark:bg-white/[0.03] rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm p-6 hover:shadow-md transition-all duration-300"
+                  className="group bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-all duration-300"
                 >
                   <div className={`w-12 h-12 ${bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-200`}>
                     <Icon className={`w-5 h-5 ${color}`} />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+                  <h3 className="text-base font-bold text-slate-900 mb-2">{title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
                 </motion.div>
               </Reveal>
             ))}
@@ -635,15 +635,15 @@ export default function HomePage() {
           {/* ── INTERACTIVE SANDBOX ── */}
           <Reveal id="sandbox" className="scroll-mt-20 mb-8">
             <div className="text-center mb-10">
-              <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">System Sandbox Simulator</h3>
-              <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-lg mx-auto">
+              <h3 className="text-3xl font-bold text-slate-900 tracking-tight">System Sandbox Simulator</h3>
+              <p className="text-slate-500 mt-2 max-w-lg mx-auto">
                 Interact with this simulated mockup of the Hive dashboard to explore our key modules in real-time.
               </p>
             </div>
           </Reveal>
 
           <Reveal>
-            <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[580px] max-w-6xl mx-auto">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[580px] max-w-6xl mx-auto">
               {/* Mock Side Navbar */}
               <div className="w-full lg:w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800">
                 <div className="p-5 border-b border-slate-800 flex items-center justify-between">
@@ -802,8 +802,8 @@ export default function HomePage() {
                         <div className={`p-4 rounded-xl border flex items-start gap-3.5 ${simTheme === "light" ? "bg-indigo-50/50 border-indigo-100" : "bg-indigo-950/20 border-indigo-900/40"}`}>
                           <Shield className="w-5 h-5 text-indigo-600 mt-0.5 shrink-0" />
                           <div className="text-xs">
-                            <h4 className="font-bold text-slate-900 dark:text-white mb-1">Interactive Sandbox Controls</h4>
-                            <p className="text-slate-500 dark:text-slate-400">Each class card has its own invite toggle. Click the toggle below to enable/disable student signups instantly!</p>
+                            <h4 className="font-bold text-slate-900 mb-1">Interactive Sandbox Controls</h4>
+                            <p className="text-slate-500">Each class card has its own invite toggle. Click the toggle below to enable/disable student signups instantly!</p>
                           </div>
                         </div>
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -857,7 +857,7 @@ export default function HomePage() {
 
                     {activeSimTab === "monitor" && (
                       <motion.div key="monitor" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}
-                        className="flex flex-col h-[400px] border rounded-xl overflow-hidden shadow-inner bg-slate-100 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800">
+                        className="flex flex-col h-[400px] border rounded-xl overflow-hidden shadow-inner bg-slate-100 border-slate-200/80">
                         <div className={`px-4 py-2.5 border-b flex items-center justify-between ${simTheme === "light" ? "bg-white border-slate-200" : "bg-slate-900 border-slate-800"}`}>
                           <div className="flex items-center gap-2">
                             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 block animate-pulse" />
@@ -868,10 +868,10 @@ export default function HomePage() {
                         <div className="flex-1 p-4 overflow-y-auto space-y-3 min-h-0">
                           {chatMessages.map((msg) => (
                             <div key={msg.id} className="flex items-start gap-2.5">
-                              <img src={msg.avatar} alt={msg.sender} className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5 border border-slate-200 dark:border-slate-800" />
+                              <img src={msg.avatar} alt={msg.sender} className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5 border border-slate-200"/>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5">
-                                  <span className="font-bold text-xs text-slate-900 dark:text-white">{msg.sender}</span>
+                                  <span className="font-bold text-xs text-slate-900">{msg.sender}</span>
                                   <span className="text-[9px] text-indigo-500 font-semibold bg-indigo-500/5 px-1 rounded">{msg.role}</span>
                                   <span className="text-[8px] text-slate-400 font-medium">{msg.time}</span>
                                 </div>
@@ -928,7 +928,7 @@ export default function HomePage() {
                                     <div className="text-[9px] text-slate-400">1.2 MB — Cloudinary Secure Storage</div>
                                   </div>
                                 </div>
-                                <span className="text-[9px] font-semibold text-indigo-600 dark:text-indigo-400 cursor-not-allowed">Download</span>
+                                <span className="text-[9px] font-semibold text-indigo-600 cursor-not-allowed">Download</span>
                               </div>
                             )}
                             <div className="flex items-center gap-4">
@@ -954,14 +954,14 @@ export default function HomePage() {
           <div className="mt-24">
             <Reveal className="text-center mb-12">
               <SectionLabel>Personalized Experience</SectionLabel>
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Customized Workflows for Every Role</h3>
-              <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-md mx-auto">Hive adapts to who you are, serving the specific features and tools you need.</p>
-              <div className="flex items-center justify-center p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl max-w-md mx-auto mt-8">
+              <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight">Customized Workflows for Every Role</h3>
+              <p className="text-slate-500 mt-2 max-w-md mx-auto">Hive adapts to who you are, serving the specific features and tools you need.</p>
+              <div className="flex items-center justify-center p-1 bg-slate-100 border border-slate-200 rounded-xl max-w-md mx-auto mt-8">
                 {[{ key: "hod", label: "HOD / Admin", icon: Shield }, { key: "faculty", label: "Faculty Mentor", icon: Users }, { key: "student", label: "Student Team", icon: GraduationCap }].map((role) => {
                   const RoleIcon = role.icon;
                   return (
                     <button key={role.key} onClick={() => setActiveRole(role.key)}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold transition-all duration-200 ${activeRole === role.key ? "bg-white dark:bg-slate-700 text-indigo-600 shadow-md" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold transition-all duration-200 ${activeRole === role.key ?"bg-white text-indigo-600 shadow-md":"text-slate-500 hover:text-slate-900"}`}>
                       <RoleIcon className="w-3.5 h-3.5" /><span>{role.label}</span>
                     </button>
                   );
@@ -970,17 +970,17 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal>
-              <div className="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden p-6 sm:p-10 flex flex-col md:flex-row items-center gap-10">
+              <div className="max-w-5xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-6 sm:p-10 flex flex-col md:flex-row items-center gap-10">
                 <div className="flex-1 space-y-6">
                   <AnimatePresence mode="wait">
                     {activeRole === "hod" && (
                       <motion.div key="hod" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.25 }} className="space-y-4">
-                        <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-700/30 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center">
                           <Shield className="w-6 h-6 text-indigo-600" />
                         </div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Total Department Orchestration</h3>
-                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">As the Head of Department, you retain administrative authority over the workspace structure. Generate project allocations, coordinate guides, and view overall analytics in real-time.</p>
-                        <ul className="space-y-3.5 text-xs text-slate-600 dark:text-slate-300">
+                        <h3 className="text-2xl font-bold text-slate-900">Total Department Orchestration</h3>
+                        <p className="text-slate-500 leading-relaxed text-sm">As the Head of Department, you retain administrative authority over the workspace structure. Generate project allocations, coordinate guides, and view overall analytics in real-time.</p>
+                        <ul className="space-y-3.5 text-xs text-slate-600">
                           {["Global toggle to enable/disable faculty signups instantly.", "Allocate project structures and assign student groups with cross-role exclusivity checking.", "Approve and restrict visibility on forum posts to keep communications professional.", "Review auto-flagged 'Low Activity' projects that have stalled for over 3 days."].map((item, idx) => (
                             <li key={idx} className="flex items-start gap-2.5"><Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /><span>{item}</span></li>
                           ))}
@@ -989,12 +989,12 @@ export default function HomePage() {
                     )}
                     {activeRole === "faculty" && (
                       <motion.div key="faculty" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.25 }} className="space-y-4">
-                        <div className="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-700/30 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
                           <Users className="w-6 h-6 text-violet-600" />
                         </div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Mentor & Guide Classroom Portals</h3>
-                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">Keep your student teams aligned. Faculty members manage their designated classes and coordinate specific projects, reducing overhead updates and centralizing reports.</p>
-                        <ul className="space-y-3.5 text-xs text-slate-600 dark:text-slate-300">
+                        <h3 className="text-2xl font-bold text-slate-900">Mentor & Guide Classroom Portals</h3>
+                        <p className="text-slate-500 leading-relaxed text-sm">Keep your student teams aligned. Faculty members manage their designated classes and coordinate specific projects, reducing overhead updates and centralizing reports.</p>
+                        <ul className="space-y-3.5 text-xs text-slate-600">
                           {["Toggle invite link permission per-class if assigned as Class Incharge.", "Grant direct class list review access to other faculty members instantly.", "Contribute reviews and download technical logs/materials directly from project timelines.", "Appointed Update Coordinators can post official public feed notifications."].map((item, idx) => (
                             <li key={idx} className="flex items-start gap-2.5"><Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /><span>{item}</span></li>
                           ))}
@@ -1003,12 +1003,12 @@ export default function HomePage() {
                     )}
                     {activeRole === "student" && (
                       <motion.div key="student" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.25 }} className="space-y-4">
-                        <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-700/30 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center">
                           <GraduationCap className="w-6 h-6 text-amber-600" />
                         </div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Seamless Student Teamwork Hub</h3>
-                        <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">No more lost emails, WhatsApp groups, or misplaced documentation. Students use secure Google Sign-In linked directly to their class and register details.</p>
-                        <ul className="space-y-3.5 text-xs text-slate-600 dark:text-slate-300">
+                        <h3 className="text-2xl font-bold text-slate-900">Seamless Student Teamwork Hub</h3>
+                        <p className="text-slate-500 leading-relaxed text-sm">No more lost emails, WhatsApp groups, or misplaced documentation. Students use secure Google Sign-In linked directly to their class and register details.</p>
+                        <ul className="space-y-3.5 text-xs text-slate-600">
                           {["Locked class onboarding ensures zero errors on signup data entry.", "Post progress logs, PDF schemas, zip codes, and files safely in the Progress Monitor chat.", "Receive real-time push alerts via Firebase on updates and team announcements.", "Qualified 3rd-year students can act as Forum Members, writing technical articles."].map((item, idx) => (
                             <li key={idx} className="flex items-start gap-2.5"><Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /><span>{item}</span></li>
                           ))}
@@ -1051,15 +1051,15 @@ export default function HomePage() {
           <div id="roi" className="scroll-mt-20 mt-24">
             <Reveal className="text-center mb-12">
               <SectionLabel>Calculator</SectionLabel>
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Calculate Your Department's ROI</h3>
-              <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-lg mx-auto">
+              <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight">Calculate Your Department's ROI</h3>
+              <p className="text-slate-500 mt-2 max-w-lg mx-auto">
                 Adjust the sliders below to estimate the productivity hours gained using the Hive portal.
               </p>
             </Reveal>
             <Reveal>
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden max-w-5xl mx-auto grid md:grid-cols-12 gap-0">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden max-w-5xl mx-auto grid md:grid-cols-12 gap-0">
                 <div className="md:col-span-7 p-6 sm:p-10 space-y-8">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                     <BarChart2 className="w-5 h-5 text-indigo-600" />Adjust Metrics
                   </h3>
                   {[
@@ -1068,12 +1068,12 @@ export default function HomePage() {
                   ].map(({ label, min, max, step, value, onChange, suffix }) => (
                     <div key={label} className="space-y-3">
                       <div className="flex justify-between items-baseline">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</label>
                         <span className="text-lg font-extrabold text-indigo-600">{value}{suffix}</span>
                       </div>
                       <input type="range" min={min} max={max} step={step} value={value}
                         onChange={(e) => onChange(parseInt(e.target.value))}
-                        className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none" />
+                        className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"/>
                       <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
                         <span>{min}{suffix}</span><span>{max}{suffix}</span>
                       </div>
@@ -1110,8 +1110,8 @@ export default function HomePage() {
           <div className="mt-28">
             <Reveal className="text-center mb-14">
               <SectionLabel>Architecture</SectionLabel>
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">System Visual Blueprint</h3>
-              <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-lg mx-auto">
+              <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight">System Visual Blueprint</h3>
+              <p className="text-slate-500 mt-2 max-w-lg mx-auto">
                 Hive is built on high-throughput backend APIs, normalized databases, and real-time gateways. Tap any node below to inspect specifications.
               </p>
             </Reveal>
@@ -1140,9 +1140,9 @@ export default function HomePage() {
             <Reveal className="grid lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
               
               {/* LEFT: Visually Striking Topology Blueprint */}
-              <div className="lg:col-span-7 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 relative flex flex-col justify-between h-[480px] overflow-hidden blueprint-grid-pattern shadow-inner">
+              <div className="lg:col-span-7 bg-slate-50/50 border border-slate-200/80 rounded-3xl p-6 relative flex flex-col justify-between h-[480px] overflow-hidden blueprint-grid-pattern shadow-inner">
                 {/* SVG Connections overlay (Only rendered for desktop/medium sizes where layout matches coordinates) */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-indigo-500/20 dark:stroke-indigo-500/10 fill-none" strokeWidth="2">
+                <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-indigo-500/20 fill-none"strokeWidth="2">
                   {/* Client to Gateway */}
                   <path d="M 120 220 Q 200 120 300 120" className={selectedArchNode === "frontend" || selectedArchNode === "gateway" ? "stroke-indigo-500/60 blueprint-flow-path" : ""} />
                   {/* Client to API */}
@@ -1156,7 +1156,7 @@ export default function HomePage() {
                 </svg>
 
                 {/* Header of blueprint */}
-                <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-3 relative z-10">
+                <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 relative z-10">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 block animate-pulse" />
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Architectural Flow Map</span>
@@ -1173,14 +1173,14 @@ export default function HomePage() {
                       onClick={() => setSelectedArchNode("frontend")}
                       className={`w-[120px] p-3.5 rounded-2xl border text-center transition-all duration-300 backdrop-blur-sm ${
                         selectedArchNode === "frontend"
-                          ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none ring-4 ring-indigo-500/10 scale-105"
-                          : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-300"
+                          ?"bg-white border-indigo-500 shadow-xl shadow-indigo-100 ring-4 ring-indigo-500/10 scale-105"
+                          :"bg-white/80 border-slate-200 hover:border-indigo-300"
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mx-auto mb-2">
-                        <Code2 className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                        <Code2 className="w-4.5 h-4.5 text-indigo-600"/>
                       </div>
-                      <div className="text-[10px] font-bold dark:text-white">Client Interface</div>
+                      <div className="text-[10px] font-bold">Client Interface</div>
                       <div className="text-[8px] text-slate-400 font-mono mt-0.5">React / Vite</div>
                     </button>
                   </div>
@@ -1191,14 +1191,14 @@ export default function HomePage() {
                       onClick={() => setSelectedArchNode("gateway")}
                       className={`w-[120px] p-3.5 rounded-2xl border text-center transition-all duration-300 backdrop-blur-sm ${
                         selectedArchNode === "gateway"
-                          ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none ring-4 ring-indigo-500/10 scale-105"
-                          : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-300"
+                          ?"bg-white border-indigo-500 shadow-xl shadow-indigo-100 ring-4 ring-indigo-500/10 scale-105"
+                          :"bg-white/80 border-slate-200 hover:border-indigo-300"
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mx-auto mb-2">
-                        <Bell className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                        <Bell className="w-4.5 h-4.5 text-indigo-600"/>
                       </div>
-                      <div className="text-[10px] font-bold dark:text-white">Firebase Gateway</div>
+                      <div className="text-[10px] font-bold">Firebase Gateway</div>
                       <div className="text-[8px] text-slate-400 font-mono mt-0.5">Firestore / FCM</div>
                     </button>
                   </div>
@@ -1208,14 +1208,14 @@ export default function HomePage() {
                       onClick={() => setSelectedArchNode("api")}
                       className={`w-[120px] p-3.5 rounded-2xl border text-center transition-all duration-300 backdrop-blur-sm ${
                         selectedArchNode === "api"
-                          ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none ring-4 ring-indigo-500/10 scale-105"
-                          : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-300"
+                          ?"bg-white border-indigo-500 shadow-xl shadow-indigo-100 ring-4 ring-indigo-500/10 scale-105"
+                          :"bg-white/80 border-slate-200 hover:border-indigo-300"
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mx-auto mb-2">
-                        <Cpu className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                        <Cpu className="w-4.5 h-4.5 text-indigo-600"/>
                       </div>
-                      <div className="text-[10px] font-bold dark:text-white">REST API Engine</div>
+                      <div className="text-[10px] font-bold">REST API Engine</div>
                       <div className="text-[8px] text-slate-400 font-mono mt-0.5">Flask Python</div>
                     </button>
                   </div>
@@ -1226,14 +1226,14 @@ export default function HomePage() {
                       onClick={() => setSelectedArchNode("database")}
                       className={`w-[120px] p-3.5 rounded-2xl border text-center transition-all duration-300 backdrop-blur-sm ${
                         selectedArchNode === "database"
-                          ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none ring-4 ring-indigo-500/10 scale-105"
-                          : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-300"
+                          ?"bg-white border-indigo-500 shadow-xl shadow-indigo-100 ring-4 ring-indigo-500/10 scale-105"
+                          :"bg-white/80 border-slate-200 hover:border-indigo-300"
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mx-auto mb-2">
-                        <Database className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                        <Database className="w-4.5 h-4.5 text-indigo-600"/>
                       </div>
-                      <div className="text-[10px] font-bold dark:text-white">PostgreSQL DB</div>
+                      <div className="text-[10px] font-bold">PostgreSQL DB</div>
                       <div className="text-[8px] text-slate-400 font-mono mt-0.5">Postgres 16</div>
                     </button>
                   </div>
@@ -1243,14 +1243,14 @@ export default function HomePage() {
                       onClick={() => setSelectedArchNode("media")}
                       className={`w-[120px] p-3.5 rounded-2xl border text-center transition-all duration-300 backdrop-blur-sm ${
                         selectedArchNode === "media"
-                          ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none ring-4 ring-indigo-500/10 scale-105"
-                          : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-300"
+                          ?"bg-white border-indigo-500 shadow-xl shadow-indigo-100 ring-4 ring-indigo-500/10 scale-105"
+                          :"bg-white/80 border-slate-200 hover:border-indigo-300"
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mx-auto mb-2">
-                        <FileText className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                        <FileText className="w-4.5 h-4.5 text-indigo-600"/>
                       </div>
-                      <div className="text-[10px] font-bold dark:text-white">Asset CDN</div>
+                      <div className="text-[10px] font-bold">Asset CDN</div>
                       <div className="text-[8px] text-slate-400 font-mono mt-0.5">Cloudinary API</div>
                     </button>
                   </div>
@@ -1260,14 +1260,14 @@ export default function HomePage() {
                       onClick={() => setSelectedArchNode("hosting")}
                       className={`w-[120px] p-3.5 rounded-2xl border text-center transition-all duration-300 backdrop-blur-sm ${
                         selectedArchNode === "hosting"
-                          ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none ring-4 ring-indigo-500/10 scale-105"
-                          : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-300"
+                          ?"bg-white border-indigo-500 shadow-xl shadow-indigo-100 ring-4 ring-indigo-500/10 scale-105"
+                          :"bg-white/80 border-slate-200 hover:border-indigo-300"
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mx-auto mb-2">
-                        <Shield className="w-4.5 h-4.5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mx-auto mb-2">
+                        <Shield className="w-4.5 h-4.5 text-indigo-600"/>
                       </div>
-                      <div className="text-[10px] font-bold dark:text-white">AWS Fargate</div>
+                      <div className="text-[10px] font-bold">AWS Fargate</div>
                       <div className="text-[8px] text-slate-400 font-mono mt-0.5">Docker Cluster</div>
                     </button>
                   </div>
@@ -1275,7 +1275,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Footer of blueprint */}
-                <div className="flex items-center justify-between text-[9px] text-slate-400 border-t border-slate-200/60 dark:border-slate-800 pt-3 relative z-10">
+                <div className="flex items-center justify-between text-[9px] text-slate-400 border-t border-slate-200/60 pt-3 relative z-10">
                   <span>DEPLOY STATE: PRODUCTION READY</span>
                   <span className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -1377,11 +1377,11 @@ export default function HomePage() {
                   const Icon = data.icon;
 
                   return (
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-3xl p-6 flex flex-col justify-between h-full">
+                    <div className="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 flex flex-col justify-between h-full">
                       <div className="space-y-5">
                         {/* Header metadata */}
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">
+                          <span className="text-[10px] font-mono bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">
                             {data.tech}
                           </span>
                           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Specs Inspector</span>
@@ -1389,11 +1389,11 @@ export default function HomePage() {
 
                         {/* Title tier */}
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center shrink-0">
-                            <Icon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                            <Icon className="w-5 h-5 text-indigo-600"/>
                           </div>
                           <div>
-                            <h4 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{data.title}</h4>
+                            <h4 className="text-lg font-bold text-slate-900 leading-tight">{data.title}</h4>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className="text-[10px] font-semibold text-emerald-500 uppercase">{data.latency}</span>
                               <span className="text-slate-300 text-[10px]">•</span>
@@ -1403,7 +1403,7 @@ export default function HomePage() {
                         </div>
 
                         {/* Description */}
-                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-950/30 p-3 rounded-xl border border-slate-100 dark:border-slate-850">
+                        <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
                           {data.desc}
                         </p>
 
@@ -1411,7 +1411,7 @@ export default function HomePage() {
                         <div className="space-y-2.5 pt-1.5">
                           <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Core Capabilities</div>
                           {data.specs.map((spec, i) => (
-                            <div key={i} className="flex items-start gap-2.5 text-xs text-slate-650 dark:text-slate-300 leading-relaxed">
+                            <div key={i} className="flex items-start gap-2.5 text-xs text-slate-650 leading-relaxed">
                               <CheckCircle2 className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
                               <span>{spec}</span>
                             </div>
@@ -1420,7 +1420,7 @@ export default function HomePage() {
                       </div>
 
                       {/* Mock metadata system spec display */}
-                      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <div className="mt-6 pt-4 border-t border-slate-100">
                         <div className="bg-slate-900 rounded-xl p-3 text-[10px] font-mono text-indigo-300/80 space-y-1 overflow-x-auto select-none">
                           <div><span className="text-indigo-400">spec</span>: &#123;</div>
                           <div className="pl-4">node_id: <span className="text-amber-400">"{selectedArchNode}"</span>,</div>
@@ -1443,20 +1443,20 @@ export default function HomePage() {
       {/* ════════════════════════════════════════════════════════════════════
           4. CONTACT SECTION
       ════════════════════════════════════════════════════════════════════ */}
-      <section id="contact" className="relative py-28 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800/50 overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-[400px] bg-gradient-to-b from-indigo-50/40 dark:from-indigo-950/20 to-transparent pointer-events-none" />
-        <div className="absolute top-16 right-0 w-[350px] h-[350px] bg-indigo-100/30 dark:bg-indigo-900/10 rounded-full blur-[120px] pointer-events-none" />
+      <section id="contact"className="relative py-28 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-100 overflow-hidden">
+        <div className="absolute top-0 inset-x-0 h-[400px] bg-gradient-to-b from-indigo-50/40 to-transparent pointer-events-none"/>
+        <div className="absolute top-16 right-0 w-[350px] h-[350px] bg-indigo-100/30 rounded-full blur-[120px] pointer-events-none"/>
 
         <div className="relative max-w-7xl mx-auto">
           <Reveal className="text-center mb-12">
             <SectionLabel>Inquiries & Support</SectionLabel>
-            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
               Connect with{" "}
               <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                 Our Department
               </span>
             </h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+            <p className="text-lg text-slate-500 max-w-lg mx-auto leading-relaxed">
               Have questions about projects, faculty invites, or portal access? We're here to help.
             </p>
           </Reveal>
@@ -1465,14 +1465,14 @@ export default function HomePage() {
           <Reveal className="mb-12">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: Mail, label: "Email Us", value: "hod.cs@sharathi-board.edu.in", sub: "support.dpms@sharathi-board.edu.in", color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20", border: "border-indigo-100 dark:border-indigo-800/30", href: "mailto:hod.cs@sharathi-board.edu.in" },
-                { icon: Phone, label: "Call Us", value: "+91 80 2554 9820", sub: "HOD Desk • Mon – Fri", color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-900/20", border: "border-violet-100 dark:border-violet-800/30", href: "tel:+918025549820" },
-                { icon: Clock, label: "Office Hours", value: "9:30 AM – 4:30 PM", sub: "HOD slot: Tue & Thu 2–4 PM", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-100 dark:border-amber-800/30", href: null },
-                { icon: MessageSquare, label: "Response Time", value: "Within 24–48 hrs", sub: "All submitted inquiries", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20", border: "border-emerald-100 dark:border-emerald-800/30", href: null },
+                { icon: Mail, label:"Email Us", value:"hod.cs@sharathi-board.edu.in", sub:"support.dpms@sharathi-board.edu.in", color:"text-indigo-600", bg:"bg-indigo-50", border:"border-indigo-100", href:"mailto:hod.cs@sharathi-board.edu.in"},
+                { icon: Phone, label:"Call Us", value:"+91 80 2554 9820", sub:"HOD Desk • Mon – Fri", color:"text-violet-600", bg:"bg-violet-50", border:"border-violet-100", href:"tel:+918025549820"},
+                { icon: Clock, label:"Office Hours", value:"9:30 AM – 4:30 PM", sub:"HOD slot: Tue & Thu 2–4 PM", color:"text-amber-600", bg:"bg-amber-50", border:"border-amber-100", href: null },
+                { icon: MessageSquare, label:"Response Time", value:"Within 24–48 hrs", sub:"All submitted inquiries", color:"text-emerald-600", bg:"bg-emerald-50", border:"border-emerald-100", href: null },
               ].map(({ icon: CIcon, label, value, sub, color, bg, border, href }, i) => {
                 const content = (
                   <motion.div whileHover={{ y: -3 }} className={`group rounded-2xl border ${border} ${bg} p-5 flex items-start gap-4 transition-all duration-200 hover:shadow-md cursor-default`}>
-                    <div className={`w-10 h-10 rounded-xl bg-white dark:bg-white/5 border ${border} flex items-center justify-center shrink-0 shadow-sm`}>
+                    <div className={`w-10 h-10 rounded-xl bg-white border ${border} flex items-center justify-center shrink-0 shadow-sm`}>
                       <CIcon className={`w-5 h-5 ${color}`} />
                     </div>
                     <div className="min-w-0">
@@ -1491,7 +1491,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-6xl mx-auto">
             {/* Contact Form */}
             <Reveal className="lg:col-span-7" direction="right">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-7 py-5">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1512,9 +1512,9 @@ export default function HomePage() {
                           <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                         </div>
                       </div>
-                      <h4 className="text-xl font-bold text-slate-900 dark:text-white">Message Sent!</h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">
-                        Thank you, <span className="font-semibold text-slate-700 dark:text-slate-200">{cName}</span>! We'll get back to you at <span className="font-semibold text-indigo-600">{cEmail}</span> within 24–48 hours.
+                      <h4 className="text-xl font-bold text-slate-900">Message Sent!</h4>
+                      <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto">
+                        Thank you, <span className="font-semibold text-slate-700">{cName}</span>! We'll get back to you at <span className="font-semibold text-indigo-600">{cEmail}</span> within 24–48 hours.
                       </p>
                       <button onClick={() => { setCSubmitted(false); setCName(""); setCEmail(""); setCSubject(""); setCMessage(""); setCRole("student"); }}
                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
@@ -1524,7 +1524,7 @@ export default function HomePage() {
                   ) : (
                     <form onSubmit={handleContactSubmit} className="space-y-5 text-xs">
                       {cError && (
-                        <div className="flex items-start gap-2.5 p-3.5 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-600 rounded-xl">
+                        <div className="flex items-start gap-2.5 p-3.5 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                           <span className="font-semibold text-sm">{cError}</span>
                         </div>
@@ -1535,17 +1535,17 @@ export default function HomePage() {
                           { label: "Email Address", type: "email", value: cEmail, onChange: setCEmail, placeholder: "you@gmail.com", required: true },
                         ].map(({ label, type, value, onChange, placeholder, required }) => (
                           <div key={label} className="space-y-1.5">
-                            <label className="block font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">{label} {required && <span className="text-rose-500">*</span>}</label>
+                            <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">{label} {required && <span className="text-rose-500">*</span>}</label>
                             <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-                              className="w-full py-3 px-4 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 dark:bg-slate-800/60 dark:text-white placeholder-slate-300 transition-all" />
+                              className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 transition-all"/>
                           </div>
                         ))}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Your Role</label>
+                          <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">Your Role</label>
                           <select value={cRole} onChange={(e) => setCRole(e.target.value)}
-                            className="w-full py-3 px-4 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 dark:bg-slate-800/60 dark:text-white cursor-pointer transition-all appearance-none">
+                            className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 cursor-pointer transition-all appearance-none">
                             <option value="student">UG / PG Student</option>
                             <option value="faculty">Faculty / Researcher</option>
                             <option value="parent">Parent / Guardian</option>
@@ -1553,18 +1553,18 @@ export default function HomePage() {
                           </select>
                         </div>
                         <div className="space-y-1.5">
-                          <label className="block font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Subject <span className="text-rose-500">*</span></label>
+                          <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">Subject <span className="text-rose-500">*</span></label>
                           <input type="text" required value={cSubject} onChange={(e) => setCSubject(e.target.value)} placeholder="e.g. Project Registration Query"
-                            className="w-full py-3 px-4 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 dark:bg-slate-800/60 dark:text-white placeholder-slate-300 transition-all" />
+                            className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 transition-all"/>
                         </div>
                       </div>
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
-                          <label className="block font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Message <span className="text-rose-500">*</span></label>
+                          <label className="block font-bold text-slate-500 uppercase tracking-wider text-[10px]">Message <span className="text-rose-500">*</span></label>
                           <span className={`text-[10px] font-semibold ${cMessage.length > 450 ? "text-rose-500" : "text-slate-400"}`}>{cMessage.length}/500</span>
                         </div>
                         <textarea required maxLength={500} rows={5} value={cMessage} onChange={(e) => setCMessage(e.target.value)} placeholder="Describe your query in detail..."
-                          className="w-full py-3 px-4 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 dark:bg-slate-800/60 dark:text-white placeholder-slate-300 resize-none leading-relaxed transition-all" />
+                          className="w-full py-3 px-4 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50/60 placeholder-slate-300 resize-none leading-relaxed transition-all"/>
                       </div>
                       <button type="submit" disabled={cSubmitting}
                         className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl text-sm hover:from-indigo-700 hover:to-violet-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-200 active:translate-y-0 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0">
@@ -1582,13 +1582,13 @@ export default function HomePage() {
 
             {/* FAQ */}
             <Reveal className="lg:col-span-5" direction="left">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-700/30 flex items-center justify-center">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center">
                     <HelpCircle className="w-4 h-4 text-indigo-600" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h3>
+                    <h3 className="text-sm font-bold text-slate-900">Frequently Asked Questions</h3>
                     <p className="text-[10px] text-slate-400">Quick answers to common queries</p>
                   </div>
                 </div>
@@ -1649,7 +1649,7 @@ export default function HomePage() {
       {/* ════════════════════════════════════════════════════════════════════
           6. FOOTER
       ════════════════════════════════════════════════════════════════════ */}
-      <footer className="border-t border-slate-100 dark:border-slate-800 py-10 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-950">
+      <footer className="border-t border-slate-100 py-10 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Logo variant="full" alt="Hive" className="h-10 w-auto object-contain" />

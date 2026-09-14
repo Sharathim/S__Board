@@ -9,7 +9,7 @@ export function Spinner({ fullScreen, size = "md" }) {
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-50">
+      <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-50">
         <SpinnerIcon className={sizes[size]} />
       </div>
     );

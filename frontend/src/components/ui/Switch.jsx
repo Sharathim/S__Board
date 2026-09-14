@@ -39,7 +39,7 @@ export function Switch({ checked, onChange, disabled, loading, size = "md", clas
         trackSizes[size],
         checked
           ? "bg-gradient-to-r from-[#F05A2B] to-[#FF8365] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
-          : "bg-gray-300 dark:bg-slate-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]",
+          : "bg-gray-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]",
         isBusy && "opacity-60 cursor-not-allowed",
         className
       )}
@@ -48,7 +48,7 @@ export function Switch({ checked, onChange, disabled, loading, size = "md", clas
       {/* Knob */}
       <span
         className={clsx(
-          "absolute top-0.5 bg-gradient-to-b from-white to-gray-50 dark:from-slate-100 dark:to-slate-200 rounded-full transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.2),_0_1px_2px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-slate-400",
+          "absolute top-0.5 bg-gradient-to-b from-white to-gray-50 rounded-full transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.2),_0_1px_2px_rgba(0,0,0,0.15)] border border-gray-100",
           knobSizes[size],
           translateClasses[size],
           "group-hover:scale-x-110"

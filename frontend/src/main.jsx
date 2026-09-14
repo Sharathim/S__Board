@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import AppEntry from "./AppEntry";
 import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
@@ -41,13 +40,11 @@ window.addEventListener("load", () => {
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <NotificationProvider>
-            <AppEntry />
-          </NotificationProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <AppEntry />
+        </NotificationProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

@@ -22,9 +22,9 @@ import { useState, useMemo } from "react";
 
 function DesignationBadge({ designation }) {
   const map = {
-    "Professor": { color: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", icon: Star },
-    "Associate Professor": { color: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300", icon: TrendingUp },
-    "Assistant Professor": { color: "bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300", icon: GraduationCap },
+"Professor": { color:"bg-purple-50 text-purple-700", icon: Star },
+"Associate Professor": { color:"bg-blue-50 text-blue-700", icon: TrendingUp },
+"Assistant Professor": { color:"bg-violet-50 text-violet-700", icon: GraduationCap },
   };
   const style = map[designation] || map["Professor"];
   const Icon = style.icon;
@@ -116,10 +116,10 @@ export default function MobileFacultyPage() {
     <div className="mobile-fade-in pb-6 space-y-4">
       {/* HOD Registration Toggle */}
       {isHOD && (
-        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/60 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white border border-gray-200/60 shadow-sm">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-[#F05A2B]" />
-            <span className="text-xs font-bold text-gray-700 dark:text-gray-300">New Faculty Registration</span>
+            <span className="text-xs font-bold text-gray-700">New Faculty Registration</span>
           </div>
           <Switch
             checked={inviteData?.is_active || false}
@@ -156,7 +156,7 @@ export default function MobileFacultyPage() {
           {filtered.map((fac) => {
             const isMe = user && (fac.user_id === user.id || fac.id === user.id || (fac.email && user.email && fac.email.toLowerCase() === user.email.toLowerCase()));
             return (
-              <MobileCard key={fac.id} className={isMe ? "ring-2 ring-indigo-500/50 border-indigo-300 dark:border-indigo-700 bg-indigo-50/10 dark:bg-indigo-950/10" : ""}>
+              <MobileCard key={fac.id} className={isMe ?"ring-2 ring-indigo-500/50 border-indigo-300 bg-indigo-50/10":""}>
                 <div className="flex items-start gap-3">
                   {/* Avatar */}
                   <div className="w-11 h-11 rounded-2xl overflow-hidden shrink-0 ring-2 ring-indigo-500/20">
@@ -166,7 +166,7 @@ export default function MobileFacultyPage() {
                   <div className="flex-1 min-w-0">
                     {/* Name + Designation */}
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">{fac.name}</h3>
+                      <h3 className="text-sm font-bold text-gray-900 truncate">{fac.name}</h3>
                       {isMe && (
                         <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-md shadow-xs shrink-0">
                           YOU
@@ -180,12 +180,12 @@ export default function MobileFacultyPage() {
                   )}
 
                   {/* Email */}
-                  <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 truncate">{fac.email}</p>
+                  <p className="text-[11px] text-gray-400 mt-1 truncate">{fac.email}</p>
 
                   {/* Stats */}
                   <div className="flex items-center gap-3 mt-2 flex-wrap">
                     {fac.class_incharge_of && (
-                      <div className="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 px-2 py-0.5 rounded-full">
+                      <div className="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
                         <ShieldCheck className="w-3 h-3" />
                         {fac.class_incharge_of.replace("_", " ")}
                       </div>
@@ -203,7 +203,7 @@ export default function MobileFacultyPage() {
                 {isHOD && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setActionSheet(fac); }}
-                    className="mobile-tappable p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800"
+                    className="mobile-tappable p-1.5 rounded-xl text-gray-400 hover:bg-gray-100"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </button>
@@ -221,24 +221,24 @@ export default function MobileFacultyPage() {
           <div className="space-y-1">
             <a
               href={`mailto:${actionSheet.email}`}
-              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-500">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
                 <Mail className="w-4 h-4" />
               </div>
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Send Email</span>
+              <span className="text-sm font-semibold text-gray-700">Send Email</span>
             </a>
             <button
               onClick={() => {
                 setActionSheet(null);
                 setTimeout(() => setDeleteConfirm(actionSheet), 300);
               }}
-              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 transition-colors"
             >
-              <div className="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500">
+              <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center text-red-500">
                 <Trash2 className="w-4 h-4" />
               </div>
-              <span className="text-sm font-semibold text-red-600 dark:text-red-400">Remove Faculty</span>
+              <span className="text-sm font-semibold text-red-600">Remove Faculty</span>
             </button>
           </div>
         )}

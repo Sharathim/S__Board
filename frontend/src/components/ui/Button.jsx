@@ -2,11 +2,11 @@ import clsx from "clsx";
 
 const variants = {
   primary: "bg-[#F05A2B] text-white hover:bg-[#E04A1B] active:scale-[0.98] hover:shadow-primary-glow focus:ring-[#F05A2B]",
-  black: "bg-[#171717] dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-black dark:hover:bg-white active:scale-[0.98] focus:ring-[#171717] dark:focus:ring-slate-300",
-  secondary: "bg-[#F3F3F5] dark:bg-slate-800/90 text-[#171717] dark:text-slate-100 border border-transparent dark:border-white/10 hover:bg-[#E8E8EC] dark:hover:bg-slate-700/90 focus:ring-gray-300 dark:focus:ring-slate-600",
-  danger: "bg-red-600 dark:bg-rose-600 text-white hover:bg-red-700 dark:hover:bg-rose-700 focus:ring-red-500",
+  black: "bg-[#171717] text-white hover:bg-black active:scale-[0.98] focus:ring-[#171717]",
+  secondary: "bg-[#F3F3F5] text-[#171717] border border-transparent hover:bg-[#E8E8EC] focus:ring-gray-300",
+  danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
   success: "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500",
-  ghost: "text-[#7E7E82] dark:text-slate-300 hover:bg-[#F3F3F5] dark:hover:bg-slate-800/90 hover:text-[#171717] dark:hover:text-slate-100",
+  ghost: "text-[#7E7E82] hover:bg-[#F3F3F5] hover:text-[#171717]",
 };
 
 const sizes = {
@@ -19,7 +19,7 @@ export function Button({ children, variant = "primary", size = "md", className, 
   return (
     <button
       className={clsx(
-        "inline-flex items-center justify-center font-medium rounded-full transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center font-medium rounded-full transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
         variants[variant] || variants.primary,
         sizes[size] || sizes.md,
         className

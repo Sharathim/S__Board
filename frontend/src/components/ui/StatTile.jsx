@@ -10,8 +10,8 @@ export function StatTile({ icon: Icon, value, label, accent, note, className, on
     <div
       onClick={onClick}
       className={clsx(
-        "h-full bg-white dark:bg-[#18181B] rounded-2xl p-4.5 border border-gray-200/80 dark:border-[#2E2E34] shadow-sm transition-all duration-200",
-        isClickable && "cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-[#F05A2B]/40 dark:hover:border-[#F05A2B]/40 active:scale-[0.98]",
+        "h-full bg-white rounded-2xl p-4.5 border border-gray-200/80 shadow-sm transition-all duration-200",
+        isClickable && "cursor-pointer hover:shadow-md hover:scale-[1.02] hover:border-[#F05A2B]/40 active:scale-[0.98]",
         className
       )}
       {...props}
@@ -20,17 +20,17 @@ export function StatTile({ icon: Icon, value, label, accent, note, className, on
         <div
           className={clsx(
             "w-9 h-9 rounded-xl flex items-center justify-center mb-2.5 transition-colors",
-            accent || "text-[#F05A2B] bg-[#FFEEE9] dark:text-[#FF8365] dark:bg-[#F05A2B]/15"
+            accent || "text-[#F05A2B] bg-[#FFEEE9]"
           )}
         >
           <Icon className="w-4.5 h-4.5" />
         </div>
       )}
-      <p className="text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-100 mb-0.5">{value}</p>
+      <p className="text-2xl font-bold tracking-tight text-gray-900 mb-0.5">{value}</p>
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium text-gray-500 dark:text-slate-400">{label}</p>
+        <p className="text-xs font-medium text-gray-500">{label}</p>
         {note != null && (
-          <span className="text-xs font-semibold text-gray-400 dark:text-slate-500">{note}</span>
+          <span className="text-xs font-semibold text-gray-400">{note}</span>
         )}
       </div>
     </div>

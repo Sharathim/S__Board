@@ -68,7 +68,7 @@ const VALUES = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#000000] transition-colors duration-300">
+    <div className="min-h-screen bg-[#FFFFFF] transition-colors duration-300">
 
       {/* ── HERO BANNER ── */}
       <section className="relative overflow-hidden pt-[72px]">

@@ -97,7 +97,7 @@ export default function NotificationsPage() {
             if (items.length === 0) return null;
             return (
               <div key={label} className="space-y-2">
-                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{label}</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">{label}</p>
                 <div className="space-y-2">
                   {items.map(n => (
                     <div
@@ -105,8 +105,8 @@ export default function NotificationsPage() {
                       onClick={() => { if (!n.is_read) markMutation.mutate(n.id); }}
                       className={`flex items-start gap-3.5 p-4 rounded-xl border cursor-pointer transition-colors relative group ${
                         n.is_read
-                          ? "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                          : "bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800"
+                          ?"bg-white border-gray-200"
+                          :"bg-primary-50 border-primary-200"
                       }`}
                     >
                       <div className="mt-0.5 text-lg">
@@ -114,7 +114,7 @@ export default function NotificationsPage() {
                       </div>
                       <div className="flex-1 min-w-0 pr-6">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className={`text-sm ${n.is_read ? "text-gray-700 dark:text-gray-300" : "text-gray-900 dark:text-gray-100 font-medium"}`}>
+                          <p className={`text-sm ${n.is_read ?"text-gray-700":"text-gray-900 font-medium"}`}>
                             {n.title}
                           </p>
                           {!n.is_read && <span className="w-2 h-2 bg-primary-500 rounded-full shrink-0" />}
@@ -124,23 +124,23 @@ export default function NotificationsPage() {
                             ? (parseUpdateContent(n.body).description || n.body)
                             : n.body}
                         </p>
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-1.5 leading-none">
+                        <span className="text-[10px] text-gray-400 flex items-center gap-1 mt-1.5 leading-none">
                           <Clock className="w-3.5 h-3.5" />
                           {(() => { try { return formatDistanceToNow(parseUTCDate(n.created_at), { addSuffix: true }); } catch { return ""; } })()}
-                          <span className="text-gray-300 dark:text-gray-600">•</span>
+                          <span className="text-gray-300">•</span>
                           {format(parseUTCDate(n.created_at), "MMM d, h:mm a")}
                         </span>
                       </div>
                       
                       <div className="flex items-center gap-1.5 shrink-0 self-center">
-                        {n.is_read ? <MailOpen className="w-4 h-4 text-gray-300 dark:text-gray-600" /> : <Mail className="w-4 h-4 text-primary-500" />}
+                        {n.is_read ? <MailOpen className="w-4 h-4 text-gray-300"/> : <Mail className="w-4 h-4 text-primary-500"/>}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteMutation.mutate(n.id);
                           }}
                           disabled={deleteMutation.isPending}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                           title="Delete notification"
                         >
                           <Trash2 className="w-4 h-4" />

@@ -18,8 +18,8 @@ export default function MobileFeaturesPage() {
     <div className="mobile-fade-in px-5 py-6 space-y-6">
       {/* Hero */}
       <div className="text-center">
-        <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Features</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed max-w-sm mx-auto">
+        <h1 className="text-xl font-black text-gray-900 tracking-tight mb-2">Features</h1>
+        <p className="text-xs text-gray-500 leading-relaxed max-w-sm mx-auto">
           Everything you need to manage your department's projects and teams effectively.
         </p>
       </div>
@@ -35,8 +35,8 @@ export default function MobileFeaturesPage() {
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-0.5">{f.title}</h3>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
+                  <h3 className="text-sm font-bold text-gray-900 mb-0.5">{f.title}</h3>
+                  <p className="text-[10px] text-gray-500 leading-relaxed">{f.desc}</p>
                 </div>
               </div>
             </MobileCard>
@@ -45,12 +45,12 @@ export default function MobileFeaturesPage() {
       </div>
 
       {/* Sandbox note */}
-      <MobileCard className="!bg-primary-50/50 dark:!bg-primary-950/20 !border-primary-200/30 dark:!border-primary-800/30">
+      <MobileCard className="!bg-primary-50/50 !border-primary-200/30">
         <div className="flex items-center gap-3">
           <Monitor className="w-5 h-5 text-primary-500 shrink-0" />
           <div>
-            <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Interactive Dashboard Preview</p>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-xs font-bold text-gray-800">Interactive Dashboard Preview</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">
               Experience the full interactive dashboard preview on a larger screen.
             </p>
           </div>

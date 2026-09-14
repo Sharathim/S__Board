@@ -48,21 +48,21 @@ function isPdfExt(ext) {
 }
 
 const ROLE_COLORS = {
-  HOD: "bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300",
-  FACULTY: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
-  faculty: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300",
-  forum_member: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300",
-  student: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
-  STUDENT: "bg-slate-100 text-slate-600 dark:bg-slate-800/80 dark:text-slate-400",
+  HOD:"bg-violet-50 text-violet-700",
+  FACULTY:"bg-indigo-50 text-indigo-700",
+  faculty:"bg-indigo-50 text-indigo-700",
+  forum_member:"bg-amber-50 text-amber-700",
+  student:"bg-emerald-50 text-emerald-700",
+  STUDENT:"bg-slate-100 text-slate-600",
 };
 
 const STATUS_MAP = {
-  COMPLETED: { dot: "bg-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-700 dark:text-emerald-400", label: "Completed" },
-  IN_PROGRESS: { dot: "bg-orange-500", bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-600 dark:text-orange-400", label: "In Progress" },
-  NOT_STARTED: { dot: "bg-slate-400", bg: "bg-slate-50 dark:bg-slate-800", text: "text-slate-600 dark:text-slate-400", label: "Not Started" },
-  REVIEW: { dot: "bg-violet-500", bg: "bg-violet-50 dark:bg-violet-950/30", text: "text-violet-700 dark:text-violet-400", label: "Review" },
-  ON_HOLD: { dot: "bg-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30", text: "text-amber-700 dark:text-amber-400", label: "On Hold" },
-  CANCELLED: { dot: "bg-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30", text: "text-rose-700 dark:text-rose-400", label: "Cancelled" },
+  COMPLETED: { dot:"bg-emerald-500", bg:"bg-emerald-50", text:"text-emerald-700", label:"Completed"},
+  IN_PROGRESS: { dot:"bg-orange-500", bg:"bg-orange-50", text:"text-orange-600", label:"In Progress"},
+  NOT_STARTED: { dot:"bg-slate-400", bg:"bg-slate-50", text:"text-slate-600", label:"Not Started"},
+  REVIEW: { dot:"bg-violet-500", bg:"bg-violet-50", text:"text-violet-700", label:"Review"},
+  ON_HOLD: { dot:"bg-amber-400", bg:"bg-amber-50", text:"text-amber-700", label:"On Hold"},
+  CANCELLED: { dot:"bg-rose-500", bg:"bg-rose-50", text:"text-rose-700", label:"Cancelled"},
 };
 
 const EMOJIS = ["👍", "❤️", "🔥"];
@@ -91,19 +91,19 @@ function AttachmentPreviewSheet({ attachment, onClose }) {
     <BottomSheet open={!!attachment} onClose={onClose} title={attachment.name || "Attachment Preview"}>
       <div className="space-y-3 pb-2">
         {isImage && (
-          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-black/5 flex items-center justify-center">
+          <div className="rounded-xl overflow-hidden border border-slate-200 bg-black/5 flex items-center justify-center">
             <img src={attachment.url} alt={attachment.name} className="w-full max-h-[55vh] object-contain" />
           </div>
         )}
         {isPdf && (
-          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 h-[55vh]">
+          <div className="rounded-xl overflow-hidden border border-slate-200 h-[55vh]">
             <iframe src={attachment.url} title={attachment.name} className="w-full h-full border-none" />
           </div>
         )}
         {!isImage && !isPdf && (
           <div className="text-center py-8 space-y-2">
             <File className="w-12 h-12 text-slate-400 mx-auto" />
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{attachment.name}</p>
+            <p className="text-sm font-bold text-slate-700">{attachment.name}</p>
             <p className="text-xs text-slate-400">{ext.toUpperCase()} file</p>
           </div>
         )}
@@ -113,7 +113,7 @@ function AttachmentPreviewSheet({ attachment, onClose }) {
             download={attachment.name || true}
             target="_blank"
             rel="noopener noreferrer"
-            className="mobile-tappable flex-1 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2"
+            className="mobile-tappable flex-1 py-3 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" /> Download
           </a>
@@ -137,7 +137,7 @@ function MobileAttachmentList({ attachments, onPreview }) {
   if (!attachments || attachments.length === 0) return null;
 
   return (
-    <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+    <div className="space-y-1.5 pt-2 border-t border-slate-100">
       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">
         Attachments ({attachments.length})
       </span>
@@ -154,14 +154,14 @@ function MobileAttachmentList({ attachments, onPreview }) {
           return (
             <div
               key={i}
-              className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40"
+              className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-slate-200/70 bg-slate-50/60"
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <div className="p-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 shrink-0">
+                <div className="p-1.5 rounded-lg bg-white border border-slate-200/50 shrink-0">
                   {icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate leading-tight">
+                  <p className="text-xs font-bold text-slate-800 truncate leading-tight">
                     {att.name || "Attachment"}
                   </p>
                   <span className="text-[9px] font-semibold text-slate-400 uppercase">{ext || "file"}</span>
@@ -174,7 +174,7 @@ function MobileAttachmentList({ attachments, onPreview }) {
                   type="button"
                   onClick={() => onPreview(att)}
                   title="Preview"
-                  className="mobile-tappable p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+                  className="mobile-tappable p-1.5 rounded-lg text-slate-400 hover:text-indigo-600"
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </button>
@@ -185,7 +185,7 @@ function MobileAttachmentList({ attachments, onPreview }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Download"
-                  className="mobile-tappable p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+                  className="mobile-tappable p-1.5 rounded-lg text-slate-400 hover:text-emerald-600"
                 >
                   <Download className="w-3.5 h-3.5" />
                 </a>
@@ -207,14 +207,14 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBac
   if (total === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 flex items-center justify-center text-indigo-500">
+        <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
           <Map className="w-5 h-5" />
         </div>
-        <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No Roadmap Milestones Logged</p>
+        <p className="text-xs font-bold text-slate-700">No Roadmap Milestones Logged</p>
         <button
           type="button"
           onClick={onBack}
-          className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold"
+          className="px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
         >
           Back to Progress
         </button>
@@ -225,16 +225,16 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBac
   return (
     <div className="space-y-4 py-1">
       {/* Back button & Header */}
-      <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
+      <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all shadow-2xs"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all shadow-2xs"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Progress</span>
         </button>
-        <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+        <span className="text-xs font-black text-slate-900 uppercase tracking-wider">
           Project Roadmap ({total})
         </span>
       </div>
@@ -251,26 +251,26 @@ function MobileRoadmapView({ timelineNodes, onSelectMilestone, selectedId, onBac
               onClick={() => onSelectMilestone(node)}
               className={`w-full p-4 rounded-2xl transition-all duration-200 cursor-pointer text-left ${
                 isSelected
-                  ? "bg-white dark:bg-slate-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
-                  : "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-2xs"
+                  ?"bg-white border-2 border-indigo-500 shadow-md shadow-indigo-500/10 ring-2 ring-indigo-500/10"
+                  :"bg-white border border-slate-200/80 hover:border-indigo-300 shadow-2xs"
               }`}
             >
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[11px] font-black border border-indigo-200/60 dark:border-indigo-800/60">
+                  <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-black border border-indigo-200/60">
                     Milestone #{milestoneNum}
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                  <span className="text-[11px] font-semibold text-slate-400">
                     {node.dateStr}
                   </span>
                 </div>
 
-                <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">
+                <h4 className="text-sm font-black text-slate-900 leading-snug">
                   {node.title || "Progress Update"}
                 </h4>
 
                 {node.accomplishment && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2 font-medium">
+                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 font-medium">
                     {node.accomplishment}
                   </p>
                 )}
@@ -483,20 +483,20 @@ export default function MobileProjectDetailPage() {
       {/* Mobile Integrated Project Header */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <button onClick={() => navigate("/projects")} className="mobile-tappable flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 active:opacity-75">
+          <button onClick={() => navigate("/projects")} className="mobile-tappable flex items-center gap-1.5 text-xs font-bold text-slate-500 active:opacity-75">
             <ArrowLeft className="w-4 h-4" /> Projects
           </button>
           {isHOD && (
-            <button onClick={() => setActionSheetOpen(true)} className="mobile-tappable p-1.5 rounded-xl text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
+            <button onClick={() => setActionSheetOpen(true)} className="mobile-tappable p-1.5 rounded-xl text-slate-400 border border-slate-200 active:bg-slate-100 transition-colors">
               <MoreVertical className="w-4 h-4" />
             </button>
           )}
         </div>
 
         {/* Integrated Mobile Hero Card */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-2.5">
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-2.5">
           <div className="flex items-start justify-between gap-2">
-            <h1 className="text-lg font-black text-slate-900 dark:text-white leading-tight tracking-tight flex-1 min-w-0">{project.name}</h1>
+            <h1 className="text-lg font-black text-slate-900 leading-tight tracking-tight flex-1 min-w-0">{project.name}</h1>
             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 ${st.bg} ${st.text}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
               {st.label}
@@ -504,10 +504,10 @@ export default function MobileProjectDetailPage() {
           </div>
 
           {project.description && (
-            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium line-clamp-2">{project.description}</p>
+            <p className="text-xs text-slate-600 leading-relaxed font-medium line-clamp-2">{project.description}</p>
           )}
 
-          <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-[10px]">
+          <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-100 text-[10px]">
             <button
               type="button"
               onClick={() => setMembersSheetOpen(true)}
@@ -519,10 +519,10 @@ export default function MobileProjectDetailPage() {
                   <AvatarCircle key={m.id || m.user_id || idx} name={m.name || m.user?.name} picture={m.profile_picture || m.user?.profile_picture} size={5} />
                 ))}
               </div>
-              <span className="font-bold text-slate-600 dark:text-slate-400">{allMembers.length} member{allMembers.length !== 1 ? "s" : ""}</span>
+              <span className="font-bold text-slate-600">{allMembers.length} member{allMembers.length !== 1 ?"s":""}</span>
             </button>
 
-            <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-0.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+            <span className="font-bold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200/60">
               {timelineNodes.length} Update{timelineNodes.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -583,7 +583,7 @@ export default function MobileProjectDetailPage() {
           animate={{ scale: 1 }}
           exit={{ scale: 0 }}
           onClick={() => setActiveTab("roadmap")}
-          className="mobile-tappable fixed z-[90] w-14 h-14 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-90 transition-all border border-white/20 dark:border-slate-700/50 cursor-pointer"
+          className="mobile-tappable fixed z-[90] w-14 h-14 rounded-full bg-indigo-600 text-white shadow-xl shadow-indigo-500/30 flex items-center justify-center active:scale-90 transition-all border border-white/20 cursor-pointer"
           style={{
             right: "16px",
             bottom: isStudent
@@ -613,7 +613,7 @@ export default function MobileProjectDetailPage() {
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
               placeholder="e.g. Completed login module..."
-              className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+              className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
               autoFocus
             />
           </div>
@@ -624,13 +624,13 @@ export default function MobileProjectDetailPage() {
               onChange={(e) => setFormText(e.target.value)}
               placeholder="Describe what you accomplished in detail..."
               rows={3}
-              className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
+              className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
             />
           </div>
           <div className="space-y-1 text-left">
             <div className="flex items-center justify-between">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Progress Completed (%)</label>
-              <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">{formPercentage}%</span>
+              <span className="text-xs font-black text-indigo-600">{formPercentage}%</span>
             </div>
             <input
               type="range"
@@ -639,9 +639,9 @@ export default function MobileProjectDetailPage() {
               step="5"
               value={formPercentage}
               onChange={e => setFormPercentage(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-650"
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-650"
             />
-            <div className="flex justify-between text-[9px] text-slate-400 dark:text-slate-500 font-bold">
+            <div className="flex justify-between text-[9px] text-slate-400 font-bold">
               <span>0%</span>
               <span>50%</span>
               <span>100%</span>
@@ -650,7 +650,7 @@ export default function MobileProjectDetailPage() {
           {!editingMsg && (
             <div>
               <input type="file" multiple onChange={(e) => setFormFiles(Array.from(e.target.files))} className="hidden" id="progress-files" />
-              <label htmlFor="progress-files" className="mobile-tappable flex items-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-500 cursor-pointer justify-center">
+              <label htmlFor="progress-files"className="mobile-tappable flex items-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-500 cursor-pointer justify-center">
                 <Paperclip className="w-4 h-4" />
                 Attach Files ({formFiles.length})
               </label>
@@ -677,18 +677,18 @@ export default function MobileProjectDetailPage() {
           {project.status !== "COMPLETED" && (
             <button
               onClick={() => { statusMutation.mutate("COMPLETED"); setActionSheetOpen(false); }}
-              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+              className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-emerald-50"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-500"><CheckCircle className="w-4 h-4" /></div>
-              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Mark Completed</span>
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500"><CheckCircle className="w-4 h-4"/></div>
+              <span className="text-sm font-semibold text-emerald-600">Mark Completed</span>
             </button>
           )}
           <button
             onClick={() => { setActionSheetOpen(false); setTimeout(() => setEditProjectSheetOpen(true), 300); }}
-            className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50"
+            className="mobile-tappable w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50"
           >
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-blue-500"><Edit2 className="w-4 h-4" /></div>
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Edit Project</span>
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500"><Edit2 className="w-4 h-4"/></div>
+            <span className="text-sm font-semibold text-slate-700">Edit Project</span>
           </button>
         </div>
       </BottomSheet>
@@ -699,12 +699,12 @@ export default function MobileProjectDetailPage() {
           <input
             type="text" value={editName} onChange={(e) => setEditName(e.target.value)}
             placeholder="Project name"
-            className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+            className="w-full px-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
           />
           <textarea
             value={editDesc} onChange={(e) => setEditDesc(e.target.value)}
             placeholder="Description" rows={3}
-            className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
+            className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 resize-none"
           />
           <button
             onClick={() => editProjectMutation.mutate({ name: editName, description: editDesc, members: allMembers.map(m => ({ user_id: m.id, role_in_project: m.role_in_project })) })}
@@ -735,7 +735,7 @@ export default function MobileProjectDetailPage() {
       {/* Project Members BottomSheet */}
       <BottomSheet open={membersSheetOpen} onClose={() => setMembersSheetOpen(false)} title={`Project Members (${allMembers.length})`}>
         <div className="space-y-3 pb-3">
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Team members assigned to this project:</p>
+          <p className="text-xs text-slate-500 font-medium">Team members assigned to this project:</p>
           <div className="space-y-2 max-h-[50vh] overflow-y-auto mobile-hide-scrollbar">
             {allMembers.map((m, idx) => {
               const name = m.name || m.user?.name || "Member";
@@ -744,12 +744,12 @@ export default function MobileProjectDetailPage() {
               const email = m.email || m.user?.email || "";
 
               return (
-                <div key={m.id || m.user_id || idx} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+                <div key={m.id || m.user_id || idx} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/60">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <AvatarCircle name={name} picture={picture} size={6} />
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{name}</p>
-                      {email && <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{email}</p>}
+                      <p className="text-xs font-bold text-slate-900 truncate">{name}</p>
+                      {email && <p className="text-[10px] text-slate-400 truncate">{email}</p>}
                     </div>
                   </div>
                   <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${ROLE_COLORS[role] || ROLE_COLORS.STUDENT}`}>
@@ -791,17 +791,17 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
         <AvatarCircle name={node.author} picture={node.avatar} size={7} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-bold text-slate-900 dark:text-white truncate">{node.author}</span>
+            <span className="text-xs font-bold text-slate-900 truncate">{node.author}</span>
             <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${ROLE_COLORS[node.role] || ROLE_COLORS.STUDENT}`}>
               {node.role === "faculty" ? "Faculty" : node.role === "forum_member" ? "Forum" : node.role}
             </span>
             {isLatest && (
-              <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-full">
+              <span className="text-[8px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full">
                 Latest
               </span>
             )}
           </div>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+          <p className="text-[10px] text-slate-400 mt-0.5">
             {node.dateStr}
             {node.is_edited && <span className="italic ml-1">(edited)</span>}
           </p>
@@ -823,36 +823,36 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
       {/* Title & Completion */}
       <div className="flex items-center justify-between gap-2 flex-wrap mb-1.5">
         {node.title && (
-          <h3 className="text-xs font-black text-slate-900 dark:text-white leading-snug">{node.title}</h3>
+          <h3 className="text-xs font-black text-slate-900 leading-snug">{node.title}</h3>
         )}
         {node.percentage !== undefined && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0">
-            Completion: <strong className="font-black text-indigo-600 dark:text-indigo-400">{node.percentage}%</strong>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">
+            Completion: <strong className="font-black text-indigo-600">{node.percentage}%</strong>
           </span>
         )}
       </div>
 
       {/* Description */}
       {node.accomplishment && (
-        <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium mb-2">{node.accomplishment}</p>
+        <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-medium mb-2">{node.accomplishment}</p>
       )}
 
       {/* Attachments List with Eye & Download Icons */}
       <MobileAttachmentList attachments={node.attachments} onPreview={onPreviewAttachment} />
 
       {/* Faculty Feedback */}
-      <div className="border-t border-slate-100 dark:border-slate-800 pt-3 mt-3 space-y-2.5">
+      <div className="border-t border-slate-100 pt-3 mt-3 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <MessageSquare className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider">
               Faculty Feedback {comments.length > 0 && `(${comments.length})`}
             </span>
           </div>
           {(isFaculty || isHOD) && (
             <button
               onClick={() => setIsExpandingComposer(p => !p)}
-              className="mobile-tappable px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold border border-indigo-200/60 dark:border-indigo-800/60 flex items-center gap-1"
+              className="mobile-tappable px-2.5 py-1 rounded-xl bg-indigo-50 text-indigo-600 text-[10px] font-bold border border-indigo-200/60 flex items-center gap-1"
             >
               {isExpandingComposer ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
               {isExpandingComposer ? "Close" : "Add Feedback"}
@@ -871,14 +871,14 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
               onSubmit={handleFeedback}
               className="overflow-hidden"
             >
-              <div className="p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/50 space-y-2">
+              <div className="p-3 rounded-xl bg-indigo-50/50 border border-indigo-200/60 space-y-2">
                 <textarea
                   value={feedbackText}
                   onChange={e => setFeedbackText(e.target.value)}
                   placeholder="Write faculty feedback or notes..."
                   rows={2}
                   autoFocus
-                  className="w-full p-2.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
+                  className="w-full p-2.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -902,7 +902,7 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
         </AnimatePresence>
 
         {comments.length === 0 && !isExpandingComposer && (
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 italic py-1">
+          <p className="text-[11px] text-slate-400 italic py-1">
             {(isFaculty || isHOD) ? "No feedback added yet. Tap 'Add Feedback' to review." : "No faculty feedback added yet."}
           </p>
         )}
@@ -912,7 +912,7 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
             <AvatarCircle name={comment.author?.name || "?"} picture={comment.author?.profile_picture} size={5} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{comment.author?.name}</span>
+                <span className="text-[11px] font-bold text-slate-800">{comment.author?.name}</span>
                 <span className="text-[9px] text-slate-400">{formatDistanceToNow(parseUTCDate(comment.created_at), { addSuffix: true })}</span>
                 {(isHOD || comment.author?.id === currentUserId) && (
                   <button onClick={() => onDeleteComment(node.id, comment.id)} className="mobile-tappable p-0.5 text-slate-300 hover:text-rose-500 ml-auto">
@@ -920,7 +920,7 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
                   </button>
                 )}
               </div>
-              <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl rounded-tl-none px-2.5 py-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+              <div className="bg-slate-50 rounded-xl rounded-tl-none px-2.5 py-2 text-xs text-slate-700 leading-relaxed">
                 {comment.content}
               </div>
               {/* Reactions */}
@@ -933,7 +933,7 @@ function ProgressCard({ node, projectId, isStudent, isFaculty, isHOD, currentUse
                     <button key={emoji}
                       onClick={() => isStudent && onReact(node.id, comment.id, emoji)}
                       className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                        reacted ? "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700" : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/50"
+                        reacted ?"bg-indigo-50 border-indigo-300":"bg-slate-50 border-slate-200"
                       } ${isStudent ? "cursor-pointer" : "cursor-default"}`}
                     >
                       {emoji} {count > 0 && <span>{count}</span>}
