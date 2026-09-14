@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { Logo } from "../../../components/ui/Logo";
+import { SessionLoader } from "../../../components/ui/SessionLoader";
 import {
   ShieldCheck, ArrowLeft, Lock, GraduationCap,
   Users, Shield, ArrowRight, Sparkles
@@ -15,10 +16,20 @@ const ROLES = [
 
 export default function MobileLoginPage() {
   const navigate = useNavigate();
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, user, loading, onboardingData } = useAuth();
   const [role, setRole] = useState("HOD");
 
   const currentRole = ROLES.find(r => r.value === role);
+
+  if (loading) return <SessionLoader />;
+  if (onboardingData) {
+    if (onboardingData.invite_type === "faculty") return <Navigate to="/onboard/faculty" replace />;
+    if (onboardingData.invite_type === "student") return <Navigate to="/onboard/student" replace />;
+  }
+  if (user) {
+    const dest = user.role === "HOD" ? "/dashboard" : user.role === "FACULTY" ? "/faculty" : "/classes";
+    return <Navigate to={dest} replace />;
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#F3F3F5] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col justify-between p-4 select-none transition-colors duration-300">
