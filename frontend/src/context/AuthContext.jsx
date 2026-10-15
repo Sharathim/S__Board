@@ -42,7 +42,13 @@ export function AuthProvider({ children }) {
             }
           }
         } catch (err) {
-          const msg = err?.response?.data?.error || "Sign-in failed. Please try again.";
+          const status = err?.response?.status;
+          let msg;
+          if (!err?.response || status === 502 || status === 503 || status === 504) {
+            msg = "Server is temporarily unavailable. Please try again in a moment.";
+          } else {
+            msg = err?.response?.data?.error || "Sign-in failed. Please try again.";
+          }
           sessionStorage.removeItem("loginRole");
           setUser(null);
           setAuthError(msg);
