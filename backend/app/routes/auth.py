@@ -37,24 +37,24 @@ def verify_token():
             return jsonify({"error": "Invalid token. Backend could not reach Firebase to validate the login token."}), 401
         return jsonify({"error": "Invalid token"}), 401
 
-    email = decoded.get("email")
+    email = (decoded.get("email") or "").strip().lower()
     uid = decoded.get("uid")
     name = decoded.get("name", "")
     picture = decoded.get("picture", "")
 
+    hod_emails = [e.strip().lower() for e in (current_app.config.get("HOD_EMAIL") or "").split(",") if e.strip()]
+
     # ---- HOD restored session (no role, but email matches the configured HOD) ----
     # Lets a returning HOD whose DB row is missing be re-created on session
     # restore instead of being locked out.
-    hod_emails = [e.strip() for e in (current_app.config.get("HOD_EMAIL") or "").split(",") if e.strip()]
     if role is None and email in hod_emails:
         role = "HOD"
 
     # ---- HOD Login ----
     if role == "HOD":
-        hod_emails = [e.strip() for e in (current_app.config.get("HOD_EMAIL") or "").split(",") if e.strip()]
         if email not in hod_emails:
             return jsonify({"error": "Unauthorized. HOD email does not match."}), 403
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter((User.email == email) | (User.email.ilike(email))).first()
         if not user:
             user = User(firebase_uid=uid, email=email, name=name,
                         profile_picture=picture, role=UserRole.HOD)
