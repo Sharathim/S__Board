@@ -45,12 +45,14 @@ def verify_token():
     # ---- HOD restored session (no role, but email matches the configured HOD) ----
     # Lets a returning HOD whose DB row is missing be re-created on session
     # restore instead of being locked out.
-    if role is None and (email == current_app.config["HOD_EMAIL"] or email == "ashok.j2346@gmail.com"):
+    hod_emails = [e.strip() for e in (current_app.config.get("HOD_EMAIL") or "").split(",") if e.strip()]
+    if role is None and email in hod_emails:
         role = "HOD"
 
     # ---- HOD Login ----
     if role == "HOD":
-        if email != current_app.config["HOD_EMAIL"] and email != "ashok.j2346@gmail.com":
+        hod_emails = [e.strip() for e in (current_app.config.get("HOD_EMAIL") or "").split(",") if e.strip()]
+        if email not in hod_emails:
             return jsonify({"error": "Unauthorized. HOD email does not match."}), 403
         user = User.query.filter_by(email=email).first()
         if not user:
