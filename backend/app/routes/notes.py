@@ -14,6 +14,8 @@ notes_bp = Blueprint("notes", __name__)
 
 # Helper to check if a user can view/access a class
 def _can_access_class(user, class_name):
+    if getattr(g, "auth_method", None) == "api_key":
+        return True
     if user.role == UserRole.HOD:
         return True
     if user.role == UserRole.FACULTY:
@@ -31,6 +33,8 @@ def _can_access_class(user, class_name):
 
 # Helper to check if a user is the class incharge of a class
 def _is_class_incharge(user, class_name):
+    if getattr(g, "auth_method", None) == "api_key":
+        return True
     if user.role == UserRole.HOD:
         return True
     if user.role == UserRole.FACULTY:
@@ -40,6 +44,8 @@ def _is_class_incharge(user, class_name):
 
 # Helper to check if a user has write/modify permissions for a specific resource
 def _can_modify_resource(user, class_name, creator_id):
+    if getattr(g, "auth_method", None) == "api_key":
+        return True
     if user.role == UserRole.HOD:
         return True
     if user.role == UserRole.FACULTY:
@@ -140,7 +146,7 @@ def get_all_notes():
     """
     user = g.current_user
 
-    if user.role == UserRole.HOD:
+    if getattr(g, "auth_method", None) == "api_key" or user.role == UserRole.HOD:
         target_classes = ALL_CLASSES
         q = Subject.query.filter(Subject.class_name.in_(target_classes), Subject.is_archived == False)
     elif user.role == UserRole.FACULTY:
@@ -322,7 +328,7 @@ def get_subjects(class_name):
 @require_auth
 def create_subject(class_name):
     user = g.current_user
-    if user.role == UserRole.STUDENT:
+    if user.role == UserRole.STUDENT and getattr(g, "auth_method", None) != "api_key":
         return jsonify({"error": "Unauthorized"}), 403
     if not _can_access_class(user, class_name):
         return jsonify({"error": "Access denied"}), 403
@@ -547,7 +553,7 @@ def get_units(class_name, subject_id):
 @require_auth
 def create_unit(class_name, subject_id):
     user = g.current_user
-    if user.role == UserRole.STUDENT:
+    if user.role == UserRole.STUDENT and getattr(g, "auth_method", None) != "api_key":
         return jsonify({"error": "Unauthorized"}), 403
     if not _can_access_class(user, class_name):
         return jsonify({"error": "Access denied"}), 403
@@ -666,7 +672,7 @@ def delete_unit(class_name, subject_id, unit_id):
 @require_auth
 def upload_unit_files(class_name, subject_id, unit_id):
     user = g.current_user
-    if user.role == UserRole.STUDENT:
+    if user.role == UserRole.STUDENT and getattr(g, "auth_method", None) != "api_key":
         return jsonify({"error": "Unauthorized"}), 403
     if not _can_access_class(user, class_name):
         return jsonify({"error": "Access denied"}), 403
@@ -676,6 +682,8 @@ def upload_unit_files(class_name, subject_id, unit_id):
         return jsonify({"error": "Invalid unit, subject or class"}), 400
 
     files = request.files.getlist("files")
+    if not files:
+        files = request.files.getlist("file")
     if not files:
         return jsonify({"error": "No files provided"}), 400
 

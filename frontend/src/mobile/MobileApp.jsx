@@ -32,6 +32,7 @@ import MobileFacultyNotesPage from "./pages/notes/MobileFacultyNotesPage";
 import MobileLeavePage from "./pages/leave/MobileLeavePage";
 import MobilePlacementPage from "./pages/placement/MobilePlacementPage";
 import ProjectWorkflowPage from "../pages/projects/ProjectWorkflowPage";
+import ApiAdminPage from "../pages/apiadmin/ApiAdminPage";
 
 // Stylesheet
 import "./mobile.css";
@@ -71,6 +72,9 @@ export default function MobileApp() {
         
         {/* Dedicated Mobile Login Page */}
         <Route path="/login" element={<MobileLoginPage />} />
+
+        {/* API Admin portal for Claude Code notes management */}
+        <Route path="/apiadmin" element={<ApiAdminPage />} />
         
         {/* Public pages, no auth redirect */}
         <Route element={<MobilePublicShell />}>

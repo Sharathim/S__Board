@@ -22,7 +22,7 @@ import ProjectWorkflowPage from "./pages/projects/ProjectWorkflowPage";
 import UpdatesPage from "./pages/updates/UpdatesPage";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
-import GoatPage from "./pages/developer/GoatPage";
+import ApiAdminPage from "./pages/apiadmin/ApiAdminPage";
 import FacultyNotesPage from "./pages/notes/FacultyNotesPage";
 import TimetablePage from "./pages/timetable/TimetablePage";
 import LeavePage from "./pages/leave/LeavePage";
@@ -70,6 +70,9 @@ export default function App() {
         {/* Login page — standalone (no navbar) */}
         <Route path="/login" element={<LoginPage />} />
 
+        {/* API Admin portal for Claude Code notes management */}
+        <Route path="/apiadmin" element={<ApiAdminPage />} />
+
         <Route path="/onboard/faculty" element={<FacultyOnboarding />} />
         <Route path="/onboard/student" element={<StudentOnboarding />} />
         <Route element={<ProtectedRoute><PageLayout /></ProtectedRoute>}>
@@ -88,7 +91,6 @@ export default function App() {
           <Route path="/timetable" element={<TimetablePage />} />
           <Route path="/leave" element={<LeavePage />} />
           <Route path="/placement" element={<PlacementPage />} />
-          <Route path="/GOAT" element={<GoatPage />} />
         </Route>
 
         {/* Full-page workflow canvas routes — no sidebar/topbar */}

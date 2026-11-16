@@ -30,6 +30,18 @@ with app.app_context():
         # Backfill NULL is_deleted with FALSE
         "UPDATE forum_posts SET is_deleted = FALSE WHERE is_deleted IS NULL;",
         "UPDATE forum_posts SET is_edited = FALSE WHERE is_edited IS NULL;",
+        # api_keys table for Notes API key management
+        """CREATE TABLE IF NOT EXISTS api_keys (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            key_hash VARCHAR(128) NOT NULL UNIQUE,
+            key_prefix VARCHAR(32) NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            scope VARCHAR(50) NOT NULL DEFAULT 'notes',
+            created_at TIMESTAMP DEFAULT NOW(),
+            last_used_at TIMESTAMP,
+            is_active BOOLEAN NOT NULL DEFAULT TRUE
+        );""",
     ]
 
     for sql in migrations:
